@@ -63,6 +63,7 @@ public class Main extends Application
 		Parent projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
 		Parent console = createConsole();
+		Parent codeEditor = createCodeEditor();
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
@@ -74,8 +75,16 @@ public class Main extends Application
 		// Right side holds the source editor and the output console
 		SplitPane rightSplitPane = new SplitPane();
 		rightSplitPane.orientationProperty().set(Orientation.VERTICAL);
-		rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
-				Components.wrap(console));
+		
+		/* Commented this out for learning purposes at the moment
+		 * 
+		 *  rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
+		 * 	Components.wrap(console));
+		 * 
+		 */
+		
+		rightSplitPane.getItems().addAll(Components.wrap(codeEditor),
+						Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
 		
 		// Container for the whole view (everything under the toolbar)
@@ -138,6 +147,15 @@ public class Main extends Application
 		return tab;
 	}
 	
+	// This will eventually be used with the openProject() method, creating for
+	// learning purposes
+	private Parent createCodeEditor(){
+		
+		Node textEditor = new CodeEditor();
+		return Components.wrap(textEditor);
+		
+	}
+
 	private Parent createConsole()
 	{
 		// TODO: replace with relevant console window
