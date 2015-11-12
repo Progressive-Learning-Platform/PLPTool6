@@ -27,7 +27,6 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 import edu.asu.plp.tool.prototype.view.CodeEditor;
-
 /**
  * Driver for the PLPTool prototype.
  * 
