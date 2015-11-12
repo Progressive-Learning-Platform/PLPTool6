@@ -1,20 +1,26 @@
 package edu.asu.plp.tool.prototype.view;
 
+import javax.swing.CodeEditorPane;
+import javax.swing.SwingUtilities;
+import javax.*;
+
+import javafx.*;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+import java.awt.Color;
+import java.awt.Font;
+
 
 public class CodeEditor extends BorderPane
 {
+	
+	private CodeEditorPane textPane;
 	public CodeEditor()
 	{
-		// This is throwing an Error, not sure why
-		// textPane = new CodeEditorPane();
 		
-		TextArea testText = new TextArea();
+		textPane = new CodeEditorPane();
 		
 		SwingNode swingNode = new SwingNode();
 		
@@ -24,17 +30,17 @@ public class CodeEditor extends BorderPane
 		
 	}
 	
-	private void createSwingContent(SwingNode swingNode)
-	{
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run()
-			{
-				JTextArea myText = new JTextArea();
-				myText.append("This is a swing Text Area");
-				swingNode.setContent(myText);
-			}
-		});
+	private void createSwingContent(SwingNode swingNode){
+		 SwingUtilities.invokeLater(new Runnable() {
+	            @Override
+	            public void run() {
+	            	
+	               	textPane.setForeground(Color.red);
+	               	textPane.setText("This is a Code Editor");
+	                swingNode.setContent(textPane);
+	                
+	            }
+	        });
 		
 	}
 	
