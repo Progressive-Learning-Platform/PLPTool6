@@ -1,14 +1,14 @@
 package edu.asu.plp.tool.prototype.view;
 
-import edu.asu.plp.tool.prototype.model.Project;
-import edu.asu.plp.tool.prototype.model.ProjectFile;
 import javafx.beans.property.SimpleListProperty;
-import javafx.collections.ListChangeListener;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
+import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.ProjectFile;
 
 /**
  * An FX view of a list of known projects and their files displayed as a tree. This class
@@ -53,14 +53,27 @@ public class ProjectExplorerTree extends BorderPane
 		return treeView;
 	}
 	
-	private void projectListChanged(ListChangeListener.Change<? extends Project> change)
+	private void projectListChanged(Change<? extends Project> change)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		for (Project project : change.getAddedSubList())
+			addProjectToTree(project);
+		
+		for (Project project : change.getRemoved())
+			removeProjectFromTree(project);
+	}
+	
+	private void projectFilesChanged(Change<? extends ProjectFile> change)
+	{
+		for (ProjectFile file : change.getAddedSubList())
+			addFileToTree(file);
+		
+		for (ProjectFile file : change.getRemoved())
+			removeFileFromTree(file);
 	}
 	
 	private void addProjectToTree(Project project)
 	{
+		project.addListener(this::projectFilesChanged);
 		TreeItem<String> projectItem = new TreeItem<>(project.getName());
 		
 		for (ProjectFile file : project)
@@ -72,11 +85,60 @@ public class ProjectExplorerTree extends BorderPane
 		projectTreeDisplay.getRoot().getChildren().add(projectItem);
 	}
 	
-	private void addFileToProject(Project project, ProjectFile file)
+	private void addFileToTree(ProjectFile file)
 	{
-		TreeItem<String> item = new TreeItem<>(file.getName());
+		TreeItem<String> fileNode = new TreeItem<>(file.getName());
+		TreeItem<String> projectNode = getProjectNode(file.getProject());
 		
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		projectNode.getChildren().add(fileNode);
+	}
+	
+	private void removeProjectFromTree(Project project)
+	{
+		TreeItem<String> projectNode = getProjectNode(project);
+		projectTreeDisplay.getRoot().getChildren().remove(projectNode);
+	}
+	
+	private void removeFileFromTree(ProjectFile file)
+	{
+		Project project = file.getProject();
+		TreeItem<String> projectNode = getProjectNode(project);
+		TreeItem<String> fileNode = getFileNode(file, projectNode);
+		projectNode.getChildren().remove(fileNode);
+	}
+	
+	private TreeItem<String> getProjectNode(Project project)
+	{
+		String name = project.getName();
+		
+		for (TreeItem<String> node : projectTreeDisplay.getRoot().getChildren())
+		{
+			if (node.getValue().equals(name))
+				return node;
+		}
+		
+		return null;
+	}
+	
+	@SuppressWarnings("unused")
+	private TreeItem<String> getFileNode(ProjectFile file)
+	{
+		Project project = file.getProject();
+		TreeItem<String> projectNode = getProjectNode(project);
+		
+		return getFileNode(file, projectNode);
+	}
+	
+	private TreeItem<String> getFileNode(ProjectFile file, TreeItem<String> projectNode)
+	{
+		String name = file.getName();
+		
+		for (TreeItem<String> node : projectNode.getChildren())
+		{
+			if (node.getValue().equals(name))
+				return node;
+		}
+		
+		return null;
 	}
 }

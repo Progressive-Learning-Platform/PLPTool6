@@ -7,4 +7,10 @@ public class ProjectFile
 		// TODO Auto-generated method stub return null;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
+
+	public Project getProject()
+	{
+		// TODO Auto-generated method stub return null;
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
 }
