@@ -115,8 +115,13 @@ public class Main extends Application
 	 * @param project
 	 *            The project to open
 	 */
-	private void openFile(String projectName, String fileName)
+	private void openFile(ProjectFile file)
 	{
+		Project project = file.getProject();
+		String projectName = project.getName();
+		String fileName = file.getName();
+		
+		System.out.println("Opening " + fileName);
 		SourceFileIdentifier identifier = new SourceFileIdentifier(projectName, fileName);
 		Tab tab = openProjects.get(identifier);
 		
@@ -210,8 +215,7 @@ public class Main extends Application
 		project.add(new ProjectFile(project, "uart_utilities.asm"));
 		projects.add(project);
 		
-		projectExplorer.setOnFileDoubleClicked((file) -> System.out.println(file
-				.getName()));
+		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
 		return projectExplorer;
 	}
