@@ -55,6 +55,36 @@ public class ProjectExplorerTree extends BorderPane
 			addProjectToTree(project);
 	}
 	
+	public void setActiveFile(ProjectFile file)
+	{
+		TreeItem<String> fileNode = getFileNode(file);
+		int focusIndex = getGlobalIndexOf(fileNode);
+		projectTreeDisplay.getFocusModel().focus(focusIndex);
+	}
+	
+	private int getGlobalIndexOf(TreeItem<String> fileNode)
+	{
+		TreeItem<String> root = projectTreeDisplay.getRoot();
+		ObservableList<TreeItem<String>> projectNodes = root.getChildren();
+		
+		int index = 0;
+		for (TreeItem<String> node : projectNodes)
+		{
+			if (node.equals(fileNode))
+				return index;
+			
+			for (TreeItem<String> child : node.getChildren())
+			{
+				if (child.equals(fileNode))
+					return index;
+				index++;
+			}
+			index++;
+		}
+		
+		throw new IllegalArgumentException(fileNode.getValue() + " not found in tree");
+	}
+	
 	private void onTreeClick(MouseEvent event)
 	{
 		if (event.getClickCount() == 2)
@@ -176,7 +206,6 @@ public class ProjectExplorerTree extends BorderPane
 		return null;
 	}
 	
-	@SuppressWarnings("unused")
 	private TreeItem<String> getFileNode(ProjectFile file)
 	{
 		Project project = file.getProject();
