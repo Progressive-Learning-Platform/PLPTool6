@@ -44,6 +44,17 @@ public class ProjectExplorerTree extends BorderPane
 		this.onFileDoubleClicked = onFileDoubleClicked;
 	}
 	
+	public void setProjectsModel(ObservableList<Project> projectsModel)
+	{
+		assert projectsModel != null;
+		this.projects = projectsModel;
+		this.projects.addListener(this::projectListChanged);
+		
+		this.projectTreeDisplay.getRoot().getChildren().clear();
+		for (Project project : projectsModel)
+			addProjectToTree(project);
+	}
+	
 	private void onTreeClick(MouseEvent event)
 	{
 		if (event.getClickCount() == 2)
@@ -69,17 +80,6 @@ public class ProjectExplorerTree extends BorderPane
 				}
 			}
 		}
-	}
-	
-	public void setProjectsModel(ObservableList<Project> projectsModel)
-	{
-		assert projectsModel != null;
-		this.projects = projectsModel;
-		this.projects.addListener(this::projectListChanged);
-		
-		this.projectTreeDisplay.getRoot().getChildren().clear();
-		for (Project project : projectsModel)
-			addProjectToTree(project);
 	}
 	
 	private Project lookupProjectByName(String value)
