@@ -26,12 +26,29 @@ import edu.asu.plp.tool.prototype.model.ProjectFile;
  */
 public class ProjectExplorerTree extends BorderPane
 {
+	/**
+	 * The project model displayed by this tree. All projects in this list should be
+	 * displayed by the tree in the same order, with the same file order within projects.
+	 * <p>
+	 * This list is backed externally, and will thus be modified externally.
+	 */
 	private ObservableList<Project> projects;
+	
+	/** The view of this explorer */
 	private TreeView<String> projectTreeDisplay;
+	
+	/**
+	 * If a file item (not a project item) is double clicked in
+	 * {@link #projectTreeDisplay}, this explorer should fire {@link #onFileDoubleClicked}
+	 * <p>
+	 * This is intended to be specified externally (not inside this class) using
+	 * {@link #setOnFileDoubleClicked(Consumer)}
+	 */
 	private Consumer<ProjectFile> onFileDoubleClicked;
 	
 	public ProjectExplorerTree(ObservableList<Project> projectsModel)
 	{
+		assert projectsModel != null;
 		projectTreeDisplay = createEmptyRootedProjectTree();
 		projectTreeDisplay.setOnMouseClicked(this::onTreeClick);
 		setCenter(projectTreeDisplay);
@@ -39,13 +56,34 @@ public class ProjectExplorerTree extends BorderPane
 		setProjectsModel(projectsModel);
 	}
 	
+	/**
+	 * Set the listener for when a file is double clicked in this view. If an item
+	 * representing a file is double clicked, the specified {@link Consumer} will be
+	 * invoked, passing the selected {@link ProjectFile} as a parameter.
+	 * <p>
+	 * The specified listener will not be invoked if a file is single clicked, or if a
+	 * <em>project</em> is double clicked.
+	 * 
+	 * @param onFileDoubleClicked
+	 *            Listener to be called when a file item is double clicked
+	 */
 	public void setOnFileDoubleClicked(Consumer<ProjectFile> onFileDoubleClicked)
 	{
 		this.onFileDoubleClicked = onFileDoubleClicked;
 	}
 	
+	/**
+	 * Set the project model and update this view to display the specified projects and
+	 * their files.
+	 * <p>
+	 * This view will no longer monitor or update in response to the old model.
+	 * 
+	 * @param projectsModel
+	 */
 	public void setProjectsModel(ObservableList<Project> projectsModel)
 	{
+		this.projects.removeListener(this::projectListChanged);
+		
 		assert projectsModel != null;
 		this.projects = projectsModel;
 		this.projects.addListener(this::projectListChanged);
@@ -55,6 +93,17 @@ public class ProjectExplorerTree extends BorderPane
 			addProjectToTree(project);
 	}
 	
+	/**
+	 * Specifies an active file to be focused (and highlighted) by this
+	 * {@link ProjectExplorerTree}. This could be used, for instance, to emphasize a
+	 * specific file during a tutorial, or if the file is selected in a different view -
+	 * to synchronize views.
+	 * <p>
+	 * This method is typically used by a controller or driver.
+	 * 
+	 * @param file
+	 *            The target to focus
+	 */
 	public void setActiveFile(ProjectFile file)
 	{
 		TreeItem<String> fileNode = getFileNode(file);
