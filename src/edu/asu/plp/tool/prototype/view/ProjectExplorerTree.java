@@ -1,10 +1,12 @@
 package edu.asu.plp.tool.prototype.view;
 
-import javafx.beans.property.SimpleListProperty;
+import java.util.function.Consumer;
+
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import edu.asu.plp.tool.prototype.model.Project;
@@ -26,19 +28,67 @@ public class ProjectExplorerTree extends BorderPane
 {
 	private ObservableList<Project> projects;
 	private TreeView<String> projectTreeDisplay;
+	private Consumer<ProjectFile> onFileDoubleClicked;
 	
-	public ProjectExplorerTree()
+	public ProjectExplorerTree(ObservableList<Project> projectsModel)
 	{
 		projectTreeDisplay = createEmptyRootedProjectTree();
+		projectTreeDisplay.setOnMouseClicked(this::onTreeClick);
+		setCenter(projectTreeDisplay);
 		
-		projects = new SimpleListProperty<>();
-		projects.addListener(this::projectListChanged);
+		setProjectsModel(projectsModel);
+	}
+	
+	public void setOnFileDoubleClicked(Consumer<ProjectFile> onFileDoubleClicked)
+	{
+		this.onFileDoubleClicked = onFileDoubleClicked;
+	}
+	
+	private void onTreeClick(MouseEvent event)
+	{
+		if (event.getClickCount() == 2)
+		{
+			TreeItem<String> selection = projectTreeDisplay.getSelectionModel()
+					.getSelectedItem();
+			TreeItem<String> parent = selection.getParent();
+			if (onFileDoubleClicked == null)
+			{
+				return;
+			}
+			else if (parent != null && parent.getValue().length() > 0)
+			{
+				// Selection is a file
+				Project project = lookupProjectByName(parent.getValue());
+				for (ProjectFile file : project)
+				{
+					if (file.getName().equals(selection.getValue()))
+					{
+						onFileDoubleClicked.accept(file);
+						break;
+					}
+				}
+			}
+		}
 	}
 	
 	public void setProjectsModel(ObservableList<Project> projectsModel)
 	{
 		assert projectsModel != null;
 		this.projects = projectsModel;
+		this.projects.addListener(this::projectListChanged);
+		
+		this.projectTreeDisplay.getRoot().getChildren().clear();
+		for (Project project : projectsModel)
+			addProjectToTree(project);
+	}
+	
+	private Project lookupProjectByName(String value)
+	{
+		for (Project project : projects)
+			if (project.getName().equals(value))
+				return project;
+		
+		throw new IllegalStateException("Selected project not found: " + value);
 	}
 	
 	private TreeView<String> createEmptyRootedProjectTree()
@@ -55,20 +105,26 @@ public class ProjectExplorerTree extends BorderPane
 	
 	private void projectListChanged(Change<? extends Project> change)
 	{
-		for (Project project : change.getAddedSubList())
-			addProjectToTree(project);
-		
-		for (Project project : change.getRemoved())
-			removeProjectFromTree(project);
+		while (change.next())
+		{
+			for (Project project : change.getAddedSubList())
+				addProjectToTree(project);
+			
+			for (Project project : change.getRemoved())
+				removeProjectFromTree(project);
+		}
 	}
 	
 	private void projectFilesChanged(Change<? extends ProjectFile> change)
 	{
-		for (ProjectFile file : change.getAddedSubList())
-			addFileToTree(file);
-		
-		for (ProjectFile file : change.getRemoved())
-			removeFileFromTree(file);
+		while (change.next())
+		{
+			for (ProjectFile file : change.getAddedSubList())
+				addFileToTree(file);
+			
+			for (ProjectFile file : change.getRemoved())
+				removeFileFromTree(file);
+		}
 	}
 	
 	private void addProjectToTree(Project project)
