@@ -82,7 +82,8 @@ public class ProjectExplorerTree extends BorderPane
 	 */
 	public void setProjectsModel(ObservableList<Project> projectsModel)
 	{
-		this.projects.removeListener(this::projectListChanged);
+		if (projects != null)
+			this.projects.removeListener(this::projectListChanged);
 		
 		assert projectsModel != null;
 		this.projects = projectsModel;
