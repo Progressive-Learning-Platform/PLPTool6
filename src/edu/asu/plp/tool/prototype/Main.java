@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.prototype;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -13,11 +14,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -26,7 +24,11 @@ import moore.fx.components.Components;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
+import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.ProjectFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
+import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
+
 /**
  * Driver for the PLPTool prototype.
  * 
@@ -46,6 +48,7 @@ public class Main extends Application
 	
 	private TabPane openProjectsPanel;
 	private BidiMap<SourceFileIdentifier, Tab> openProjects;
+	private ObservableList<Project> projects;
 	
 	public static void main(String[] args)
 	{
@@ -75,15 +78,15 @@ public class Main extends Application
 		SplitPane rightSplitPane = new SplitPane();
 		rightSplitPane.orientationProperty().set(Orientation.VERTICAL);
 		
-		/* Commented this out for learning purposes at the moment
+		/*
+		 * Commented this out for learning purposes at the moment
 		 * 
-		 *  rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
-		 * 	Components.wrap(console));
-		 * 
+		 * rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
+		 * Components.wrap(console));
 		 */
 		
 		rightSplitPane.getItems().addAll(Components.wrap(codeEditor),
-						Components.wrap(console));
+				Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
 		
 		// Container for the whole view (everything under the toolbar)
@@ -112,7 +115,7 @@ public class Main extends Application
 	 * @param project
 	 *            The project to open
 	 */
-	private void openProject(String projectName, String fileName)
+	private void openFile(String projectName, String fileName)
 	{
 		SourceFileIdentifier identifier = new SourceFileIdentifier(projectName, fileName);
 		Tab tab = openProjects.get(identifier);
@@ -148,13 +151,14 @@ public class Main extends Application
 	
 	// This will eventually be used with the openProject() method, creating for
 	// learning purposes
-	private Parent createCodeEditor(){
+	private Parent createCodeEditor()
+	{
 		
 		Node textEditor = new CodeEditor();
 		return Components.wrap(textEditor);
 		
 	}
-
+	
 	private Parent createConsole()
 	{
 		// TODO: replace with relevant console window
@@ -192,46 +196,24 @@ public class Main extends Application
 	 */
 	private Parent createProjectTree()
 	{
-		TreeItem<String> root = new TreeItem<String>("");
-		root.setExpanded(true);
+		projects = FXCollections.observableArrayList();
+		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
-		TreeItem<String> project = new TreeItem<>("Assignment1");
-		project.setExpanded(true);
-		ObservableList<TreeItem<String>> sourceFiles = project.getChildren();
-		sourceFiles.add(new TreeItem<String>("main.asm"));
-		sourceFiles.add(new TreeItem<String>("sorting.asm"));
-		sourceFiles.add(new TreeItem<String>("division.asm"));
-		root.getChildren().add(project);
+		Project project = new Project("Assignment1");
+		project.add(new ProjectFile(project, "main.asm"));
+		project.add(new ProjectFile(project, "sorting.asm"));
+		project.add(new ProjectFile(project, "division.asm"));
+		projects.add(project);
 		
-		project = new TreeItem<>("Assignment2");
-		sourceFiles = project.getChildren();
-		sourceFiles.add(new TreeItem<String>("main.asm"));
-		sourceFiles.add(new TreeItem<String>("uart_utilities.asm"));
-		root.getChildren().add(project);
+		project = new Project("Assignment2");
+		project.add(new ProjectFile(project, "main.asm"));
+		project.add(new ProjectFile(project, "uart_utilities.asm"));
+		projects.add(project);
 		
-		TreeView<String> treeView = new TreeView<String>(root);
-		treeView.showRootProperty().set(false);
-		treeView.setBackground(Background.EMPTY);
+		projectExplorer.setOnFileDoubleClicked((file) -> System.out.println(file
+				.getName()));
 		
-		treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event)
-			{
-				if (event.getClickCount() == 2)
-				{
-					TreeItem<String> selection = treeView.getSelectionModel()
-							.getSelectedItem();
-					TreeItem<String> parent = selection.getParent();
-					if (parent != null && parent.getValue().length() > 0)
-					{
-						// Selection is a file
-						openProject(parent.getValue(), selection.getValue());
-					}
-				}
-			}
-		});
-		
-		return Components.wrapTop(treeView);
+		return projectExplorer;
 	}
 	
 	/**
