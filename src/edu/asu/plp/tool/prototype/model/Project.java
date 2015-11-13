@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.prototype.model;
 
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -11,7 +10,7 @@ import javafx.beans.property.StringProperty;
  * @author Moore, Zachary
  *
  */
-public class Project extends SimpleListProperty<ProjectFile>
+public class Project extends ArrayListProperty<ProjectFile>
 {
 	private StringProperty nameProperty;
 	
@@ -20,14 +19,23 @@ public class Project extends SimpleListProperty<ProjectFile>
 		nameProperty = new SimpleStringProperty();
 	}
 	
+	public Project(String name)
+	{
+		nameProperty = new SimpleStringProperty(name);
+	}
+	
 	public StringProperty getNameProperty()
 	{
 		return nameProperty;
 	}
 	
-	@Override
 	public String getName()
 	{
 		return nameProperty.get();
+	}
+	
+	public void setName(String name)
+	{
+		nameProperty.set(name);
 	}
 }
