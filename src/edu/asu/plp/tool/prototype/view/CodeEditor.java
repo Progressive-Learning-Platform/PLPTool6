@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.prototype.view;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javafx.embed.swing.SwingNode;
 import javafx.scene.AccessibleRole;
@@ -16,11 +18,12 @@ public class CodeEditor extends BorderPane
 	public CodeEditor()
 	{
 		textPane = new CodeEditorPane();
+		textPane.addKeyListener(new UpdateOnKeyPressListener());
 		
 		SwingNode swingNode = new SwingNode();
 		createSwingContent(swingNode);
 		setCenter(swingNode);
-
+		
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 		updateAccessibleText();
 	}
@@ -29,7 +32,7 @@ public class CodeEditor extends BorderPane
 	{
 		this.accessibleTextProperty().set(textPane.getText());
 	}
-
+	
 	private void createSwingContent(SwingNode swingNode)
 	{
 		SwingUtilities.invokeLater(new Runnable() {
@@ -41,5 +44,26 @@ public class CodeEditor extends BorderPane
 				swingNode.setContent(textPane);
 			}
 		});
+	}
+	
+	private class UpdateOnKeyPressListener implements KeyListener
+	{
+		@Override
+		public void keyTyped(KeyEvent arg0)
+		{
+			updateAccessibleText();
+		}
+		
+		@Override
+		public void keyReleased(KeyEvent arg0)
+		{
+			updateAccessibleText();
+		}
+		
+		@Override
+		public void keyPressed(KeyEvent arg0)
+		{
+			updateAccessibleText();
+		}
 	}
 }
