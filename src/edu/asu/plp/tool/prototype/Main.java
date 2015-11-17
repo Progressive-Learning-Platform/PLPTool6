@@ -79,14 +79,7 @@ public class Main extends Application
 		SplitPane rightSplitPane = new SplitPane();
 		rightSplitPane.orientationProperty().set(Orientation.VERTICAL);
 		
-		/*
-		 * Commented this out for learning purposes at the moment
-		 * 
-		 * rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
-		 * Components.wrap(console));
-		 */
-		
-		rightSplitPane.getItems().addAll(Components.wrap(codeEditor),
+		rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
 				Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
 		
@@ -152,7 +145,8 @@ public class Main extends Application
 			public void handle(Event event)
 			{
 				ProjectFile activeFile = openProjects.getKey(tab);
-				projectExplorer.setActiveFile(activeFile);
+				if (activeFile != null)
+					projectExplorer.setActiveFile(activeFile);
 			}
 		});
 		panel.getTabs().add(tab);
