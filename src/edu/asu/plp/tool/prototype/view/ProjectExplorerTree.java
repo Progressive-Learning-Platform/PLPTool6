@@ -110,6 +110,7 @@ public class ProjectExplorerTree extends BorderPane
 		TreeItem<String> fileNode = getFileNode(file);
 		int focusIndex = getGlobalIndexOf(fileNode);
 		projectTreeDisplay.getFocusModel().focus(focusIndex);
+		projectTreeDisplay.getSelectionModel().select(focusIndex);
 	}
 	
 	private int getGlobalIndexOf(TreeItem<String> fileNode)
@@ -123,13 +124,13 @@ public class ProjectExplorerTree extends BorderPane
 			if (node.equals(fileNode))
 				return index;
 			
+			index++;
 			for (TreeItem<String> child : node.getChildren())
 			{
 				if (child.equals(fileNode))
 					return index;
 				index++;
 			}
-			index++;
 		}
 		
 		throw new IllegalArgumentException(fileNode.getValue() + " not found in tree");
