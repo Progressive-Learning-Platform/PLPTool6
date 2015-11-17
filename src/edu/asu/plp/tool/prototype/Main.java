@@ -66,7 +66,6 @@ public class Main extends Application
 		this.projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
 		Parent console = createConsole();
-		Parent codeEditor = createCodeEditor();
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
@@ -116,10 +115,10 @@ public class Main extends Application
 		System.out.println("Opening " + fileName);
 		Tab tab = openProjects.get(file);
 		
-		if (tab == null) // Create new tab
+		if (tab == null)
 		{
-			// TODO: replace with actual content
-			Node content = new CodeEditor();
+			// Create new tab
+			CodeEditor content = new CodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openProjects.put(file, tab);
 		}
@@ -152,16 +151,6 @@ public class Main extends Application
 		panel.getTabs().add(tab);
 		
 		return tab;
-	}
-	
-	// This will eventually be used with the openProject() method, creating for
-	// learning purposes
-	private Parent createCodeEditor()
-	{
-		
-		Node textEditor = new CodeEditor();
-		return Components.wrap(textEditor);
-		
 	}
 	
 	private Parent createConsole()
