@@ -47,8 +47,9 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
 	private TabPane openProjectsPanel;
-	private BidiMap<SourceFileIdentifier, Tab> openProjects;
+	private BidiMap<ProjectFile, Tab> openProjects;
 	private ObservableList<Project> projects;
+	private ProjectExplorerTree projectExplorer;
 	
 	public static void main(String[] args)
 	{
@@ -62,7 +63,7 @@ public class Main extends Application
 		
 		this.openProjects = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
-		Parent projectExplorer = createProjectTree();
+		this.projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
 		Parent console = createConsole();
 		Parent codeEditor = createCodeEditor();
@@ -117,20 +118,17 @@ public class Main extends Application
 	 */
 	private void openFile(ProjectFile file)
 	{
-		Project project = file.getProject();
-		String projectName = project.getName();
 		String fileName = file.getName();
 		
 		System.out.println("Opening " + fileName);
-		SourceFileIdentifier identifier = new SourceFileIdentifier(projectName, fileName);
-		Tab tab = openProjects.get(identifier);
+		Tab tab = openProjects.get(file);
 		
 		if (tab == null) // Create new tab
 		{
 			// TODO: replace with actual content
 			Node content = new CodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
-			openProjects.put(identifier, tab);
+			openProjects.put(file, tab);
 		}
 		
 		// Activate the specified tab
@@ -147,6 +145,14 @@ public class Main extends Application
 			public void handle(Event event)
 			{
 				openProjects.removeValue(tab);
+			}
+		});
+		tab.setOnSelectionChanged(new EventHandler<Event>() {
+			@Override
+			public void handle(Event event)
+			{
+				ProjectFile activeFile = openProjects.getKey(tab);
+				projectExplorer.setActiveFile(activeFile);
 			}
 		});
 		panel.getTabs().add(tab);
@@ -199,7 +205,7 @@ public class Main extends Application
 	 * 
 	 * @return A tree-view of the project explorer
 	 */
-	private Parent createProjectTree()
+	private ProjectExplorerTree createProjectTree()
 	{
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
