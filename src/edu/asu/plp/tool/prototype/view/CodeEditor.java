@@ -64,13 +64,13 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	{
 		return get();
 	}
-
+	
 	@Override
 	public String get()
 	{
 		return textProperty.get();
 	}
-
+	
 	@Override
 	public String getValue()
 	{
@@ -82,19 +82,19 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	{
 		textProperty.addListener(listener);
 	}
-
+	
 	@Override
 	public void removeListener(ChangeListener<? super String> listener)
 	{
 		textProperty.removeListener(listener);
 	}
-
+	
 	@Override
 	public void addListener(InvalidationListener listener)
 	{
 		textProperty.addListener(listener);
 	}
-
+	
 	@Override
 	public void removeListener(InvalidationListener listener)
 	{
