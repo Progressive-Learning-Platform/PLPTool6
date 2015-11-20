@@ -5,17 +5,36 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.AccessibleRole;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 
 import javax.swing.CodeEditorPane;
 import javax.swing.SwingUtilities;
 
+/**
+ * Accessible CodeEditor panel supporting syntax highlighting and data binding.
+ * <p>
+ * This panel accepts text input while it is focused, and can be navigated and manipulated
+ * using the keyboard. Changes in the text of this editor can be observed using
+ * {@link #addListener(ChangeListener)}.
+ * <p>
+ * Note that the accessibility property of this {@link Node} is bound to this editor's
+ * text value. Any changes made to this node's accessible text property using
+ * {@link #accessibleTextProperty()} and {@link ObjectProperty#set(Object)} will be
+ * overwritten if the text of this editor is changed. As such, it is advised that the
+ * accessible text property of this node not be altered outside of this class.
+ * 
+ * @author Moore, Zachary
+ * @author Hawks, Elliott
+ *
+ */
 public class CodeEditor extends BorderPane implements ObservableStringValue
 {
 	private CodeEditorPane textPane;
