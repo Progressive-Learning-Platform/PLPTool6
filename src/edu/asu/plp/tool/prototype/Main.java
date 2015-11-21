@@ -27,6 +27,7 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 import edu.asu.plp.tool.prototype.view.CodeEditor;
+
 /**
  * Driver for the PLPTool prototype.
  * 
@@ -75,15 +76,15 @@ public class Main extends Application
 		SplitPane rightSplitPane = new SplitPane();
 		rightSplitPane.orientationProperty().set(Orientation.VERTICAL);
 		
-		/* Commented this out for learning purposes at the moment
+		/*
+		 * Commented this out for learning purposes at the moment
 		 * 
-		 *  rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
-		 * 	Components.wrap(console));
-		 * 
+		 * rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
+		 * Components.wrap(console));
 		 */
 		
 		rightSplitPane.getItems().addAll(Components.wrap(codeEditor),
-						Components.wrap(console));
+				Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
 		
 		// Container for the whole view (everything under the toolbar)
@@ -148,13 +149,14 @@ public class Main extends Application
 	
 	// This will eventually be used with the openProject() method, creating for
 	// learning purposes
-	private Parent createCodeEditor(){
+	private Parent createCodeEditor()
+	{
 		
 		Node textEditor = new CodeEditor();
 		return Components.wrap(textEditor);
 		
 	}
-
+	
 	private Parent createConsole()
 	{
 		// TODO: replace with relevant console window

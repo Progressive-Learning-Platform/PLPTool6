@@ -25,7 +25,7 @@ public class SourceFileIdentifier
 		else
 			return false;
 	}
-
+	
 	@Override
 	public int hashCode()
 	{
