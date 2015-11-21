@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.prototype;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -13,11 +14,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -26,7 +24,11 @@ import moore.fx.components.Components;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
+import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.ProjectFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
+import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
+
 /**
  * Driver for the PLPTool prototype.
  * 
@@ -45,7 +47,9 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
 	private TabPane openProjectsPanel;
-	private BidiMap<SourceFileIdentifier, Tab> openProjects;
+	private BidiMap<ProjectFile, Tab> openProjects;
+	private ObservableList<Project> projects;
+	private ProjectExplorerTree projectExplorer;
 	
 	public static void main(String[] args)
 	{
@@ -59,10 +63,9 @@ public class Main extends Application
 		
 		this.openProjects = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
-		Parent projectExplorer = createProjectTree();
+		this.projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
 		Parent console = createConsole();
-		Parent codeEditor = createCodeEditor();
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
@@ -75,15 +78,8 @@ public class Main extends Application
 		SplitPane rightSplitPane = new SplitPane();
 		rightSplitPane.orientationProperty().set(Orientation.VERTICAL);
 		
-		/* Commented this out for learning purposes at the moment
-		 * 
-		 *  rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
-		 * 	Components.wrap(console));
-		 * 
-		 */
-		
-		rightSplitPane.getItems().addAll(Components.wrap(codeEditor),
-						Components.wrap(console));
+		rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
+				Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
 		
 		// Container for the whole view (everything under the toolbar)
@@ -112,17 +108,19 @@ public class Main extends Application
 	 * @param project
 	 *            The project to open
 	 */
-	private void openProject(String projectName, String fileName)
+	private void openFile(ProjectFile file)
 	{
-		SourceFileIdentifier identifier = new SourceFileIdentifier(projectName, fileName);
-		Tab tab = openProjects.get(identifier);
+		String fileName = file.getName();
 		
-		if (tab == null) // Create new tab
+		System.out.println("Opening " + fileName);
+		Tab tab = openProjects.get(file);
+		
+		if (tab == null)
 		{
-			// TODO: replace with actual content
-			Node content = new CodeEditor();
+			// Create new tab
+			CodeEditor content = new CodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
-			openProjects.put(identifier, tab);
+			openProjects.put(file, tab);
 		}
 		
 		// Activate the specified tab
@@ -141,20 +139,20 @@ public class Main extends Application
 				openProjects.removeValue(tab);
 			}
 		});
+		tab.setOnSelectionChanged(new EventHandler<Event>() {
+			@Override
+			public void handle(Event event)
+			{
+				ProjectFile activeFile = openProjects.getKey(tab);
+				if (activeFile != null)
+					projectExplorer.setActiveFile(activeFile);
+			}
+		});
 		panel.getTabs().add(tab);
 		
 		return tab;
 	}
 	
-	// This will eventually be used with the openProject() method, creating for
-	// learning purposes
-	private Parent createCodeEditor(){
-		
-		Node textEditor = new CodeEditor();
-		return Components.wrap(textEditor);
-		
-	}
-
 	private Parent createConsole()
 	{
 		// TODO: replace with relevant console window
@@ -190,48 +188,25 @@ public class Main extends Application
 	 * 
 	 * @return A tree-view of the project explorer
 	 */
-	private Parent createProjectTree()
+	private ProjectExplorerTree createProjectTree()
 	{
-		TreeItem<String> root = new TreeItem<String>("");
-		root.setExpanded(true);
+		projects = FXCollections.observableArrayList();
+		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
-		TreeItem<String> project = new TreeItem<>("Assignment1");
-		project.setExpanded(true);
-		ObservableList<TreeItem<String>> sourceFiles = project.getChildren();
-		sourceFiles.add(new TreeItem<String>("main.asm"));
-		sourceFiles.add(new TreeItem<String>("sorting.asm"));
-		sourceFiles.add(new TreeItem<String>("division.asm"));
-		root.getChildren().add(project);
+		Project project = new Project("Assignment1");
+		project.add(new ProjectFile(project, "main.asm"));
+		project.add(new ProjectFile(project, "sorting.asm"));
+		project.add(new ProjectFile(project, "division.asm"));
+		projects.add(project);
 		
-		project = new TreeItem<>("Assignment2");
-		sourceFiles = project.getChildren();
-		sourceFiles.add(new TreeItem<String>("main.asm"));
-		sourceFiles.add(new TreeItem<String>("uart_utilities.asm"));
-		root.getChildren().add(project);
+		project = new Project("Assignment2");
+		project.add(new ProjectFile(project, "main.asm"));
+		project.add(new ProjectFile(project, "uart_utilities.asm"));
+		projects.add(project);
 		
-		TreeView<String> treeView = new TreeView<String>(root);
-		treeView.showRootProperty().set(false);
-		treeView.setBackground(Background.EMPTY);
+		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
-		treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event)
-			{
-				if (event.getClickCount() == 2)
-				{
-					TreeItem<String> selection = treeView.getSelectionModel()
-							.getSelectedItem();
-					TreeItem<String> parent = selection.getParent();
-					if (parent != null && parent.getValue().length() > 0)
-					{
-						// Selection is a file
-						openProject(parent.getValue(), selection.getValue());
-					}
-				}
-			}
-		});
-		
-		return Components.wrapTop(treeView);
+		return projectExplorer;
 	}
 	
 	/**
