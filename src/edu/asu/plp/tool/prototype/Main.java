@@ -27,6 +27,7 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.ProjectFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
+import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
 
 /**
@@ -155,7 +156,7 @@ public class Main extends Application
 	private Parent createConsole()
 	{
 		// TODO: replace with relevant console window
-		return Components.wrap(new TextArea());
+		return Components.wrap(new ConsolePane());
 	}
 	
 	private Parent createOutlineView()
