@@ -40,6 +40,10 @@ public class ConsolePane extends BorderPane
 							Node body = dom.getElementsByTagName("body").item(0);
 							body.appendChild(textPaneElement);
 							
+							String cssPath = getClass().getResource(
+									"defaultConsoleStyle.css").toExternalForm();
+							addStylesheet(cssPath);
+							
 							for (int i = 0; i < 25; i++)
 							{
 								Element div = dom.createElement("div");
@@ -50,7 +54,7 @@ public class ConsolePane extends BorderPane
 						}
 					}
 				});
-		String content = "<html><body></body></html>";
+		String content = "<html><head></head><body></body></html>";
 		webEngine.loadContent(content);
 		
 		this.setCenter(view);
@@ -59,5 +63,17 @@ public class ConsolePane extends BorderPane
 	public void clear()
 	{
 		textPaneElement.setTextContent("");
+	}
+	
+	public void addStylesheet(String path)
+	{
+		Document dom = webEngine.getDocument();
+		Node head = dom.getElementsByTagName("head").item(0);
+		
+		Element styleReference = dom.createElement("link");
+		styleReference.setAttribute("rel", "stylesheet");
+		styleReference.setAttribute("type", "text/css");
+		styleReference.setAttribute("href", path);
+		head.appendChild(styleReference);
 	}
 }
