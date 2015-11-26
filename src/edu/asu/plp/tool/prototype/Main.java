@@ -66,7 +66,8 @@ public class Main extends Application
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
-		Parent console = createConsole();
+		ConsolePane console = createConsole();
+		console.println("Console Initialized");
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
@@ -153,10 +154,9 @@ public class Main extends Application
 		return tab;
 	}
 	
-	private Parent createConsole()
+	private ConsolePane createConsole()
 	{
-		// TODO: replace with relevant console window
-		return Components.wrap(new ConsolePane());
+		return new ConsolePane();
 	}
 	
 	private Parent createOutlineView()
