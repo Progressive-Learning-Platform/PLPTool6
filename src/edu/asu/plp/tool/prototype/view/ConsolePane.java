@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.prototype.view;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -16,17 +18,37 @@ import edu.asu.plp.tool.prototype.util.OnLoadListener;
 
 public class ConsolePane extends BorderPane
 {
+	private static class Message
+	{
+		private String tagType;
+		private String cssClasses;
+		private String inlineStyles;
+		private String message;
+		
+		public Message(String tagType, String classes, String styles, String message)
+		{
+			super();
+			this.tagType = tagType;
+			this.cssClasses = classes;
+			this.inlineStyles = styles;
+			this.message = message;
+		}
+	}
+	
 	private static final String TEXT_PANE_ID = "textPane";
 	private static final String TEXT_PANE_CLASS = "scrollPane";
 	private static final String CSS_MESSAGE_CLASS = "message";
 	
 	private Element textPaneElement;
 	private WebEngine webEngine;
+	private Queue<Message> messageQueue;
 	
 	public ConsolePane()
 	{
 		WebView view = new WebView();
+		view.setContextMenuEnabled(false);
 		webEngine = view.getEngine();
+		messageQueue = new LinkedList<>();
 		
 		ObservableValue<State> property = webEngine.getLoadWorker().stateProperty();
 		OnLoadListener.register(this::onLoad, property);
@@ -50,32 +72,51 @@ public class ConsolePane extends BorderPane
 		URL cssURL = getClass().getResource("defaultConsoleStyle.css");
 		String cssPath = cssURL.toExternalForm();
 		addStylesheet(cssPath);
+		
+		for (Message message : messageQueue)
+		{
+			output(message.tagType, message.cssClasses, message.inlineStyles,
+					message.message);
+		}
+	}
+	
+	private void output(String tagType, String cssClasses, String inlineStyles,
+			String message)
+	{
+		Document dom = webEngine.getDocument();
+		
+		if (dom == null)
+		{
+			Message target = new Message(tagType, cssClasses, inlineStyles, message);
+			messageQueue.add(target);
+		}
+		else
+		{
+			Element tag = dom.createElement(tagType);
+			tag.setAttribute("class", cssClasses);
+			tag.setAttribute("style", inlineStyles);
+			
+			Element content = dom.createElement("code");
+			content.setTextContent(message);
+			
+			tag.appendChild(content);
+			textPaneElement.appendChild(tag);
+		}
+	}
+	
+	private void output(String tagType, String cssClasses, String message)
+	{
+		output(tagType, cssClasses, null, message);
 	}
 	
 	public void println(String message)
 	{
-		Document dom = webEngine.getDocument();
-		Element div = dom.createElement("div");
-		div.setAttribute("class", CSS_MESSAGE_CLASS);
-		
-		Element content = dom.createElement("code");
-		content.setTextContent(message);
-		
-		div.appendChild(content);
-		textPaneElement.appendChild(div);
+		output("div", CSS_MESSAGE_CLASS, message);
 	}
 	
 	public void print(String message)
 	{
-		Document dom = webEngine.getDocument();
-		Element span = dom.createElement("span");
-		span.setAttribute("class", CSS_MESSAGE_CLASS);
-		
-		Element content = dom.createElement("code");
-		content.setTextContent(message);
-		
-		span.appendChild(content);
-		textPaneElement.appendChild(span);
+		output("span", CSS_MESSAGE_CLASS, message);
 	}
 	
 	public void clear()
