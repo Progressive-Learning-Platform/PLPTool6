@@ -112,6 +112,24 @@ public class ConsolePane extends BorderPane
 		return style;
 	}
 	
+	private CSSStyle warningStyle()
+	{
+		CSSStyle style = new CSSStyle();
+		style.addStyleClass(CSS_MESSAGE_CLASS);
+		style.addStyleClass(CSS_WARNING_CLASS);
+		
+		return style;
+	}
+	
+	private CSSStyle errorStyle()
+	{
+		CSSStyle style = new CSSStyle();
+		style.addStyleClass(CSS_MESSAGE_CLASS);
+		style.addStyleClass(CSS_ERROR_CLASS);
+		
+		return style;
+	}
+	
 	public void println(String message)
 	{
 		println(message, messageStyle());
@@ -130,6 +148,21 @@ public class ConsolePane extends BorderPane
 	public void print(String message, CSSStyle style)
 	{
 		output("span", message, style);
+	}
+	
+	public void warning(String message)
+	{
+		println(message, warningStyle());
+	}
+	
+	public void error(String message)
+	{
+		println(message, errorStyle());
+	}
+	
+	public void message(String message)
+	{
+		println(message, messageStyle());
 	}
 	
 	public void clear()
