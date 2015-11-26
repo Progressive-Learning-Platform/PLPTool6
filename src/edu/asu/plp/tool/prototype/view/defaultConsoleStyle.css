@@ -1,4 +1,6 @@
-div
+.message
 {
-	color: #FF00FF;
+	color: #000000;
+	font-size: 16;
+	line-height: 150%;
 }

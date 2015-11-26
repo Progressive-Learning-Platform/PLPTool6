@@ -2,7 +2,6 @@ package edu.asu.plp.tool.prototype.view;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
@@ -16,6 +15,7 @@ public class ConsolePane extends BorderPane
 {
 	private static final String TEXT_PANE_ID = "textPane";
 	private static final String TEXT_PANE_CLASS = "scrollPane";
+	private static final String CSS_MESSAGE_CLASS = "message";
 	
 	private Element textPaneElement;
 	private WebEngine webEngine;
@@ -27,7 +27,7 @@ public class ConsolePane extends BorderPane
 		
 		webEngine.getLoadWorker().stateProperty()
 				.addListener(new ChangeListener<State>() {
-					public void changed(ObservableValue<? extends Worker.State> value,
+					public void changed(ObservableValue<? extends State> value,
 							State oldState, State newState)
 					{
 						if (newState == State.SUCCEEDED)
@@ -46,11 +46,11 @@ public class ConsolePane extends BorderPane
 							
 							for (int i = 0; i < 25; i++)
 							{
-								Element div = dom.createElement("div");
-								div.setTextContent("Test Scroll " + i);
-								
-								textPaneElement.appendChild(div);
+								println("Test<br/>" + i);
 							}
+							
+							webEngine.getLoadWorker().stateProperty()
+									.removeListener(this);
 						}
 					}
 				});
@@ -58,6 +58,19 @@ public class ConsolePane extends BorderPane
 		webEngine.loadContent(content);
 		
 		this.setCenter(view);
+	}
+	
+	public void println(String message)
+	{
+		Document dom = webEngine.getDocument();
+		Element div = dom.createElement("div");
+		div.setAttribute("class", CSS_MESSAGE_CLASS);
+		
+		Element content = dom.createElement("code");
+		content.setTextContent(message);
+		
+		div.appendChild(content);
+		textPaneElement.appendChild(div);
 	}
 	
 	public void clear()
