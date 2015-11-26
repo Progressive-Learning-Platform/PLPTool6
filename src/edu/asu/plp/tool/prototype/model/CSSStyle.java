@@ -3,12 +3,12 @@ package edu.asu.plp.tool.prototype.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StylizedMessage
+public class CSSStyle
 {
 	private StringBuilder inlineCSS;
 	private List<String> cssClasses;
 	
-	public StylizedMessage()
+	public CSSStyle()
 	{
 		this.inlineCSS = new StringBuilder();
 		this.cssClasses = new ArrayList<>();
