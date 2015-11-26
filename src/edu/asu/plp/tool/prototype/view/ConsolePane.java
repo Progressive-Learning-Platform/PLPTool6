@@ -50,11 +50,6 @@ public class ConsolePane extends BorderPane
 		URL cssURL = getClass().getResource("defaultConsoleStyle.css");
 		String cssPath = cssURL.toExternalForm();
 		addStylesheet(cssPath);
-		
-		for (int i = 0; i < 25; i++)
-		{
-			println("Test<br/>" + i);
-		}
 	}
 	
 	public void println(String message)
@@ -68,6 +63,19 @@ public class ConsolePane extends BorderPane
 		
 		div.appendChild(content);
 		textPaneElement.appendChild(div);
+	}
+	
+	public void print(String message)
+	{
+		Document dom = webEngine.getDocument();
+		Element span = dom.createElement("span");
+		span.setAttribute("class", CSS_MESSAGE_CLASS);
+		
+		Element content = dom.createElement("code");
+		content.setTextContent(message);
+		
+		span.appendChild(content);
+		textPaneElement.appendChild(span);
 	}
 	
 	public void clear()
