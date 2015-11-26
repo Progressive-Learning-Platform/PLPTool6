@@ -10,11 +10,15 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -51,6 +55,7 @@ public class Main extends Application
 	private BidiMap<ProjectFile, Tab> openProjects;
 	private ObservableList<Project> projects;
 	private ProjectExplorerTree projectExplorer;
+	private ConsolePane console;
 	
 	public static void main(String[] args)
 	{
@@ -66,8 +71,8 @@ public class Main extends Application
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
-		ConsolePane console = createConsole();
-		console.println("Console Initialized");
+		console = createConsole();
+		console.println(">> Console Initialized.");
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
@@ -156,7 +161,23 @@ public class Main extends Application
 	
 	private ConsolePane createConsole()
 	{
-		return new ConsolePane();
+		ConsolePane console = new ConsolePane();
+		ContextMenu contextMenu = new ContextMenu();
+		
+		MenuItem clearConsoleItem = new MenuItem("Clear");
+		clearConsoleItem.setOnAction(e -> console.clear());
+		contextMenu.getItems().add(clearConsoleItem);
+		
+		console.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
+			contextMenu.show(console, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
+		console.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY)
+				contextMenu.hide();
+		});
+		
+		return console;
 	}
 	
 	private Parent createOutlineView()
@@ -233,27 +254,27 @@ public class Main extends Application
 		
 		// TODO: replace event handlers with actual content
 		button = new ImageView("toolbar_new.png");
-		listener = (event) -> System.out.println("New Project Clicked");
+		listener = (event) -> console.println("New Project Clicked");
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
 		button = new ImageView("menu_new.png");
-		listener = (event) -> System.out.println("New File Clicked");
+		listener = (event) -> console.println("New File Clicked");
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_open.png");
-		listener = (event) -> System.out.println("Open Project Clicked");
+		listener = (event) -> console.println("Open Project Clicked");
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_save.png");
-		listener = (event) -> System.out.println("Save Project Clicked");
+		listener = (event) -> console.println("Save Project Clicked");
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_assemble.png");
-		listener = (event) -> System.out.println("Assemble Project Clicked");
+		listener = (event) -> console.println("Assemble Project Clicked");
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
