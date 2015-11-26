@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import edu.asu.plp.tool.prototype.model.CSSStyle;
 import edu.asu.plp.tool.prototype.util.OnLoadListener;
 
 public class ConsolePane extends BorderPane
@@ -21,23 +22,22 @@ public class ConsolePane extends BorderPane
 	private static class Message
 	{
 		private String tagType;
-		private String cssClasses;
-		private String inlineStyles;
 		private String message;
+		private CSSStyle style;
 		
-		public Message(String tagType, String classes, String styles, String message)
+		public Message(String tagType, String message, CSSStyle style)
 		{
-			super();
 			this.tagType = tagType;
-			this.cssClasses = classes;
-			this.inlineStyles = styles;
 			this.message = message;
+			this.style = style;
 		}
 	}
 	
 	private static final String TEXT_PANE_ID = "textPane";
 	private static final String TEXT_PANE_CLASS = "scrollPane";
 	private static final String CSS_MESSAGE_CLASS = "message";
+	private static final String CSS_WARNING_CLASS = "warning";
+	private static final String CSS_ERROR_CLASS = "error";
 	
 	private Element textPaneElement;
 	private WebEngine webEngine;
@@ -75,26 +75,26 @@ public class ConsolePane extends BorderPane
 		
 		for (Message message : messageQueue)
 		{
-			output(message.tagType, message.cssClasses, message.inlineStyles,
-					message.message);
+			output(message.tagType, message.message, message.style);
 		}
+		
+		messageQueue = null;
 	}
 	
-	private void output(String tagType, String cssClasses, String inlineStyles,
-			String message)
+	private void output(String tagType, String message, CSSStyle style)
 	{
 		Document dom = webEngine.getDocument();
 		
 		if (dom == null)
 		{
-			Message target = new Message(tagType, cssClasses, inlineStyles, message);
+			Message target = new Message(tagType, message, style);
 			messageQueue.add(target);
 		}
 		else
 		{
 			Element tag = dom.createElement(tagType);
-			tag.setAttribute("class", cssClasses);
-			tag.setAttribute("style", inlineStyles);
+			tag.setAttribute("class", style.compileClassesString());
+			tag.setAttribute("style", style.compileStyleString());
 			
 			Element content = dom.createElement("code");
 			content.setTextContent(message);
@@ -104,19 +104,32 @@ public class ConsolePane extends BorderPane
 		}
 	}
 	
-	private void output(String tagType, String cssClasses, String message)
+	private CSSStyle messageStyle()
 	{
-		output(tagType, cssClasses, null, message);
+		CSSStyle style = new CSSStyle();
+		style.addStyleClass(CSS_MESSAGE_CLASS);
+		
+		return style;
 	}
 	
 	public void println(String message)
 	{
-		output("div", CSS_MESSAGE_CLASS, message);
+		println(message, messageStyle());
 	}
 	
 	public void print(String message)
 	{
-		output("span", CSS_MESSAGE_CLASS, message);
+		print(message, messageStyle());
+	}
+	
+	public void println(String message, CSSStyle style)
+	{
+		output("div", message, style);
+	}
+	
+	public void print(String message, CSSStyle style)
+	{
+		output("span", message, style);
 	}
 	
 	public void clear()
