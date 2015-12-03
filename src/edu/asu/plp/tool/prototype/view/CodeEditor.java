@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.prototype.view;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -16,6 +18,8 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 
 import javax.swing.CodeEditorPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 /**
@@ -47,7 +51,12 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		textPane.addKeyListener(new UpdateOnKeyPressListener());
 		
 		SwingNode swingNode = new SwingNode();
-		createSwingContent(swingNode);
+		textPane.setForeground(Color.BLACK);
+		textPane.setText("");
+		updateText();
+		
+		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
+		swingNode.setContent(new JScrollPane(paneWithLines));
 		setCenter(swingNode);
 		
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
@@ -57,26 +66,29 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	public void setText(String text)
 	{
 		textPane.setText(text);
-		textProperty.set(text);
+		updateText();
 	}
 	
 	private void updateText()
 	{
 		String text = textPane.getText();
 		this.textProperty.set(text);
+		adjustLineNumbers();
 	}
 	
-	private void createSwingContent(SwingNode swingNode)
+	private void adjustLineNumbers()
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run()
-			{
-				textPane.setForeground(Color.red);
-				textPane.setText("This is a Code Editor");
-				swingNode.setContent(textPane);
-			}
-		});
+		// Workaround for a bug in CodeEditorPane.getNumberOfLines
+		int lineCount = textPane.getText().split("\n").length;
+		String lineNumberString = Integer.toString(lineCount);
+		
+		Font font = textPane.getFont();
+		FontMetrics metrics = textPane.getFontMetrics(font);
+		int width = SwingUtilities.computeStringWidth(metrics, lineNumberString);
+		
+		// Workaround for a bug in LineNumbersTextPane
+		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
+		paneWithLines.setDividerLocation(width);
 	}
 	
 	public String getText()
