@@ -17,26 +17,129 @@ import java.util.Set;
  */
 public interface BiDirectionalOneToManyMap<K, V>
 {
-	public boolean put(K key, V value);
+	/**
+	 * Add a key-value pair to this map. Each key may be associated with multiple values,
+	 * but each value may be associated with only one key.
+	 * <p>
+	 * If the key is not already in this map, it will be added, and associated with the
+	 * given value. Otherwise, the value will be associated with the pre-existing key.
+	 * <p>
+	 * If the given value is already associated with a different key, the existing
+	 * key-value pair will be removed as specified by {@link #remove(Object, Object)}, and
+	 * the new key-value pair will be associated. In this case, the old key will be
+	 * returned. Otherwise, null will be returned.
+	 * 
+	 * @param key
+	 *            Key object
+	 * @param value
+	 *            Value to be associated with the given key.
+	 * @return The key previously associated with the specified value, or null if the
+	 *         value was not previously in this map.
+	 */
+	public K put(K key, V value);
 	
+	/**
+	 * Removes the key-value pair from this map and returns true if the removal was
+	 * successful. A removal will be unsuccessful if the map does not contain the
+	 * key-value pair, but may fail for other reasons.
+	 * <p>
+	 * If there are conditions under which this operation may fail, they should be
+	 * specified in the javadoc of the implementing class.
+	 * 
+	 * @param key
+	 *            Key object
+	 * @param value
+	 *            Value object
+	 * @return True if the removal was successful, false otherwise
+	 */
 	public boolean remove(K key, V value);
 	
+	/**
+	 * Removes the specified key from this map, and returns the values it was associated
+	 * with. The associated values will also be removed.
+	 * 
+	 * @param key
+	 *            Key object to remove
+	 * @return The values associated with the given key, or null if the key was not
+	 *         contained by this map.
+	 */
 	public List<V> removeKey(K key);
 	
+	/**
+	 * Removes the specified value from this map, and returns the key it was associated
+	 * with. If this value is the only value that the key was mapped to, then the key will
+	 * also be removed.
+	 * 
+	 * @param value
+	 *            Value object to remove
+	 * @return The key associated with the given value, or null if the value was not
+	 *         contained by this map.
+	 */
 	public K removeValue(V value);
 	
+	/**
+	 * Returns true if the given key is contained in this map. Note that for a key to be
+	 * contained by a map, it must be associated with at least one value.
+	 * 
+	 * @param key
+	 *            Key object
+	 * @return True if the key is contained by this map, and associated with any number of
+	 *         values.
+	 */
 	public boolean containsKey(K key);
 	
+	/**
+	 * @param value
+	 *            Value object
+	 * @return True if the value is contained by this map, and associated with any key.
+	 */
 	public boolean containsValue(V value);
 	
+	/**
+	 * Returns true if this map contains the specified key-value pair. Note that both the
+	 * key and the value must be contained in this map, and associated with each other.
+	 * Returns false otherwise.
+	 * 
+	 * @param key
+	 *            Key object
+	 * @param value
+	 *            Value object
+	 * @return True if the key-value pair is contained in this map. False otherwise
+	 */
 	public boolean contains(K key, V value);
 	
+	/**
+	 * Returns the key associated with the specified value, or null if the value is not in
+	 * this map.
+	 * <p>
+	 * Note that null is a valid key. Thus, returning null from this method does not
+	 * necessarily indicate that the value is not in the map. For that functionality, see
+	 * {@link #containsValue(Object)}.
+	 * 
+	 * @param value
+	 *            Value object
+	 * @return The key associated with the specified value, or null if the value is not in
+	 *         this map
+	 */
 	public K getKey(V value);
 	
+	/**
+	 * Returns a list of values mapped from the given key.
+	 * 
+	 * @param key
+	 *            Key object
+	 * @return A list of values associated with the specified key
+	 */
 	public List<V> get(K key);
 	
+	/**
+	 * @return A set of all keys contained in this map
+	 */
 	public Set<K> keySet();
 	
+	/**
+	 * @return A set of all values contained in this map
+	 */
 	public Set<V> valueSet();
 	
 	/**
@@ -70,4 +173,17 @@ public interface BiDirectionalOneToManyMap<K, V>
 	 * @see #size()
 	 */
 	public int valueSize();
+	
+	/**
+	 * @return True if there are no key-value pairs in this map. False otherwise
+	 */
+	default boolean isEmpty()
+	{
+		return size() == 0;
+	}
+	
+	/**
+	 * Removes all key-value pairs in this map.
+	 */
+	public boolean clear();
 }
