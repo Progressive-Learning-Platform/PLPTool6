@@ -4,13 +4,12 @@ import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
 
-public class PLPAssembler implements Assembler
+public class PLPAssembler extends Assembler
 {
-	private PLPLanguageSpecification languageSpecification;
 	
-	public PLPAssembler(PLPLanguageSpecification languageSpecification)
+	public PLPAssembler()
 	{
-		this.languageSpecification = languageSpecification;
+		
 	}
 	
 	@Override
