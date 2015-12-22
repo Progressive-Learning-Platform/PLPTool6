@@ -1,5 +1,6 @@
-package edu.asu.plp.tool.backend.plpisa;
+package edu.asu.plp.tool.backend.plpisa.sim;
 
+import plptool.mips.SimCore.mem;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 
@@ -10,8 +11,28 @@ public class PLPSimulator implements Simulator
 	private boolean hasSimulationStarted;
 	private boolean isSimEnabled;
 	
+	private Stage instructionDecodeStage;
+	private Stage executeStage;
+	private Stage memoryStage;
+	private Stage writeBackStage;
+	
 	public PLPSimulator()
 	{
+		initialize();
+	}
+
+	private void initialize()
+	{
+		assembledImage = null;
+		
+		isSimulationRunning = false;
+		hasSimulationStarted = false;
+		isSimEnabled = false;
+		
+		instructionDecodeStage = new InstructionDecodeStage();
+		executeStage = new ExecuteStage();
+		memoryStage = new MemoryStage();
+		writeBackStage = new WriteBackStage();
 	}
 
 	@Override
