@@ -7,31 +7,19 @@ public class UnitSize
 	public static enum DefaultSize
 	{
 		// 1 bit, 0-1
-		BIT(1),
+		BIT,
 		// 4 bits, 16
-		NIBBLE(4),
+		NIBBLE,
 		// 8 bits, 256
-		BYTE(8),
+		BYTE,
 		// 10 bits, 1024, 4 bytes
-		KiB(10),
+		KiB,
 		// 16 bits, 65536, 256 bytes
-		HALF_WORD(16),
+		HALF_WORD,
 		// 32 bits, 65536 Half words
-		WORD(32),
+		WORD,
 		// 64 bits
-		DOUBLE_WORD(64);
-		
-		private int sizeInBits;
-		
-		DefaultSize(int value)
-		{
-			this.sizeInBits = value;
-		}
-		
-		public int bitSize()
-		{
-			return sizeInBits;
-		}
+		DOUBLE_WORD;
 	}
 	
 	public static HashMap<String, Integer> unitSizes = new HashMap<>();
@@ -43,10 +31,13 @@ public class UnitSize
 	public static void initializeDefaultValues()
 	{
 		clearExistingUnits();
-		for (DefaultSize unitSize : DefaultSize.values())
-		{
-			addUnitSize(unitSize.name(), unitSize.bitSize());
-		}
+		addUnitSize(DefaultSize.BIT.toString(), 1);
+		addUnitSize(DefaultSize.NIBBLE.toString(), 4);
+		addUnitSize(DefaultSize.BYTE.toString(), 8);
+		addUnitSize(DefaultSize.KiB.toString(), 10);
+		addUnitSize(DefaultSize.HALF_WORD.toString(), 16);
+		addUnitSize(DefaultSize.WORD.toString(), 32);
+		addUnitSize(DefaultSize.DOUBLE_WORD.toString(), 64);
 	}
 	
 	public boolean containsName(String name)
@@ -54,7 +45,12 @@ public class UnitSize
 		return unitSizes.containsKey(name.toLowerCase());
 	}
 	
-	public int getSize(String name)
+	public static int getSize(DefaultSize size)
+	{
+		return getSize(size.toString());
+	}
+	
+	public static int getSize(String name)
 	{
 		return unitSizes.get(name.toLowerCase());
 	}
@@ -76,10 +72,10 @@ public class UnitSize
 	 */
 	public static void replaceUnitSize(String name, int sizeInBits)
 	{
-		if(unitSizes.containsKey(name))
-			unitSizes.replace(name, sizeInBits);
+		if(unitSizes.containsKey(name.toLowerCase()))
+			unitSizes.replace(name.toLowerCase(), sizeInBits);
 		else
-			unitSizes.put(name, sizeInBits);
+			unitSizes.put(name.toLowerCase(), sizeInBits);
 	}
 	
 	public static void clearExistingUnits()
