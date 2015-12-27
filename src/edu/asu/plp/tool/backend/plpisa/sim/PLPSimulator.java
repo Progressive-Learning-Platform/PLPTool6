@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
-import plptool.mips.SimCore.mem;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 
