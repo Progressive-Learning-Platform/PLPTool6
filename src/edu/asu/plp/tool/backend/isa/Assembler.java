@@ -2,6 +2,8 @@ package edu.asu.plp.tool.backend.isa;
 
 import java.util.HashMap;
 
+import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+
 public abstract class Assembler
 {
 	/**
@@ -22,17 +24,23 @@ public abstract class Assembler
 	/**
 	 * Since opCodeSize can be of sizes > 1 byte, they are stored in an integer;
 	 */
-	protected HashMap<String, Integer> instructionOpCodeMap;
+	protected HashMap<String, Integer> instructionOpcodeMap;
+	
+	protected HashMap<String, Integer> directiveMap;
 	
 	/*
-	 * 
+	 * <p>Pseudo Operation mneumonic label mapped to how many tokens follow.</p>
+	 * <p>e.g.</p>
+	 * <p>nop -> 0</p>
+	 * <p>b -> 1 (b label)</p>
+	 * <p>move -> 3 (move $rd, $rs)</p>
 	 */
-	protected HashMap<String, Integer> pseudoInstructionMap;
+	protected HashMap<String, Integer> pseudoOperationMap;
 	
 	/*
 	 * Most CPUs dont even pass 40 registers, so a byte is okay.
 	 */
 	protected HashMap<String, Byte> registerMap;
 	
-	public abstract ASMImage assemble(String source);
+	public abstract ASMImage assemble() throws AssemblerException;
 }
