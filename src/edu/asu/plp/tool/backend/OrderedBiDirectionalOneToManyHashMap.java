@@ -95,63 +95,60 @@ public class OrderedBiDirectionalOneToManyHashMap<K, V> implements
 	@Override
 	public boolean contains(K key, V value)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		List<V> mappedValues = keys.get(key);
+		if (mappedValues == null)
+			return false;
+		else
+			return mappedValues.contains(value);
 	}
 	
 	@Override
 	public K getKey(V value)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return values.get(value);
 	}
 	
 	@Override
 	public List<V> get(K key)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return keys.get(key);
 	}
 	
 	@Override
 	public Set<K> keySet()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return keys.keySet();
 	}
 	
 	@Override
 	public Set<V> valueSet()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return values.keySet();
 	}
 	
 	@Override
 	public int size()
 	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return valueSize();
 	}
 	
 	@Override
 	public int keySize()
 	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return keys.size();
 	}
 	
 	@Override
 	public int valueSize()
 	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return values.size();
 	}
 	
 	@Override
 	public void clear()
 	{
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		keys.clear();
+		values.clear();
 	}
 	
 }
