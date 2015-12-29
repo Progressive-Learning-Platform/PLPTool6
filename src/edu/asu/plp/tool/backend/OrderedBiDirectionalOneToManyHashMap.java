@@ -149,9 +149,8 @@ public class OrderedBiDirectionalOneToManyHashMap<K, V> implements
 	}
 	
 	@Override
-	public boolean clear()
+	public void clear()
 	{
-		// TODO Auto-generated method stub return false;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	

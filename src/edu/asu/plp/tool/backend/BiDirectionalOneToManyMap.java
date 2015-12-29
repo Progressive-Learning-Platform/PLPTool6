@@ -181,5 +181,5 @@ public interface BiDirectionalOneToManyMap<K, V>
 	/**
 	 * Removes all key-value pairs in this map.
 	 */
-	public boolean clear();
+	public void clear();
 }
