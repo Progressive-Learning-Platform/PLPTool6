@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * An object that maps keys to values. Unlike {@link Map}, this class represents a
- * one-to-many mapping with unique keys <b>and<b> values.
+ * one-to-many mapping with unique keys <b>and</b> values.
  * 
  * @author Moore, Zachary
  *
