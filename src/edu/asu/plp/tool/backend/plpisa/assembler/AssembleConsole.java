@@ -27,22 +27,18 @@ public class AssembleConsole
 		{
 			//System.out.println("Enter a file to assemble: ");
 			//String input = scanner.nextLine();
-			File file = new File("D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/main.asm");
+			File file = new File("D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/memtest/main.asm");
 			if (!file.isFile())
 			{
 				System.out.println("Path entered is not a file!");
-				continue;
+				break;
+				//continue;
 			}
 			
 			List<String> fileContents;
 			try
 			{
-				fileContents = Files.readAllLines(file.toPath());
-				System.out.println("--------------------------------- File ---------------------------");
-				fileContents.forEach(line -> System.out.println(line));
-				
-				System.out.println("\n----------------------------- Tokens -------------------------\n\n");
-				assembler = new PLPAssembler(fileContents);
+				assembler = new PLPAssembler(file.getAbsolutePath());
 				assembler.assemble();
 			}
 			catch (IOException | AssemblerException e)
@@ -53,6 +49,8 @@ public class AssembleConsole
 			
 			running = false;
 		}
+		
+		scanner.close();
 		System.out.println("Console Exited");
 	}
 	

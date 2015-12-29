@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.backend.plpisa.assembler;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -9,28 +11,48 @@ import com.faeysoft.preceptor.lexer.Lexer;
 import com.faeysoft.preceptor.lexer.Token;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
+import edu.asu.plp.tool.backend.isa.ASMDisassembly;
 import edu.asu.plp.tool.backend.isa.ASMImage;
+import edu.asu.plp.tool.backend.isa.ASMLine;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.UnitSize.DefaultSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 
 public class PLPAssembler extends Assembler
 {
-	private Lexer lexer;
-	
-	private BiDirectionalOneToManyMap<String, String> assemblyToDisassemblyMap;
+	private BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
 	private HashMap<String, Integer> functionMap;
 	private HashMap<String, Integer> opcodeMap;
+	private List<PLPAsm> asmFiles;
 	
-	private List<String> source;
-	private List<Token> tokens;
+	private long currentAddress;
+	private long currentTextAddress;
+	private long currentDataAddress;
+	private long bytesSpace;
+	
+	private int directiveOffset;
+	private int currentRegion;
+	
+	private String currentActiveFile;
+	private String topLeveLFile;
+	
+	
+	private Lexer lexer;
+	//Map position in asmFile list to that files tokens
+	private HashMap<Integer, List<Token>> tokens;
 	private ListIterator<Token> tokenIterator;
 	private Token currentToken;
 	
-	public PLPAssembler(List<String> source)
+	public PLPAssembler(String asmFilePath) throws IOException
 	{
-		this.source = source;
+		this(Arrays.asList(new PLPAsm[] {new PLPAsm(asmFilePath)}));		
+	}
+	
+	public PLPAssembler(List<PLPAsm> asmFiles)
+	{
+		this.asmFiles = asmFiles;
 		initialize();
 	}
 	
@@ -38,64 +60,76 @@ public class PLPAssembler extends Assembler
 	public ASMImage assemble() throws AssemblerException
 	{
 		assemblyToDisassemblyMap = null;
-		tokens = null;
+		tokens = new HashMap<>();
 		
-		try
+		for(PLPAsm asmFile : asmFiles)
 		{
-			tokens = lexer.lex(source);
-			tokenIterator = tokens.listIterator();
+			try
+			{
+				tokens.put(asmFiles.indexOf(asmFile), lexer.lex(asmFile.getAsmLines()));
+			}
+			catch (LexException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch (LexException e)
-		{
-			e.printStackTrace();
-		}
+		
+		if(asmFiles.isEmpty())
+			throw new AssemblerException("Can not assemble an image with no files.");
+			
+		tokenIterator = tokens.get(0).listIterator();
 		
 		if (tokens == null)
 			throw new AssemblerException("File was not lexed correctly.");
-		
+			
 		preprocess();
 		
 		return new ASMImage(assemblyToDisassemblyMap);
 	}
 	
 	/*
-	 * 1st past on Assembly map. Resolves assembler directives, pseudo-ops, and
-	 * populate the symbol table.
+	 * 1st past on Assembly map. Resolves assembler directives, pseudo-ops, and populate
+	 * the symbol table.
 	 */
 	private void preprocess() throws AssemblerException
 	{
+		int lineNumber = 0;
 		// TODO loop through each file
 		nextToken();
 		
 		while (currentToken != null)
 		{
-			System.out.println(currentToken);
 			// Loop directives
-			if (directiveMap.containsKey(currentToken.getValue()))
+			if (currentToken.getTypeName() == PLPTokenType.DIRECTIVE.name())
 			{
-				
+				if (directiveMap.containsKey(currentToken.getValue()))
+				{
+					preprocessDirective();
+				}
+				else
+				{
+					throw new AssemblerException(
+							"Unknown directive. Found: " + currentToken.getValue());
+				}
 			}
 			// Loop PseudoOps
 			else if (pseudoOperationMap.containsKey(currentToken.getValue()))
 			{
-				
+				preprocessPseudoOperation();
 			}
 			// Instructions
 			else if (functionMap.containsKey(currentToken.getValue())
 					|| opcodeMap.containsKey(currentToken.getValue()))
 			{
-				
+			
 			}
 			// Comments
-			else if (currentToken.getTypeName().equals(
-					PLPTokenType.COMMENT.name()))
+			else if (currentToken.getTypeName().equals(PLPTokenType.COMMENT.name()))
 			{
 			}
 			// Labels
-			else if (currentToken.getTypeName().equals(
-					PLPTokenType.LABEL_COLON.name()))
+			else if (currentToken.getTypeName().equals(PLPTokenType.LABEL_COLON.name()))
 			{
-				
 			}
 			
 			if (!nextToken())
@@ -104,13 +138,97 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
-	private boolean nextToken()
+	private void preprocessPseudoOperation()
 	{
-		if (!tokenIterator.hasNext())
-			return false;
+		// TODO Auto-generated method stub
 		
-		currentToken = tokenIterator.next();
-		return true;
+	}
+	
+	private void preprocessDirective() throws AssemblerException
+	{
+		int expectedDirectiveSize = directiveMap.get(currentToken.getValue());
+		Token directiveToken = currentToken;
+		Token[] nextTokens = new Token[expectedDirectiveSize];
+		
+		for (int index = 0; index < expectedDirectiveSize; index++)
+		{
+			if (!nextToken())
+				throw new AssemblerException("Insufficient parameter count");
+				
+			nextTokens[index] = currentToken;
+		}
+		
+		if (directiveToken.getValue().equals(".include"))
+		{
+			throw new UnsupportedOperationException("Not implemented yet: .include");
+		}
+		else if (directiveToken.getValue().equals(".org"))
+		{
+			if (!nextTokens[0].getTypeName().equals(PLPTokenType.NUMERIC.name()))
+			{
+				throw new AssemblerException(
+						"Expected an address, found: " + nextTokens[0].getValue());
+			}
+			throw new UnsupportedOperationException("Not implemented yet: .org");
+		}
+		else if (directiveToken.getValue().equals(".text"))
+		{
+			throw new UnsupportedOperationException("Not implemented yet: .text");
+		}
+		else if (directiveToken.getValue().equals(".data"))
+		{
+			throw new UnsupportedOperationException("Not implemented yet: .data");
+		}
+		else if (directiveToken.getValue().equals(".word"))
+		{
+			if (!nextTokens[0].getTypeName().equals(PLPTokenType.NUMERIC.name()))
+			{
+				throw new AssemblerException(
+						"Expected number of words to allocate, found: "
+								+ nextTokens[0].getValue());
+			}
+			throw new UnsupportedOperationException("Not implemented yet: .word");
+		}
+		else if (directiveToken.getValue().equals(".space"))
+		{
+			if (!nextTokens[0].getTypeName().equals(PLPTokenType.NUMERIC.name()))
+			{
+				throw new AssemblerException(
+						"Expected a number, found: " + nextTokens[0].getValue());
+			}
+			throw new UnsupportedOperationException("Not implemented yet: .space");
+		}
+		else if (directiveToken.getValue().equals(".ascii"))
+		{
+			if (!nextTokens[0].getTypeName().equals(PLPTokenType.STRING.name()))
+			{
+				throw new AssemblerException(
+						"Expected a string to store, found: " + nextTokens[0].getValue());
+			}
+			throw new UnsupportedOperationException("Not implemented yet: .ascii");
+		}
+		else if (directiveToken.getValue().equals(".asciiz"))
+		{
+			if (!nextTokens[0].getTypeName().equals(PLPTokenType.STRING.name()))
+			{
+				throw new AssemblerException(
+						"Expected a string to store, found: " + nextTokens[0].getValue());
+			}
+			throw new UnsupportedOperationException("Not implemented yet: .asciiz");
+		}
+		else if (directiveToken.getValue().equals(".asciiw"))
+		{
+			if (!nextTokens[0].getTypeName().equals(PLPTokenType.STRING.name()))
+			{
+				throw new AssemblerException(
+						"Expected a string to store, found: " + nextTokens[0].getValue());
+			}
+			throw new UnsupportedOperationException("Not implemented yet: .asciiw");
+		}
+		else if (directiveToken.getValue().equals(".equ"))
+		{
+			throw new UnsupportedOperationException("Not implemented yet: .equ");
+		}
 	}
 	
 	private void initialize()
@@ -225,27 +343,65 @@ public class PLPAssembler extends Assembler
 		pseudoOperationMap.put("swm", 3);
 		
 		// TODO set directivees
-		directiveMap.put(".org", 0);
-		directiveMap.put(".word", 0);
-		directiveMap.put(".space", 0);
-		directiveMap.put(".ascii", 0);
-		directiveMap.put(".asciiz", 0);
-		directiveMap.put(".include", 0);
-		directiveMap.put(".text", 0);
-		directiveMap.put(".data", 0);
+		directiveMap.put(".org", 1);
+		directiveMap.put(".word", 1);
+		directiveMap.put(".space", 1);
+		directiveMap.put(".ascii", 1);
+		directiveMap.put(".asciiz", 1);
+		directiveMap.put(".asciiw", 1);
+		directiveMap.put(".include", 1);
+		directiveMap.put(".text", 1);
+		directiveMap.put(".data", 1);
+		directiveMap.put(".equ", 2);
 	}
 	
 	private void setRegisterMapValues()
 	{
-		String[] registers = { "$zero", "$at", "$v0", "$v1", "$a0", "$a1",
-				"$a2", "$a3", "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6",
-				"$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3", "$s4", "$s5",
-				"$s6", "$s7", "$i0", "$i1", "$iv", "$sp", "$ir", "$ra" };
-		
+		String[] registers = { "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+				"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$t8", "$t9",
+				"$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$i0", "$i1",
+				"$iv", "$sp", "$ir", "$ra" };
+				
 		for (int index = 0; index < registers.length; index++)
 		{
 			registerMap.put("$" + index, (byte) index);
 			registerMap.put(registers[index], (byte) index);
 		}
+	}
+	
+	private boolean nextToken()
+	{
+		return nextToken(1);
+	}
+	
+	private boolean nextToken(int count)
+	{
+		for (int index = 0; index < count; index++)
+		{
+			if (!tokenIterator.hasNext())
+				return false;
+				
+			currentToken = tokenIterator.next();
+		}
+		
+		return true;
+	}
+	
+	private boolean previousToken()
+	{
+		return previousToken(1);
+	}
+	
+	private boolean previousToken(int count)
+	{
+		for (int index = 0; index < count; index++)
+		{
+			if (!tokenIterator.hasPrevious())
+				return false;
+				
+			currentToken = tokenIterator.previous();
+		}
+		
+		return true;
 	}
 }
