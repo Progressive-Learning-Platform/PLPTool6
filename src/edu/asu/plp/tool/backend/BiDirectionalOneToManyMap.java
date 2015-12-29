@@ -111,10 +111,6 @@ public interface BiDirectionalOneToManyMap<K, V>
 	/**
 	 * Returns the key associated with the specified value, or null if the value is not in
 	 * this map.
-	 * <p>
-	 * Note that null is a valid key. Thus, returning null from this method does not
-	 * necessarily indicate that the value is not in the map. For that functionality, see
-	 * {@link #containsValue(Object)}.
 	 * 
 	 * @param value
 	 *            Value object
