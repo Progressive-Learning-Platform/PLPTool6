@@ -26,8 +26,6 @@ public abstract class Assembler
 	 */
 	protected HashMap<String, Integer> instructionOpcodeMap;
 	
-	protected HashMap<String, Integer> directiveMap;
-	
 	/*
 	 * <p>Pseudo Operation mneumonic label mapped to how many tokens follow.</p>
 	 * <p>e.g.</p>

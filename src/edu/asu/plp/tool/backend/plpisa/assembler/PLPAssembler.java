@@ -18,36 +18,48 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.UnitSize.DefaultSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPAsm;
+import edu.asu.plp.tool.backend.util.ISAUtil;
+import moore.util.Subroutine;
 
 public class PLPAssembler extends Assembler
 {
 	private BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
 	private HashMap<String, Integer> functionMap;
 	private HashMap<String, Integer> opcodeMap;
+	private HashMap<String, AssemblerStep> directiveMap;
 	private List<PLPAsm> asmFiles;
+	private List<Integer> regionMap;
 	
 	private long currentAddress;
 	private long currentTextAddress;
 	private long currentDataAddress;
 	private long bytesSpace;
+	private long entryPoint;
 	
 	private int directiveOffset;
 	private int currentRegion;
+	private int lineNumber;
 	
 	private String currentActiveFile;
 	private String topLeveLFile;
 	
+	private static final String ASM__WORD__ = "ASM__WORD__";
+	private static final String ASM__ORG__ = "ASM__ORG__";
+	private static final String ASM__SKIP__ = "ASM__SKIP__";
+	private static final String ASM__LINE__OFFSET__ = "ASM__LINE__OFFSET__";
+	private static final String ASM__POINTER__ = "ASM__POINTER__";
 	
 	private Lexer lexer;
-	//Map position in asmFile list to that files tokens
+	// Map position in asmFile list to that files tokens
 	private HashMap<Integer, List<Token>> tokens;
 	private ListIterator<Token> tokenIterator;
 	private Token currentToken;
 	
 	public PLPAssembler(String asmFilePath) throws IOException
 	{
-		this(Arrays.asList(new PLPAsm[] {new PLPAsm(asmFilePath)}));		
+		this(Arrays.asList(new PLPAsm[] { new PLPAsm(asmFilePath) }));
 	}
 	
 	public PLPAssembler(List<PLPAsm> asmFiles)
@@ -62,10 +74,11 @@ public class PLPAssembler extends Assembler
 		assemblyToDisassemblyMap = null;
 		tokens = new HashMap<>();
 		
-		for(PLPAsm asmFile : asmFiles)
+		for (PLPAsm asmFile : asmFiles)
 		{
 			try
 			{
+				System.out.println("Start " + asmFile.getAsmFilePath() + " lexing.");
 				tokens.put(asmFiles.indexOf(asmFile), lexer.lex(asmFile.getAsmLines()));
 			}
 			catch (LexException e)
@@ -74,7 +87,7 @@ public class PLPAssembler extends Assembler
 			}
 		}
 		
-		if(asmFiles.isEmpty())
+		if (asmFiles.isEmpty())
 			throw new AssemblerException("Can not assemble an image with no files.");
 			
 		tokenIterator = tokens.get(0).listIterator();
@@ -104,7 +117,7 @@ public class PLPAssembler extends Assembler
 			{
 				if (directiveMap.containsKey(currentToken.getValue()))
 				{
-					preprocessDirective();
+					directiveMap.get(currentToken.getValue()).perform();
 				}
 				else
 				{
@@ -144,93 +157,6 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
-	private void preprocessDirective() throws AssemblerException
-	{
-		int expectedDirectiveSize = directiveMap.get(currentToken.getValue());
-		Token directiveToken = currentToken;
-		Token[] nextTokens = new Token[expectedDirectiveSize];
-		
-		for (int index = 0; index < expectedDirectiveSize; index++)
-		{
-			if (!nextToken())
-				throw new AssemblerException("Insufficient parameter count");
-				
-			nextTokens[index] = currentToken;
-		}
-		
-		if (directiveToken.getValue().equals(".include"))
-		{
-			throw new UnsupportedOperationException("Not implemented yet: .include");
-		}
-		else if (directiveToken.getValue().equals(".org"))
-		{
-			if (!nextTokens[0].getTypeName().equals(PLPTokenType.NUMERIC.name()))
-			{
-				throw new AssemblerException(
-						"Expected an address, found: " + nextTokens[0].getValue());
-			}
-			throw new UnsupportedOperationException("Not implemented yet: .org");
-		}
-		else if (directiveToken.getValue().equals(".text"))
-		{
-			throw new UnsupportedOperationException("Not implemented yet: .text");
-		}
-		else if (directiveToken.getValue().equals(".data"))
-		{
-			throw new UnsupportedOperationException("Not implemented yet: .data");
-		}
-		else if (directiveToken.getValue().equals(".word"))
-		{
-			if (!nextTokens[0].getTypeName().equals(PLPTokenType.NUMERIC.name()))
-			{
-				throw new AssemblerException(
-						"Expected number of words to allocate, found: "
-								+ nextTokens[0].getValue());
-			}
-			throw new UnsupportedOperationException("Not implemented yet: .word");
-		}
-		else if (directiveToken.getValue().equals(".space"))
-		{
-			if (!nextTokens[0].getTypeName().equals(PLPTokenType.NUMERIC.name()))
-			{
-				throw new AssemblerException(
-						"Expected a number, found: " + nextTokens[0].getValue());
-			}
-			throw new UnsupportedOperationException("Not implemented yet: .space");
-		}
-		else if (directiveToken.getValue().equals(".ascii"))
-		{
-			if (!nextTokens[0].getTypeName().equals(PLPTokenType.STRING.name()))
-			{
-				throw new AssemblerException(
-						"Expected a string to store, found: " + nextTokens[0].getValue());
-			}
-			throw new UnsupportedOperationException("Not implemented yet: .ascii");
-		}
-		else if (directiveToken.getValue().equals(".asciiz"))
-		{
-			if (!nextTokens[0].getTypeName().equals(PLPTokenType.STRING.name()))
-			{
-				throw new AssemblerException(
-						"Expected a string to store, found: " + nextTokens[0].getValue());
-			}
-			throw new UnsupportedOperationException("Not implemented yet: .asciiz");
-		}
-		else if (directiveToken.getValue().equals(".asciiw"))
-		{
-			if (!nextTokens[0].getTypeName().equals(PLPTokenType.STRING.name()))
-			{
-				throw new AssemblerException(
-						"Expected a string to store, found: " + nextTokens[0].getValue());
-			}
-			throw new UnsupportedOperationException("Not implemented yet: .asciiw");
-		}
-		else if (directiveToken.getValue().equals(".equ"))
-		{
-			throw new UnsupportedOperationException("Not implemented yet: .equ");
-		}
-	}
-	
 	private void initialize()
 	{
 		allowedOpCodeLengths = new int[] { 1 };
@@ -241,6 +167,14 @@ public class PLPAssembler extends Assembler
 		opcodeMap = new HashMap<>();
 		pseudoOperationMap = new HashMap<>();
 		directiveMap = new HashMap<>();
+		
+		currentAddress = 0;
+		currentTextAddress = -1;
+		currentDataAddress = -1;
+		entryPoint = -1;
+		directiveOffset = 0;
+		bytesSpace = 0;
+		topLeveLFile = asmFiles.get(0).getAsmFilePath();
 		
 		setInstructionMapValues();
 		setRegisterMapValues();
@@ -288,11 +222,11 @@ public class PLPAssembler extends Assembler
 		
 		instructionOpcodeMap.put("jalr", 9);
 		
-		instructionOpcodeMap.put("ASM__WORD__", 10);
-		instructionOpcodeMap.put("ASM__ORG__", 10);
-		instructionOpcodeMap.put("ASM__SKIP__", 10);
-		instructionOpcodeMap.put("ASM__LINE__OFFSET__", 10);
-		instructionOpcodeMap.put("ASM__POINTER__", 10);
+		instructionOpcodeMap.put(ASM__WORD__, 10);
+		instructionOpcodeMap.put(ASM__ORG__, 10);
+		instructionOpcodeMap.put(ASM__SKIP__, 10);
+		instructionOpcodeMap.put(ASM__LINE__OFFSET__, 10);
+		instructionOpcodeMap.put(ASM__POINTER__, 10);
 		
 		// R-Type Arithmetic
 		functionMap.put("sll", 0x00);
@@ -342,17 +276,17 @@ public class PLPAssembler extends Assembler
 		pseudoOperationMap.put("lwm", 3);
 		pseudoOperationMap.put("swm", 3);
 		
-		// TODO set directivees
-		directiveMap.put(".org", 1);
-		directiveMap.put(".word", 1);
-		directiveMap.put(".space", 1);
-		directiveMap.put(".ascii", 1);
-		directiveMap.put(".asciiz", 1);
-		directiveMap.put(".asciiw", 1);
-		directiveMap.put(".include", 1);
-		directiveMap.put(".text", 1);
-		directiveMap.put(".data", 1);
-		directiveMap.put(".equ", 2);
+		directiveMap.put(".org", this::orgDirective);
+		directiveMap.put(".word", this::wordDirective);
+		directiveMap.put(".space", this::spaceDirective);
+		directiveMap.put(".ascii", this::asciiDirective);
+		directiveMap.put(".asciiz", this::asciiDirective);
+		directiveMap.put(".asciiw", this::asciiDirective);
+		directiveMap.put(".include", this::includeDirective);
+		directiveMap.put(".text", this::textDirective);
+		directiveMap.put(".data", this::dataDirective);
+		directiveMap.put(".equ", this::equDirective);
+		
 	}
 	
 	private void setRegisterMapValues()
@@ -367,6 +301,188 @@ public class PLPAssembler extends Assembler
 			registerMap.put("$" + index, (byte) index);
 			registerMap.put(registers[index], (byte) index);
 		}
+	}
+	
+	private void orgDirective() throws AssemblerException
+	{
+		expectedNextToken(".org directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
+		{
+			throw new AssemblerException(
+					"(.org) Expected an address, found: " + currentToken.getValue());
+		}
+		
+		appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber,
+				true);
+		directiveOffset++;
+		try
+		{
+			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
+		}
+		catch (AssemblyException e)
+		{
+			e.printStackTrace();
+		}
+		
+		entryPoint = (entryPoint < 0) ? currentAddress : entryPoint;
+	}
+	
+	private void wordDirective() throws AssemblerException
+	{
+		expectedNextToken(".word directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
+		{
+			throw new AssemblerException(
+					"(.word) Expected number to initialize current memory address to, found: "
+							+ currentToken.getValue());
+		}
+		
+		appendPreprocessedInstruction(ASM__WORD__ + currentToken.getValue(), lineNumber,
+				true);
+		regionMap.add(currentRegion);
+		currentAddress += 4;
+	}
+	
+	private void spaceDirective() throws AssemblerException
+	{
+		expectedNextToken(".space directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
+		{
+			throw new AssemblerException(
+					"(.space) Expected a number, found: " + currentToken.getValue());
+		}
+		
+		try
+		{
+			long size = ISAUtil.sanitize32bits(currentToken.getValue());
+			currentAddress += 4 * size;
+			bytesSpace += 4 * size;
+			
+			appendPreprocessedInstruction(ASM__ORG__ + currentAddress, lineNumber, true);
+			directiveOffset++;
+			
+			regionMap.add(currentRegion);
+		}
+		catch (AssemblyException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void asciiDirective() throws AssemblerException
+	{
+		Token directiveToken = currentToken;
+		boolean wordAligned = directiveToken.getValue().equals(".asciiw");
+		
+		expectedNextToken(currentToken.getValue() + " directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
+		{
+			throw new AssemblerException("(" + directiveToken.getValue() + ") Expected a string to store, found: "
+					+ currentToken.getValue());
+		}
+		
+		
+		
+		throw new UnsupportedOperationException("Ascii Directive is not implemented");
+	}
+	
+	private void includeDirective() throws AssemblerException
+	{
+		expectedNextToken("include directive");
+		
+		throw new UnsupportedOperationException("Include Directive is not implemented");
+	}
+	
+	private void textDirective() throws AssemblerException
+	{
+		expectedNextToken(".text directive");
+		
+		if (currentRegion != 1)
+		{
+			if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
+			{
+				throw new AssemblerException(
+						"(.text) Expected a string, found: " + currentToken.getValue());
+			}
+			
+			directiveOffset++;
+			
+			if (currentRegion == 2)
+				currentDataAddress = currentAddress;
+				
+			currentRegion = 1;
+			currentAddress = currentTextAddress;
+			
+			// TODO ASM .text has a line that should never be reached. Look into it.
+			appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber, true);
+			try
+			{
+				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
+			}
+			catch (AssemblyException e)
+			{
+				e.printStackTrace();
+			}
+			entryPoint = currentAddress;
+			currentTextAddress = entryPoint;
+			
+			if(currentAddress < 0)
+				throw new AssemblerException("Starting address for .text is not defined.");
+		}
+	}
+	
+	private void dataDirective() throws AssemblerException
+	{
+		expectedNextToken(".data directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
+		{
+			throw new AssemblerException(
+					"(.data) Expected a string, found: " + currentToken.getValue());
+		}
+		
+		if(currentRegion != 2)
+		{
+			directiveOffset++;
+			if(currentRegion == 1)
+				currentTextAddress = currentAddress;
+			
+			currentRegion = 2;
+			currentAddress = currentDataAddress;
+			
+			// TODO Asm .data has a line that should never be reached. Look into it.
+			appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber, true);
+			try
+			{
+				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
+			}
+			catch (AssemblyException e)
+			{
+				e.printStackTrace();
+			}
+			currentDataAddress = currentAddress;
+			
+			if(currentAddress < 0)
+				throw new AssemblerException("Starting address for .data is not defined.");
+		}
+	}
+	
+	private void equDirective() throws AssemblerException
+	{
+		expectedNextToken(".equ directive");
+		
+		throw new UnsupportedOperationException("equ Directive is not implemented");
+	}
+	
+	private void appendPreprocessedInstruction(String instruction, int lineNumber,
+			boolean newLine)
+	{
+	
 	}
 	
 	private boolean nextToken()
@@ -385,6 +501,13 @@ public class PLPAssembler extends Assembler
 		}
 		
 		return true;
+	}
+	
+	private void expectedNextToken(String location) throws AssemblerException
+	{
+		if (!nextToken())
+			throw new AssemblerException(
+					"Unexpected end of token stream. In " + location);
 	}
 	
 	private boolean previousToken()
