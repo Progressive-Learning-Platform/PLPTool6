@@ -14,11 +14,11 @@ import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
  */
 public class ASMImage
 {
-	protected final BiDirectionalOneToManyMap<String, String> assemblyToDisassemblyMap;
+	protected final BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
 	protected List<Integer> breakPoints;
 	
 	public ASMImage(
-			BiDirectionalOneToManyMap<String, String> assemblyDisassemblyMap)
+			BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyDisassemblyMap)
 	{
 		this.assemblyToDisassemblyMap = assemblyDisassemblyMap;
 		this.breakPoints = new ArrayList<>();
