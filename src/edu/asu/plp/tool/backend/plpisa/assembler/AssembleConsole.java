@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.StringJoiner;
 
+import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 
 public class AssembleConsole
 {
 	static Scanner scanner;
-	static PLPAssembler assembler;
+	static Assembler assembler;
 	static StringJoiner fileJoiner;
 	
 	public static void main(String[] args)
@@ -39,6 +40,7 @@ public class AssembleConsole
 			try
 			{
 				assembler = new PLPAssembler(file.getAbsolutePath());
+				System.out.println("Starting Assemble");
 				assembler.assemble();
 			}
 			catch (IOException | AssemblerException e)
