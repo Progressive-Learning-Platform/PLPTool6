@@ -75,36 +75,68 @@ public class OrderedBiDirectionalOneToManyHashMap<K, V> implements
 	@Override
 	public boolean remove(K key, V value)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// TODO: this does not support null keys
+		List<V> mappedValues = keys.get(key);
+		if (mappedValues == null)
+			return false;
+		
+		K mappedKey = values.get(value);
+		
+		// If the given key-value pair is in this map
+		if (mappedKey != null && mappedKey.equals(key))
+		{
+			mappedValues.remove(value);
+			if (mappedValues.isEmpty())
+				keys.remove(key);
+			values.remove(value);
+		}
+		
+		return keys.containsKey(key);
 	}
 	
 	@Override
 	public List<V> removeKey(K key)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		List<V> mappedValues = keys.get(key);
+		if (mappedValues == null)
+			return null;
+		
+		for (V value : mappedValues)
+			values.remove(value);
+		
+		return keys.remove(key);
 	}
 	
 	@Override
 	public K removeValue(V value)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		if (!values.containsKey(value))
+			return null;
+		
+		K mappedKey = values.remove(value);
+		List<V> mappedValues = keys.get(mappedKey);
+		if (mappedValues == null)
+			throw new IllegalStateException(
+					"Invalid internal key mapping. Expected list to be non-null");
+		
+		mappedValues.remove(value);
+		if (mappedValues.isEmpty())
+			keys.remove(mappedKey);
+		
+		return mappedKey;
 	}
 	
 	@Override
 	public boolean containsKey(K key)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return keys.containsKey(key);
 	}
 	
 	@Override
 	public boolean containsValue(V value)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// containsKey(value) is not a typo. The "key" of the values map is a Value
+		return values.containsKey(value);
 	}
 	
 	@Override
