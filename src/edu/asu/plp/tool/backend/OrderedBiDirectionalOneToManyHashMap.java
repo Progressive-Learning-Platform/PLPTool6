@@ -29,9 +29,24 @@ import java.util.Set;
 public class OrderedBiDirectionalOneToManyHashMap<K, V> implements
 		BiDirectionalOneToManyMap<K, V>
 {
+	/**
+	 * Map of keys to all associated values. If a key is contained in this map, it is
+	 * expected to have at least one value associated with it. Keys mapped to an empty
+	 * list are not allowed.
+	 */
 	private Map<K, List<V>> keys;
+	
+	/**
+	 * Map of all values to their corresponding key. Each value must be unique, and is
+	 * required to also appear in a list inside {@link #keys}. If a value is contained in
+	 * this map, it must have a corresponding key, and it must appear in one of the
+	 * value-lists in {@link #keys}
+	 */
 	private Map<V, K> values;
 	
+	/**
+	 * Creates an empty Map
+	 */
 	public OrderedBiDirectionalOneToManyHashMap()
 	{
 		this.keys = new LinkedHashMap<>();
