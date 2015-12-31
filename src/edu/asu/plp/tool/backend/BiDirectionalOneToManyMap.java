@@ -39,18 +39,17 @@ public interface BiDirectionalOneToManyMap<K, V>
 	public K put(K key, V value);
 	
 	/**
-	 * Removes the key-value pair from this map and returns true if the removal was
-	 * successful. A removal will be unsuccessful if the map does not contain the
-	 * key-value pair, but may fail for other reasons.
+	 * Removes the key-value pair from this map and returns true if the given key is still
+	 * a member of this map after the pair was removed.
 	 * <p>
-	 * If there are conditions under which this operation may fail, they should be
-	 * specified in the javadoc of the implementing class.
+	 * If the given value is the only value associated with the key, then the key will
+	 * also be removed from this map.
 	 * 
 	 * @param key
 	 *            Key object
 	 * @param value
 	 *            Value object
-	 * @return True if the removal was successful, false otherwise
+	 * @return True if the key is still a member of this map, false otherwise
 	 */
 	public boolean remove(K key, V value);
 	
