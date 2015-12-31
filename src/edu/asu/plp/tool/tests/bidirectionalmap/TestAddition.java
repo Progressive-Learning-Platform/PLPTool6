@@ -118,6 +118,30 @@ public class TestAddition
 	{
 		
 	}
+
+	@Test
+	public void testUniqueKeysSameValue_ReturnsOldKey()
+	{
+		
+	}
+	
+	@Test
+	public void testUniqueKeysSameValue_EmptyKeyIsRemoved()
+	{
+		
+	}
+	
+	@Test
+	public void testUniqueKeysSameValue_MultiValuedKeyIsNotRemoved()
+	{
+		
+	}
+	
+	@Test
+	public void testRetrieveSingleKeyMultiValues()
+	{
+		
+	}
 	
 	/*
 	 * Size Tests
