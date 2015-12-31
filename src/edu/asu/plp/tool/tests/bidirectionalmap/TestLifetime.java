@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
+import edu.asu.plp.tool.backend.OrderedBiDirectionalOneToManyHashMap;
 
 public class TestLifetime
 {
@@ -15,12 +16,13 @@ public class TestLifetime
 	@Before
 	public void setUp()
 	{
+		map = new OrderedBiDirectionalOneToManyHashMap<>();
 	}
 	
 	@After
 	public void tearDown()
 	{
-		
+		map = null;
 	}
 	
 	@Test

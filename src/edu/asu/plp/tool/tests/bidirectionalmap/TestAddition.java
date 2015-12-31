@@ -3,8 +3,10 @@ package edu.asu.plp.tool.tests.bidirectionalmap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Assert.*;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
+import edu.asu.plp.tool.backend.OrderedBiDirectionalOneToManyHashMap;
 
 public class TestAddition
 {
@@ -13,13 +15,13 @@ public class TestAddition
 	@Before
 	public void setUp()
 	{
-		
+		map = new OrderedBiDirectionalOneToManyHashMap<>();
 	}
 	
 	@After
 	public void tearDown()
 	{
-		
+		map = null;
 	}
 	
 	/*
