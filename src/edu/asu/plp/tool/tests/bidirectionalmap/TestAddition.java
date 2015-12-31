@@ -116,31 +116,63 @@ public class TestAddition
 	@Test
 	public void testUniqueKeysSameValue()
 	{
+		String key1 = "firstKey";
+		String key2 = "secondKey";
+		String value = "value";
 		
+		map.put(key1, value);
+		map.put(key2, value);
+		assertTrue(map.contains(key2, value));
+		assertFalse(map.contains(key1, value));
 	}
 
 	@Test
 	public void testUniqueKeysSameValue_ReturnsOldKey()
 	{
+		String key1 = "firstKey";
+		String key2 = "secondKey";
+		String value = "value";
 		
+		String ret1 = map.put(key1, value);
+		String ret2 = map.put(key2, value);
+
+		assertEquals(null, ret1);
+		assertEquals(key1, ret2);
 	}
 	
 	@Test
 	public void testUniqueKeysSameValue_EmptyKeyIsRemoved()
 	{
+		String key1 = "firstKey";
+		String key2 = "secondKey";
+		String value = "value";
 		
+		map.put(key1, value);
+		map.put(key2, value);
+
+		assertTrue(map.containsValue(value));
+		assertTrue(map.containsKey(key2));
+		assertFalse(map.containsKey(key1));
 	}
 	
 	@Test
 	public void testUniqueKeysSameValue_MultiValuedKeyIsNotRemoved()
 	{
-		
-	}
-	
-	@Test
-	public void testRetrieveSingleKeyMultiValues()
-	{
-		
+		String key1 = "firstKey";
+		String key2 = "secondKey";
+		String value = "value";
+		String value2 = "value2";
+
+		map.put(key1, value);
+		map.put(key1, value2);
+		map.put(key2, value);
+
+		assertTrue(map.containsValue(value));
+		assertTrue(map.containsKey(key2));
+		assertTrue(map.containsKey(key1));
+		assertTrue(map.contains(key2, value));
+		assertTrue(map.contains(key1, value2));
+		assertFalse(map.contains(key1, value));
 	}
 	
 	/*
