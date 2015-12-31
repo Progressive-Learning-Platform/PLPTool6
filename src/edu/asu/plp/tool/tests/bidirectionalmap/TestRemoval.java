@@ -6,9 +6,9 @@ import org.junit.Test;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 
-public class TestRemoval<K, V>
+public class TestRemoval
 {
-	private BiDirectionalOneToManyMap<K, V> map;
+	private BiDirectionalOneToManyMap<String, String> map;
 	
 	@Before
 	public void setUp()

@@ -6,13 +6,14 @@ import org.junit.Test;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 
-public class TestAddition<K, V>
+public class TestAddition
 {
-	private BiDirectionalOneToManyMap<K, V> map;
+	private BiDirectionalOneToManyMap<String, String> map;
 	
 	@Before
 	public void setUp()
 	{
+		
 	}
 	
 	@After
@@ -59,7 +60,7 @@ public class TestAddition<K, V>
 	{
 		
 	}
-		
+	
 	/*
 	 * Size Tests
 	 */

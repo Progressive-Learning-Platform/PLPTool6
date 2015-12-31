@@ -8,9 +8,9 @@ import org.junit.Test;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 
-public class TestLifetime<K, V>
+public class TestLifetime
 {
-	private BiDirectionalOneToManyMap<K, V> map;
+	private BiDirectionalOneToManyMap<String, String> map;
 	
 	@Before
 	public void setUp()
@@ -28,6 +28,5 @@ public class TestLifetime<K, V>
 	{
 		
 	}
-	
 	
 }
