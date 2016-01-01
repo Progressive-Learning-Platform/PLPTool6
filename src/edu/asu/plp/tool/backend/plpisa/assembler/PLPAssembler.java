@@ -156,12 +156,21 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
-	private void preprocessNormalInstruction() throws AssemblerException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	/*
+	 * 
+	 * ======================= Pseudo Operations =========================
+	 * 
+	 */
 	
+	/**
+	 * No-operation. Can be used for branch delay slots
+	 * 
+	 * nop
+	 * 
+	 * equivalent to: sll $0, $0, 0
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void nopOperation() throws AssemblerException
 	{
 		appendPreprocessedInstruction("sll $0, $0, 0", lineNumber, true);
@@ -169,7 +178,11 @@ public class PLPAssembler extends Assembler
 	}
 	
 	/**
-	 * Branch always
+	 * Branch always to label
+	 * 
+	 * b label
+	 * 
+	 * equivalent to: beq $0, $0, label
 	 * 
 	 * @throws AssemblerException
 	 */
@@ -187,7 +200,11 @@ public class PLPAssembler extends Assembler
 	}
 	
 	/**
-	 * Copy Register
+	 * Copy Register. Copy $rs to $rd
+	 * 
+	 * move $rd, $rs
+	 * 
+	 * equivalent to: add $rd, $0, $rs
 	 * 
 	 * @throws AssemblerException
 	 */
@@ -212,49 +229,200 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
+	/**
+	 * Push register onto stack-- we modify the stack pointer first so if the CPU is
+	 * interrupted between the two instructions, the data written wont get clobbered
+	 * 
+	 * Push $rt into the stack
+	 * 
+	 * push $rt
+	 * 
+	 * equivalent to: addiu $sp, $sp, -4; sw $rt, 0($sp)
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void pushOperation() throws AssemblerException
 	{
-	
+		expectedNextToken("push pseudo operation");
+		
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(push) Expected a register, found: ");
+		
+		appendPreprocessedInstruction("addiu $sp, $sp, -4", lineNumber, true);
+		appendPreprocessedInstruction("sw " + currentToken.getValue() + ", 4($sp)",
+				lineNumber, true);
+				
+		addRegionAndIncrementAddress(2, 8);
 	}
 	
+	/**
+	 * Pop data from stack onto a register-- in the pop case, we want to load first so if
+	 * the CPU is interrupted we have the data copied already
+	 * 
+	 * Pop data from the top of the stack to $rt
+	 * 
+	 * pop $rt
+	 * 
+	 * equivalent to: lw $rt, 0($sp); addiu $sp, $sp, 4
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void popOperation() throws AssemblerException
 	{
-	
+		expectedNextToken("pop pseudo operation");
+		
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(push) Expected a register, found: ");
+		
+		appendPreprocessedInstruction("lw " + currentToken.getValue() + ", 4($sp)",
+				lineNumber, true);
+		appendPreprocessedInstruction("addiu $sp, $sp, 4", lineNumber, true);
+		
+		addRegionAndIncrementAddress(2, 8);
 	}
 	
+	/**
+	 * Load Immediate
+	 * 
+	 * Load a 32-bit number to $rd Load the address of a label to a register to be used as
+	 * a pointer.
+	 * 
+	 * li $rd, imm li $rd, label
+	 * 
+	 * equivalent to: lui $rd, (imm & 0xff00) >> 16; ori $rd, imm & 0x00ff equivalent to:
+	 * lui $rd, (imm & 0xff00) >> 16; ori $rd, imm & 0x00ff
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void liOperation() throws AssemblerException
 	{
-	
+		expectedNextToken("load immediate pseudo operation");
+		String firstValue = currentToken.getValue();
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(li) Expected a register, found: ");
+		
+		expectedNextToken("load immediate pseudo operation");
+		String secondValue = currentToken.getValue();
+		// TODO ensure second value type
+		
+		appendPreprocessedInstruction("lui " + firstValue + ", $_hi: " + secondValue,
+				lineNumber, true);
+		appendPreprocessedInstruction(
+				"ori " + firstValue + ", " + firstValue + ", $_lo: " + secondValue,
+				lineNumber, true);
+				
+		addRegionAndIncrementAddress(2, 8);
 	}
 	
+	/**
+	 * Store the value in $rt to a memory location
+	 * 
+	 * lwm $rt, imm32/label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private void lvmOperation() throws AssemblerException
+	{
+		expectedNextToken("lvm psuedo operation");
+		String register = currentToken.getValue();
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(lvm) Expected a register, found: ");
+		
+		expectedNextToken("lvm psuedo operation");
+		String immediateOrLabel = currentToken.getValue();
+		//TODO ensure token validity
+		
+		appendPreprocessedInstruction("lui $at, $_hi: " + immediateOrLabel, lineNumber, true);
+		appendPreprocessedInstruction("ori $at, $at, $_lo: " + immediateOrLabel, lineNumber, true);
+		appendPreprocessedInstruction("lw " + register + ", 0($at)", lineNumber, true);
+		
+		addRegionAndIncrementAddress(3, 12);
+	}
+	
+	/**
+	 * Store to memory
+	 * 
+	 * swm $rt, imm32/label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private void svmOperation() throws AssemblerException
+	{
+		expectedNextToken("svm psuedo operation");
+		String register = currentToken.getValue();
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(svm) Expected a register, found: ");
+		
+		expectedNextToken("svm psuedo operation");
+		String immediateOrLabel = currentToken.getValue();
+		//TODO ensure token validity
+		
+		appendPreprocessedInstruction("lui $at, $_hi: " + immediateOrLabel, lineNumber, true);
+		appendPreprocessedInstruction("ori $at, $at, $_lo: " + immediateOrLabel, lineNumber, true);
+		appendPreprocessedInstruction("sw " + register + ", 0($at)", lineNumber, true);
+		
+		addRegionAndIncrementAddress(3, 12);
+	}
+	
+	/**
+	 * Save registers and call a function
+	 * 
+	 * Save $aX, $tX, $sX, and $ra to stack and call function
+	 * 
+	 * call label
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void callOperation() throws AssemblerException
 	{
 	
 	}
 	
+	/**
+	 * Restore registers and return from callee. NOT INTERRUPT SAFE
+	 * 
+	 * Restore $aX, $tX, $sX, and $ra from stack and return
+	 * 
+	 * return
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void returnOperation() throws AssemblerException
 	{
 	
 	}
 	
+	/**
+	 * Save all registers except for $zero to stack
+	 * 
+	 * save
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void saveOperation() throws AssemblerException
 	{
 	
 	}
 	
+	/**
+	 * Restore all none-zero registers from the stack
+	 * 
+	 * Restore all registers saved by 'save' in reverse order
+	 * 
+	 * restore
+	 * 
+	 * @throws AssemblerException
+	 */
 	private void restoreOperation() throws AssemblerException
 	{
 	
 	}
 	
-	private void lvmOperation() throws AssemblerException
+	/*
+	 * 
+	 * ======================= Preprocess Operations =========================
+	 * 
+	 */
+	
+	private void preprocessNormalInstruction() throws AssemblerException
 	{
-	
-	}
-	
-	private void svmOperation() throws AssemblerException
-	{
-	
+		// TODO Auto-generated method stub
+		
 	}
 	
 	private void preprocessLabels() throws AssemblerException
@@ -278,6 +446,12 @@ public class PLPAssembler extends Assembler
 		}
 		
 	}
+	
+	/*
+	 * 
+	 * ======================= Preprocess Directives =========================
+	 * 
+	 */
 	
 	private void orgDirective() throws AssemblerException
 	{
@@ -544,6 +718,12 @@ public class PLPAssembler extends Assembler
 		throw new UnsupportedOperationException("Include Directive is not implemented");
 	}
 	
+	/*
+	 * 
+	 * ======================= Initialization =========================
+	 * 
+	 */
+	
 	private void initialize()
 	{
 		allowedOpCodeLengths = new int[] { 1 };
@@ -691,6 +871,12 @@ public class PLPAssembler extends Assembler
 		}
 	}
 	
+	/*
+	 * 
+	 * ======================= Helper Functions =========================
+	 * 
+	 */
+	
 	private void appendPreprocessedInstruction(String instruction, int lineNumber,
 			boolean newLine)
 	{
@@ -742,18 +928,16 @@ public class PLPAssembler extends Assembler
 	
 	private void addRegionAndIncrementAddress()
 	{
-		addRegionAndIncrementAddress(currentRegion);
+		addRegionAndIncrementAddress(1, 4);
 	}
 	
-	private void addRegionAndIncrementAddress(int currentRegionToAdd)
-	{
-		addRegionAndIncrementAddress(currentRegionToAdd, 4);
-	}
-	
-	private void addRegionAndIncrementAddress(int currentRegionToAdd,
+	private void addRegionAndIncrementAddress(int timesToAddCurrentRegion,
 			int currentAddressIncrementSize)
 	{
-		regionMap.add(currentRegionToAdd);
+		for(int index = 0; index < timesToAddCurrentRegion; index++)
+		{
+			regionMap.add(currentRegion);
+		}
 		currentAddress += currentAddressIncrementSize;
 	}
 	
