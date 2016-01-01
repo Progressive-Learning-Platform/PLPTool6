@@ -28,7 +28,7 @@ public class AssembleConsole
 		{
 			//System.out.println("Enter a file to assemble: ");
 			//String input = scanner.nextLine();
-			File file = new File("D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/memtest/main.asm");
+			File file = new File("D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/gpio_test/main.asm");
 			if (!file.isFile())
 			{
 				System.out.println("Path entered is not a file!");

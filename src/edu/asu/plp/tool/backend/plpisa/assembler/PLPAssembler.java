@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.backend.plpisa.assembler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,16 +22,19 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 import edu.asu.plp.tool.backend.util.ISAUtil;
-import moore.util.Subroutine;
 
 public class PLPAssembler extends Assembler
 {
+	private List<PLPAsm> asmFiles;
+	private List<Integer> regionMap;
+	
 	private BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
+	
 	private HashMap<String, Integer> functionMap;
 	private HashMap<String, Integer> opcodeMap;
 	private HashMap<String, AssemblerStep> directiveMap;
-	private List<PLPAsm> asmFiles;
-	private List<Integer> regionMap;
+	
+	private HashMap<String, Long> symbolTable;
 	
 	private long currentAddress;
 	private long currentTextAddress;
@@ -134,15 +138,18 @@ public class PLPAssembler extends Assembler
 			else if (functionMap.containsKey(currentToken.getValue())
 					|| opcodeMap.containsKey(currentToken.getValue()))
 			{
-			
+				preprocessNormalInstruction();
 			}
 			// Comments
 			else if (currentToken.getTypeName().equals(PLPTokenType.COMMENT.name()))
 			{
+				appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
+				directiveOffset++;
 			}
 			// Labels
 			else if (currentToken.getTypeName().equals(PLPTokenType.LABEL_COLON.name()))
 			{
+				preprocessLabels();
 			}
 			
 			if (!nextToken())
@@ -151,16 +158,300 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
-	private void preprocessPseudoOperation()
+	private void preprocessNormalInstruction() throws AssemblerException
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private void preprocessLabels() throws AssemblerException
+	{
+		Token directiveToken = currentToken;
+		String labelValue = directiveToken.getValue();
+		// Remove colon from label
+		labelValue = labelValue.substring(0, labelValue.length() - 1);
+		
+		if (symbolTable.containsKey(labelValue))
+		{
+			throw new AssemblerException("(" + directiveToken.getTypeName()
+					+ ") preprocessing label failure. Symbol already defined, found: "
+					+ directiveToken.getValue());
+		}
+		else
+		{
+			symbolTable.put(labelValue, new Long((int) currentAddress));
+			appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
+			directiveOffset++;
+		}
+		
+	}
+	
+	private void preprocessPseudoOperation() throws AssemblerException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void orgDirective() throws AssemblerException
+	{
+		expectedNextToken(".org directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
+		{
+			throw new AssemblerException(
+					"(.org) Expected an address, found: " + currentToken.getValue());
+		}
+		
+		appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber,
+				true);
+		directiveOffset++;
+		try
+		{
+			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
+		}
+		catch (AssemblyException e)
+		{
+			e.printStackTrace();
+		}
+		
+		entryPoint = (entryPoint < 0) ? currentAddress : entryPoint;
+	}
+	
+	private void wordDirective() throws AssemblerException
+	{
+		expectedNextToken(".word directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
+		{
+			throw new AssemblerException(
+					"(.word) Expected number to initialize current memory address to, found: "
+							+ currentToken.getValue());
+		}
+		
+		appendPreprocessedInstruction(ASM__WORD__ + currentToken.getValue(), lineNumber,
+				true);
+		regionMap.add(currentRegion);
+		currentAddress += 4;
+	}
+	
+	private void spaceDirective() throws AssemblerException
+	{
+		expectedNextToken(".space directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
+		{
+			throw new AssemblerException(
+					"(.space) Expected a number, found: " + currentToken.getValue());
+		}
+		
+		try
+		{
+			long size = ISAUtil.sanitize32bits(currentToken.getValue());
+			currentAddress += 4 * size;
+			bytesSpace += 4 * size;
+			
+			appendPreprocessedInstruction(ASM__ORG__ + currentAddress, lineNumber, true);
+			directiveOffset++;
+			
+			regionMap.add(currentRegion);
+		}
+		catch (AssemblyException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void asciiDirective() throws AssemblerException
+	{
+		Token directiveToken = currentToken;
+		boolean wordAligned = directiveToken.getValue().equals(".asciiw");
+		
+		expectedNextToken(currentToken.getValue() + " directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
+		{
+			throw new AssemblerException("(" + directiveToken.getValue()
+					+ ") Expected a string to store, found: " + currentToken.getValue());
+		}
+		
+		// Strip quotes
+		String currentValue = null;
+		if (currentToken.getValue().charAt(0) == '\"')
+			currentValue = currentToken.getValue().substring(1,
+					currentToken.getValue().length() - 1);
+					
+		// Check for escaped characters
+		// Only loop through indices that contain \\
+		StringBuffer stringBuffer = new StringBuffer(currentValue);
+		List<Character> specialEscapedCharacters = Arrays.asList('n', 'r', 't', '0');
+		
+		for (int index = -1; (index = currentValue.indexOf("\\", index + 1)) != -1;)
+		{
+			if (index != currentValue.length() - 1)
+			{
+				if (specialEscapedCharacters.contains(currentValue.charAt(index + 1)))
+				{
+					stringBuffer = stringBuffer.replace(index, index + 2,
+							"\\" + specialEscapedCharacters
+									.indexOf(currentValue.charAt(index + 1)));
+				}
+				else if (currentValue.charAt(index + 1) == '\\')
+				{
+					stringBuffer = stringBuffer.replace(index, index + 2, "\\");
+				}
+				else
+				{
+					System.out.println("(" + directiveToken.getValue()
+							+ ") Preprocessing could not identify escaped character, found: \\"
+							+ currentValue.charAt(index + 1) + ".\n\tIn "
+							+ currentToken.getValue() + "\n");
+				}
+			}
+		}
+		
+		currentValue = stringBuffer.toString();
+		
+		// if directive is asciiz, we need to append a null character
+		if (directiveToken.getValue().equals(".asciiz"))
+			currentValue += '\0';
+			
+		// if string is not word-aligned, pad with zeroes
+		if (currentValue.length() % 4 != 0 && !wordAligned)
+		{
+			int neededPadding = 4 - (currentValue.length() % 4);
+			for (int index = 0; index < neededPadding; index++)
+			{
+				currentValue += '\0';
+			}
+		}
+		
+		// add ASM__WORD__ 2nd pass directives and were done
+		for (int index = 0; index < currentValue.length(); index++)
+		{
+			if (index % (wordAligned ? 1 : 4) == 0)
+				appendPreprocessedInstruction(ASM__WORD__ + " 0x", lineNumber, false);
+				
+			if (!wordAligned)
+				appendPreprocessedInstruction(
+						String.format("%02x", (int) currentValue.charAt(index)),
+						lineNumber, false);
+			else
+			{
+				appendPreprocessedInstruction(
+						String.format("%08x", (int) currentValue.charAt(index)),
+						lineNumber, true);
+				regionMap.add(currentRegion);
+				currentAddress += 4;
+			}
+			
+			if (!wordAligned && (index + 1) % 4 == 0 && index > 0)
+			{
+				regionMap.add(currentRegion);
+				currentAddress += 4;
+				appendPreprocessedInstruction("", lineNumber, true);
+			}
+		}
+	}
+	
+	private void includeDirective() throws AssemblerException
+	{
+		expectedNextToken("include directive");
+		
+		throw new UnsupportedOperationException("Include Directive is not implemented");
+	}
+	
+	private void textDirective() throws AssemblerException
+	{
+		expectedNextToken(".text directive");
+		
+		if (currentRegion != 1)
+		{
+			if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
+			{
+				throw new AssemblerException(
+						"(.text) Expected a string, found: " + currentToken.getValue());
+			}
+			
+			directiveOffset++;
+			
+			if (currentRegion == 2)
+				currentDataAddress = currentAddress;
+				
+			currentRegion = 1;
+			currentAddress = currentTextAddress;
+			
+			// TODO ASM .text has a line that should never be reached. Look into it.
+			appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(),
+					lineNumber, true);
+			try
+			{
+				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
+			}
+			catch (AssemblyException e)
+			{
+				e.printStackTrace();
+			}
+			entryPoint = currentAddress;
+			currentTextAddress = entryPoint;
+			
+			if (currentAddress < 0)
+				throw new AssemblerException(
+						"Starting address for .text is not defined.");
+		}
+	}
+	
+	private void dataDirective() throws AssemblerException
+	{
+		expectedNextToken(".data directive");
+		
+		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
+		{
+			throw new AssemblerException(
+					"(.data) Expected a string, found: " + currentToken.getValue());
+		}
+		
+		if (currentRegion != 2)
+		{
+			directiveOffset++;
+			if (currentRegion == 1)
+				currentTextAddress = currentAddress;
+				
+			currentRegion = 2;
+			currentAddress = currentDataAddress;
+			
+			// TODO Asm .data has a line that should never be reached. Look into it.
+			appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(),
+					lineNumber, true);
+			try
+			{
+				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
+			}
+			catch (AssemblyException e)
+			{
+				e.printStackTrace();
+			}
+			currentDataAddress = currentAddress;
+			
+			if (currentAddress < 0)
+				throw new AssemblerException(
+						"Starting address for .data is not defined.");
+		}
+	}
+	
+	private void equDirective() throws AssemblerException
+	{
+		expectedNextToken(".equ directive");
+		
+		throw new UnsupportedOperationException("equ Directive is not implemented");
 	}
 	
 	private void initialize()
 	{
 		allowedOpCodeLengths = new int[] { 1 };
 		opCodeSize = UnitSize.getSize(DefaultSize.BYTE);
+		regionMap = new ArrayList<>();
+		symbolTable = new HashMap<>();
 		instructionOpcodeMap = new HashMap<>();
 		registerMap = new HashMap<>();
 		functionMap = new HashMap<>();
@@ -301,182 +592,6 @@ public class PLPAssembler extends Assembler
 			registerMap.put("$" + index, (byte) index);
 			registerMap.put(registers[index], (byte) index);
 		}
-	}
-	
-	private void orgDirective() throws AssemblerException
-	{
-		expectedNextToken(".org directive");
-		
-		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
-		{
-			throw new AssemblerException(
-					"(.org) Expected an address, found: " + currentToken.getValue());
-		}
-		
-		appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber,
-				true);
-		directiveOffset++;
-		try
-		{
-			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
-		}
-		catch (AssemblyException e)
-		{
-			e.printStackTrace();
-		}
-		
-		entryPoint = (entryPoint < 0) ? currentAddress : entryPoint;
-	}
-	
-	private void wordDirective() throws AssemblerException
-	{
-		expectedNextToken(".word directive");
-		
-		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
-		{
-			throw new AssemblerException(
-					"(.word) Expected number to initialize current memory address to, found: "
-							+ currentToken.getValue());
-		}
-		
-		appendPreprocessedInstruction(ASM__WORD__ + currentToken.getValue(), lineNumber,
-				true);
-		regionMap.add(currentRegion);
-		currentAddress += 4;
-	}
-	
-	private void spaceDirective() throws AssemblerException
-	{
-		expectedNextToken(".space directive");
-		
-		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
-		{
-			throw new AssemblerException(
-					"(.space) Expected a number, found: " + currentToken.getValue());
-		}
-		
-		try
-		{
-			long size = ISAUtil.sanitize32bits(currentToken.getValue());
-			currentAddress += 4 * size;
-			bytesSpace += 4 * size;
-			
-			appendPreprocessedInstruction(ASM__ORG__ + currentAddress, lineNumber, true);
-			directiveOffset++;
-			
-			regionMap.add(currentRegion);
-		}
-		catch (AssemblyException e)
-		{
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private void asciiDirective() throws AssemblerException
-	{
-		Token directiveToken = currentToken;
-		boolean wordAligned = directiveToken.getValue().equals(".asciiw");
-		
-		expectedNextToken(currentToken.getValue() + " directive");
-		
-		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
-		{
-			throw new AssemblerException("(" + directiveToken.getValue() + ") Expected a string to store, found: "
-					+ currentToken.getValue());
-		}
-		
-		
-		
-		throw new UnsupportedOperationException("Ascii Directive is not implemented");
-	}
-	
-	private void includeDirective() throws AssemblerException
-	{
-		expectedNextToken("include directive");
-		
-		throw new UnsupportedOperationException("Include Directive is not implemented");
-	}
-	
-	private void textDirective() throws AssemblerException
-	{
-		expectedNextToken(".text directive");
-		
-		if (currentRegion != 1)
-		{
-			if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
-			{
-				throw new AssemblerException(
-						"(.text) Expected a string, found: " + currentToken.getValue());
-			}
-			
-			directiveOffset++;
-			
-			if (currentRegion == 2)
-				currentDataAddress = currentAddress;
-				
-			currentRegion = 1;
-			currentAddress = currentTextAddress;
-			
-			// TODO ASM .text has a line that should never be reached. Look into it.
-			appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber, true);
-			try
-			{
-				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
-			}
-			catch (AssemblyException e)
-			{
-				e.printStackTrace();
-			}
-			entryPoint = currentAddress;
-			currentTextAddress = entryPoint;
-			
-			if(currentAddress < 0)
-				throw new AssemblerException("Starting address for .text is not defined.");
-		}
-	}
-	
-	private void dataDirective() throws AssemblerException
-	{
-		expectedNextToken(".data directive");
-		
-		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
-		{
-			throw new AssemblerException(
-					"(.data) Expected a string, found: " + currentToken.getValue());
-		}
-		
-		if(currentRegion != 2)
-		{
-			directiveOffset++;
-			if(currentRegion == 1)
-				currentTextAddress = currentAddress;
-			
-			currentRegion = 2;
-			currentAddress = currentDataAddress;
-			
-			// TODO Asm .data has a line that should never be reached. Look into it.
-			appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber, true);
-			try
-			{
-				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
-			}
-			catch (AssemblyException e)
-			{
-				e.printStackTrace();
-			}
-			currentDataAddress = currentAddress;
-			
-			if(currentAddress < 0)
-				throw new AssemblerException("Starting address for .data is not defined.");
-		}
-	}
-	
-	private void equDirective() throws AssemblerException
-	{
-		expectedNextToken(".equ directive");
-		
-		throw new UnsupportedOperationException("equ Directive is not implemented");
 	}
 	
 	private void appendPreprocessedInstruction(String instruction, int lineNumber,
