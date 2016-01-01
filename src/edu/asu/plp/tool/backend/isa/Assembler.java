@@ -27,15 +27,6 @@ public abstract class Assembler
 	protected HashMap<String, Integer> instructionOpcodeMap;
 	
 	/*
-	 * <p>Pseudo Operation mneumonic label mapped to how many tokens follow.</p>
-	 * <p>e.g.</p>
-	 * <p>nop -> 0</p>
-	 * <p>b -> 1 (b label)</p>
-	 * <p>move -> 3 (move $rd, $rs)</p>
-	 */
-	protected HashMap<String, Integer> pseudoOperationMap;
-	
-	/*
 	 * Most CPUs dont even pass 40 registers, so a byte is okay.
 	 */
 	protected HashMap<String, Byte> registerMap;

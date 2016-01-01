@@ -33,6 +33,7 @@ public class PLPAssembler extends Assembler
 	private HashMap<String, Integer> functionMap;
 	private HashMap<String, Integer> opcodeMap;
 	private HashMap<String, AssemblerStep> directiveMap;
+	protected HashMap<String, AssemblerStep> pseudoOperationMap;
 	
 	private HashMap<String, Long> symbolTable;
 	
@@ -112,27 +113,24 @@ public class PLPAssembler extends Assembler
 	{
 		int lineNumber = 0;
 		// TODO loop through each file
-		nextToken();
-		
+		if (!nextToken())
+			return;
+			
 		while (currentToken != null)
 		{
 			// Loop directives
 			if (currentToken.getTypeName() == PLPTokenType.DIRECTIVE.name())
 			{
 				if (directiveMap.containsKey(currentToken.getValue()))
-				{
 					directiveMap.get(currentToken.getValue()).perform();
-				}
 				else
-				{
 					throw new AssemblerException(
 							"Unknown directive. Found: " + currentToken.getValue());
-				}
 			}
 			// Loop PseudoOps
 			else if (pseudoOperationMap.containsKey(currentToken.getValue()))
 			{
-				preprocessPseudoOperation();
+				pseudoOperationMap.get(currentToken.getValue()).perform();
 			}
 			// Instructions
 			else if (functionMap.containsKey(currentToken.getValue())
@@ -164,6 +162,101 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
+	private void nopOperation() throws AssemblerException
+	{
+		appendPreprocessedInstruction("sll $0, $0, 0", lineNumber, true);
+		addRegionAndIncrementAddress();
+	}
+	
+	/**
+	 * Branch always
+	 * 
+	 * @throws AssemblerException
+	 */
+	private void branchOperation() throws AssemblerException
+	{
+		expectedNextToken("pseudo move operation");
+		
+		ensureTokenEquality(PLPTokenType.LABEL_PLAIN,
+				"(b) Expected a label to branch to, found: ");
+				
+		appendPreprocessedInstruction("beq $0, $0, " + currentToken.getValue(),
+				lineNumber, true);
+				
+		addRegionAndIncrementAddress();
+	}
+	
+	/**
+	 * Copy Register
+	 * 
+	 * @throws AssemblerException
+	 */
+	private void moveOperation() throws AssemblerException
+	{
+		expectedNextToken("pseudo move operation");
+		
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(move) Expected a register, found: ");
+		
+		expectedNextToken("pseudo move operation");
+		
+		String startingRegister = currentToken.getValue();
+		ensureTokenEquality(PLPTokenType.ADDRESS, "(move) Expected a register, found: ");
+		
+		// TODO (Look into) Google Code PLP says it's equivalent instruction is Add, src
+		// code uses or
+		appendPreprocessedInstruction(
+				"or " + destinationRegister + ", $0," + startingRegister, lineNumber,
+				true);
+		addRegionAndIncrementAddress();
+		
+	}
+	
+	private void pushOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void popOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void liOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void callOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void returnOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void saveOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void restoreOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void lvmOperation() throws AssemblerException
+	{
+	
+	}
+	
+	private void svmOperation() throws AssemblerException
+	{
+	
+	}
+	
 	private void preprocessLabels() throws AssemblerException
 	{
 		Token directiveToken = currentToken;
@@ -186,21 +279,11 @@ public class PLPAssembler extends Assembler
 		
 	}
 	
-	private void preprocessPseudoOperation() throws AssemblerException
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
 	private void orgDirective() throws AssemblerException
 	{
 		expectedNextToken(".org directive");
 		
-		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
-		{
-			throw new AssemblerException(
-					"(.org) Expected an address, found: " + currentToken.getValue());
-		}
+		ensureTokenEquality(PLPTokenType.NUMERIC, "(.org) Expected an address, found: ");
 		
 		appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber,
 				true);
@@ -221,28 +304,19 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".word directive");
 		
-		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
-		{
-			throw new AssemblerException(
-					"(.word) Expected number to initialize current memory address to, found: "
-							+ currentToken.getValue());
-		}
-		
+		ensureTokenEquality(PLPTokenType.NUMERIC,
+				"(.word) Expected number to initialize current memory address to, found: ");
+				
 		appendPreprocessedInstruction(ASM__WORD__ + currentToken.getValue(), lineNumber,
 				true);
-		regionMap.add(currentRegion);
-		currentAddress += 4;
+		addRegionAndIncrementAddress();
 	}
 	
 	private void spaceDirective() throws AssemblerException
 	{
 		expectedNextToken(".space directive");
 		
-		if (!currentToken.getTypeName().equals(PLPTokenType.NUMERIC.name()))
-		{
-			throw new AssemblerException(
-					"(.space) Expected a number, found: " + currentToken.getValue());
-		}
+		ensureTokenEquality(PLPTokenType.NUMERIC, "(.space) Expected a number, found: ");
 		
 		try
 		{
@@ -269,12 +343,9 @@ public class PLPAssembler extends Assembler
 		
 		expectedNextToken(currentToken.getValue() + " directive");
 		
-		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
-		{
-			throw new AssemblerException("(" + directiveToken.getValue()
-					+ ") Expected a string to store, found: " + currentToken.getValue());
-		}
-		
+		ensureTokenEquality(PLPTokenType.STRING, "(" + directiveToken.getValue()
+				+ ") Expected a string to store, found: ");
+				
 		// Strip quotes
 		String currentValue = null;
 		if (currentToken.getValue().charAt(0) == '\"')
@@ -341,24 +412,15 @@ public class PLPAssembler extends Assembler
 				appendPreprocessedInstruction(
 						String.format("%08x", (int) currentValue.charAt(index)),
 						lineNumber, true);
-				regionMap.add(currentRegion);
-				currentAddress += 4;
+				addRegionAndIncrementAddress();
 			}
 			
 			if (!wordAligned && (index + 1) % 4 == 0 && index > 0)
 			{
-				regionMap.add(currentRegion);
-				currentAddress += 4;
+				addRegionAndIncrementAddress();
 				appendPreprocessedInstruction("", lineNumber, true);
 			}
 		}
-	}
-	
-	private void includeDirective() throws AssemblerException
-	{
-		expectedNextToken("include directive");
-		
-		throw new UnsupportedOperationException("Include Directive is not implemented");
 	}
 	
 	private void textDirective() throws AssemblerException
@@ -367,12 +429,9 @@ public class PLPAssembler extends Assembler
 		
 		if (currentRegion != 1)
 		{
-			if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
-			{
-				throw new AssemblerException(
-						"(.text) Expected a string, found: " + currentToken.getValue());
-			}
-			
+			ensureTokenEquality(PLPTokenType.STRING,
+					"(.text) Expected a string, found: ");
+					
 			directiveOffset++;
 			
 			if (currentRegion == 2)
@@ -405,11 +464,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".data directive");
 		
-		if (!currentToken.getTypeName().equals(PLPTokenType.STRING.name()))
-		{
-			throw new AssemblerException(
-					"(.data) Expected a string, found: " + currentToken.getValue());
-		}
+		ensureTokenEquality(PLPTokenType.STRING, "(.data) Expected a string, found: ");
 		
 		if (currentRegion != 2)
 		{
@@ -443,7 +498,50 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".equ directive");
 		
-		throw new UnsupportedOperationException("equ Directive is not implemented");
+		ensureTokenEquality(PLPTokenType.STRING, "(.equ) Expected a string, found: ");
+		
+		String symbol = currentToken.getValue();
+		if (symbolTable.containsKey(symbol))
+		{
+			throw new AssemblerException(
+					"(.equ) Symbol table already contains: " + currentToken.getValue());
+		}
+		
+		expectedNextToken(".equ directive");
+		
+		ensureTokenEquality(PLPTokenType.NUMERIC,
+				"(.equ) Expected an address after symbol, found: ");
+				
+		long value = Long.MIN_VALUE;
+		try
+		{
+			value = ISAUtil.sanitize32bits(currentToken.getValue());
+		}
+		catch (AssemblyException e)
+		{
+			e.printStackTrace();
+		}
+		
+		if (value < 0)
+		{
+			throw new AssemblerException(
+					"(.equ) Could not process address after symbol, found: "
+							+ currentToken.getValue());
+		}
+		
+		symbolTable.put(symbol, value);
+		
+	}
+	
+	private void includeDirective() throws AssemblerException
+	{
+		expectedNextToken("include directive");
+		
+		appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
+		boolean found = false;
+		boolean conflict = false;
+		
+		throw new UnsupportedOperationException("Include Directive is not implemented");
 	}
 	
 	private void initialize()
@@ -554,18 +652,18 @@ public class PLPAssembler extends Assembler
 	
 	private void setPseudoMapValues()
 	{
-		pseudoOperationMap.put("nop", 0);
-		pseudoOperationMap.put("b", 1);
-		pseudoOperationMap.put("move", 3);
-		pseudoOperationMap.put("push", 1);
-		pseudoOperationMap.put("pop", 1);
-		pseudoOperationMap.put("li", 3);
-		pseudoOperationMap.put("call", 1);
-		pseudoOperationMap.put("return", 0);
-		pseudoOperationMap.put("save", 0);
-		pseudoOperationMap.put("restore", 0);
-		pseudoOperationMap.put("lwm", 3);
-		pseudoOperationMap.put("swm", 3);
+		pseudoOperationMap.put("nop", this::nopOperation);
+		pseudoOperationMap.put("b", this::branchOperation);
+		pseudoOperationMap.put("move", this::moveOperation);
+		pseudoOperationMap.put("push", this::pushOperation);
+		pseudoOperationMap.put("pop", this::popOperation);
+		pseudoOperationMap.put("li", this::liOperation);
+		pseudoOperationMap.put("call", this::callOperation);
+		pseudoOperationMap.put("return", this::returnOperation);
+		pseudoOperationMap.put("save", this::saveOperation);
+		pseudoOperationMap.put("restore", this::restoreOperation);
+		pseudoOperationMap.put("lwm", this::lvmOperation);
+		pseudoOperationMap.put("swm", this::svmOperation);
 		
 		directiveMap.put(".org", this::orgDirective);
 		directiveMap.put(".word", this::wordDirective);
@@ -577,7 +675,6 @@ public class PLPAssembler extends Assembler
 		directiveMap.put(".text", this::textDirective);
 		directiveMap.put(".data", this::dataDirective);
 		directiveMap.put(".equ", this::equDirective);
-		
 	}
 	
 	private void setRegisterMapValues()
@@ -641,5 +738,32 @@ public class PLPAssembler extends Assembler
 		}
 		
 		return true;
+	}
+	
+	private void addRegionAndIncrementAddress()
+	{
+		addRegionAndIncrementAddress(currentRegion);
+	}
+	
+	private void addRegionAndIncrementAddress(int currentRegionToAdd)
+	{
+		addRegionAndIncrementAddress(currentRegionToAdd, 4);
+	}
+	
+	private void addRegionAndIncrementAddress(int currentRegionToAdd,
+			int currentAddressIncrementSize)
+	{
+		regionMap.add(currentRegionToAdd);
+		currentAddress += currentAddressIncrementSize;
+	}
+	
+	private void ensureTokenEquality(PLPTokenType compareTo,
+			String assemblerExceptionMessage) throws AssemblerException
+	{
+		if (!currentToken.getTypeName().equals(compareTo.name()))
+		{
+			throw new AssemblerException(
+					assemblerExceptionMessage + currentToken.getValue());
+		}
 	}
 }
