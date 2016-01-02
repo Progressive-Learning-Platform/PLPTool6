@@ -3,6 +3,7 @@ package edu.asu.plp.tool.tests.bidirectionalmap;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -287,19 +288,45 @@ public class TestAddition
 	@Test
 	public void testSingleKeySingleValue_ValueSize()
 	{
+		map.put("key", "value");
 		
+		assertEquals(1, map.valueSize());
 	}
 	
 	@Test
 	public void testSingleKeySingleValue_MapSize()
 	{
+		map.put("key", "value");
 		
+		assertEquals(1, map.size());
 	}
 	
 	@Test
 	public void testSingleKeySingleValue_KeySize()
 	{
+		map.put("key", "value");
 		
+		assertEquals(1, map.keySize());
+	}
+	
+	@Test
+	public void testEmptyMap_Sizes()
+	{
+		assertEquals(0, map.keySize());
+		assertEquals(0, map.valueSize());
+		assertEquals(0, map.size());
+	}
+	
+	@Test
+	public void testEmptyMap_SetSizes()
+	{
+		Set<String> keySet = map.keySet();
+		Set<String> valueSet = map.valueSet();
+		
+		assertTrue(keySet.isEmpty());
+		assertTrue(valueSet.isEmpty());
+		assertEquals(0, keySet.size());
+		assertEquals(0, valueSet.size());
 	}
 	
 	/*
