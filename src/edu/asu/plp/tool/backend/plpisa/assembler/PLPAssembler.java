@@ -22,6 +22,7 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 import edu.asu.plp.tool.backend.util.ISAUtil;
+import javafx.util.Pair;
 
 public class PLPAssembler extends Assembler
 {
@@ -30,10 +31,9 @@ public class PLPAssembler extends Assembler
 	
 	private BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
 	
-	private HashMap<String, Integer> functionMap;
-	private HashMap<String, Integer> opcodeMap;
+	private HashMap<String, Pair<AssemblerStep, Integer>> instructionMap;
 	private HashMap<String, AssemblerStep> directiveMap;
-	protected HashMap<String, AssemblerStep> pseudoOperationMap;
+	private HashMap<String, AssemblerStep> pseudoOperationMap;
 	
 	private HashMap<String, Long> symbolTable;
 	
@@ -79,6 +79,9 @@ public class PLPAssembler extends Assembler
 		assemblyToDisassemblyMap = null;
 		tokens = new HashMap<>();
 		
+		if (asmFiles.isEmpty())
+			throw new AssemblerException("Can not assemble an image with no files.");
+			
 		for (PLPAsm asmFile : asmFiles)
 		{
 			try
@@ -92,15 +95,19 @@ public class PLPAssembler extends Assembler
 			}
 		}
 		
-		if (asmFiles.isEmpty())
-			throw new AssemblerException("Can not assemble an image with no files.");
-			
-		tokenIterator = tokens.get(0).listIterator();
-		
 		if (tokens == null)
 			throw new AssemblerException("File was not lexed correctly.");
 			
 		preprocess();
+		
+		return assembleImage();
+	}
+	
+	private ASMImage assembleImage()
+	{
+		long assemblerPCAddress = 0;
+		int assemblerDirectiveSkips = 0;
+		currentRegion = 0;
 		
 		return new ASMImage(assemblyToDisassemblyMap);
 	}
@@ -112,6 +119,8 @@ public class PLPAssembler extends Assembler
 	private void preprocess() throws AssemblerException
 	{
 		int lineNumber = 0;
+		tokenIterator = tokens.get(0).listIterator();
+		
 		// TODO loop through each file
 		if (!nextToken())
 			return;
@@ -133,8 +142,7 @@ public class PLPAssembler extends Assembler
 				pseudoOperationMap.get(currentToken.getValue()).perform();
 			}
 			// Instructions
-			else if (functionMap.containsKey(currentToken.getValue())
-					|| opcodeMap.containsKey(currentToken.getValue()))
+			else if (instructionMap.containsKey(currentToken.getValue()))
 			{
 				preprocessNormalInstruction();
 			}
@@ -149,11 +157,17 @@ public class PLPAssembler extends Assembler
 			{
 				preprocessLabels();
 			}
+			else
+			{
+				throw new AssemblerException("Unknown token in preprocessing, found: "
+						+ currentToken.getValue());
+			}
 			
 			if (!nextToken())
 				break;
 		}
 		
+		// TODO append the rest of the files in source files
 	}
 	
 	/*
@@ -190,8 +204,8 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken("pseudo move operation");
 		
-		ensureTokenEquality(PLPTokenType.LABEL_PLAIN,
-				"(b) Expected a label to branch to, found: ");
+		ensureTokenEquality("(b) Expected a label to branch to, found: ",
+				PLPTokenType.LABEL_PLAIN);
 				
 		appendPreprocessedInstruction("beq $0, $0, " + currentToken.getValue(),
 				lineNumber, true);
@@ -213,12 +227,12 @@ public class PLPAssembler extends Assembler
 		expectedNextToken("pseudo move operation");
 		
 		String destinationRegister = currentToken.getValue();
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(move) Expected a register, found: ");
+		ensureTokenEquality("(move) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		expectedNextToken("pseudo move operation");
 		
 		String startingRegister = currentToken.getValue();
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(move) Expected a register, found: ");
+		ensureTokenEquality("(move) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		// TODO (Look into) Google Code PLP says it's equivalent instruction is Add, src
 		// code uses or
@@ -245,7 +259,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken("push pseudo operation");
 		
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(push) Expected a register, found: ");
+		ensureTokenEquality("(push) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		appendPreprocessedInstruction("addiu $sp, $sp, -4", lineNumber, true);
 		appendPreprocessedInstruction("sw " + currentToken.getValue() + ", 4($sp)",
@@ -270,7 +284,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken("pop pseudo operation");
 		
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(push) Expected a register, found: ");
+		ensureTokenEquality("(push) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		appendPreprocessedInstruction("lw " + currentToken.getValue() + ", 4($sp)",
 				lineNumber, true);
@@ -295,18 +309,19 @@ public class PLPAssembler extends Assembler
 	private void liOperation() throws AssemblerException
 	{
 		expectedNextToken("load immediate pseudo operation");
-		String firstValue = currentToken.getValue();
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(li) Expected a register, found: ");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(li) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		expectedNextToken("load immediate pseudo operation");
-		String secondValue = currentToken.getValue();
-		// TODO ensure second value type
-		
-		appendPreprocessedInstruction("lui " + firstValue + ", $_hi: " + secondValue,
-				lineNumber, true);
+		String immediateOrLabel = currentToken.getValue();
+		ensureTokenEquality("Expected a immediate value or label, found: ",
+				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+				
 		appendPreprocessedInstruction(
-				"ori " + firstValue + ", " + firstValue + ", $_lo: " + secondValue,
-				lineNumber, true);
+				"lui " + targetRegister + ", $_hi: " + immediateOrLabel, lineNumber,
+				true);
+		appendPreprocessedInstruction("ori " + targetRegister + ", " + targetRegister
+				+ ", $_lo: " + immediateOrLabel, lineNumber, true);
 				
 		addRegionAndIncrementAddress(2, 8);
 	}
@@ -322,14 +337,17 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken("lvm psuedo operation");
 		String register = currentToken.getValue();
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(lvm) Expected a register, found: ");
+		ensureTokenEquality("(lvm) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		expectedNextToken("lvm psuedo operation");
 		String immediateOrLabel = currentToken.getValue();
-		//TODO ensure token validity
-		
-		appendPreprocessedInstruction("lui $at, $_hi: " + immediateOrLabel, lineNumber, true);
-		appendPreprocessedInstruction("ori $at, $at, $_lo: " + immediateOrLabel, lineNumber, true);
+		ensureTokenEquality("Expected a immediate value or label, found: ",
+				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+				
+		appendPreprocessedInstruction("lui $at, $_hi: " + immediateOrLabel, lineNumber,
+				true);
+		appendPreprocessedInstruction("ori $at, $at, $_lo: " + immediateOrLabel,
+				lineNumber, true);
 		appendPreprocessedInstruction("lw " + register + ", 0($at)", lineNumber, true);
 		
 		addRegionAndIncrementAddress(3, 12);
@@ -346,14 +364,17 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken("svm psuedo operation");
 		String register = currentToken.getValue();
-		ensureTokenEquality(PLPTokenType.ADDRESS, "(svm) Expected a register, found: ");
+		ensureTokenEquality("(svm) Expected a register, found: ", PLPTokenType.ADDRESS);
 		
 		expectedNextToken("svm psuedo operation");
 		String immediateOrLabel = currentToken.getValue();
-		//TODO ensure token validity
-		
-		appendPreprocessedInstruction("lui $at, $_hi: " + immediateOrLabel, lineNumber, true);
-		appendPreprocessedInstruction("ori $at, $at, $_lo: " + immediateOrLabel, lineNumber, true);
+		ensureTokenEquality("Expected a immediate value or label, found:",
+				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+				
+		appendPreprocessedInstruction("lui $at, $_hi: " + immediateOrLabel, lineNumber,
+				true);
+		appendPreprocessedInstruction("ori $at, $at, $_lo: " + immediateOrLabel,
+				lineNumber, true);
 		appendPreprocessedInstruction("sw " + register + ", 0($at)", lineNumber, true);
 		
 		addRegionAndIncrementAddress(3, 12);
@@ -370,7 +391,27 @@ public class PLPAssembler extends Assembler
 	 */
 	private void callOperation() throws AssemblerException
 	{
-	
+		expectedNextToken("call psuedo operation");
+		String label = currentToken.getValue();
+		ensureTokenEquality("(call) Expected a label, found: ", PLPTokenType.LABEL_PLAIN);
+		
+		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2t", "$t3",
+				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
+				"$s4", "$s5", "$s6", "$s7", "$ra" };
+				
+		appendPreprocessedInstruction("addiu $sp, $sp, " + (registers.length * 4),
+				lineNumber, true);
+				
+		for (int registerIndex = 0; registerIndex < registers.length; registerIndex++)
+		{
+			appendPreprocessedInstruction("sw " + registers[registerIndex] + ", "
+					+ (registerIndex + 1) * 4 + "($sp)", lineNumber, true);
+		}
+		
+		appendPreprocessedInstruction("jal " + label, lineNumber, true);
+		appendPreprocessedInstruction("sll $0, $0, $0", lineNumber, true);
+		
+		addRegionAndIncrementAddress(26, 104);
 	}
 	
 	/**
@@ -384,7 +425,24 @@ public class PLPAssembler extends Assembler
 	 */
 	private void returnOperation() throws AssemblerException
 	{
-	
+		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2t", "$t3",
+				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
+				"$s4", "$s5", "$s6", "$s7" };
+				
+		for (int registerIndex = 0; registerIndex < registers.length; registerIndex++)
+		{
+			appendPreprocessedInstruction("lw " + registers[registerIndex] + ", "
+					+ (registerIndex + 1) * 4 + "($sp)", lineNumber, true);
+		}
+		
+		appendPreprocessedInstruction("addu $at, $zero, $ra", lineNumber, true);
+		appendPreprocessedInstruction("lw $ra, " + ((registers.length + 1) * 4) + "($sp)",
+				lineNumber, true);
+		appendPreprocessedInstruction("addiu $sp, $sp, " + ((registers.length + 1) * 4),
+				lineNumber, true);
+		appendPreprocessedInstruction("sll $0, $0, $0", lineNumber, true);
+		
+		addRegionAndIncrementAddress(27, 108);
 	}
 	
 	/**
@@ -396,7 +454,21 @@ public class PLPAssembler extends Assembler
 	 */
 	private void saveOperation() throws AssemblerException
 	{
-	
+		// Start at four instead of zero and exclude $zero register, and normal register
+		// names ((registerMap.size() / 2) - 2) * 4;
+		appendPreprocessedInstruction(
+				"addiu $sp, $sp, " + ((registerMap.size() / 2) - 2) * 4, lineNumber,
+				true);
+				
+		int registerCount = (registerMap.size() / 2) - 1;
+		for (int registerIndex = 1; registerIndex <= registerCount; registerIndex++)
+		{
+			appendPreprocessedInstruction(
+					"sw $" + registerIndex + ", " + registerIndex * 4 + "($sp)",
+					lineNumber, true);
+		}
+		
+		addRegionAndIncrementAddress(registerCount, registerCount * 4);
 	}
 	
 	/**
@@ -410,7 +482,18 @@ public class PLPAssembler extends Assembler
 	 */
 	private void restoreOperation() throws AssemblerException
 	{
-	
+		int registerCount = (registerMap.size() / 2) - 1;
+		for (int registerIndex = 1; registerIndex <= registerCount; registerIndex++)
+		{
+			appendPreprocessedInstruction(
+					"lw $" + registerIndex + ", " + registerIndex * 4 + "($sp)",
+					lineNumber, true);
+		}
+		appendPreprocessedInstruction(
+				"addiu $sp, $sp, " + ((registerMap.size() / 2) - 2) * 4, lineNumber,
+				true);
+				
+		addRegionAndIncrementAddress(registerCount, registerCount * 4);
 	}
 	
 	/*
@@ -421,8 +504,173 @@ public class PLPAssembler extends Assembler
 	
 	private void preprocessNormalInstruction() throws AssemblerException
 	{
-		// TODO Auto-generated method stub
+		String instruction = currentToken.getValue();
 		
+		instructionMap.get(instruction).getKey().perform();
+		
+		addRegionAndIncrementAddress();
+	}
+	
+	public void registerImmediateOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("register immediate normal instruction");
+		String register = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected a target register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("register immediate normal instruction");
+		String immediate = currentToken.getValue();
+		ensureTokenEquality(
+				"(" + instruction + ") Expected an immediate value (16-bit), found: ",
+				PLPTokenType.NUMERIC);
+				
+		appendPreprocessedInstruction(instruction + " " + register + ", " + immediate,
+				lineNumber, true);
+	}
+	
+	public void singleLabelOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("single label normal instruction");
+		String label = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected a label, found: ",
+				PLPTokenType.LABEL_PLAIN);
+				
+		appendPreprocessedInstruction(instruction + " " + label, lineNumber, true);
+	}
+	
+	public void singleRegisterOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("single register normal instruction");
+		String register = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected a register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		appendPreprocessedInstruction(instruction + " " + register, lineNumber, true);
+	}
+	
+	public void registerOffsetRegisterOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("register offset register normal instruction");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected a target register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("register offset register normal instruction");
+		String offset = currentToken.getValue();
+		ensureTokenEquality(
+				"(" + instruction
+						+ ") Expected an offset value (immediate) in bytes, found: ",
+				PLPTokenType.NUMERIC);
+				
+		expectedNextToken("register offset register normal instruction");
+		String sourceRegister = currentToken.getValue();
+		ensureTokenEquality(
+				"(" + instruction + ") Expected an (source register), found: ",
+				PLPTokenType.PARENTHESIS_ADDRESS);
+				
+		appendPreprocessedInstruction(
+				instruction + " " + targetRegister + ", " + offset + sourceRegister,
+				lineNumber, true);
+	}
+	
+	public void twoRegisterImmediateOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("two register immediate normal instruction");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality(
+				"(" + instruction + ") Expected a destination register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("two register immediate normal instruction");
+		String sourceRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected an source register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("two register immediate normal instruction");
+		String immediate = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected an immediate value, found: ",
+				PLPTokenType.NUMERIC);
+				
+		appendPreprocessedInstruction(instruction + " " + destinationRegister + ", "
+				+ sourceRegister + ", " + immediate, lineNumber, true);
+	}
+	
+	public void twoRegisterLabelOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("two register label normal instruction");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected a target register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("two register label normal instruction");
+		String sourceRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected an source register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("two register label normal instruction");
+		String label = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected a label, found: ",
+				PLPTokenType.LABEL_PLAIN);
+				
+		appendPreprocessedInstruction(
+				instruction + " " + targetRegister + ", " + sourceRegister + ", " + label,
+				lineNumber, true);
+	}
+	
+	public void twoRegisterOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("two register normal instruction");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality(
+				"(" + instruction + ") Expected a destination register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("two register normal instruction");
+		String sourceRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected an source register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		appendPreprocessedInstruction(
+				instruction + " " + destinationRegister + ", " + sourceRegister,
+				lineNumber, true);
+	}
+	
+	public void threeRegisterOperation() throws AssemblerException
+	{
+		String instruction = currentToken.getValue();
+		
+		expectedNextToken("three register normal instruction");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality(
+				"(" + instruction + ") Expected a destination register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("three register normal instruction");
+		String sourceRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected an source register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		expectedNextToken("three register normal instruction");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(" + instruction + ") Expected an target register, found: ",
+				PLPTokenType.ADDRESS);
+				
+		appendPreprocessedInstruction(instruction + " " + destinationRegister + ", "
+				+ sourceRegister + ", " + targetRegister, lineNumber, true);
 	}
 	
 	private void preprocessLabels() throws AssemblerException
@@ -457,7 +705,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".org directive");
 		
-		ensureTokenEquality(PLPTokenType.NUMERIC, "(.org) Expected an address, found: ");
+		ensureTokenEquality("(.org) Expected an address, found: ", PLPTokenType.NUMERIC);
 		
 		appendPreprocessedInstruction(ASM__ORG__ + currentToken.getValue(), lineNumber,
 				true);
@@ -478,8 +726,9 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".word directive");
 		
-		ensureTokenEquality(PLPTokenType.NUMERIC,
-				"(.word) Expected number to initialize current memory address to, found: ");
+		ensureTokenEquality(
+				"(.word) Expected number to initialize current memory address to, found: ",
+				PLPTokenType.NUMERIC);
 				
 		appendPreprocessedInstruction(ASM__WORD__ + currentToken.getValue(), lineNumber,
 				true);
@@ -490,7 +739,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".space directive");
 		
-		ensureTokenEquality(PLPTokenType.NUMERIC, "(.space) Expected a number, found: ");
+		ensureTokenEquality("(.space) Expected a number, found: ", PLPTokenType.NUMERIC);
 		
 		try
 		{
@@ -517,8 +766,9 @@ public class PLPAssembler extends Assembler
 		
 		expectedNextToken(currentToken.getValue() + " directive");
 		
-		ensureTokenEquality(PLPTokenType.STRING, "(" + directiveToken.getValue()
-				+ ") Expected a string to store, found: ");
+		ensureTokenEquality(
+				"(" + directiveToken.getValue() + ") Expected a string to store, found: ",
+				PLPTokenType.STRING);
 				
 		// Strip quotes
 		String currentValue = null;
@@ -603,8 +853,8 @@ public class PLPAssembler extends Assembler
 		
 		if (currentRegion != 1)
 		{
-			ensureTokenEquality(PLPTokenType.STRING,
-					"(.text) Expected a string, found: ");
+			ensureTokenEquality("(.text) Expected a string, found: ",
+					PLPTokenType.STRING);
 					
 			directiveOffset++;
 			
@@ -638,7 +888,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".data directive");
 		
-		ensureTokenEquality(PLPTokenType.STRING, "(.data) Expected a string, found: ");
+		ensureTokenEquality("(.data) Expected a string, found: ", PLPTokenType.STRING);
 		
 		if (currentRegion != 2)
 		{
@@ -672,7 +922,7 @@ public class PLPAssembler extends Assembler
 	{
 		expectedNextToken(".equ directive");
 		
-		ensureTokenEquality(PLPTokenType.STRING, "(.equ) Expected a string, found: ");
+		ensureTokenEquality("(.equ) Expected a string, found: ", PLPTokenType.STRING);
 		
 		String symbol = currentToken.getValue();
 		if (symbolTable.containsKey(symbol))
@@ -683,8 +933,8 @@ public class PLPAssembler extends Assembler
 		
 		expectedNextToken(".equ directive");
 		
-		ensureTokenEquality(PLPTokenType.NUMERIC,
-				"(.equ) Expected an address after symbol, found: ");
+		ensureTokenEquality("(.equ) Expected an address after symbol, found: ",
+				PLPTokenType.NUMERIC);
 				
 		long value = Long.MIN_VALUE;
 		try
@@ -730,10 +980,9 @@ public class PLPAssembler extends Assembler
 		opCodeSize = UnitSize.getSize(DefaultSize.BYTE);
 		regionMap = new ArrayList<>();
 		symbolTable = new HashMap<>();
-		instructionOpcodeMap = new HashMap<>();
+		instructionMap = new HashMap<>();
 		registerMap = new HashMap<>();
-		functionMap = new HashMap<>();
-		opcodeMap = new HashMap<>();
+		instructionOpcodeMap = new HashMap<>();
 		pseudoOperationMap = new HashMap<>();
 		directiveMap = new HashMap<>();
 		
@@ -754,80 +1003,85 @@ public class PLPAssembler extends Assembler
 	
 	private void setInstructionMapValues()
 	{
-		instructionOpcodeMap.put("addu", 0);
-		instructionOpcodeMap.put("subu", 0);
-		instructionOpcodeMap.put("and", 0);
-		instructionOpcodeMap.put("or", 0);
-		instructionOpcodeMap.put("nor", 0);
-		instructionOpcodeMap.put("slt", 0);
-		instructionOpcodeMap.put("sltu", 0);
-		instructionOpcodeMap.put("sllv", 0);
-		instructionOpcodeMap.put("srlv", 0);
+		instructionMap.put("addu", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("subu", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("and", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("or", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("nor", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("slt", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("sltu", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("sllv", new Pair<>(this::threeRegisterOperation, 0));
+		instructionMap.put("srlv", new Pair<>(this::threeRegisterOperation, 0));
 		
-		instructionOpcodeMap.put("sll", 1);
-		instructionOpcodeMap.put("srl", 1);
+		instructionMap.put("sll", new Pair<>(this::twoRegisterImmediateOperation, 1));
+		instructionMap.put("srl", new Pair<>(this::twoRegisterImmediateOperation, 1));
 		
-		instructionOpcodeMap.put("jr", 2);
+		instructionMap.put("jr", new Pair<>(this::singleRegisterOperation, 2));
 		
-		instructionOpcodeMap.put("beq", 3);
-		instructionOpcodeMap.put("bne", 3);
+		instructionMap.put("beq", new Pair<>(this::twoRegisterLabelOperation, 3));
+		instructionMap.put("bne", new Pair<>(this::twoRegisterLabelOperation, 3));
 		
-		instructionOpcodeMap.put("addiu", 4);
-		instructionOpcodeMap.put("andi", 4);
-		instructionOpcodeMap.put("ori", 4);
-		instructionOpcodeMap.put("slti", 4);
-		instructionOpcodeMap.put("sltiu", 4);
+		instructionMap.put("addiu", new Pair<>(this::twoRegisterImmediateOperation, 4));
+		instructionMap.put("andi", new Pair<>(this::twoRegisterImmediateOperation, 4));
+		instructionMap.put("ori", new Pair<>(this::twoRegisterImmediateOperation, 4));
+		instructionMap.put("slti", new Pair<>(this::twoRegisterImmediateOperation, 4));
+		instructionMap.put("sltiu", new Pair<>(this::twoRegisterImmediateOperation, 4));
 		
-		instructionOpcodeMap.put("lui", 5);
+		instructionMap.put("lui", new Pair<>(this::registerImmediateOperation, 5));
 		
-		instructionOpcodeMap.put("lw", 6);
-		instructionOpcodeMap.put("sw", 6);
+		instructionMap.put("lw", new Pair<>(this::registerOffsetRegisterOperation, 6));
+		instructionMap.put("sw", new Pair<>(this::registerOffsetRegisterOperation, 6));
 		
-		instructionOpcodeMap.put("j", 7);
-		instructionOpcodeMap.put("jal", 7);
+		instructionMap.put("j", new Pair<>(this::singleLabelOperation, 7));
+		instructionMap.put("jal", new Pair<>(this::singleLabelOperation, 7));
 		
-		instructionOpcodeMap.put("mulhi", 8);
-		instructionOpcodeMap.put("mullo", 8);
+		instructionMap.put("mulhi", new Pair<>(this::threeRegisterOperation, 8));
+		instructionMap.put("mullo", new Pair<>(this::threeRegisterOperation, 8));
 		
-		instructionOpcodeMap.put("jalr", 9);
+		instructionMap.put("jalr", new Pair<>(this::twoRegisterOperation, 9));
 		
-		instructionOpcodeMap.put(ASM__WORD__, 10);
-		instructionOpcodeMap.put(ASM__ORG__, 10);
-		instructionOpcodeMap.put(ASM__SKIP__, 10);
-		instructionOpcodeMap.put(ASM__LINE__OFFSET__, 10);
-		instructionOpcodeMap.put(ASM__POINTER__, 10);
+		instructionMap.put("ASM__WORD__", new Pair<>(() -> {
+		} , 10));
+		instructionMap.put("ASM__ORG__", new Pair<>(() -> {
+		} , 10));
+		instructionMap.put("ASM__SKIP__", new Pair<>(() -> {
+		} , 10));
+		instructionMap.put("ASM__LINE_OFFSET__", new Pair<>(() -> {
+		} , 10));
+		instructionMap.put("ASM__POINTER__", new Pair<>(() -> {
+		} , 10));
 		
 		// R-Type Arithmetic
-		functionMap.put("sll", 0x00);
-		functionMap.put("sllv", 0x01);
-		functionMap.put("srl", 0x02);
-		functionMap.put("srlv", 0x03);
-		functionMap.put("jr", 0x08);
-		functionMap.put("jalr", 0x09);
-		functionMap.put("mullo", 0x10);
-		functionMap.put("mulhi", 0x11);
-		functionMap.put("add", 0x20);
-		functionMap.put("addu", 0x21);
+		instructionOpcodeMap.put("sll", 0x00);
+		instructionOpcodeMap.put("sllv", 0x01);
+		instructionOpcodeMap.put("srl", 0x02);
+		instructionOpcodeMap.put("srlv", 0x03);
+		instructionOpcodeMap.put("jr", 0x08);
+		instructionOpcodeMap.put("jalr", 0x09);
+		instructionOpcodeMap.put("mullo", 0x10);
+		instructionOpcodeMap.put("mulhi", 0x11);
+		instructionOpcodeMap.put("add", 0x20);
+		instructionOpcodeMap.put("addu", 0x21);
 		// functionMap.put("sub", 0x22);
-		functionMap.put("subu", 0x23);
-		functionMap.put("and", 0x24);
-		functionMap.put("or", 0x25);
-		functionMap.put("nor", 0x27);
-		functionMap.put("slt", 0x2A);
-		functionMap.put("sltu", 0x2B);
+		instructionOpcodeMap.put("subu", 0x23);
+		instructionOpcodeMap.put("and", 0x24);
+		instructionOpcodeMap.put("or", 0x25);
+		instructionOpcodeMap.put("nor", 0x27);
+		instructionOpcodeMap.put("slt", 0x2A);
+		instructionOpcodeMap.put("sltu", 0x2B);
 		
-		opcodeMap.put("j", 0x02);
-		opcodeMap.put("jal", 0x03);
-		opcodeMap.put("beq", 0x04);
-		opcodeMap.put("bne", 0x05);
-		opcodeMap.put("addiu", 0x09);
-		opcodeMap.put("slti", 0x0A);
-		opcodeMap.put("sltiu", 0x0B);
-		opcodeMap.put("andi", 0x0C);
-		opcodeMap.put("ori", 0x0D);
-		opcodeMap.put("lui", 0x0F);
-		opcodeMap.put("lw", 0x23);
-		opcodeMap.put("sw", 0x2B);
+		instructionOpcodeMap.put("j", 0x02);
+		instructionOpcodeMap.put("jal", 0x03);
+		instructionOpcodeMap.put("beq", 0x04);
+		instructionOpcodeMap.put("bne", 0x05);
+		instructionOpcodeMap.put("addiu", 0x09);
+		instructionOpcodeMap.put("slti", 0x0A);
+		instructionOpcodeMap.put("sltiu", 0x0B);
+		instructionOpcodeMap.put("andi", 0x0C);
+		instructionOpcodeMap.put("ori", 0x0D);
+		instructionOpcodeMap.put("lui", 0x0F);
+		instructionOpcodeMap.put("lw", 0x23);
+		instructionOpcodeMap.put("sw", 0x2B);
 	}
 	
 	private void setPseudoMapValues()
@@ -903,9 +1157,10 @@ public class PLPAssembler extends Assembler
 	
 	private void expectedNextToken(String location) throws AssemblerException
 	{
+		String previousToken = currentToken.getValue();
 		if (!nextToken())
-			throw new AssemblerException(
-					"Unexpected end of token stream. In " + location);
+			throw new AssemblerException("Previous token->(" + previousToken
+					+ ") Unexpected end of token stream. In " + location);
 	}
 	
 	private boolean previousToken()
@@ -934,20 +1189,32 @@ public class PLPAssembler extends Assembler
 	private void addRegionAndIncrementAddress(int timesToAddCurrentRegion,
 			int currentAddressIncrementSize)
 	{
-		for(int index = 0; index < timesToAddCurrentRegion; index++)
+		for (int index = 0; index < timesToAddCurrentRegion; index++)
 		{
 			regionMap.add(currentRegion);
 		}
 		currentAddress += currentAddressIncrementSize;
 	}
 	
-	private void ensureTokenEquality(PLPTokenType compareTo,
-			String assemblerExceptionMessage) throws AssemblerException
+	private void ensureTokenEquality(String assemblerExceptionMessage,
+			PLPTokenType compareTo) throws AssemblerException
 	{
 		if (!currentToken.getTypeName().equals(compareTo.name()))
 		{
 			throw new AssemblerException(
 					assemblerExceptionMessage + currentToken.getValue());
 		}
+	}
+	
+	private void ensureTokenEquality(String assemblerExceptionMessage,
+			PLPTokenType... compareTo) throws AssemblerException
+	{
+		for (PLPTokenType comparison : compareTo)
+		{
+			if (currentToken.getTypeName().equals(comparison.name()))
+				return;
+		}
+		
+		throw new AssemblerException(assemblerExceptionMessage + currentToken.getValue());
 	}
 }

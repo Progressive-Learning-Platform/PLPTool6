@@ -27,7 +27,7 @@ public abstract class Assembler
 	protected HashMap<String, Integer> instructionOpcodeMap;
 	
 	/*
-	 * Most CPUs dont even pass 40 registers, so a byte is okay.
+	 * Most CPUs don't even pass 40 registers, so a byte is okay.
 	 */
 	protected HashMap<String, Byte> registerMap;
 	
