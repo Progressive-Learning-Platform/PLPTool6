@@ -511,7 +511,7 @@ public class PLPAssembler extends Assembler
 		addRegionAndIncrementAddress();
 	}
 	
-	public void registerImmediateOperation() throws AssemblerException
+	private void registerImmediateOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -530,7 +530,7 @@ public class PLPAssembler extends Assembler
 				lineNumber, true);
 	}
 	
-	public void singleLabelOperation() throws AssemblerException
+	private void singleLabelOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -542,7 +542,7 @@ public class PLPAssembler extends Assembler
 		appendPreprocessedInstruction(instruction + " " + label, lineNumber, true);
 	}
 	
-	public void singleRegisterOperation() throws AssemblerException
+	private void singleRegisterOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -554,7 +554,7 @@ public class PLPAssembler extends Assembler
 		appendPreprocessedInstruction(instruction + " " + register, lineNumber, true);
 	}
 	
-	public void registerOffsetRegisterOperation() throws AssemblerException
+	private void registerOffsetRegisterOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -581,7 +581,7 @@ public class PLPAssembler extends Assembler
 				lineNumber, true);
 	}
 	
-	public void twoRegisterImmediateOperation() throws AssemblerException
+	private void twoRegisterImmediateOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -605,7 +605,7 @@ public class PLPAssembler extends Assembler
 				+ sourceRegister + ", " + immediate, lineNumber, true);
 	}
 	
-	public void twoRegisterLabelOperation() throws AssemblerException
+	private void twoRegisterLabelOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -629,7 +629,7 @@ public class PLPAssembler extends Assembler
 				lineNumber, true);
 	}
 	
-	public void twoRegisterOperation() throws AssemblerException
+	private void twoRegisterOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
@@ -649,7 +649,7 @@ public class PLPAssembler extends Assembler
 				lineNumber, true);
 	}
 	
-	public void threeRegisterOperation() throws AssemblerException
+	private void threeRegisterOperation() throws AssemblerException
 	{
 		String instruction = currentToken.getValue();
 		
