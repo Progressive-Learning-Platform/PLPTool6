@@ -125,7 +125,7 @@ public class TestAddition
 		assertTrue(map.contains(key2, value));
 		assertFalse(map.contains(key1, value));
 	}
-
+	
 	@Test
 	public void testUniqueKeysSameValue_ReturnsOldKey()
 	{
@@ -135,7 +135,7 @@ public class TestAddition
 		
 		String ret1 = map.put(key1, value);
 		String ret2 = map.put(key2, value);
-
+		
 		assertEquals(null, ret1);
 		assertEquals(key1, ret2);
 	}
@@ -149,7 +149,7 @@ public class TestAddition
 		
 		map.put(key1, value);
 		map.put(key2, value);
-
+		
 		assertTrue(map.containsValue(value));
 		assertTrue(map.containsKey(key2));
 		assertFalse(map.containsKey(key1));
@@ -162,11 +162,11 @@ public class TestAddition
 		String key2 = "secondKey";
 		String value = "value";
 		String value2 = "value2";
-
+		
 		map.put(key1, value);
 		map.put(key1, value2);
 		map.put(key2, value);
-
+		
 		assertTrue(map.containsValue(value));
 		assertTrue(map.containsKey(key2));
 		assertTrue(map.containsKey(key1));
@@ -179,15 +179,109 @@ public class TestAddition
 	 * Size Tests
 	 */
 	@Test
-	public void testSingleKeyMultiValuesKeySize()
+	public void testSingleKeyMultiValues_ValuesSize()
 	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
 		
+		assertEquals(3, map.valueSize());
 	}
 	
 	@Test
-	public void testSingleKeyMultiValuesValuesSize()
+	public void testSingleKeyMultiValues_KeySize()
 	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		map.put("key1", "value1-4");
 		
+		assertEquals(1, map.keySize());
+	}
+	
+	@Test
+	public void testSingleKeyMultiValues_MapSize()
+	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		map.put("key1", "value1-4");
+		
+		assertEquals(4, map.size());
+	}
+	
+	@Test
+	public void testMultiKeyMultiValuesSymetric_ValueSize()
+	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		
+		map.put("key2", "value2-1");
+		map.put("key2", "value2-2");
+		map.put("key2", "value2-3");
+		
+		assertEquals(6, map.valueSize());
+	}
+	
+	@Test
+	public void testMultiKeyMultiValuesAsymetricLeft_ValueSize()
+	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		map.put("key1", "value1-4");
+		
+		map.put("key2", "value2-1");
+		map.put("key2", "value2-2");
+		map.put("key2", "value2-3");
+		
+		assertEquals(7, map.valueSize());
+	}
+	
+	@Test
+	public void testMultiKeyMultiValuesAsymetricRight_ValueSize()
+	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		
+		map.put("key2", "value2-1");
+		map.put("key2", "value2-2");
+		map.put("key2", "value2-3");
+		map.put("key2", "value1-4");
+		
+		assertEquals(7, map.valueSize());
+	}
+	
+	@Test
+	public void testMultiKeyMultiValues_KeySize()
+	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		map.put("key1", "value1-4");
+		
+		map.put("key2", "value2-1");
+		map.put("key2", "value2-2");
+		map.put("key2", "value2-3");
+		
+		assertEquals(2, map.keySize());
+	}
+	
+	@Test
+	public void testMultiKeyMultiValues_MapSize()
+	{
+		map.put("key1", "value1-1");
+		map.put("key1", "value1-2");
+		map.put("key1", "value1-3");
+		map.put("key1", "value1-4");
+		
+		map.put("key2", "value2-1");
+		map.put("key2", "value2-2");
+		map.put("key2", "value2-3");
+		
+		assertEquals(7, map.size());
 	}
 	
 	@Test
