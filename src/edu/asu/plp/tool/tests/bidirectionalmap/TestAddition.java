@@ -285,19 +285,19 @@ public class TestAddition
 	}
 	
 	@Test
-	public void testSingleKeySingleValuesValuesSize()
+	public void testSingleKeySingleValue_ValueSize()
 	{
 		
 	}
 	
 	@Test
-	public void testSingleKeyMultiValuesMapSize()
+	public void testSingleKeySingleValue_MapSize()
 	{
 		
 	}
 	
 	@Test
-	public void testSingleKeySingleValuesKeySize()
+	public void testSingleKeySingleValue_KeySize()
 	{
 		
 	}
