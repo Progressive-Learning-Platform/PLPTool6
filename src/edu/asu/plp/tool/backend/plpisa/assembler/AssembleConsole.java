@@ -7,28 +7,35 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringJoiner;
+import java.util.Timer;
 
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+import edu.asu.plp.tool.backend.util.FileUtil;
 
 public class AssembleConsole
 {
 	static Scanner scanner;
 	static Assembler assembler;
 	static StringJoiner fileJoiner;
+	static boolean isBenchMarking;
 	
 	public static void main(String[] args)
 	{
 		boolean running = true;
+		isBenchMarking = true;
 		scanner = new Scanner(System.in);
 		UnitSize.initializeDefaultValues();
-		
+		long startTime = System.nanoTime();
 		while (running)
 		{
+			String directive = "D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/gpio_test/main.asm";
+			String length = "D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/universe/length.asm";
 			//System.out.println("Enter a file to assemble: ");
 			//String input = scanner.nextLine();
-			File file = new File("D:/Users/Morgan/Documents/Github/plpTool-prototype/examples/ASM Only/gpio_test/main.asm");
+			
+			File file = new File(directive);
 			if (!file.isFile())
 			{
 				System.out.println("Path entered is not a file!");
@@ -39,8 +46,8 @@ public class AssembleConsole
 			List<String> fileContents;
 			try
 			{
+				
 				assembler = new PLPAssembler(file.getAbsolutePath());
-				System.out.println("Starting Assemble");
 				assembler.assemble();
 			}
 			catch (IOException | AssemblerException e)
@@ -48,12 +55,13 @@ public class AssembleConsole
 				e.printStackTrace();
 				System.exit(1);
 			}
-			
 			running = false;
 		}
+		long endTime = System.nanoTime();
+		System.out.println(String.format("It took: %.2f seconds", (endTime - startTime) * 1e-9));
 		
 		scanner.close();
-		System.out.println("Console Exited");
+		System.out.println("Assemble Console Exited");
 	}
 	
 	private static String getFileContents(Path path)
