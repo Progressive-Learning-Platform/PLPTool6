@@ -7,7 +7,6 @@ public class ISAUtil
 	public static long sanitize32bits(String number) throws AssemblyException
 	{
 		long sanitizedBits;
-		
 		if (number.startsWith("0x") || number.startsWith("0h"))
 		{
 			return Long.parseLong(number.substring(2), 16) & 0xFFFFFFFF;
@@ -22,6 +21,25 @@ public class ISAUtil
 		}
 		
 		return Long.parseLong(number) & 0xFFFFFFFF;
+	}
+	
+	public static long sanitize16bits(String number) throws AssemblyException
+	{
+		long sanitizedBits;
+		if (number.startsWith("0x") || number.startsWith("0h"))
+		{
+			return Long.parseLong(number.substring(2), 16) & 0xFFFF;
+		}
+		else if (number.startsWith("0b"))
+		{
+			return Long.parseLong(number.substring(2), 2) & 0xFFFF;
+		}
+		else if (number.startsWith("'") && number.endsWith("'"))
+		{
+			return parseEscapeCharacter(number);
+		}
+		
+		return Long.parseLong(number) & 0xFFFF;
 	}
 	
 	/**
