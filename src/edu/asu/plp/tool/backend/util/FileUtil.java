@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.apache.commons.io.FileUtils;
+
 public class FileUtil
 {
 	public static String readAllLines(String filePath) throws IOException
@@ -13,7 +15,7 @@ public class FileUtil
 	
 	public static String readAllLines(File file) throws IOException
 	{
-		return String.join("\n", Files.readAllLines(file.toPath()));
+		return FileUtils.readFileToString(file);
 	}
 	
 	public static boolean isAsmFile(String filePath)
