@@ -103,6 +103,8 @@ public class PLPAssembler extends Assembler
 				System.out.println("Starting lexing of " + asmFile.getAsmFilePath());
 				tokens.put(asmFiles.indexOf(asmFile), lexer.lex(asmFile.getAsmLines()));
 				
+//				System.out.println(asmFile.getAsmLines());
+				
 //				tokens.get(asmFiles.indexOf(asmFile))
 //						.forEach(token -> System.out.println(token));
 			}
@@ -433,6 +435,11 @@ public class PLPAssembler extends Assembler
 			else if (currentToken.getTypeName().equals(PLPTokenType.LABEL_COLON.name()))
 			{
 				preprocessLabels();
+			}
+			else if(currentToken.getTypeName().equals(PLPTokenType.NEW_LINE.name()))
+			{
+				appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
+				directiveOffset++;
 			}
 			else
 			{
@@ -1533,6 +1540,7 @@ public class PLPAssembler extends Assembler
 		{
 			mapperIndex++;
 		}
+		System.out.println(instruction);
 		firstPassString.append(instruction);
 		firstPassString.append("\n");
 		
