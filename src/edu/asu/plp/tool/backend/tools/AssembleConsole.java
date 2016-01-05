@@ -1,9 +1,12 @@
 package edu.asu.plp.tool.backend.tools;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -16,9 +19,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 import com.google.common.base.Joiner;
 
+import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
@@ -32,8 +38,7 @@ public class AssembleConsole
 	protected static CommandLine commandLine;
 	protected static Options options;
 	
-	protected static File assembleFile;
-	protected static boolean isProject;
+	protected static List<ASMFile> projectFiles;
 	
 	protected static boolean isBenchMarking;
 	protected static StringJoiner fileJoiner;
@@ -55,10 +60,10 @@ public class AssembleConsole
 		
 		try
 		{
-			assembler = new PLPAssembler(assembleFile.getPath());
+			assembler = new PLPAssembler(projectFiles);
 			assembler.assemble();
 		}
-		catch (IOException | AssemblerException e)
+		catch (AssemblerException e)
 		{
 			e.printStackTrace();
 			System.exit(1);
@@ -75,11 +80,16 @@ public class AssembleConsole
 	{
 		UnitSize.initializeDefaultValues();
 		exampleProjects = new HashMap<>();
+		projectFiles = new ArrayList<>();
 		
-		exampleProjects.put("directives",
-				"examples/Stripped PLP Projects (ASM Only)/gpio_test/main.asm");
-		exampleProjects.put("length",
-				"examples/Stripped PLP Projects (ASM Only)/universe/length.asm");
+		exampleProjects.put("no-sub-directory-project",
+				"examples/PLP Projects/memtest.plp");
+		exampleProjects.put("file-count",
+				"examples/PLP Projects/universe/stress/file_count/file-count.plp");
+		exampleProjects.put("one-file",
+				"examples/Stripped PLP Projects (ASM Only)/universe/encapsulated/one-file.asm");
+		exampleProjects.put("file-length",
+				"examples/Stripped PLP Projects (ASM Only)/universe/stress/file_length/main.asm");
 	}
 	
 	private static void initializeCommandLineOptions()
@@ -128,11 +138,19 @@ public class AssembleConsole
 			}
 		}
 		
+		File assembleFile;
 		if (commandLine.hasOption("p"))
 		{
 			// TODO enforce correct project ending relative to project type (.plp for plp)
 			// TODO parse project into list of asm files
 			assembleFile = new File(commandLine.getOptionValue("p"));
+			if (!setProjectFiles(assembleFile))
+			{
+				System.out.println(
+						"Provided project file was not valid: " + assembleFile.getPath());
+				System.exit(-1);
+			}
+			
 			System.out.println("Projects are not currently supported");
 			System.exit(-1);
 		}
@@ -140,6 +158,12 @@ public class AssembleConsole
 		{
 			// TODO enforce correct file type (.asm for plp)
 			assembleFile = new File(commandLine.getOptionValue("f"));
+			if (!setProjectFiles(assembleFile))
+			{
+				System.out.println(
+						"Provided file was not valid: " + assembleFile.getPath());
+				System.exit(-1);
+			}
 		}
 		else if (commandLine.hasOption("e"))
 		{
@@ -147,6 +171,12 @@ public class AssembleConsole
 			if (exampleProjects.containsKey(exampleName))
 			{
 				assembleFile = new File(exampleProjects.get(exampleName));
+				if (!setProjectFiles(assembleFile))
+				{
+					System.out.println(
+							"Oops, something went wrong with the file path of this example!");
+					System.exit(-1);
+				}
 			}
 			else
 			{
@@ -162,6 +192,88 @@ public class AssembleConsole
 			System.out.println("No project, file, or example specified to assemble.");
 			System.exit(0);
 		}
+	}
+	
+	private static boolean setProjectFiles(File assembleFile)
+	{
+		try
+		{
+			if (isValidProject(assembleFile))
+			{
+				openProject(assembleFile);
+				if (projectFiles != null)
+					return true;
+				else
+					return false;
+			}
+			else if (isValidFile(assembleFile))
+			{
+				projectFiles.add(new ASMFile(assembleFile.getPath()));
+				
+				return true;
+			}
+			else
+				return false;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		return false;
+	}
+	
+	// TODO replace with new project standard / backward compatibility?
+	private static void openProject(File assembleFile)
+	{
+		try (TarArchiveInputStream plpInputStream = new TarArchiveInputStream(
+				new FileInputStream(assembleFile)))
+		{
+			projectFiles.clear();
+			TarArchiveEntry entry = plpInputStream.getNextTarEntry();
+			while ((entry = plpInputStream.getNextTarEntry()) != null)
+			{
+				if (!entry.isDirectory())
+				{
+					byte[] content = new byte[(int) entry.getSize()];
+					int currentIndex = 0;
+					while(currentIndex < entry.getSize())
+					{
+						plpInputStream.read(content, currentIndex, content.length - currentIndex);
+						currentIndex++;
+					}
+					if(entry.getName().endsWith(".asm"))
+						projectFiles.add(new ASMFile(new String(content), assembleFile.getPath()));
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	// TODO replace with correct external method
+	private static boolean isValidProject(File assembleFile)
+	{
+		if (!assembleFile.isFile())
+			return false;
+		if (!assembleFile.getPath().endsWith(".plp"))
+			return false;
+		else
+			return true;
+	}
+	
+	// TODO replace with correct external method
+	private static boolean isValidFile(File assembleFile)
+	{
+		if (!assembleFile.isFile())
+			return false;
+		if (!assembleFile.getPath().endsWith(".asm"))
+			return false;
+		else
+			return true;
 	}
 	
 	private static void printHelp()
