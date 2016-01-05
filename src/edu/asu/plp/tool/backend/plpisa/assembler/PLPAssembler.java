@@ -15,6 +15,7 @@ import com.faeysoft.preceptor.lexer.Token;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 import edu.asu.plp.tool.backend.isa.ASMDisassembly;
+import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.ASMLine;
 import edu.asu.plp.tool.backend.isa.Assembler;
@@ -29,7 +30,7 @@ import plptool.PLPArchitecture;
 
 public class PLPAssembler extends Assembler
 {
-	private List<PLPAsm> asmFiles;
+	private List<ASMFile> asmFiles;
 	private List<Integer> regionMap;
 	
 	private BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
@@ -70,7 +71,7 @@ public class PLPAssembler extends Assembler
 	
 	private Lexer lexer;
 	// Map position in asmFile list to that files tokens
-	private HashMap<Integer, List<Token>> tokens;
+	private HashMap<Integer, List<Token>> asmToTokensMap;
 	private ListIterator<Token> tokenIterator;
 	private Token currentToken;
 	
@@ -79,9 +80,14 @@ public class PLPAssembler extends Assembler
 		this(Arrays.asList(new PLPAsm[] { new PLPAsm(asmFilePath) }));
 	}
 	
-	public PLPAssembler(List<PLPAsm> asmFiles)
+	public PLPAssembler(List<ASMFile> asmFiles)
 	{
 		this.asmFiles = asmFiles;
+		if(asmFiles.isEmpty())
+		{
+			System.out.println("ASM File list is empty");
+			System.exit(-1);
+		}
 		initialize();
 	}
 	
@@ -89,19 +95,19 @@ public class PLPAssembler extends Assembler
 	public ASMImage assemble() throws AssemblerException
 	{
 		assemblyToDisassemblyMap = null;
-		tokens = new HashMap<>();
+		asmToTokensMap = new HashMap<>();
 		
 		if (asmFiles.isEmpty())
 			throw new AssemblerException("Can not assemble an image with no files.");
 			
 		System.out.println("Entered PLPAssembler");
 		
-		for (PLPAsm asmFile : asmFiles)
+		for (ASMFile asmFile : asmFiles)
 		{
 			try
 			{
 				System.out.println("Starting lexing of " + asmFile.getAsmFilePath());
-				tokens.put(asmFiles.indexOf(asmFile), lexer.lex(asmFile.getAsmLines()));
+				asmToTokensMap.put(asmFiles.indexOf(asmFile), lexer.lex(asmFile.getAsmLines()));
 				
 //				System.out.println(asmFile.getAsmLines());
 				
@@ -115,7 +121,7 @@ public class PLPAssembler extends Assembler
 			}
 		}
 		
-		if (tokens == null)
+		if (asmToTokensMap == null)
 			throw new AssemblerException("File was not lexed correctly.");
 			
 		currentActiveFile = topLevelFile;
@@ -148,6 +154,7 @@ public class PLPAssembler extends Assembler
 		String delimiters = "[ ,\t]+|[()]";
 		
 		String currentPreprocessedAsm = firstPassString.toString();
+//		System.out.println(currentPreprocessedAsm);
 		String[] asmLines = currentPreprocessedAsm.split("\\r?\\n");
 		String[] asmTokens;
 		String[] stripComments;
@@ -177,20 +184,22 @@ public class PLPAssembler extends Assembler
 			{
 				if (asmTokens[tokenIndex].startsWith(ASM__HIGH__))
 				{
-					symbolResolver = asmTokens[tokenIndex].substring(ASM__HIGH__.length(),
-							asmTokens[tokenIndex].length());
+					symbolResolver = asmTokens[tokenIndex + 1];
 					if (symbolTable.containsKey(symbolResolver))
+					{
 						symbolResolverValue = (int) (symbolTable
 								.get(symbolResolver) >> 16);
+					}
 					else
+					{
 						symbolResolverValue = (int) (ISAUtil
 								.sanitize32bits(symbolResolver) >> 16);
+					}
 					asmTokens[tokenIndex] = String.valueOf(symbolResolverValue);
 				}
 				else if (asmTokens[tokenIndex].startsWith(ASM__LOW__))
 				{
-					symbolResolver = asmTokens[tokenIndex].substring(ASM__LOW__.length(),
-							asmTokens[tokenIndex].length());
+					symbolResolver = asmTokens[tokenIndex + 1];
 					if (symbolTable.containsKey(symbolResolver))
 						symbolResolverValue = (int) (symbolTable.get(symbolResolver)
 								& 0xFFFF);
@@ -343,7 +352,7 @@ public class PLPAssembler extends Assembler
 					if (asmTokens[0].equals(ASM__WORD__))
 					{
 						entryType[asmLineIndex - assemblerDirectiveSkips] = 1;
-						System.out.println(asmTokens[1]);
+//						System.out.println(asmTokens[1]);
 						objectCode[asmLineIndex - assemblerDirectiveSkips] = ISAUtil
 								.sanitize32bits(asmTokens[1]);
 					}
@@ -382,6 +391,7 @@ public class PLPAssembler extends Assembler
 			asmLineIndex++;
 		}
 		
+		System.out.println("\nFinished assembling process.");
 		System.out.println("Total statically allocated memory: "
 				+ (objectCode.length + byteSpace / 4) + " words.");
 		System.out.println(
@@ -396,64 +406,68 @@ public class PLPAssembler extends Assembler
 	 */
 	private void preprocess() throws AssemblerException
 	{
-		tokenIterator = tokens.get(0).listIterator();
-		
-		// TODO loop through each file
-		if (!nextToken())
-			return;
-		System.out.println("Starting preprocessing of: " + currentActiveFile);
-		
-		while (currentToken != null)
+		for(ASMFile asmFile : asmFiles)
 		{
-			// System.out.println(lineNumber + ": " + currentToken);
-			// Loop directives
-			if (currentToken.getTypeName() == PLPTokenType.DIRECTIVE.name())
-			{
-				if (directiveMap.containsKey(currentToken.getValue()))
-					directiveMap.get(currentToken.getValue()).perform();
-				else
-					throw new AssemblerException(
-							"Unknown directive. Found: " + currentToken.getValue());
-			}
-			// Loop PseudoOps
-			else if (pseudoOperationMap.containsKey(currentToken.getValue()))
-			{
-				pseudoOperationMap.get(currentToken.getValue()).perform();
-			}
-			// Instructions
-			else if (isInstruction())
-			{
-				preprocessNormalInstruction();
-			}
-			// Comments
-			else if (currentToken.getTypeName().equals(PLPTokenType.COMMENT.name()))
-			{
-				appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
-				directiveOffset++;
-			}
-			// Labels
-			else if (currentToken.getTypeName().equals(PLPTokenType.LABEL_COLON.name()))
-			{
-				preprocessLabels();
-			}
-			else if(currentToken.getTypeName().equals(PLPTokenType.NEW_LINE.name()))
-			{
-				appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
-				directiveOffset++;
-			}
-			else
-			{
-				System.out.println("Failed on: " + lineNumber);
-				throw new AssemblerException("Unknown token in preprocessing, found: "
-						+ currentToken.getValue());
-			}
+			currentToken = null;
+			currentActiveFile = asmFile.getAsmFilePath();
+			tokenIterator = asmToTokensMap.get(asmFiles.indexOf(asmFile)).listIterator();
 			
 			if (!nextToken())
-				break;
-			this.lineNumber++;
+				return;
+			
+			System.out.println("Starting preprocessing of: " + currentActiveFile);
+			
+			while (currentToken != null)
+			{
+				// System.out.println(lineNumber + ": " + currentToken);
+				// Loop directives
+				if (currentToken.getTypeName() == PLPTokenType.DIRECTIVE.name())
+				{
+					if (directiveMap.containsKey(currentToken.getValue()))
+						directiveMap.get(currentToken.getValue()).perform();
+					else
+						throw new AssemblerException(
+								"Unknown directive. Found: " + currentToken.getValue());
+				}
+				// Loop PseudoOps
+				else if (pseudoOperationMap.containsKey(currentToken.getValue()))
+				{
+					pseudoOperationMap.get(currentToken.getValue()).perform();
+				}
+				// Instructions
+				else if (isInstruction())
+				{
+					preprocessNormalInstruction();
+				}
+				// Comments
+				else if (currentToken.getTypeName().equals(PLPTokenType.COMMENT.name()))
+				{
+					appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
+					directiveOffset++;
+				}
+				// Labels
+				else if (currentToken.getTypeName().equals(PLPTokenType.LABEL_COLON.name()))
+				{
+					preprocessLabels();
+				}
+				else if(currentToken.getTypeName().equals(PLPTokenType.NEW_LINE.name()))
+				{
+					appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
+					directiveOffset++;
+				}
+				else
+				{
+					System.out.println("Failed on: " + lineNumber);
+					throw new AssemblerException("Unknown token in preprocessing, found: "
+							+ currentToken.getValue());
+				}
+				
+				if (!nextToken())
+					break;
+				this.lineNumber++;
+			}
+			// TODO append the rest of the files in source files
 		}
-		
-		// TODO append the rest of the files in source files
 	}
 	
 	/*
@@ -1535,14 +1549,14 @@ public class PLPAssembler extends Assembler
 			boolean newLine)
 	{
 		lineNumAndAsmFileMap.put(mapperIndex, new Pair<>(lineNumber, asmIndex));
-		
+
+		firstPassString.append(instruction);
 		if (newLine)
 		{
 			mapperIndex++;
+			firstPassString.append("\n");
 		}
-		System.out.println(instruction);
-		firstPassString.append(instruction);
-		firstPassString.append("\n");
+//		System.out.println(lineNumber + ": " + instruction);
 		
 		// System.out.println(lineNumber + ": " + instruction);
 	}
