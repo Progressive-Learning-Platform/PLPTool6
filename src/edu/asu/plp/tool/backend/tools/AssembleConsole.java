@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -29,6 +30,7 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
+import edu.asu.plp.tool.backend.util.FileUtil;
 
 //@formatter:off
 /**
@@ -84,7 +86,8 @@ public class AssembleConsole
 		
 		if (isBenchMarking)
 			System.out.println(
-					String.format("It took: %.2f seconds", (endTime - startTime) * 1e-9));
+					String.format("\nCompleted Assembling process in %.2f seconds",
+							(endTime - startTime) * 1e-9));
 	}
 	
 	private static void configureStaticSettings()
@@ -157,26 +160,13 @@ public class AssembleConsole
 			// TODO enforce correct project ending relative to project type (.plp for plp)
 			// TODO parse project into list of asm files
 			assembleFile = new File(commandLine.getOptionValue("p"));
-			if (!setProjectFiles(assembleFile))
-			{
-				System.out.println(
-						"Provided project file was not valid: " + assembleFile.getPath());
-				System.exit(-1);
-			}
-			
-			System.out.println("Projects are not currently supported");
-			System.exit(-1);
+			parseProject(assembleFile);
 		}
 		else if (commandLine.hasOption("f"))
 		{
 			// TODO enforce correct file type (.asm for plp)
 			assembleFile = new File(commandLine.getOptionValue("f"));
-			if (!setProjectFiles(assembleFile))
-			{
-				System.out.println(
-						"Provided file was not valid: " + assembleFile.getPath());
-				System.exit(-1);
-			}
+			parseFile(assembleFile);
 		}
 		else if (commandLine.hasOption("e"))
 		{
@@ -184,7 +174,15 @@ public class AssembleConsole
 			if (exampleProjects.containsKey(exampleName))
 			{
 				assembleFile = new File(exampleProjects.get(exampleName));
-				if (!setProjectFiles(assembleFile))
+				if (FileUtil.isValidFile(assembleFile))
+				{
+					parseFile(assembleFile);
+				}
+				else if (FileUtil.isValidProject(assembleFile))
+				{
+					parseProject(assembleFile);
+				}
+				else
 				{
 					System.out.println(
 							"Oops, something went wrong with the file path of this example!");
@@ -207,112 +205,51 @@ public class AssembleConsole
 		}
 	}
 	
-	private static boolean setProjectFiles(File assembleFile)
+	private static void parseFile(File assembleFile)
 	{
-		try
+		if (FileUtil.isValidFile(assembleFile))
 		{
-			if (isValidProject(assembleFile))
+			try
 			{
-				openProject(assembleFile);
-				if (projectFiles != null)
-					return true;
-				else
-					return false;
+				projectFiles = Arrays.asList(new ASMFile(assembleFile.getPath()));
 			}
-			else if (isValidFile(assembleFile))
+			catch (IOException e)
 			{
-				projectFiles.add(new ASMFile(assembleFile.getPath()));
-				
-				return true;
+				e.printStackTrace();
+				System.exit(-1);
 			}
-			else
-				return false;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		return false;
-	}
-	
-	// TODO replace with new project standard / backward compatibility?
-	private static void openProject(File assembleFile)
-	{
-		try (TarArchiveInputStream plpInputStream = new TarArchiveInputStream(
-				new FileInputStream(assembleFile)))
-		{
-			projectFiles.clear();
-			TarArchiveEntry entry = plpInputStream.getNextTarEntry();
-			while ((entry = plpInputStream.getNextTarEntry()) != null)
+			if (projectFiles == null || projectFiles.isEmpty())
 			{
-				if (!entry.isDirectory())
-				{
-					addFile(plpInputStream, entry, assembleFile);
-				}
-				else
-				{
-					addDirectory(plpInputStream, entry, assembleFile);
-				}
+				System.out
+						.println("An error occured attempting to open: " + assembleFile);
+				System.exit(-1);
 			}
 		}
-		catch (IOException e)
+		else
 		{
-			e.printStackTrace();
+			System.out.println("Provided file was not valid: " + assembleFile.getPath());
 			System.exit(-1);
 		}
 	}
 	
-	private static void addFile(TarArchiveInputStream plpInputStream,
-			TarArchiveEntry entry, File assembleFile) throws IOException
+	private static void parseProject(File assembleFile)
 	{
-		byte[] content = new byte[(int) entry.getSize()];
-		int currentIndex = 0;
-		while (currentIndex < entry.getSize())
+		if (FileUtil.isValidProject(assembleFile))
 		{
-			plpInputStream.read(content, currentIndex, content.length - currentIndex);
-			currentIndex++;
-		}
-		if (entry.getName().endsWith(".asm"))
-			projectFiles.add(new ASMFile(new String(content), entry.getName()));
-	}
-	
-	private static void addDirectory(TarArchiveInputStream plpInputStream,
-			TarArchiveEntry entry, File assembleFile) throws IOException
-	{
-		for (TarArchiveEntry subEntry : entry.getDirectoryEntries())
-		{
-			if (!subEntry.isDirectory())
+			projectFiles = FileUtil.openProject(assembleFile);
+			if (projectFiles == null)
 			{
-				addFile(plpInputStream, subEntry, assembleFile);
-			}
-			else
-			{
-				addDirectory(plpInputStream, subEntry, assembleFile);
+				System.out
+						.println("An error occured attempting to open: " + assembleFile);
+				System.exit(-1);
 			}
 		}
-	}
-	
-	// TODO replace with correct external method
-	private static boolean isValidProject(File assembleFile)
-	{
-		if (!assembleFile.isFile())
-			return false;
-		if (!assembleFile.getPath().endsWith(".plp"))
-			return false;
 		else
-			return true;
-	}
-	
-	// TODO replace with correct external method
-	private static boolean isValidFile(File assembleFile)
-	{
-		if (!assembleFile.isFile())
-			return false;
-		if (!assembleFile.getPath().endsWith(".asm"))
-			return false;
-		else
-			return true;
+		{
+			System.out.println(
+					"Provided project file was not valid: " + assembleFile.getPath());
+			System.exit(-1);
+		}
 	}
 	
 	private static void printHelp()

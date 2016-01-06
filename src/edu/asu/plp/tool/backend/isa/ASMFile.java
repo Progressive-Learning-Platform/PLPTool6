@@ -41,7 +41,7 @@ public class ASMFile
 	
 	private boolean loadFromFile(String asmFilePath)
 	{
-		if (FileUtil.isAsmFile(asmFilePath))
+		if (FileUtil.isValidFile(asmFilePath))
 		{
 			File asmFile = new File(asmFilePath);
 			
