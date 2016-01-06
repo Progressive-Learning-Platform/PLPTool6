@@ -274,7 +274,7 @@ public class AssembleConsole
 			currentIndex++;
 		}
 		if (entry.getName().endsWith(".asm"))
-			projectFiles.add(new ASMFile(new String(content), assembleFile.getPath()));
+			projectFiles.add(new ASMFile(new String(content), entry.getName()));
 	}
 	
 	private static void addDirectory(TarArchiveInputStream plpInputStream,

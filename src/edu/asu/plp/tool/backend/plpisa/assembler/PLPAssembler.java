@@ -71,7 +71,7 @@ public class PLPAssembler extends Assembler
 	
 	private Lexer lexer;
 	// Map position in asmFile list to that files tokens
-	private HashMap<Integer, List<Token>> asmToTokensMap;
+	private HashMap<ASMFile, List<Token>> asmToTokensMap;
 	private ListIterator<Token> tokenIterator;
 	private Token currentToken;
 	
@@ -107,12 +107,7 @@ public class PLPAssembler extends Assembler
 			try
 			{
 				System.out.println("Starting lexing of " + asmFile.getAsmFilePath());
-				asmToTokensMap.put(asmFiles.indexOf(asmFile), lexer.lex(asmFile.getAsmLines()));
-				
-//				System.out.println(asmFile.getAsmLines());
-				
-//				tokens.get(asmFiles.indexOf(asmFile))
-//						.forEach(token -> System.out.println(token));
+				asmToTokensMap.put(asmFile, lexer.lex(asmFile.getAsmLines()));
 			}
 			catch (LexException e)
 			{
@@ -410,7 +405,7 @@ public class PLPAssembler extends Assembler
 		{
 			currentToken = null;
 			currentActiveFile = asmFile.getAsmFilePath();
-			tokenIterator = asmToTokensMap.get(asmFiles.indexOf(asmFile)).listIterator();
+			tokenIterator = asmToTokensMap.get(asmFile).listIterator();
 			
 			if (!nextToken())
 				return;
@@ -464,9 +459,9 @@ public class PLPAssembler extends Assembler
 				
 				if (!nextToken())
 					break;
+				
 				this.lineNumber++;
 			}
-			// TODO append the rest of the files in source files
 		}
 	}
 	
