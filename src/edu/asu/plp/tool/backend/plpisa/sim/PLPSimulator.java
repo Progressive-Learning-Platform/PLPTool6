@@ -2,6 +2,7 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 
 public class PLPSimulator implements Simulator
 {
@@ -15,7 +16,7 @@ public class PLPSimulator implements Simulator
 	private Stage memoryStage;
 	private Stage writeBackStage;
 	
-	public PLPSimulator()
+	public PLPSimulator() throws SimulatorException
 	{
 		initialize();
 	}
