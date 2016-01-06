@@ -30,6 +30,17 @@ import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 
+//@formatter:off
+/**
+ * <p>Command Line Interface for a Generic Assembler.</p>
+ * <p>Can use any Assembly Assembler that implements {@link edu.asu.plp.tool.backend.isa.Assembler}</p>
+ * <p>For examples on usage: use the -h or -help flag.</p>
+ * <p>For runnable examples use the -e or -example. You can find the example names in the help menu.</p>
+ * 
+ * @author Nesbitt, Morgan
+ *		
+ */
+//@formatter:on
 public class AssembleConsole
 {
 	protected static String assemblerName;
@@ -82,6 +93,8 @@ public class AssembleConsole
 		exampleProjects = new HashMap<>();
 		projectFiles = new ArrayList<>();
 		
+		exampleProjects.put("one-sub-directory-project",
+				"examples/PLP Projects/leds_test.plp");
 		exampleProjects.put("no-sub-directory-project",
 				"examples/PLP Projects/memtest.plp");
 		exampleProjects.put("file-count",
@@ -235,15 +248,11 @@ public class AssembleConsole
 			{
 				if (!entry.isDirectory())
 				{
-					byte[] content = new byte[(int) entry.getSize()];
-					int currentIndex = 0;
-					while(currentIndex < entry.getSize())
-					{
-						plpInputStream.read(content, currentIndex, content.length - currentIndex);
-						currentIndex++;
-					}
-					if(entry.getName().endsWith(".asm"))
-						projectFiles.add(new ASMFile(new String(content), assembleFile.getPath()));
+					addFile(plpInputStream, entry, assembleFile);
+				}
+				else
+				{
+					addDirectory(plpInputStream, entry, assembleFile);
 				}
 			}
 		}
@@ -251,6 +260,36 @@ public class AssembleConsole
 		{
 			e.printStackTrace();
 			System.exit(-1);
+		}
+	}
+	
+	private static void addFile(TarArchiveInputStream plpInputStream,
+			TarArchiveEntry entry, File assembleFile) throws IOException
+	{
+		byte[] content = new byte[(int) entry.getSize()];
+		int currentIndex = 0;
+		while (currentIndex < entry.getSize())
+		{
+			plpInputStream.read(content, currentIndex, content.length - currentIndex);
+			currentIndex++;
+		}
+		if (entry.getName().endsWith(".asm"))
+			projectFiles.add(new ASMFile(new String(content), assembleFile.getPath()));
+	}
+	
+	private static void addDirectory(TarArchiveInputStream plpInputStream,
+			TarArchiveEntry entry, File assembleFile) throws IOException
+	{
+		for (TarArchiveEntry subEntry : entry.getDirectoryEntries())
+		{
+			if (!subEntry.isDirectory())
+			{
+				addFile(plpInputStream, subEntry, assembleFile);
+			}
+			else
+			{
+				addDirectory(plpInputStream, subEntry, assembleFile);
+			}
 		}
 	}
 	
