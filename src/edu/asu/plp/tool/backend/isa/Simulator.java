@@ -1,24 +1,31 @@
 package edu.asu.plp.tool.backend.isa;
 
-public interface Simulator
+public abstract class Simulator
 {
-	boolean isRunning();
+	protected long startAddress;
 	
-	boolean run();
-	
-	boolean step();
-	
-	void reset();
+	public Simulator()
+	{
+		startAddress = 0;
+	}
 
-	boolean isPaused();
+	public abstract boolean isRunning();
 	
-	boolean pause();
+	public abstract boolean run();
 	
-	boolean isSimModeEnabled();
+	public abstract boolean step();
 	
-	boolean toggleSimMode();
+	public abstract void reset();
+
+	public abstract boolean isPaused();
 	
-	boolean isProgramLoaded();
+	public abstract boolean pause();
 	
-	boolean loadProgram(ASMImage assembledImage);
+	public abstract boolean isSimModeEnabled();
+	
+	public abstract boolean toggleSimMode();
+	
+	public abstract boolean isProgramLoaded();
+	
+	public abstract boolean loadProgram(ASMImage assembledImage);
 }

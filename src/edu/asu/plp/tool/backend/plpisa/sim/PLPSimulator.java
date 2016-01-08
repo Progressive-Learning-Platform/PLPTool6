@@ -4,12 +4,15 @@ import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 
-public class PLPSimulator implements Simulator
+public class PLPSimulator extends Simulator
 {
 	private ASMImage assembledImage;
+	
 	private boolean isSimulationRunning;
 	private boolean hasSimulationStarted;
 	private boolean isSimEnabled;
+
+	private ProgramCounter programCounter;
 	
 	private Stage instructionDecodeStage;
 	private Stage executeStage;
@@ -18,21 +21,26 @@ public class PLPSimulator implements Simulator
 	
 	public PLPSimulator() throws SimulatorException
 	{
+		super();
 		initialize();
 	}
 
-	private void initialize()
+	@Override
+	public boolean run()
 	{
-		assembledImage = null;
+		return false;
+	}
+
+	@Override
+	public boolean step()
+	{
+		return false;
+	}
+
+	@Override
+	public void reset()
+	{
 		
-		isSimulationRunning = false;
-		hasSimulationStarted = false;
-		isSimEnabled = false;
-		
-		instructionDecodeStage = new InstructionDecodeStage();
-		executeStage = new ExecuteStage();
-		memoryStage = new MemoryStage();
-		writeBackStage = new WriteBackStage();
 	}
 
 	@Override
@@ -40,28 +48,7 @@ public class PLPSimulator implements Simulator
 	{
 		return (hasSimulationStarted && isSimulationRunning);
 	}
-
-	@Override
-	public boolean run()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean step()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void reset()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	@Override
 	public boolean isPaused()
 	{
@@ -71,7 +58,6 @@ public class PLPSimulator implements Simulator
 	@Override
 	public boolean pause()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -106,5 +92,22 @@ public class PLPSimulator implements Simulator
 		this.assembledImage = assembledImage;
 		return true;
 	}
+	
+	private void initialize()
+	{
+		assembledImage = null;
+		
+		isSimulationRunning = false;
+		hasSimulationStarted = false;
+		isSimEnabled = false;
+		
+		instructionDecodeStage = new InstructionDecodeStage();
+		executeStage = new ExecuteStage();
+		memoryStage = new MemoryStage();
+		writeBackStage = new WriteBackStage();
+		
+		programCounter = new ProgramCounter(0);
+	}
+	
 	
 }
