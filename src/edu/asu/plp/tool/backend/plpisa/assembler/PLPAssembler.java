@@ -17,13 +17,15 @@ import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 import edu.asu.plp.tool.backend.isa.ASMDisassembly;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
-import edu.asu.plp.tool.backend.isa.ASMLine;
+import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.UnitSize.DefaultSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
+import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAsm;
+import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 import javafx.util.Pair;
 import plptool.PLPArchitecture;
@@ -33,7 +35,7 @@ public class PLPAssembler extends Assembler
 	private List<ASMFile> asmFiles;
 	private List<Integer> regionMap;
 	
-	private BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
+	private BiDirectionalOneToManyMap<ASMInstruction, ASMDisassembly> assemblyToDisassemblyMap;
 	
 	private HashMap<String, Pair<AssemblerStep, Integer>> instructionMap;
 	private HashMap<String, AssemblerStep> directiveMap;
@@ -83,7 +85,7 @@ public class PLPAssembler extends Assembler
 	public PLPAssembler(List<ASMFile> asmFiles)
 	{
 		this.asmFiles = asmFiles;
-		if(asmFiles.isEmpty())
+		if (asmFiles.isEmpty())
 		{
 			System.out.println("ASM File list is empty");
 			System.exit(-1);
@@ -149,7 +151,7 @@ public class PLPAssembler extends Assembler
 		String delimiters = "[ ,\t]+|[()]";
 		
 		String currentPreprocessedAsm = firstPassString.toString();
-//		System.out.println(currentPreprocessedAsm);
+		// System.out.println(currentPreprocessedAsm);
 		String[] asmLines = currentPreprocessedAsm.split("\\r?\\n");
 		String[] asmTokens;
 		String[] stripComments;
@@ -347,7 +349,7 @@ public class PLPAssembler extends Assembler
 					if (asmTokens[0].equals(ASM__WORD__))
 					{
 						entryType[asmLineIndex - assemblerDirectiveSkips] = 1;
-//						System.out.println(asmTokens[1]);
+						// System.out.println(asmTokens[1]);
 						objectCode[asmLineIndex - assemblerDirectiveSkips] = ISAUtil
 								.sanitize32bits(asmTokens[1]);
 					}
@@ -392,7 +394,7 @@ public class PLPAssembler extends Assembler
 		System.out.println(
 				"Object code and initialized variables: " + objectCode.length + " words");
 				
-		return new ASMImage(assemblyToDisassemblyMap);
+		return new PLPASMImage(assemblyToDisassemblyMap, asmFiles);
 	}
 	
 	/*
@@ -401,7 +403,7 @@ public class PLPAssembler extends Assembler
 	 */
 	private void preprocess() throws AssemblerException
 	{
-		for(ASMFile asmFile : asmFiles)
+		for (ASMFile asmFile : asmFiles)
 		{
 			currentToken = null;
 			currentActiveFile = asmFile.getAsmFilePath();
@@ -409,7 +411,7 @@ public class PLPAssembler extends Assembler
 			
 			if (!nextToken())
 				return;
-			
+				
 			System.out.println("Starting preprocessing of: " + currentActiveFile);
 			
 			while (currentToken != null)
@@ -441,11 +443,12 @@ public class PLPAssembler extends Assembler
 					directiveOffset++;
 				}
 				// Labels
-				else if (currentToken.getTypeName().equals(PLPTokenType.LABEL_COLON.name()))
+				else if (currentToken.getTypeName()
+						.equals(PLPTokenType.LABEL_COLON.name()))
 				{
 					preprocessLabels();
 				}
-				else if(currentToken.getTypeName().equals(PLPTokenType.NEW_LINE.name()))
+				else if (currentToken.getTypeName().equals(PLPTokenType.NEW_LINE.name()))
 				{
 					appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
 					directiveOffset++;
@@ -459,7 +462,7 @@ public class PLPAssembler extends Assembler
 				
 				if (!nextToken())
 					break;
-				
+					
 				this.lineNumber++;
 			}
 		}
@@ -1412,43 +1415,128 @@ public class PLPAssembler extends Assembler
 	
 	private void setInstructionMapValues()
 	{
-		instructionMap.put("addu", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("subu", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("and", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("or", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("nor", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("slt", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("sltu", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("sllv", new Pair<>(this::threeRegisterOperation, 0));
-		instructionMap.put("srlv", new Pair<>(this::threeRegisterOperation, 0));
+		PLPInstruction currentInstruction;
 		
-		instructionMap.put("sll", new Pair<>(this::twoRegisterImmediateOperation, 1));
-		instructionMap.put("srl", new Pair<>(this::twoRegisterImmediateOperation, 1));
-		
-		instructionMap.put("jr", new Pair<>(this::singleRegisterOperation, 2));
-		
-		instructionMap.put("beq", new Pair<>(this::twoRegisterLabelOperation, 3));
-		instructionMap.put("bne", new Pair<>(this::twoRegisterLabelOperation, 3));
-		
-		instructionMap.put("addiu", new Pair<>(this::twoRegisterImmediateOperation, 4));
-		instructionMap.put("andi", new Pair<>(this::twoRegisterImmediateOperation, 4));
-		instructionMap.put("ori", new Pair<>(this::twoRegisterImmediateOperation, 4));
-		instructionMap.put("slti", new Pair<>(this::twoRegisterImmediateOperation, 4));
-		instructionMap.put("sltiu", new Pair<>(this::twoRegisterImmediateOperation, 4));
-		
-		instructionMap.put("lui", new Pair<>(this::registerImmediateOperation, 5));
-		
-		instructionMap.put("lw", new Pair<>(this::registerOffsetRegisterOperation, 6));
-		instructionMap.put("sw", new Pair<>(this::registerOffsetRegisterOperation, 6));
-		
-		instructionMap.put("j", new Pair<>(this::singleLabelOperation, 7));
-		instructionMap.put("jal", new Pair<>(this::singleLabelOperation, 7));
-		
-		instructionMap.put("mulhi", new Pair<>(this::threeRegisterOperation, 8));
-		instructionMap.put("mullo", new Pair<>(this::threeRegisterOperation, 8));
-		
-		instructionMap.put("jalr", new Pair<>(this::twoRegisterOperation, 9));
-		
+		currentInstruction = PLPInstruction.ADD_UNSIGNED;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.SUBTRACT_UNSIGNED;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.AND;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.OR;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.NOR;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.SET_ON_LESS;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.SET_ON_LESS_UNSIGNED;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.SHIFT_LEFT_LOGICAL_VARIABLE;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.SHIFT_RIGHT_LOGICAL_VARIABLE;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.SHIFT_LEFT_LOGICAL;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.SHIFT_RIGHT_LOGICAL;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.JUMP_RETURN;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::singleRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.BRANCH_EQUALS;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterLabelOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.BRANCH_NOT_EQUALS;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterLabelOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.ADD_IMMEDIATE_UNSIGNED;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.AND_IMMEDIATE;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.OR_IMMEDIATE;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.SET_ON_LESS_IMMEDIATE;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.SET_ON_LESS_IMMEDIATE_UNSIGNED;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::twoRegisterImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.LOAD_UPPER_IMMEDIATE;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::registerImmediateOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.LOAD_WORD;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::registerOffsetRegisterOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.STORE_WORD;
+		instructionMap.put(currentInstruction.getMnemonic(),
+				new Pair<>(this::registerOffsetRegisterOperation,
+						currentInstruction.getInstructionType()));
+						
+		currentInstruction = PLPInstruction.JUMP;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::singleLabelOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.JUMP_AND_LINK;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::singleLabelOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.MULTIPLY_HIGH;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.MULTIPLY_LOW;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::threeRegisterOperation, currentInstruction.getInstructionType()));
+				
+		currentInstruction = PLPInstruction.JUMP_AND_LINK_RETURN;
+		instructionMap.put(currentInstruction.getMnemonic(), new Pair<>(
+				this::twoRegisterOperation, currentInstruction.getInstructionType()));
+				
 		instructionMap.put("ASM__WORD__", new Pair<>(() -> {
 		} , 10));
 		instructionMap.put("ASM__ORG__", new Pair<>(() -> {
@@ -1460,37 +1548,12 @@ public class PLPAssembler extends Assembler
 		instructionMap.put("ASM__POINTER__", new Pair<>(() -> {
 		} , 10));
 		
-		// R-Type Arithmetic
-		instructionOpcodeMap.put("sll", 0x00);
-		instructionOpcodeMap.put("sllv", 0x01);
-		instructionOpcodeMap.put("srl", 0x02);
-		instructionOpcodeMap.put("srlv", 0x03);
-		instructionOpcodeMap.put("jr", 0x08);
-		instructionOpcodeMap.put("jalr", 0x09);
-		instructionOpcodeMap.put("mullo", 0x10);
-		instructionOpcodeMap.put("mulhi", 0x11);
-		instructionOpcodeMap.put("add", 0x20);
-		instructionOpcodeMap.put("addu", 0x21);
-		// functionMap.put("sub", 0x22);
-		instructionOpcodeMap.put("subu", 0x23);
-		instructionOpcodeMap.put("and", 0x24);
-		instructionOpcodeMap.put("or", 0x25);
-		instructionOpcodeMap.put("nor", 0x27);
-		instructionOpcodeMap.put("slt", 0x2A);
-		instructionOpcodeMap.put("sltu", 0x2B);
-		
-		instructionOpcodeMap.put("j", 0x02);
-		instructionOpcodeMap.put("jal", 0x03);
-		instructionOpcodeMap.put("beq", 0x04);
-		instructionOpcodeMap.put("bne", 0x05);
-		instructionOpcodeMap.put("addiu", 0x09);
-		instructionOpcodeMap.put("slti", 0x0A);
-		instructionOpcodeMap.put("sltiu", 0x0B);
-		instructionOpcodeMap.put("andi", 0x0C);
-		instructionOpcodeMap.put("ori", 0x0D);
-		instructionOpcodeMap.put("lui", 0x0F);
-		instructionOpcodeMap.put("lw", 0x23);
-		instructionOpcodeMap.put("sw", 0x2B);
+		for (PLPInstruction instruction : PLPInstruction.values())
+		{
+			instructionOpcodeMap.put(instruction.getMnemonic(),
+					instruction.getByteCode());
+					
+		}
 	}
 	
 	private void setPseudoMapValues()
@@ -1544,14 +1607,14 @@ public class PLPAssembler extends Assembler
 			boolean newLine)
 	{
 		lineNumAndAsmFileMap.put(mapperIndex, new Pair<>(lineNumber, asmIndex));
-
+		
 		firstPassString.append(instruction);
 		if (newLine)
 		{
 			mapperIndex++;
 			firstPassString.append("\n");
 		}
-//		System.out.println(lineNumber + ": " + instruction);
+		// System.out.println(lineNumber + ": " + instruction);
 		
 		// System.out.println(lineNumber + ": " + instruction);
 	}
