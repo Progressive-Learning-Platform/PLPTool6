@@ -12,36 +12,9 @@ import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
  * @author Nesbitt, Morgan
  *
  */
-public class ASMImage
+public interface ASMImage
 {
-	protected final BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyToDisassemblyMap;
-	protected List<Integer> breakPoints;
+	BiDirectionalOneToManyMap<ASMInstruction, ? extends ASMDisassembly> getAssemblyDisassemblyMap();
 	
-	public ASMImage(
-			BiDirectionalOneToManyMap<ASMLine, ASMDisassembly> assemblyDisassemblyMap)
-	{
-		this.assemblyToDisassemblyMap = assemblyDisassemblyMap;
-		this.breakPoints = new ArrayList<>();
-	}
-	
-	
-	
-	public boolean addBreakPoint(int breakPointLineNumber)
-	{
-		if(breakPoints.contains(breakPointLineNumber))
-			return false;
-		
-		breakPoints.add(breakPointLineNumber);
-		return true;
-	}
-	
-	public boolean removeBreakPoint(int breakPointLineNumber)
-	{
-		if(!breakPoints.contains(breakPointLineNumber))
-			return false;
-		
-		breakPoints.remove(breakPointLineNumber);
-		return true;
-	}
-	
+	List<ASMFile> getAsmList();
 }

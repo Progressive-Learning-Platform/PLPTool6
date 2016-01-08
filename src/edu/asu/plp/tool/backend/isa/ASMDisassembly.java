@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.backend.isa;
 
-public class ASMDisassembly
+public interface ASMDisassembly
 {
+	long getAddresss();
 	
+	long getInstruction();
 }
