@@ -7,13 +7,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * A {@link Project} represents an ordered, observable collection of {@link ProjectFile}s
+ * A {@link PLPProject} represents an ordered, observable collection of {@link ProjectFile}s
  * that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
  *
  */
-public class Project extends ArrayListProperty<ProjectFile>
+public class PLPProject extends ArrayListProperty<ProjectFile>
 {
 	/**
 	 * Path to this project on in the file system. If the this project exists in memory
@@ -34,16 +34,16 @@ public class Project extends ArrayListProperty<ProjectFile>
 	private StringProperty nameProperty;
 	
 	/**
-	 * Loads a {@link Project} from the given project file. This method auto-detects the
+	 * Loads a {@link PLPProject} from the given project file. This method auto-detects the
 	 * project version, and is therefore capable of loading both PLP6 and legacy (PLP5 and
 	 * prior) projects.
 	 * 
 	 * @param filePath
 	 *            Path to the specified file; may be relative or absolute
-	 * @return A {@link Project} representative of the information stored in the given
+	 * @return A {@link PLPProject} representative of the information stored in the given
 	 *         file.
 	 */
-	public static Project load(String filePath)
+	public static PLPProject load(String filePath)
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -58,22 +58,22 @@ public class Project extends ArrayListProperty<ProjectFile>
 	 * 
 	 * @param filePath
 	 *            Path to the specified file; may be relative or absolute
-	 * @returnA {@link Project} representative of the information stored in the given
+	 * @returnA {@link PLPProject} representative of the information stored in the given
 	 *          file.
 	 */
-	private static Project loadLegacy(String filePath)
+	private static PLPProject loadLegacy(String filePath)
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
-	public Project()
+	public PLPProject()
 	{
 		pathProperty = new SimpleStringProperty();
 		nameProperty = new SimpleStringProperty();
 	}
 	
-	public Project(String name)
+	public PLPProject(String name)
 	{
 		this();
 		nameProperty.set(name);
@@ -183,11 +183,11 @@ public class Project extends ArrayListProperty<ProjectFile>
 	}
 	
 	/**
-	 * Sets the path pointer of this {@link Project}.
+	 * Sets the path pointer of this {@link PLPProject}.
 	 * <p>
 	 * Note that this method alone does not alter disk contents, i.e. it does not move the
 	 * project file, or remove the old project file. For these functionalities, the
-	 * application responsible for instantiating {@link Project} should add a change
+	 * application responsible for instantiating {@link PLPProject} should add a change
 	 * listener to the {@link #pathProperty} (via {@link #getPathProperty()}), that
 	 * achieves the desired effect.
 	 * 
