@@ -5,10 +5,10 @@ import javafx.beans.property.StringProperty;
 
 public class ProjectFile
 {
-	private Project project;
+	private PLPProject project;
 	private StringProperty nameProperty;
 	
-	public ProjectFile(Project project, String name)
+	public ProjectFile(PLPProject project, String name)
 	{
 		this.project = project;
 		this.nameProperty = new SimpleStringProperty(name);
@@ -29,7 +29,7 @@ public class ProjectFile
 		return nameProperty;
 	}
 	
-	public Project getProject()
+	public PLPProject getProject()
 	{
 		return project;
 	}

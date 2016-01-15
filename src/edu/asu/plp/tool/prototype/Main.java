@@ -28,7 +28,7 @@ import moore.fx.components.Components;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
-import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.ProjectFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
@@ -53,7 +53,7 @@ public class Main extends Application
 	
 	private TabPane openProjectsPanel;
 	private BidiMap<ProjectFile, Tab> openProjects;
-	private ObservableList<Project> projects;
+	private ObservableList<PLPProject> projects;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
 	
@@ -214,13 +214,13 @@ public class Main extends Application
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
-		Project project = new Project("Assignment1");
+		PLPProject project = new PLPProject("Assignment1");
 		project.add(new ProjectFile(project, "main.asm"));
 		project.add(new ProjectFile(project, "sorting.asm"));
 		project.add(new ProjectFile(project, "division.asm"));
 		projects.add(project);
 		
-		project = new Project("Assignment2");
+		project = new PLPProject("Assignment2");
 		project.add(new ProjectFile(project, "main.asm"));
 		project.add(new ProjectFile(project, "uart_utilities.asm"));
 		projects.add(project);

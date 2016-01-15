@@ -9,7 +9,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
-import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.ProjectFile;
 
 /**
@@ -32,7 +32,7 @@ public class ProjectExplorerTree extends BorderPane
 	 * <p>
 	 * This list is backed externally, and will thus be modified externally.
 	 */
-	private ObservableList<Project> projects;
+	private ObservableList<PLPProject> projects;
 	
 	/** The view of this explorer */
 	private TreeView<String> projectTreeDisplay;
@@ -46,7 +46,7 @@ public class ProjectExplorerTree extends BorderPane
 	 */
 	private Consumer<ProjectFile> onFileDoubleClicked;
 	
-	public ProjectExplorerTree(ObservableList<Project> projectsModel)
+	public ProjectExplorerTree(ObservableList<PLPProject> projectsModel)
 	{
 		assert projectsModel != null;
 		projectTreeDisplay = createEmptyRootedProjectTree();
@@ -80,7 +80,7 @@ public class ProjectExplorerTree extends BorderPane
 	 * 
 	 * @param projectsModel
 	 */
-	public void setProjectsModel(ObservableList<Project> projectsModel)
+	public void setProjectsModel(ObservableList<PLPProject> projectsModel)
 	{
 		if (projects != null)
 			this.projects.removeListener(this::projectListChanged);
@@ -90,7 +90,7 @@ public class ProjectExplorerTree extends BorderPane
 		this.projects.addListener(this::projectListChanged);
 		
 		this.projectTreeDisplay.getRoot().getChildren().clear();
-		for (Project project : projectsModel)
+		for (PLPProject project : projectsModel)
 			addProjectToTree(project);
 	}
 	
@@ -150,7 +150,7 @@ public class ProjectExplorerTree extends BorderPane
 			else if (parent != null && parent.getValue().length() > 0)
 			{
 				// Selection is a file
-				Project project = lookupProjectByName(parent.getValue());
+				PLPProject project = lookupProjectByName(parent.getValue());
 				for (ProjectFile file : project)
 				{
 					if (file.getName().equals(selection.getValue()))
@@ -163,9 +163,9 @@ public class ProjectExplorerTree extends BorderPane
 		}
 	}
 	
-	private Project lookupProjectByName(String value)
+	private PLPProject lookupProjectByName(String value)
 	{
-		for (Project project : projects)
+		for (PLPProject project : projects)
 			if (project.getName().equals(value))
 				return project;
 		
@@ -184,14 +184,14 @@ public class ProjectExplorerTree extends BorderPane
 		return treeView;
 	}
 	
-	private void projectListChanged(Change<? extends Project> change)
+	private void projectListChanged(Change<? extends PLPProject> change)
 	{
 		while (change.next())
 		{
-			for (Project project : change.getAddedSubList())
+			for (PLPProject project : change.getAddedSubList())
 				addProjectToTree(project);
 			
-			for (Project project : change.getRemoved())
+			for (PLPProject project : change.getRemoved())
 				removeProjectFromTree(project);
 		}
 	}
@@ -208,7 +208,7 @@ public class ProjectExplorerTree extends BorderPane
 		}
 	}
 	
-	private void addProjectToTree(Project project)
+	private void addProjectToTree(PLPProject project)
 	{
 		project.addListener(this::projectFilesChanged);
 		TreeItem<String> projectItem = new TreeItem<>(project.getName());
@@ -230,7 +230,7 @@ public class ProjectExplorerTree extends BorderPane
 		projectNode.getChildren().add(fileNode);
 	}
 	
-	private void removeProjectFromTree(Project project)
+	private void removeProjectFromTree(PLPProject project)
 	{
 		TreeItem<String> projectNode = getProjectNode(project);
 		projectTreeDisplay.getRoot().getChildren().remove(projectNode);
@@ -238,13 +238,13 @@ public class ProjectExplorerTree extends BorderPane
 	
 	private void removeFileFromTree(ProjectFile file)
 	{
-		Project project = file.getProject();
+		PLPProject project = file.getProject();
 		TreeItem<String> projectNode = getProjectNode(project);
 		TreeItem<String> fileNode = getFileNode(file, projectNode);
 		projectNode.getChildren().remove(fileNode);
 	}
 	
-	private TreeItem<String> getProjectNode(Project project)
+	private TreeItem<String> getProjectNode(PLPProject project)
 	{
 		String name = project.getName();
 		
@@ -259,7 +259,7 @@ public class ProjectExplorerTree extends BorderPane
 	
 	private TreeItem<String> getFileNode(ProjectFile file)
 	{
-		Project project = file.getProject();
+		PLPProject project = file.getProject();
 		TreeItem<String> projectNode = getProjectNode(project);
 		
 		return getFileNode(file, projectNode);
