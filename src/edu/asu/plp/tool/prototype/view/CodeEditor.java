@@ -5,6 +5,9 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
@@ -18,9 +21,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 
 import javax.swing.CodeEditorPane;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -41,6 +46,9 @@ import javax.swing.SwingUtilities;
  */
 public class CodeEditor extends BorderPane implements ObservableStringValue
 {
+	private static String REGEX_KEY = "regex";
+	private static String COLOR_KEY = "color";
+	
 	private CodeEditorPane textPane;
 	private StringProperty textProperty;
 	
@@ -51,16 +59,49 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		textPane.addKeyListener(new UpdateOnKeyPressListener());
 		
 		SwingNode swingNode = new SwingNode();
-		textPane.setForeground(Color.BLACK);
 		textPane.setText("");
 		updateText();
 		
 		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
-		swingNode.setContent(new JScrollPane(paneWithLines));
+		swingNode.setContent(paneWithLines);
 		setCenter(swingNode);
 		
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 		this.textProperty.bindBidirectional(accessibleTextProperty());
+	}
+	
+	public void setSyntaxHighlighting(HashMap<String, Color> regexSyntaxHighlighting)
+	{
+		textPane.setKeywordColor(regexSyntaxHighlighting);
+	}
+	
+	public void setSyntaxHighlighting(JSONObject syntaxSpecification)
+	{
+		HashMap<String, Color> regexSyntaxMap = new HashMap<>();
+		
+		for (String syntaxName : syntaxSpecification.keySet())
+		{
+			JSONObject syntax = syntaxSpecification.getJSONObject(syntaxName);
+			// TODO: account for invalid syn file (e.g. missing regex or color)
+			String regex = syntax.getString(REGEX_KEY);
+			String colorHexString = syntax.getString(COLOR_KEY);
+			
+			int red = Integer.valueOf(colorHexString.substring(1, 3), 16);
+			int green = Integer.valueOf(colorHexString.substring(3, 5), 16);
+			int blue = Integer.valueOf(colorHexString.substring(5, 7), 16);
+			
+			Color color = new Color(red, green, blue);
+			regexSyntaxMap.put(regex, color);
+		}
+		
+		setSyntaxHighlighting(regexSyntaxMap);
+	}
+	
+	public void setSyntaxHighlighting(File syntaxSpecificationFile) throws IOException
+	{
+		String jsonString = FileUtils.readFileToString(syntaxSpecificationFile, "UTF-8");
+		JSONObject syntaxSpecification = new JSONObject(jsonString);
+		setSyntaxHighlighting(syntaxSpecification);
 	}
 	
 	public void setText(String text)
