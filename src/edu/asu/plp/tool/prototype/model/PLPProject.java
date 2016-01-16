@@ -7,14 +7,16 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * A {@link PLPProject} represents an ordered, observable collection of {@link ProjectFile}s
- * that can be assembled collectively as a single unit.
+ * A {@link PLPProject} represents an ordered, observable collection of
+ * {@link ProjectFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
  *
  */
 public class PLPProject extends ArrayListProperty<ProjectFile>
 {
+	private static final String PROJECT_FILE_NAME = ".project";
+	
 	/**
 	 * Path to this project on in the file system. If the this project exists in memory
 	 * only (it has not yet been written to disk), then the value contained by
@@ -24,8 +26,8 @@ public class PLPProject extends ArrayListProperty<ProjectFile>
 	 * <p>
 	 * Also note that the path should point to a directory, unless the project was loaded
 	 * from a legacy source. The actual project FILE will be located in the given
-	 * directory, with the name ".project" The files contained by this project will be
-	 * located in a subdirectory named "src"
+	 * directory, with the name "{@value #PROJECT_FILE_NAME}" The files contained by this
+	 * project will be located in a subdirectory named "src"
 	 * <p>
 	 * In the case of a legacy file, the path will point to the project file directly, and
 	 * no src directory will exist.
@@ -34,9 +36,9 @@ public class PLPProject extends ArrayListProperty<ProjectFile>
 	private StringProperty nameProperty;
 	
 	/**
-	 * Loads a {@link PLPProject} from the given project file. This method auto-detects the
-	 * project version, and is therefore capable of loading both PLP6 and legacy (PLP5 and
-	 * prior) projects.
+	 * Loads a {@link PLPProject} from the given project file. This method auto-detects
+	 * the project version, and is therefore capable of loading both PLP6 and legacy (PLP5
+	 * and prior) projects.
 	 * 
 	 * @param filePath
 	 *            Path to the specified file; may be relative or absolute
@@ -84,7 +86,7 @@ public class PLPProject extends ArrayListProperty<ProjectFile>
 	 * {@link #getPath()}, as a PLP6 project file with a src directory of .asm files.
 	 * <p>
 	 * The project information specified by this object will be saved in a file within the
-	 * specified directory named ".project"
+	 * specified directory named "{@value #PROJECT_FILE_NAME}"
 	 * <p>
 	 * The files contained by this project will be saved to a subdirectory named "src"
 	 * <p>
