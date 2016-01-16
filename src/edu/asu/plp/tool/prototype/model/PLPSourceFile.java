@@ -11,7 +11,7 @@ import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class ProjectFile
+public class PLPSourceFile
 {
 	private static final String ENCODING_NAME = "UTF-8";
 	private static final String FILE_EXTENSION = ".asm";
@@ -20,7 +20,7 @@ public class ProjectFile
 	private StringProperty nameProperty;
 	private StringProperty contentProperty;
 	
-	public ProjectFile(PLPProject project, String name)
+	public PLPSourceFile(PLPProject project, String name)
 	{
 		this.project = project;
 		this.nameProperty = new SimpleStringProperty(name);
@@ -56,7 +56,7 @@ public class ProjectFile
 	}
 	
 	/**
-	 * Writes the contents of this {@link ProjectFile}, specified by {@link #getContent()}
+	 * Writes the contents of this {@link PLPSourceFile}, specified by {@link #getContent()}
 	 * , to the specified path, overwriting the current contents.
 	 * <p>
 	 * This method is equivalent to {@link #writeToFile(String, boolean)} with the
@@ -77,7 +77,7 @@ public class ProjectFile
 	}
 	
 	/**
-	 * Writes the contents of this {@link ProjectFile}, specified by {@link #getContent()}
+	 * Writes the contents of this {@link PLPSourceFile}, specified by {@link #getContent()}
 	 * , to the specified path.
 	 * <p>
 	 * If the path references a file, the specified name will be used. If the specified
