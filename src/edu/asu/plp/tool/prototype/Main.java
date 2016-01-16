@@ -29,7 +29,7 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.ProjectFile;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
@@ -52,7 +52,7 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
 	private TabPane openProjectsPanel;
-	private BidiMap<ProjectFile, Tab> openProjects;
+	private BidiMap<PLPSourceFile, Tab> openProjects;
 	private ObservableList<PLPProject> projects;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
@@ -114,7 +114,7 @@ public class Main extends Application
 	 * @param project
 	 *            The project to open
 	 */
-	private void openFile(ProjectFile file)
+	private void openFile(PLPSourceFile file)
 	{
 		String fileName = file.getName();
 		
@@ -149,7 +149,7 @@ public class Main extends Application
 			@Override
 			public void handle(Event event)
 			{
-				ProjectFile activeFile = openProjects.getKey(tab);
+				PLPSourceFile activeFile = openProjects.getKey(tab);
 				if (activeFile != null)
 					projectExplorer.setActiveFile(activeFile);
 			}
@@ -215,14 +215,14 @@ public class Main extends Application
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
 		PLPProject project = new PLPProject("Assignment1");
-		project.add(new ProjectFile(project, "main.asm"));
-		project.add(new ProjectFile(project, "sorting.asm"));
-		project.add(new ProjectFile(project, "division.asm"));
+		project.add(new PLPSourceFile(project, "main.asm"));
+		project.add(new PLPSourceFile(project, "sorting.asm"));
+		project.add(new PLPSourceFile(project, "division.asm"));
 		projects.add(project);
 		
 		project = new PLPProject("Assignment2");
-		project.add(new ProjectFile(project, "main.asm"));
-		project.add(new ProjectFile(project, "uart_utilities.asm"));
+		project.add(new PLPSourceFile(project, "main.asm"));
+		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
 		projects.add(project);
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);

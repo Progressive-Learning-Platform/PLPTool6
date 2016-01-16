@@ -8,12 +8,12 @@ import javafx.beans.property.StringProperty;
 
 /**
  * A {@link PLPProject} represents an ordered, observable collection of
- * {@link ProjectFile}s that can be assembled collectively as a single unit.
+ * {@link PLPSourceFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
  *
  */
-public class PLPProject extends ArrayListProperty<ProjectFile>
+public class PLPProject extends ArrayListProperty<PLPSourceFile>
 {
 	private static final String PROJECT_FILE_NAME = ".project";
 	
@@ -91,7 +91,7 @@ public class PLPProject extends ArrayListProperty<ProjectFile>
 	 * The files contained by this project will be saved to a subdirectory named "src"
 	 * <p>
 	 * Source files will be exported to a child directory of the project, called "src" and
-	 * each .asm file will be named according to {@link ProjectFile#getName()}.
+	 * each .asm file will be named according to {@link PLPSourceFile#getName()}.
 	 * 
 	 * @see
 	 * @throws IllegalStateException
@@ -131,7 +131,7 @@ public class PLPProject extends ArrayListProperty<ProjectFile>
 	 * successful.
 	 * <p>
 	 * Source files will be exported to a child directory of the project, called "src" and
-	 * each .asm file will be named according to {@link ProjectFile#getName()}.
+	 * each .asm file will be named according to {@link PLPSourceFile#getName()}.
 	 * <p>
 	 * If the specified file already exists, an exception will be raised, and the file
 	 * <b>will not</b> be overwritten.
