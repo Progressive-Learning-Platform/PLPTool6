@@ -1,13 +1,15 @@
 package edu.asu.plp.tool.backend.plpisa.assembler;
 
-import java.io.File;
+import static org.junit.Assert.*;
+
 import java.io.IOException;
-import java.rmi.server.Skeleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.faeysoft.preceptor.lexer.LexException;
 import com.faeysoft.preceptor.lexer.Lexer;
@@ -28,10 +30,10 @@ import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 import javafx.util.Pair;
-import plptool.PLPArchitecture;
 
 public class PLPAssembler extends Assembler
 {
+	private static final Logger logger = Logger.getLogger(PLPAssembler.class.getName());
 	private List<ASMFile> asmFiles;
 	private List<Integer> regionMap;
 	
@@ -154,7 +156,6 @@ public class PLPAssembler extends Assembler
 		// System.out.println(currentPreprocessedAsm);
 		String[] asmLines = currentPreprocessedAsm.split("\\r?\\n");
 		String[] asmTokens;
-		String[] stripComments;
 		
 		long[] objectCode = new long[asmLines.length - directiveOffset];
 		long[] addressTable = new long[asmLines.length - directiveOffset];
@@ -393,7 +394,23 @@ public class PLPAssembler extends Assembler
 				+ (objectCode.length + byteSpace / 4) + " words.");
 		System.out.println(
 				"Object code and initialized variables: " + objectCode.length + " words");
-				
+		
+		String outName = "Symbol Table";
+		int totalLength = 60;
+		int sideLength = (totalLength - outName.length())/ 2;
+		System.out.println(String.format("%-" + sideLength + "c%s%-" + sideLength + "c", ' ', outName, ' '));
+		symbolTable.forEach((key, value) -> {System.out.println(String.format("%-40s | 0x%05x", key, value));});
+
+		assertTrue("Address Table length does not match object code length", addressTable.length == objectCode.length);
+		
+		outName = "Address Table (Hex) | Instruction (Object Code Hex)";
+		sideLength = Math.abs(totalLength - outName.length())/ 2;
+		System.out.println(String.format("%-" + sideLength + "c%s%-" + sideLength + "c", ' ', outName, ' '));
+		for(int index = 0; index < objectCode.length; index++)
+		{
+			System.out.println(String.format("0x%05X | 0x%05X", addressTable[index], objectCode[index]));
+		}
+		
 		return new PLPASMImage(assemblyToDisassemblyMap, asmFiles);
 	}
 	
