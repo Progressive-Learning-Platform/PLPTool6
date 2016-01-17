@@ -51,6 +51,7 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
+	private Stage stage;
 	private TabPane openProjectsPanel;
 	private BidiMap<PLPSourceFile, Tab> openProjects;
 	private ObservableList<PLPProject> projects;
@@ -65,6 +66,7 @@ public class Main extends Application
 	@Override
 	public void start(Stage primaryStage)
 	{
+		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 		
 		this.openProjects = new DualHashBidiMap<>();
