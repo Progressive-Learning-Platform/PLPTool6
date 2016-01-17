@@ -3,6 +3,7 @@ package edu.asu.plp.tool.prototype.model;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -15,7 +16,8 @@ import javafx.beans.property.StringProperty;
  */
 public class PLPProject extends ArrayListProperty<PLPSourceFile>
 {
-	private static final String PROJECT_FILE_NAME = ".project";
+	public static final String FILE_EXTENSION = ".project";
+	private static final String PROJECT_FILE_NAME = "" + FILE_EXTENSION;
 	
 	/**
 	 * Path to this project on in the file system. If the this project exists in memory
@@ -44,8 +46,13 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 *            Path to the specified file; may be relative or absolute
 	 * @return A {@link PLPProject} representative of the information stored in the given
 	 *         file.
+	 * @throws UnexpectedFileTypeException
+	 *             if the given file is not a PLP project file (PLP6 or legacy formats).
+	 * @throws IOException
+	 *             if an IO problem occurs while opening the specified file.
 	 */
-	public static PLPProject load(String filePath)
+	public static PLPProject load(String filePath) throws UnexpectedFileTypeException,
+			IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
