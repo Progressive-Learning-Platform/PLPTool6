@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype;
 
+import java.io.File;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +24,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import moore.fx.components.Components;
 
@@ -109,6 +113,43 @@ public class Main extends Application
 		primaryStage.show();
 	}
 	
+	private File showOpenDialogue()
+	{
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Resource File");
+		
+		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("PLP6 Project Files", plp6Extension),
+				new ExtensionFilter("Legacy Project Files", "*.plp"),
+				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
+				new ExtensionFilter("All Files", "*.*"));
+		
+		return fileChooser.showOpenDialog(stage);
+	}
+	
+	private void openProjectFromFile()
+	{
+		File selectedFile = showOpenDialogue();
+		if (selectedFile == null)
+		{
+			// TODO: display 'no file selected' message
+		}
+		else
+		{
+			openProjectFromFile(selectedFile);
+		}
+	}
+	
+	private void openProjectFromFile(File file)
+	{
+		// TODO: load project
+		// TODO: check project list
+		// TODO: add project to project list and explorerTree if not already present
+		// TODO: handle loading exceptions
+		// TODO: handle invalid file type exceptions
+	}
+	
 	/**
 	 * Creates a tab for the specified project, or selects the project, if the tab already
 	 * exists.
@@ -139,19 +180,11 @@ public class Main extends Application
 	{
 		return new CodeEditor();
 		/*
-		try
-		{
-			CodeEditor editor = new CodeEditor();
-			File syntaxFile = new File("resources/languages/plp.syn");
-			editor.setSyntaxHighlighting(syntaxFile);
-			return editor;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return new CodeEditor();
-		}
-		*/
+		 * try { CodeEditor editor = new CodeEditor(); File syntaxFile = new
+		 * File("resources/languages/plp.syn"); editor.setSyntaxHighlighting(syntaxFile);
+		 * return editor; } catch (IOException e) { e.printStackTrace(); return new
+		 * CodeEditor(); }
+		 */
 	}
 	
 	private Tab addTab(TabPane panel, String projectName, Node contentPanel)
@@ -285,7 +318,7 @@ public class Main extends Application
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_open.png");
-		listener = (event) -> console.println("Open Project Clicked");
+		listener = this::onOpenProjectClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -300,5 +333,11 @@ public class Main extends Application
 		buttons.add(button);
 		
 		return Components.wrap(toolbar);
+	}
+	
+	private void onOpenProjectClicked(MouseEvent event)
+	{
+		console.println("Open Project Clicked");
+		openProjectFromFile();
 	}
 }
