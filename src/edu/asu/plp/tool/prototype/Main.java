@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.prototype;
 
 import java.io.File;
+import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -32,6 +33,7 @@ import moore.fx.components.Components;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
@@ -131,11 +133,7 @@ public class Main extends Application
 	private void openProjectFromFile()
 	{
 		File selectedFile = showOpenDialogue();
-		if (selectedFile == null)
-		{
-			// TODO: display 'no file selected' message
-		}
-		else
+		if (selectedFile != null)
 		{
 			openProjectFromFile(selectedFile);
 		}
@@ -143,11 +141,47 @@ public class Main extends Application
 	
 	private void openProjectFromFile(File file)
 	{
-		// TODO: load project
-		// TODO: check project list
-		// TODO: add project to project list and explorerTree if not already present
+		// load project
+		// check project list
+		// add project to project list and explorerTree if not already present
 		// TODO: handle loading exceptions
 		// TODO: handle invalid file type exceptions
+		
+		try
+		{
+			PLPProject project = PLPProject.load(file);
+			if (this.containsProjectWithName(project.getName()))
+			{
+				// TODO: display 'project with name 'x' already exists' message
+			}
+			else
+			{
+				projects.add(project);
+			}
+		}
+		catch (UnexpectedFileTypeException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private boolean containsProjectWithName(String name)
+	{
+		for (PLPProject project : projects)
+		{
+			String projectName = project.getName();
+			boolean namesAreNull = (projectName == null && name == null);
+			if (namesAreNull || name.equals(projectName))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	/**
