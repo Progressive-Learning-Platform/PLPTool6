@@ -161,12 +161,6 @@ public class Main extends Application
 	 */
 	private void openProjectFromFile(File file)
 	{
-		// load project
-		// check project list
-		// add project to project list and explorerTree if not already present
-		// TODO: handle loading exceptions
-		// TODO: handle invalid file type exceptions
-		
 		try
 		{
 			PLPProject project = PLPProject.load(file);
