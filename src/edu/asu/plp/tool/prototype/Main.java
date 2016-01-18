@@ -2,6 +2,8 @@ package edu.asu.plp.tool.prototype;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -13,6 +15,8 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
@@ -161,14 +165,51 @@ public class Main extends Application
 		}
 		catch (UnexpectedFileTypeException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			alert(e, "The selected file could not be loaded");
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			alert(e, "There was a problem loading the selected file");
 		}
+		catch (Exception e)
+		{
+			alert(e);
+		}
+	}
+	
+	private void alert(Exception exception)
+	{
+		alert(exception, "An error has occurred!");
+	}
+	
+	private void alert(Exception exception, String message)
+	{
+		String context = exception.getMessage();
+		boolean valid = (context != null && !context.isEmpty());
+		context = (valid) ? "Cause: " + context : null;
+		
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Exception Dialog");
+		alert.setHeaderText(message);
+		alert.setContentText(context);
+		alert.setGraphic(null);
+		
+		String exceptionText = getStackTraceAsString(exception);
+		TextArea textArea = new TextArea(exceptionText);
+		textArea.setEditable(false);
+		textArea.setWrapText(false);
+		
+		alert.getDialogPane().setExpandableContent(textArea);
+		alert.showAndWait();
+	}
+	
+	private String getStackTraceAsString(Exception exception)
+	{
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		exception.printStackTrace(printWriter);
+		
+		return stringWriter.toString();
 	}
 	
 	private boolean containsProjectWithName(String name)
