@@ -143,6 +143,22 @@ public class Main extends Application
 		}
 	}
 	
+	/**
+	 * Loads the given file from disk using {@link PLPProject#load(File)}, and adds the
+	 * project to the project explorer.
+	 * <p>
+	 * If the project is already in the project explorer, a message will be displayed
+	 * indicating the project is already open, and the project will be expanded in the
+	 * project tree.
+	 * <p>
+	 * If the project is not in the tree, but a project with the same name is in the tree,
+	 * then a message will be displayed indicating that a project with the same name
+	 * already exists, and will ask if the user would like to rename one of the projects.
+	 * If not, the dialogue will be closed and the project will not be opened.
+	 * 
+	 * @param file
+	 *            The file or directory (PLP6 only) containing the project to be opened
+	 */
 	private void openProjectFromFile(File file)
 	{
 		// load project
@@ -157,6 +173,8 @@ public class Main extends Application
 			if (this.containsProjectWithName(project.getName()))
 			{
 				// TODO: display 'project with name 'x' already exists' message
+				// TODO: if the project is already loaded, display 'project is already
+				// open' message, and expand project in the projectExplorer
 			}
 			else
 			{
