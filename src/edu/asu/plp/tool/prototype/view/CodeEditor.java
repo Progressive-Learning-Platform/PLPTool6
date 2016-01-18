@@ -1,8 +1,13 @@
 package edu.asu.plp.tool.prototype.view;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
@@ -16,7 +21,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 
 import javax.swing.CodeEditorPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -37,6 +46,9 @@ import javax.swing.SwingUtilities;
  */
 public class CodeEditor extends BorderPane implements ObservableStringValue
 {
+	private static String REGEX_KEY = "regex";
+	private static String COLOR_KEY = "color";
+	
 	private CodeEditorPane textPane;
 	private StringProperty textProperty;
 	
@@ -47,36 +59,77 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		textPane.addKeyListener(new UpdateOnKeyPressListener());
 		
 		SwingNode swingNode = new SwingNode();
-		createSwingContent(swingNode);
+		textPane.setText("");
+		updateText();
+		
+		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
+		swingNode.setContent(paneWithLines);
 		setCenter(swingNode);
 		
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 		this.textProperty.bindBidirectional(accessibleTextProperty());
 	}
 	
+	public void setSyntaxHighlighting(HashMap<String, Color> regexSyntaxHighlighting)
+	{
+		textPane.setKeywordColor(regexSyntaxHighlighting);
+	}
+	
+	public void setSyntaxHighlighting(JSONObject syntaxSpecification)
+	{
+		HashMap<String, Color> regexSyntaxMap = new HashMap<>();
+		
+		for (String syntaxName : syntaxSpecification.keySet())
+		{
+			JSONObject syntax = syntaxSpecification.getJSONObject(syntaxName);
+			// TODO: account for invalid syn file (e.g. missing regex or color)
+			String regex = syntax.getString(REGEX_KEY);
+			String colorHexString = syntax.getString(COLOR_KEY);
+			
+			int red = Integer.valueOf(colorHexString.substring(1, 3), 16);
+			int green = Integer.valueOf(colorHexString.substring(3, 5), 16);
+			int blue = Integer.valueOf(colorHexString.substring(5, 7), 16);
+			
+			Color color = new Color(red, green, blue);
+			regexSyntaxMap.put(regex, color);
+		}
+		
+		setSyntaxHighlighting(regexSyntaxMap);
+	}
+	
+	public void setSyntaxHighlighting(File syntaxSpecificationFile) throws IOException
+	{
+		String jsonString = FileUtils.readFileToString(syntaxSpecificationFile, "UTF-8");
+		JSONObject syntaxSpecification = new JSONObject(jsonString);
+		setSyntaxHighlighting(syntaxSpecification);
+	}
+	
 	public void setText(String text)
 	{
 		textPane.setText(text);
-		textProperty.set(text);
+		updateText();
 	}
 	
 	private void updateText()
 	{
 		String text = textPane.getText();
 		this.textProperty.set(text);
+		adjustLineNumbers();
 	}
 	
-	private void createSwingContent(SwingNode swingNode)
+	private void adjustLineNumbers()
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run()
-			{
-				textPane.setForeground(Color.red);
-				textPane.setText("This is a Code Editor");
-				swingNode.setContent(textPane);
-			}
-		});
+		// Workaround for a bug in CodeEditorPane.getNumberOfLines
+		int lineCount = textPane.getText().split("\n").length;
+		String lineNumberString = Integer.toString(lineCount);
+		
+		Font font = textPane.getFont();
+		FontMetrics metrics = textPane.getFontMetrics(font);
+		int width = SwingUtilities.computeStringWidth(metrics, lineNumberString);
+		
+		// Workaround for a bug in LineNumbersTextPane
+		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
+		paneWithLines.setDividerLocation(width);
 	}
 	
 	public String getText()
