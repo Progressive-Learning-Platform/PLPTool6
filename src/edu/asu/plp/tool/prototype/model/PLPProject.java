@@ -1,11 +1,12 @@
 package edu.asu.plp.tool.prototype.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 
-import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 
 /**
  * A {@link PLPProject} represents an ordered, observable collection of
@@ -42,6 +43,27 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 * the project version, and is therefore capable of loading both PLP6 and legacy (PLP5
 	 * and prior) projects.
 	 * 
+	 * @param file
+	 *            file or directory of the specified project
+	 * @return A {@link PLPProject} representative of the information stored in the given
+	 *         file.
+	 * @throws UnexpectedFileTypeException
+	 *             if the given file is not a PLP project file (PLP6 or legacy formats).
+	 * @throws IOException
+	 *             if an IO problem occurs while opening the specified file.
+	 */
+	public static PLPProject load(File file) throws UnexpectedFileTypeException,
+			IOException
+	{
+		// TODO: implement
+		throw new UnsupportedOperationException("Not Yet Implemented");
+	}
+	
+	/**
+	 * Loads a {@link PLPProject} from the given project file. This method calls
+	 * {@link #load(File)}, which auto-detects the project version, and is therefore
+	 * capable of loading both PLP6 and legacy (PLP5 and prior) projects.
+	 * 
 	 * @param filePath
 	 *            Path to the specified file; may be relative or absolute
 	 * @return A {@link PLPProject} representative of the information stored in the given
@@ -50,6 +72,7 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 *             if the given file is not a PLP project file (PLP6 or legacy formats).
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
+	 * @see #load(File)
 	 */
 	public static PLPProject load(String filePath) throws UnexpectedFileTypeException,
 			IOException
