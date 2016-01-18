@@ -30,5 +30,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/plpToolPrototype/lib/commons-compress-1.10-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
