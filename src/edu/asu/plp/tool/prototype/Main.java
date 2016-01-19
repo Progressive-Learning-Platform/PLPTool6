@@ -18,7 +18,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -29,6 +32,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -108,9 +112,13 @@ public class Main extends Application
 		
 		loadOpenProjects();
 		
+		Parent menuBar = createMenuBar();
 		Parent toolbar = createToolbar();
 		BorderPane mainPanel = new BorderPane();
-		mainPanel.setTop(toolbar);
+		VBox topContainer = new VBox();
+		topContainer.getChildren().add(menuBar);
+		topContainer.getChildren().add(toolbar);
+		mainPanel.setTop(topContainer);
 		mainPanel.setCenter(explorerEditorSplitPane);
 		
 		int width = DEFAULT_WINDOW_WIDTH;
@@ -409,6 +417,8 @@ public class Main extends Application
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
+		buttons.add(new Separator(Orientation.VERTICAL));
+		
 		button = new ImageView("toolbar_save.png");
 		listener = (event) -> console.println("Save Project Clicked");
 		button.setOnMouseClicked(listener);
@@ -419,7 +429,66 @@ public class Main extends Application
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
+		button = new ImageView("toolbar_simulate.png");
+		listener = (event) -> console.println("Simulate Project Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_program.png");
+		listener = (event) -> console.println("Program Project Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		buttons.add(new Separator(Orientation.VERTICAL));
+		
+		button = new ImageView("toolbar_step.png");
+		listener = (event) -> console.println("Step Through Project Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_run.png");
+		listener = (event) -> console.println("Run Project Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_reset.png");
+		listener = (event) -> console.println("Reset Sim Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_remote.png");
+		listener = (event) -> console.println("Floating Sim Control Window Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
 		return Components.wrap(toolbar);
+	}
+	
+	private Parent createMenuBar()
+	{
+		MenuBar menuBar = new MenuBar();
+		
+		//Menu Items under "File"
+		Menu file = new Menu("File");
+		MenuItem itemNew = new MenuItem("New PLP Project");
+		MenuItem itemOpen = new MenuItem("Open PLP Project");
+		MenuItem itemSave = new MenuItem("Save");
+		MenuItem itemSaveAs = new MenuItem("Save As");
+		MenuItem itemPrint = new MenuItem("Print");
+		MenuItem itemExit = new MenuItem("Exit");
+		file.getItems().addAll(itemNew, itemOpen, itemSave, itemSaveAs, itemPrint, itemExit);
+		
+		//Menu Items under "Edit"
+		Menu edit = new Menu("Edit");
+		Menu view = new Menu("View");
+		Menu project = new Menu("Project");
+		Menu tools = new Menu("Tools");
+		Menu simulation = new Menu("Simulation");
+		Menu help = new Menu("Help");
+		
+		menuBar.getMenus().addAll(file, edit, view, project, tools, simulation, help);
+		
+		return Components.wrap(menuBar);
 	}
 	
 	private void onOpenProjectClicked(MouseEvent event)
