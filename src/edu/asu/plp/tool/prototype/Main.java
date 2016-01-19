@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -30,6 +31,9 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -473,29 +477,48 @@ public class Main extends Application
 		//Menu Items under "File"
 		Menu file = new Menu("File");
 		MenuItem itemNew = new MenuItem("New PLP Project");
+		itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
+        itemNew.setOnAction((event)-> {
+        //TODO Add Event
+        });
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
+		itemOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSave = new MenuItem("Save");
+		itemSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSaveAs = new MenuItem("Save As");
+		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		MenuItem itemPrint = new MenuItem("Print");
+		itemPrint.setAccelerator(new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN));
 		MenuItem itemExit = new MenuItem("Exit");
+		itemExit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
 		file.getItems().addAll(itemNew, new SeparatorMenuItem(), itemOpen, itemSave, itemSaveAs, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(), itemExit);
 		
 		//Menu Items under "Edit"
 		Menu edit = new Menu("Edit");
 		MenuItem itemCopy = new MenuItem("Copy");
+		itemCopy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
 		MenuItem itemCut = new MenuItem("Cut");
+		itemCut.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
 		MenuItem itemPaste = new MenuItem("Paste");
+		itemPaste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
 		MenuItem itemFandR = new MenuItem("Find and Replace");
+		itemFandR.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 		MenuItem itemUndo = new MenuItem("Undo");
+		itemUndo.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
 		MenuItem itemRedo = new MenuItem("Redo");
+		itemRedo.setAccelerator(new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
 		edit.getItems().addAll(itemCopy, itemCut, itemPaste, new SeparatorMenuItem(), itemFandR, new SeparatorMenuItem(), itemUndo, itemRedo);
 		
 		//Menu Items under "View"
 		Menu view = new Menu("View");
 		CheckMenuItem cItemToolbar = new CheckMenuItem("Toolbar");
+		cItemToolbar.setAccelerator(new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		CheckMenuItem cItemProjectPane = new CheckMenuItem("Project Pane");
+		cItemProjectPane.setAccelerator(new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		CheckMenuItem cItemOutputPane = new CheckMenuItem("Output Pane");
+		cItemOutputPane.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		MenuItem itemClearOutput = new MenuItem("Clear Output Pane");
+		itemClearOutput.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
 		view.getItems().addAll(cItemToolbar, cItemProjectPane, cItemOutputPane, itemClearOutput);
 		cItemToolbar.setSelected(true);
 		cItemProjectPane.setSelected(true);
@@ -505,13 +528,18 @@ public class Main extends Application
 		//Menu Items Under "Project"
 		Menu project = new Menu("Project");
 		MenuItem itemAssemble = new MenuItem("Assemble");
+		itemAssemble.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 		MenuItem itemSimulate = new MenuItem("Simulate");
+		itemSimulate.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 		MenuItem itemPLPBoard = new MenuItem("Program PLP Board...");
+		itemPLPBoard.setAccelerator(new KeyCodeCombination(KeyCode.F4, KeyCombination.SHIFT_DOWN));
 		MenuItem itemQuickProgram = new MenuItem("Quick Program");
+		itemQuickProgram.setAccelerator(new KeyCodeCombination(KeyCode.F4));
 		MenuItem itemNewASM = new MenuItem("New ASM File...");
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
+		itemRemoveASM.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
 		MenuItem itemCurrentAsMain = new MenuItem("Set Current Open File as Main Program");
 		project.getItems().addAll(itemAssemble, itemSimulate, itemPLPBoard, itemQuickProgram, new SeparatorMenuItem(), itemNewASM, 
 				itemImportASM, itemExportASM, itemRemoveASM, new SeparatorMenuItem(), itemCurrentAsMain);
@@ -524,41 +552,64 @@ public class Main extends Application
 		MenuItem itemLoadJar = new MenuItem("Load Module JAR File...");
 		MenuItem itemClearCache = new MenuItem("Clear Module Auto-Load Cache");
 		MenuItem itemSerialTerminal = new MenuItem("Serial Terminal");
+		itemSerialTerminal.setAccelerator(new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN));
 		MenuItem itemNumConverter = new MenuItem("Number Converter");
+		itemNumConverter.setAccelerator(new KeyCodeCombination(KeyCode.F12));
 		modules.getItems().addAll(itemModuleManager, itemLoadJar, itemClearCache);
 		tools.getItems().addAll(itemOptions, modules, new SeparatorMenuItem(), itemSerialTerminal, itemNumConverter);
 		
 		//Menu Items Under "Simulation"
 		Menu simulation = new Menu("Simulation");
 		MenuItem itemStep = new MenuItem("Step");
+		itemStep.setAccelerator(new KeyCodeCombination(KeyCode.F5));
 		MenuItem itemReset = new MenuItem("Reset");
+		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
 		MenuItem itemRun = new MenuItem("Run");
+		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
 		Menu cyclesSteps = new Menu("Cycles/Steps");
 		MenuItem itemOne = new MenuItem("1");
+		itemOne.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD1, KeyCombination.ALT_DOWN));
 		MenuItem itemFive = new MenuItem("5");
+		itemFive.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD2, KeyCombination.ALT_DOWN));
 		MenuItem itemTwenty = new MenuItem("20");
+		itemTwenty.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD3, KeyCombination.ALT_DOWN));
 		MenuItem itemHundred = new MenuItem("100");
+		itemHundred.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD4, KeyCombination.ALT_DOWN));
 		MenuItem itemFiveThousand = new MenuItem("5000");
+		itemFiveThousand.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD5, KeyCombination.ALT_DOWN));
 		MenuItem itemClearBreakpoints = new MenuItem("Clear Breakpoints");
+		itemClearBreakpoints.setAccelerator(new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN));
 		Menu views = new Menu("Views");
 		MenuItem itemCpuView = new MenuItem("CPU View");
+		itemCpuView.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		MenuItem itemCpuWindow = new MenuItem("Watcher Window");
+		itemCpuView.setAccelerator(new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		MenuItem itemSimControlWindow = new MenuItem("Simulation Control Window");
+		itemSimControlWindow.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
 		Menu toolsSubMenu = new Menu("Tools");
 		MenuItem itemioRegistry = new MenuItem("I/O Registry");
+		itemioRegistry.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		MenuItem itemASMView = new MenuItem("ASM View");
 		MenuItem itemCreateMemVis = new MenuItem("Create a PLP CPU Memory Visualizer");
 		MenuItem itemRemoveMemVis = new MenuItem("Remove Memory Visualizers from Project");
 		MenuItem itemDisplayBus = new MenuItem("Display Bus Monitor Timing Diagram");
 		Menu ioDevices = new Menu("I/O Devices");
 		MenuItem itemLedArray = new MenuItem("LED Array");
+		itemLedArray.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD1, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSwitches = new MenuItem("Switches");
+		itemSwitches.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD2, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSevenSeg = new MenuItem("Seven Segments");
+		itemSevenSeg.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD3, KeyCombination.CONTROL_DOWN));
 		MenuItem itemUART = new MenuItem("UART");
+		itemUART.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD4, KeyCombination.CONTROL_DOWN));
 		MenuItem itemVGA = new MenuItem("VGA");
+		itemVGA.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD5, KeyCombination.CONTROL_DOWN));
 		MenuItem itemPLPID = new MenuItem("PLPID");
+		itemPLPID.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD6, KeyCombination.CONTROL_DOWN));
 		MenuItem itemGPIO = new MenuItem("GPIO");
+		itemGPIO.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD7, KeyCombination.CONTROL_DOWN));
 		MenuItem itemExitSim = new MenuItem("ExitSimulation");
+		itemExitSim.setAccelerator(new KeyCodeCombination(KeyCode.F11));
 		cyclesSteps.getItems().addAll(itemOne, itemFive, itemTwenty, itemHundred, itemFiveThousand);
 		views.getItems().addAll(itemCpuView, itemCpuWindow, itemSimControlWindow);
 		toolsSubMenu.getItems().addAll(itemioRegistry, itemASMView, new SeparatorMenuItem(), itemCreateMemVis, itemRemoveMemVis, itemDisplayBus);
@@ -568,6 +619,7 @@ public class Main extends Application
 		//Menu Items Under "Help"
 		Menu help = new Menu("Help");
 		MenuItem itemQuickRef = new MenuItem ("Quick Reference");
+		itemQuickRef.setAccelerator(new KeyCodeCombination(KeyCode.F1));
 		MenuItem itemOnlineManual = new MenuItem ("Online Manual");
 		MenuItem itemReportIssue = new MenuItem ("Report Issue (Requires Google Account");
 		MenuItem itemGoogleIssues = new MenuItem ("Open Google Code Issues Page");
