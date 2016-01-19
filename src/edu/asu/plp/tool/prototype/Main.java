@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.prototype;
 
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,6 +28,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
@@ -467,6 +467,61 @@ public class Main extends Application
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
+		buttons.add(new Separator(Orientation.VERTICAL));
+		
+		//I Think we are putting all these buttons onto one page
+		//but until that happens I laid them all out, just in case
+		
+		button = new ImageView("toolbar_cpu.png");
+		listener = (event) -> console.println("CPU View");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_watcher.png");
+		listener = (event) -> console.println("Watcher Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_leds.png");
+		listener = (event) -> console.println("LED's Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_switches.png");
+		listener = (event) -> console.println("Switches Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_7segments.png");
+		listener = (event) -> console.println("7 Seg Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_uart.png");
+		listener = (event) -> console.println("UART Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_vga.png");
+		listener = (event) -> console.println("VGA Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_plpid.png");
+		listener = (event) -> console.println("PLPID Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_sim_gpio.png");
+		listener = (event) -> console.println("GPIO Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
+		button = new ImageView("toolbar_exclamation.png");
+		listener = (event) -> console.println("Interupt Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
+		
 		return Components.wrap(toolbar);
 	}
 	
@@ -477,13 +532,16 @@ public class Main extends Application
 		//Menu Items under "File"
 		Menu file = new Menu("File");
 		MenuItem itemNew = new MenuItem("New PLP Project");
+		itemNew.setGraphic(new ImageView(new Image("menu_new.png")));
 		itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         itemNew.setOnAction((event)-> {
         //TODO Add Event
         });
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
+		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
 		itemOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSave = new MenuItem("Save");
+		itemSave.setGraphic(new ImageView(new Image("toolbar_save.png")));
 		itemSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSaveAs = new MenuItem("Save As");
 		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
@@ -528,10 +586,13 @@ public class Main extends Application
 		//Menu Items Under "Project"
 		Menu project = new Menu("Project");
 		MenuItem itemAssemble = new MenuItem("Assemble");
+		itemAssemble.setGraphic(new ImageView(new Image("toolbar_assemble.png")));
 		itemAssemble.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 		MenuItem itemSimulate = new MenuItem("Simulate");
+		itemSimulate.setGraphic(new ImageView(new Image("toolbar_simulate.png")));
 		itemSimulate.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 		MenuItem itemPLPBoard = new MenuItem("Program PLP Board...");
+		itemPLPBoard.setGraphic(new ImageView(new Image("toolbar_program.png")));
 		itemPLPBoard.setAccelerator(new KeyCodeCombination(KeyCode.F4, KeyCombination.SHIFT_DOWN));
 		MenuItem itemQuickProgram = new MenuItem("Quick Program");
 		itemQuickProgram.setAccelerator(new KeyCodeCombination(KeyCode.F4));
@@ -561,8 +622,10 @@ public class Main extends Application
 		//Menu Items Under "Simulation"
 		Menu simulation = new Menu("Simulation");
 		MenuItem itemStep = new MenuItem("Step");
+		itemStep.setGraphic(new ImageView(new Image("toolbar_step.png")));
 		itemStep.setAccelerator(new KeyCodeCombination(KeyCode.F5));
 		MenuItem itemReset = new MenuItem("Reset");
+		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
@@ -595,18 +658,25 @@ public class Main extends Application
 		MenuItem itemDisplayBus = new MenuItem("Display Bus Monitor Timing Diagram");
 		Menu ioDevices = new Menu("I/O Devices");
 		MenuItem itemLedArray = new MenuItem("LED Array");
+		itemLedArray.setGraphic(new ImageView(new Image("toolbar_sim_leds.png")));
 		itemLedArray.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD1, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSwitches = new MenuItem("Switches");
+		itemSwitches.setGraphic(new ImageView(new Image("toolbar_sim_switches.png")));
 		itemSwitches.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD2, KeyCombination.CONTROL_DOWN));
 		MenuItem itemSevenSeg = new MenuItem("Seven Segments");
+		itemSevenSeg.setGraphic(new ImageView(new Image("toolbar_sim_7segments.png")));
 		itemSevenSeg.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD3, KeyCombination.CONTROL_DOWN));
 		MenuItem itemUART = new MenuItem("UART");
+		itemUART.setGraphic(new ImageView(new Image("toolbar_sim_uart.png")));
 		itemUART.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD4, KeyCombination.CONTROL_DOWN));
 		MenuItem itemVGA = new MenuItem("VGA");
+		itemVGA.setGraphic(new ImageView(new Image("toolbar_sim_vga.png")));
 		itemVGA.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD5, KeyCombination.CONTROL_DOWN));
 		MenuItem itemPLPID = new MenuItem("PLPID");
+		itemPLPID.setGraphic(new ImageView(new Image("toolbar_sim_plpid.png")));
 		itemPLPID.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD6, KeyCombination.CONTROL_DOWN));
 		MenuItem itemGPIO = new MenuItem("GPIO");
+		itemGPIO.setGraphic(new ImageView(new Image("toolbar_sim_gpio.png")));
 		itemGPIO.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD7, KeyCombination.CONTROL_DOWN));
 		MenuItem itemExitSim = new MenuItem("ExitSimulation");
 		itemExitSim.setAccelerator(new KeyCodeCombination(KeyCode.F11));
