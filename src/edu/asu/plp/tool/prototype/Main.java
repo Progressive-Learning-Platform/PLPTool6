@@ -17,11 +17,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -476,15 +478,103 @@ public class Main extends Application
 		MenuItem itemSaveAs = new MenuItem("Save As");
 		MenuItem itemPrint = new MenuItem("Print");
 		MenuItem itemExit = new MenuItem("Exit");
-		file.getItems().addAll(itemNew, itemOpen, itemSave, itemSaveAs, itemPrint, itemExit);
+		file.getItems().addAll(itemNew, new SeparatorMenuItem(), itemOpen, itemSave, itemSaveAs, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(), itemExit);
 		
 		//Menu Items under "Edit"
 		Menu edit = new Menu("Edit");
+		MenuItem itemCopy = new MenuItem("Copy");
+		MenuItem itemCut = new MenuItem("Cut");
+		MenuItem itemPaste = new MenuItem("Paste");
+		MenuItem itemFandR = new MenuItem("Find and Replace");
+		MenuItem itemUndo = new MenuItem("Undo");
+		MenuItem itemRedo = new MenuItem("Redo");
+		edit.getItems().addAll(itemCopy, itemCut, itemPaste, new SeparatorMenuItem(), itemFandR, new SeparatorMenuItem(), itemUndo, itemRedo);
+		
+		//Menu Items under "View"
 		Menu view = new Menu("View");
+		CheckMenuItem cItemToolbar = new CheckMenuItem("Toolbar");
+		CheckMenuItem cItemProjectPane = new CheckMenuItem("Project Pane");
+		CheckMenuItem cItemOutputPane = new CheckMenuItem("Output Pane");
+		MenuItem itemClearOutput = new MenuItem("Clear Output Pane");
+		view.getItems().addAll(cItemToolbar, cItemProjectPane, cItemOutputPane, itemClearOutput);
+		cItemToolbar.setSelected(true);
+		cItemProjectPane.setSelected(true);
+		cItemOutputPane.setSelected(true);
+		
+		
+		//Menu Items Under "Project"
 		Menu project = new Menu("Project");
+		MenuItem itemAssemble = new MenuItem("Assemble");
+		MenuItem itemSimulate = new MenuItem("Simulate");
+		MenuItem itemPLPBoard = new MenuItem("Program PLP Board...");
+		MenuItem itemQuickProgram = new MenuItem("Quick Program");
+		MenuItem itemNewASM = new MenuItem("New ASM File...");
+		MenuItem itemImportASM = new MenuItem("Import ASM File...");
+		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
+		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
+		MenuItem itemCurrentAsMain = new MenuItem("Set Current Open File as Main Program");
+		project.getItems().addAll(itemAssemble, itemSimulate, itemPLPBoard, itemQuickProgram, new SeparatorMenuItem(), itemNewASM, 
+				itemImportASM, itemExportASM, itemRemoveASM, new SeparatorMenuItem(), itemCurrentAsMain);
+		
+		//Menu Items Under "Tools"
 		Menu tools = new Menu("Tools");
+		MenuItem itemOptions = new MenuItem("Options");
+		Menu modules = new Menu("Modules");
+		MenuItem itemModuleManager = new MenuItem("Module Manager...");
+		MenuItem itemLoadJar = new MenuItem("Load Module JAR File...");
+		MenuItem itemClearCache = new MenuItem("Clear Module Auto-Load Cache");
+		MenuItem itemSerialTerminal = new MenuItem("Serial Terminal");
+		MenuItem itemNumConverter = new MenuItem("Number Converter");
+		modules.getItems().addAll(itemModuleManager, itemLoadJar, itemClearCache);
+		tools.getItems().addAll(itemOptions, modules, new SeparatorMenuItem(), itemSerialTerminal, itemNumConverter);
+		
+		//Menu Items Under "Simulation"
 		Menu simulation = new Menu("Simulation");
+		MenuItem itemStep = new MenuItem("Step");
+		MenuItem itemReset = new MenuItem("Reset");
+		MenuItem itemRun = new MenuItem("Run");
+		Menu cyclesSteps = new Menu("Cycles/Steps");
+		MenuItem itemOne = new MenuItem("1");
+		MenuItem itemFive = new MenuItem("5");
+		MenuItem itemTwenty = new MenuItem("20");
+		MenuItem itemHundred = new MenuItem("100");
+		MenuItem itemFiveThousand = new MenuItem("5000");
+		MenuItem itemClearBreakpoints = new MenuItem("Clear Breakpoints");
+		Menu views = new Menu("Views");
+		MenuItem itemCpuView = new MenuItem("CPU View");
+		MenuItem itemCpuWindow = new MenuItem("Watcher Window");
+		MenuItem itemSimControlWindow = new MenuItem("Simulation Control Window");
+		Menu toolsSubMenu = new Menu("Tools");
+		MenuItem itemioRegistry = new MenuItem("I/O Registry");
+		MenuItem itemASMView = new MenuItem("ASM View");
+		MenuItem itemCreateMemVis = new MenuItem("Create a PLP CPU Memory Visualizer");
+		MenuItem itemRemoveMemVis = new MenuItem("Remove Memory Visualizers from Project");
+		MenuItem itemDisplayBus = new MenuItem("Display Bus Monitor Timing Diagram");
+		Menu ioDevices = new Menu("I/O Devices");
+		MenuItem itemLedArray = new MenuItem("LED Array");
+		MenuItem itemSwitches = new MenuItem("Switches");
+		MenuItem itemSevenSeg = new MenuItem("Seven Segments");
+		MenuItem itemUART = new MenuItem("UART");
+		MenuItem itemVGA = new MenuItem("VGA");
+		MenuItem itemPLPID = new MenuItem("PLPID");
+		MenuItem itemGPIO = new MenuItem("GPIO");
+		MenuItem itemExitSim = new MenuItem("ExitSimulation");
+		cyclesSteps.getItems().addAll(itemOne, itemFive, itemTwenty, itemHundred, itemFiveThousand);
+		views.getItems().addAll(itemCpuView, itemCpuWindow, itemSimControlWindow);
+		toolsSubMenu.getItems().addAll(itemioRegistry, itemASMView, new SeparatorMenuItem(), itemCreateMemVis, itemRemoveMemVis, itemDisplayBus);
+		ioDevices.getItems().addAll(itemLedArray, itemSwitches, itemSevenSeg, itemUART, itemVGA, itemPLPID, itemGPIO);
+		simulation.getItems().addAll(itemStep, itemReset, new SeparatorMenuItem(), itemRun, cyclesSteps, itemClearBreakpoints, new SeparatorMenuItem(), views, toolsSubMenu, ioDevices, new SeparatorMenuItem(), itemExitSim);
+		
+		//Menu Items Under "Help"
 		Menu help = new Menu("Help");
+		MenuItem itemQuickRef = new MenuItem ("Quick Reference");
+		MenuItem itemOnlineManual = new MenuItem ("Online Manual");
+		MenuItem itemReportIssue = new MenuItem ("Report Issue (Requires Google Account");
+		MenuItem itemGoogleIssues = new MenuItem ("Open Google Code Issues Page");
+		MenuItem itemAboutPLP = new MenuItem ("About PLP Tool...");
+		MenuItem itemSWLicense = new MenuItem ("Third Party Software License");
+		help.getItems().addAll(itemQuickRef, itemOnlineManual, new SeparatorMenuItem(), itemReportIssue, itemGoogleIssues, new SeparatorMenuItem(), itemAboutPLP, itemSWLicense);
+		
 		
 		menuBar.getMenus().addAll(file, edit, view, project, tools, simulation, help);
 		
