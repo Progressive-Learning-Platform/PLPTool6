@@ -171,15 +171,15 @@ public class Main extends Application
 		}
 		catch (UnexpectedFileTypeException e)
 		{
-			alert(e, "The selected file could not be loaded");
+			showAlertDialogue(e, "The selected file could not be loaded");
 		}
 		catch (IOException e)
 		{
-			alert(e, "There was a problem loading the selected file");
+			showAlertDialogue(e, "There was a problem loading the selected file");
 		}
 		catch (Exception e)
 		{
-			alert(e);
+			showAlertDialogue(e);
 		}
 	}
 	
@@ -258,12 +258,12 @@ public class Main extends Application
 		alert.showAndWait();
 	}
 	
-	private void alert(Exception exception)
+	private void showAlertDialogue(Exception exception)
 	{
-		alert(exception, "An error has occurred!");
+		showAlertDialogue(exception, "An error has occurred!");
 	}
 	
-	private void alert(Exception exception, String message)
+	private void showAlertDialogue(Exception exception, String message)
 	{
 		String context = exception.getMessage();
 		boolean valid = (context != null && !context.isEmpty());
