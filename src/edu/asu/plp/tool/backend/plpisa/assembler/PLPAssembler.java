@@ -1,14 +1,16 @@
 package edu.asu.plp.tool.backend.plpisa.assembler;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.faeysoft.preceptor.lexer.LexException;
@@ -45,6 +47,7 @@ public class PLPAssembler extends Assembler
 	
 	private HashMap<String, Long> symbolTable;
 	private HashMap<Integer, Pair<Integer, Integer>> lineNumAndAsmFileMap;
+	private List<String> instructionList;
 	
 	private int mapperIndex;
 	private int asmIndex;
@@ -143,6 +146,25 @@ public class PLPAssembler extends Assembler
 		return image;
 	}
 	
+	private void attemptInstructionsMapping(String[] asmLines)
+	{
+		List<String> lines = new LinkedList<>();
+		Collections.addAll(lines, asmLines);
+		
+		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();)
+		{
+			String line = iterator.next();
+			
+			if (line.startsWith(ASM__SKIP__) || line.startsWith(ASM__WORD__)
+					|| line.startsWith(ASM__ORG__))
+				iterator.remove();
+			else if (line.equals("sll $0, $0, 0"))
+				lines.set(lines.indexOf(line), "nop");
+		}
+		instructionList.clear();
+		instructionList.addAll(lines);
+	}
+	
 	private ASMImage assembleImage() throws AssemblerException, AssemblyException
 	{
 		long assemblerPCAddress = 0;
@@ -156,6 +178,8 @@ public class PLPAssembler extends Assembler
 		// System.out.println(currentPreprocessedAsm);
 		String[] asmLines = currentPreprocessedAsm.split("\\r?\\n");
 		String[] asmTokens;
+		
+		attemptInstructionsMapping(asmLines);
 		
 		long[] objectCode = new long[asmLines.length - directiveOffset];
 		long[] addressTable = new long[asmLines.length - directiveOffset];
@@ -216,49 +240,41 @@ public class PLPAssembler extends Assembler
 				entryType[asmLineIndex - assemblerDirectiveSkips] = 0;
 			}
 			
+			int objectCodeIndex = asmLineIndex - assemblerDirectiveSkips;
 			switch (instructionType)
 			{
 				// Three register Operation
 				// R-type (includes multiply)
 				case 0:
 				case 8:
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[2])) << 21;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[3])) << 16;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 11;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (Byte) instructionOpcodeMap
-									.get(asmTokens[0]).byteValue();
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[2])) << 21;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[3])) << 16;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 11;
+					objectCode[objectCodeIndex] |= (Byte) instructionOpcodeMap
+							.get(asmTokens[0]).byteValue();
 					break;
 				// Two Register Immediate Operation
 				// Shift R-Type
 				case 1:
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[2])) << 16;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 11;
-					objectCode[asmLineIndex - assemblerDirectiveSkips] |= ((byte) (ISAUtil
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[2])) << 16;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 11;
+					objectCode[objectCodeIndex] |= ((byte) (ISAUtil
 							.sanitize16bits(asmTokens[3]) & 0x1F)) << 6;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (Byte) instructionOpcodeMap
-									.get(asmTokens[0]).byteValue();
+					objectCode[objectCodeIndex] |= (Byte) instructionOpcodeMap
+							.get(asmTokens[0]).byteValue();
 					break;
 				// Single Register Operation
 				// Jump R-Type
 				case 2:
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 21;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (Byte) instructionOpcodeMap
-									.get(asmTokens[0]).byteValue();
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 21;
+					objectCode[objectCodeIndex] |= (Byte) instructionOpcodeMap
+							.get(asmTokens[0]).byteValue();
 					break;
 				// Two Register Label Operation
 				// Branch I-Type
@@ -267,91 +283,71 @@ public class PLPAssembler extends Assembler
 							- (assemblerPCAddress + 4);
 					branchTarget /= 4;
 					
-					objectCode[asmLineIndex - assemblerDirectiveSkips] |= branchTarget
-							& 0xFFFF;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 21;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[2])) << 16;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (long) instructionOpcodeMap
-									.get(asmTokens[0]) << 26;
+					objectCode[objectCodeIndex] |= branchTarget & 0xFFFF;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 21;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[2])) << 16;
+					objectCode[objectCodeIndex] |= (long) instructionOpcodeMap
+							.get(asmTokens[0]) << 26;
 					break;
 				// Two Register Immediate Operation
 				// Arithmetic and Logic I-Type
 				case 4:
-					objectCode[asmLineIndex - assemblerDirectiveSkips] |= ISAUtil
-							.sanitize16bits(asmTokens[3]);
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 16;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[2])) << 21;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (long) instructionOpcodeMap
-									.get(asmTokens[0]) << 26;
+					objectCode[objectCodeIndex] |= ISAUtil.sanitize16bits(asmTokens[3]);
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 16;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[2])) << 21;
+					objectCode[objectCodeIndex] |= (long) instructionOpcodeMap
+							.get(asmTokens[0]) << 26;
 					break;
 				// Register Immediate Operation
 				// Load Upper Immediate I-Type
 				case 5:
-					objectCode[asmLineIndex - assemblerDirectiveSkips] |= ISAUtil
-							.sanitize16bits(asmTokens[2]);
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 16;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (long) instructionOpcodeMap
-									.get(asmTokens[0]) << 26;
+					objectCode[objectCodeIndex] |= ISAUtil.sanitize16bits(asmTokens[2]);
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 16;
+					objectCode[objectCodeIndex] |= (long) instructionOpcodeMap
+							.get(asmTokens[0]) << 26;
 					break;
 				// Register Offset Register Operation
 				// Load/Store Word I-Type
 				case 6:
-					objectCode[asmLineIndex - assemblerDirectiveSkips] |= ISAUtil
-							.sanitize16bits(asmTokens[2]);
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 16;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[3])) << 21;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (long) instructionOpcodeMap
-									.get(asmTokens[0]) << 26;
+					objectCode[objectCodeIndex] |= ISAUtil.sanitize16bits(asmTokens[2]);
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 16;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[3])) << 21;
+					objectCode[objectCodeIndex] |= (long) instructionOpcodeMap
+							.get(asmTokens[0]) << 26;
 					break;
 				// Single Label Operation
 				// J-Type
 				case 7:
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (long) (symbolTable
-									.get(asmTokens[1]) >> 2) & 0x3FFFFFF;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (long) instructionOpcodeMap
-									.get(asmTokens[0]) << 26;
+					objectCode[objectCodeIndex] |= (long) (symbolTable
+							.get(asmTokens[1]) >> 2) & 0x3FFFFFF;
+					objectCode[objectCodeIndex] |= (long) instructionOpcodeMap
+							.get(asmTokens[0]) << 26;
 					break;
 				// Two Register Operation
 				// Jalr Instruction
 				case 9:
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[2])) << 21;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= ((Byte) registerMap
-									.get(asmTokens[1])) << 11;
-					objectCode[asmLineIndex
-							- assemblerDirectiveSkips] |= (Byte) instructionOpcodeMap
-									.get(asmTokens[0]).byteValue();
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[2])) << 21;
+					objectCode[objectCodeIndex] |= ((Byte) registerMap
+							.get(asmTokens[1])) << 11;
+					objectCode[objectCodeIndex] |= (Byte) instructionOpcodeMap
+							.get(asmTokens[0]).byteValue();
 					break;
 				// 1st pass Directives
 				case 10:
 					
 					if (asmTokens[0].equals(ASM__WORD__))
 					{
-						entryType[asmLineIndex - assemblerDirectiveSkips] = 1;
+						entryType[objectCodeIndex] = 1;
 						// System.out.println(asmTokens[1]);
-						objectCode[asmLineIndex - assemblerDirectiveSkips] = ISAUtil
+						objectCode[objectCodeIndex] = ISAUtil
 								.sanitize32bits(asmTokens[1]);
 					}
 					else if (asmTokens[0].equals(ASM__ORG__))
@@ -394,21 +390,27 @@ public class PLPAssembler extends Assembler
 				+ (objectCode.length + byteSpace / 4) + " words.");
 		System.out.println(
 				"Object code and initialized variables: " + objectCode.length + " words");
-		
+				
 		String outName = "Symbol Table";
 		int totalLength = 60;
-		int sideLength = (totalLength - outName.length())/ 2;
-		System.out.println(String.format("%-" + sideLength + "c%s%-" + sideLength + "c", ' ', outName, ' '));
-		symbolTable.forEach((key, value) -> {System.out.println(String.format("%-40s | 0x%05x", key, value));});
-
-		assertTrue("Address Table length does not match object code length", addressTable.length == objectCode.length);
+		int sideLength = (totalLength - outName.length()) / 2;
+		System.out.println(String.format("%n%-" + sideLength + "c%s%-" + sideLength + "c",
+				' ', outName, ' '));
+		symbolTable.forEach((key, value) -> {
+			System.out.println(String.format("%-40s | 0x%05x", key, value));
+		});
 		
+		assertTrue("Address Table length does not match object code length",
+				addressTable.length == objectCode.length);
+				
 		outName = "Address Table (Hex) | Instruction (Object Code Hex)";
-		sideLength = Math.abs(totalLength - outName.length())/ 2;
-		System.out.println(String.format("%-" + sideLength + "c%s%-" + sideLength + "c", ' ', outName, ' '));
-		for(int index = 0; index < objectCode.length; index++)
+		sideLength = Math.abs(totalLength - outName.length()) / 2;
+		System.out.println(String.format("%n%-" + sideLength + "c%s%-" + sideLength + "c",
+				' ', outName, ' '));
+		for (int index = 0; index < objectCode.length; index++)
 		{
-			System.out.println(String.format("0x%05X | 0x%05X", addressTable[index], objectCode[index]));
+			System.out.println(String.format("0x%05X | 0x%05X", addressTable[index],
+					objectCode[index]));
 		}
 		
 		return new PLPASMImage(assemblyToDisassemblyMap, asmFiles);
@@ -1409,6 +1411,7 @@ public class PLPAssembler extends Assembler
 		pseudoOperationMap = new HashMap<>();
 		directiveMap = new HashMap<>();
 		lineNumAndAsmFileMap = new HashMap<>();
+		instructionList = new ArrayList<>();
 		
 		firstPassString = new StringBuilder();
 		
