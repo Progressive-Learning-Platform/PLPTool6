@@ -4,16 +4,18 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 
 public class ISAUtil
 {
+	public static final long MASK_32 = 0xFFFFFFFF;
+	public static final long MASK_16 = 0xFFFF;
+	
 	public static long sanitize32bits(String number) throws AssemblyException
 	{
-		long sanitizedBits;
 		if (number.startsWith("0x") || number.startsWith("0h"))
 		{
-			return Long.parseLong(number.substring(2), 16) & 0xFFFFFFFF;
+			return Long.parseLong(number.substring(2), 16) & MASK_32;
 		}
 		else if (number.startsWith("0b"))
 		{
-			return Long.parseLong(number.substring(2), 2) & 0xFFFFFFFF;
+			return Long.parseLong(number.substring(2), 2) & MASK_32;
 		}
 		else if (number.startsWith("'") && number.endsWith("'"))
 		{
@@ -25,14 +27,13 @@ public class ISAUtil
 	
 	public static long sanitize16bits(String number) throws AssemblyException
 	{
-		long sanitizedBits;
 		if (number.startsWith("0x") || number.startsWith("0h"))
 		{
-			return Long.parseLong(number.substring(2), 16) & 0xFFFF;
+			return Long.parseLong(number.substring(2), 16) & MASK_16;
 		}
 		else if (number.startsWith("0b"))
 		{
-			return Long.parseLong(number.substring(2), 2) & 0xFFFF;
+			return Long.parseLong(number.substring(2), 2) & MASK_16;
 		}
 		else if (number.startsWith("'") && number.endsWith("'"))
 		{
@@ -71,7 +72,7 @@ public class ISAUtil
 					case '\'':
 						return '\'';
 					case '0':
-						return '\0'; 
+						return '\0';
 					default:
 						throw new AssemblyException("Invalid escape character");
 				}
