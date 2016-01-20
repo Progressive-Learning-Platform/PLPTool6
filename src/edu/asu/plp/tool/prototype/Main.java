@@ -1,9 +1,10 @@
 package edu.asu.plp.tool.prototype;
 
+import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
+import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Optional;
 
 import javafx.application.Application;
@@ -246,51 +247,6 @@ public class Main extends Application
 		}
 		
 		return false;
-	}
-	
-	private void showInfoDialogue(String message)
-	{
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Information Dialog");
-		alert.setHeaderText(null);
-		alert.setContentText(message);
-		
-		alert.showAndWait();
-	}
-	
-	private void showAlertDialogue(Exception exception)
-	{
-		showAlertDialogue(exception, "An error has occurred!");
-	}
-	
-	private void showAlertDialogue(Exception exception, String message)
-	{
-		String context = exception.getMessage();
-		boolean valid = (context != null && !context.isEmpty());
-		context = (valid) ? "Cause: " + context : null;
-		
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle("Exception Dialog");
-		alert.setHeaderText(message);
-		alert.setContentText(context);
-		alert.setGraphic(null);
-		
-		String exceptionText = getStackTraceAsString(exception);
-		TextArea textArea = new TextArea(exceptionText);
-		textArea.setEditable(false);
-		textArea.setWrapText(false);
-		
-		alert.getDialogPane().setExpandableContent(textArea);
-		alert.showAndWait();
-	}
-	
-	private String getStackTraceAsString(Exception exception)
-	{
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-		exception.printStackTrace(printWriter);
-		
-		return stringWriter.toString();
 	}
 	
 	private PLPProject getProjectByName(String name)
