@@ -4,7 +4,7 @@ import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 
-public class PLPSimulator extends Simulator
+public class PLPSimulator implements Simulator
 {
 	private ASMImage assembledImage;
 	

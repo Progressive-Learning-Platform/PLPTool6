@@ -25,7 +25,6 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
-import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
@@ -33,7 +32,7 @@ import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 
-public class PLPAssembler extends Assembler
+public class PLPAssembler implements Assembler
 {
 	private static final Logger logger = Logger.getLogger(PLPAssembler.class.getName());
 	private List<ASMFile> asmFiles;
@@ -48,6 +47,8 @@ public class PLPAssembler extends Assembler
 	private HashMap<String, Long> symbolTable;
 	private HashMap<Integer, Pair<Integer, Integer>> lineNumAndAsmFileMap;
 	private List<String> instructionList;
+	private HashMap<String, Integer> instructionOpcodeMap;
+	protected HashMap<String, Byte> registerMap;
 	
 	private int mapperIndex;
 	private int asmIndex;
@@ -1401,8 +1402,6 @@ public class PLPAssembler extends Assembler
 	
 	private void initialize()
 	{
-		allowedOpCodeLengths = new int[] { 1 };
-		opCodeSize = UnitSize.BYTE;
 		regionMap = new ArrayList<>();
 		symbolTable = new HashMap<>();
 		instructionMap = new HashMap<>();
