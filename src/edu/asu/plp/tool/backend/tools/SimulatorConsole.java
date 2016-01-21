@@ -18,7 +18,7 @@ import edu.asu.plp.tool.backend.util.FileUtil;
  * Debugging tool.
  * 
  * @author Nesbitt, Morgan
- * 		
+ * 
  */
 public class SimulatorConsole
 {
@@ -53,7 +53,8 @@ public class SimulatorConsole
 		
 		long endTime = System.nanoTime();
 		
-		System.out.println(String.format("\nCompleted Simulating process in %.2f seconds",
+		System.out.println(String.format(
+				"\nCompleted Simulating process in %.2f seconds",
 				(endTime - startTime) * 1e-9));
 	}
 	

@@ -11,7 +11,7 @@ public class PLPSimulator extends Simulator
 	private boolean isSimulationRunning;
 	private boolean hasSimulationStarted;
 	private boolean isSimEnabled;
-
+	
 	private ProgramCounter programCounter;
 	
 	private Stage instructionDecodeStage;
@@ -24,25 +24,25 @@ public class PLPSimulator extends Simulator
 		super();
 		initialize();
 	}
-
+	
 	@Override
 	public boolean run()
 	{
 		return false;
 	}
-
+	
 	@Override
 	public boolean step()
 	{
 		return false;
 	}
-
+	
 	@Override
 	public void reset()
 	{
 		
 	}
-
+	
 	@Override
 	public boolean isRunning()
 	{
@@ -54,13 +54,13 @@ public class PLPSimulator extends Simulator
 	{
 		return (hasSimulationStarted && !isSimulationRunning);
 	}
-
+	
 	@Override
 	public boolean pause()
 	{
 		return false;
 	}
-
+	
 	@Override
 	public boolean isSimModeEnabled()
 	{
@@ -73,20 +73,20 @@ public class PLPSimulator extends Simulator
 		isSimEnabled = !isSimEnabled;
 		return isSimEnabled;
 	}
-
+	
 	@Override
 	public boolean isProgramLoaded()
 	{
-		if(assembledImage == null)
+		if (assembledImage == null)
 			return false;
 		
 		return true;
 	}
-
+	
 	@Override
 	public boolean loadProgram(ASMImage assembledImage)
 	{
-		if(assembledImage == null)
+		if (assembledImage == null)
 			return false;
 		
 		this.assembledImage = assembledImage;
@@ -108,6 +108,5 @@ public class PLPSimulator extends Simulator
 		
 		programCounter = new ProgramCounter(0);
 	}
-	
 	
 }

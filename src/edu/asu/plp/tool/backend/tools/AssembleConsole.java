@@ -111,16 +111,15 @@ public class AssembleConsole
 		options.addOption("a", "assembler", true, "set assembler from choices: plp, mips");
 		options.addOption("p", "project", true, "set project path to assemble");
 		options.addOption("f", "file", true, "set path of a single asm file to assemble");
-		options.addOption("e", "example", true,
-				"set example from choices: "
-						+ keySetExample());
+		options.addOption("e", "example", true, "set example from choices: "
+				+ keySetExample());
 	}
 	
 	private static String keySetExample()
 	{
 		return Joiner.on(", ").join(exampleProjects.keySet());
 	}
-
+	
 	private static void parseCLIArguments(String[] args)
 	{
 		CommandLineParser parser = new DefaultParser();
