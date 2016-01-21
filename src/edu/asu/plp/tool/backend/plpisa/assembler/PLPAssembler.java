@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Logger;
 
+import javafx.util.Pair;
+
 import com.faeysoft.preceptor.lexer.LexException;
 import com.faeysoft.preceptor.lexer.Lexer;
 import com.faeysoft.preceptor.lexer.Token;
@@ -24,14 +26,12 @@ import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.UnitSize;
-import edu.asu.plp.tool.backend.isa.UnitSize.DefaultSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
-import javafx.util.Pair;
 
 public class PLPAssembler extends Assembler
 {
@@ -1402,7 +1402,7 @@ public class PLPAssembler extends Assembler
 	private void initialize()
 	{
 		allowedOpCodeLengths = new int[] { 1 };
-		opCodeSize = UnitSize.getSize(DefaultSize.BYTE);
+		opCodeSize = UnitSize.BYTE;
 		regionMap = new ArrayList<>();
 		symbolTable = new HashMap<>();
 		instructionMap = new HashMap<>();

@@ -7,7 +7,6 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
-import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
@@ -60,7 +59,6 @@ public class SimulatorConsole
 	
 	private static void configureStaticSettings()
 	{
-		UnitSize.initializeDefaultValues();
 		projectFiles = FileUtil
 				.openProject(new File("examples/PLP Projects/memtest.plp"));
 		if (projectFiles == null)

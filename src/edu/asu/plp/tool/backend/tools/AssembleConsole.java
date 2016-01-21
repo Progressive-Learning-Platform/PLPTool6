@@ -21,7 +21,6 @@ import com.google.common.base.Joiner;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.Assembler;
-import edu.asu.plp.tool.backend.isa.UnitSize;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.util.FileUtil;
@@ -85,7 +84,6 @@ public class AssembleConsole
 	
 	private static void configureStaticSettings()
 	{
-		UnitSize.initializeDefaultValues();
 		exampleProjects = new HashMap<>();
 		projectFiles = new ArrayList<>();
 		
