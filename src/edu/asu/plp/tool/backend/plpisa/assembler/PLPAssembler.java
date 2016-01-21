@@ -34,7 +34,7 @@ import edu.asu.plp.tool.backend.util.ISAUtil;
 
 public class PLPAssembler implements Assembler
 {
-	private static final Logger logger = Logger.getLogger(PLPAssembler.class.getName());
+	private static final Logger LOG = Logger.getLogger(PLPAssembler.class.getName());
 	private List<ASMFile> asmFiles;
 	private List<Integer> regionMap;
 	
