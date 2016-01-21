@@ -48,7 +48,6 @@ public class AssembleConsole
 	protected static List<ASMFile> projectFiles;
 	
 	protected static boolean isBenchMarking;
-	protected static StringJoiner fileJoiner;
 	
 	// Sample Projects
 	protected static HashMap<String, String> exampleProjects;
@@ -79,9 +78,9 @@ public class AssembleConsole
 		long endTime = System.nanoTime();
 		
 		if (isBenchMarking)
-			System.out.println(
-					String.format("\nCompleted Assembling process in %.2f seconds",
-							(endTime - startTime) * 1e-9));
+			System.out.println(String.format(
+					"\nCompleted Assembling process in %.2f seconds",
+					(endTime - startTime) * 1e-9));
 	}
 	
 	private static void configureStaticSettings()
@@ -96,10 +95,12 @@ public class AssembleConsole
 				"examples/PLP Projects/memtest.plp");
 		exampleProjects.put("file-count",
 				"examples/PLP Projects/universe/stress/file_count/file-count.plp");
-		exampleProjects.put("one-file",
-				"examples/Stripped PLP Projects (ASM Only)/universe/encapsulated/one-file.asm");
-		exampleProjects.put("file-length",
-				"examples/Stripped PLP Projects (ASM Only)/universe/stress/file_length/main.asm");
+		exampleProjects
+				.put("one-file",
+						"examples/Stripped PLP Projects (ASM Only)/universe/encapsulated/one-file.asm");
+		exampleProjects
+				.put("file-length",
+						"examples/Stripped PLP Projects (ASM Only)/universe/stress/file_length/main.asm");
 	}
 	
 	private static void initializeCommandLineOptions()
@@ -107,14 +108,19 @@ public class AssembleConsole
 		options = new Options();
 		options.addOption("h", "help", false, "show help");
 		options.addOption("b", "benchmark", false, "enable benchmark timing ouput");
-		options.addOption("a", "assembler", true,
-				"set assembler from choices: plp, mips");
+		options.addOption("a", "assembler", true, "set assembler from choices: plp, mips");
 		options.addOption("p", "project", true, "set project path to assemble");
 		options.addOption("f", "file", true, "set path of a single asm file to assemble");
-		options.addOption("e", "example", true, "set example from choices: "
-				+ Joiner.on(", ").join(exampleProjects.keySet()));
+		options.addOption("e", "example", true,
+				"set example from choices: "
+						+ keySetExample());
 	}
 	
+	private static String keySetExample()
+	{
+		return Joiner.on(", ").join(exampleProjects.keySet());
+	}
+
 	private static void parseCLIArguments(String[] args)
 	{
 		CommandLineParser parser = new DefaultParser();
@@ -134,10 +140,10 @@ public class AssembleConsole
 	{
 		if (commandLine.hasOption("h"))
 			printHelp();
-			
+		
 		if (commandLine.hasOption("b"))
 			isBenchMarking = true;
-			
+		
 		if (commandLine.hasOption("a"))
 		{
 			assemblerName = commandLine.getOptionValue("a").toLowerCase();
@@ -178,17 +184,17 @@ public class AssembleConsole
 				}
 				else
 				{
-					System.out.println(
-							"Oops, something went wrong with the file path of this example!");
+					System.out
+							.println("Oops, something went wrong with the file path of this example!");
 					System.exit(-1);
 				}
 			}
 			else
 			{
-				System.out.println(
-						"Unknown example was entered, found: " + exampleName + ".");
-				System.out.println(
-						"Please see the help (via -h or -help) for possible examples.");
+				System.out.println("Unknown example was entered, found: " + exampleName
+						+ ".");
+				System.out
+						.println("Please see the help (via -h or -help) for possible examples.");
 				System.exit(-1);
 			}
 		}
@@ -240,8 +246,8 @@ public class AssembleConsole
 		}
 		else
 		{
-			System.out.println(
-					"Provided project file was not valid: " + assembleFile.getPath());
+			System.out.println("Provided project file was not valid: "
+					+ assembleFile.getPath());
 			System.exit(-1);
 		}
 	}
@@ -255,28 +261,32 @@ public class AssembleConsole
 		System.exit(0);
 	}
 	
+	/**
+	 * Reads a file into a single string, preserving line breaks.
+	 * <p>
+	 * All line breaks will be replaced with the newline character (\n) regardless of
+	 * whether or not the file uses windows convention or not (\n\r)
+	 * 
+	 * @param path
+	 *            Path to the file that will be read
+	 * @return The contents of the specified file, as a String
+	 */
 	private static String getFileContents(Path path)
 	{
-		List<String> fileLines = null;
 		try
 		{
-			fileLines = Files.readAllLines(path);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		
-		if (fileLines != null)
-		{
-			fileJoiner = new StringJoiner("\n");
-			for (int index = 0; index < fileLines.size(); index++)
-			{
-				fileJoiner.add(fileLines.get(index));
-			}
+			List<String> fileLines = Files.readAllLines(path);
+			StringJoiner fileJoiner = new StringJoiner("\n");
+			
+			for (String line : fileLines)
+				fileJoiner.add(line);
+			
 			return fileJoiner.toString();
 		}
-		
-		return null;
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
