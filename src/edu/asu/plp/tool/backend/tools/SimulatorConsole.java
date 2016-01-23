@@ -8,7 +8,6 @@ import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
-import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
 import edu.asu.plp.tool.backend.util.FileUtil;
@@ -44,7 +43,7 @@ public class SimulatorConsole
 			simulator = new PLPSimulator();
 			simulator.loadProgram(currentImage);
 		}
-		catch (SimulatorException exception)
+		catch (Exception exception)
 		{
 			exception.printStackTrace();
 			System.exit(-1);
