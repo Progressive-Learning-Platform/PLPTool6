@@ -65,11 +65,11 @@ public class SimulatorConsole
 			System.out.println("Error loading sample project.");
 			System.exit(-1);
 		}
-		assembler = new PLPAssembler(projectFiles);
+		assembler = new PLPAssembler();
 		
 		try
 		{
-			currentImage = assembler.assemble();
+			currentImage = assembler.assemble(projectFiles);
 		}
 		catch (AssemblerException e)
 		{
