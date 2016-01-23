@@ -3,21 +3,22 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
+import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 
 public class PLPSimulator extends Simulator
 {
-	private ASMImage assembledImage;
+	private PLPASMImage assembledImage;
 	
-	private boolean isSimulationRunning;
-	private boolean hasSimulationStarted;
-	private boolean isSimEnabled;
-
 	private ProgramCounter programCounter;
 	
 	private Stage instructionDecodeStage;
 	private Stage executeStage;
 	private Stage memoryStage;
 	private Stage writeBackStage;
+	
+	private boolean isSimulationRunning;
+	private boolean hasSimulationStarted;
+	private boolean isSimEnabled;
 	
 	public PLPSimulator() throws SimulatorException
 	{
@@ -89,7 +90,7 @@ public class PLPSimulator extends Simulator
 		if(assembledImage == null)
 			return false;
 		
-		this.assembledImage = assembledImage;
+		this.assembledImage = (PLPASMImage) assembledImage;
 		return true;
 	}
 	
