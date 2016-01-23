@@ -3,9 +3,12 @@ package edu.asu.plp.tool.prototype.model;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.Optional;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import edu.asu.plp.tool.core.ISAModule;
+import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 
 /**
@@ -37,6 +40,7 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 */
 	private StringProperty pathProperty;
 	private StringProperty nameProperty;
+	private StringProperty typeProperty;
 	
 	/**
 	 * Loads a {@link PLPProject} from the given project file. This method auto-detects
@@ -103,12 +107,20 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	{
 		pathProperty = new SimpleStringProperty();
 		nameProperty = new SimpleStringProperty();
+		typeProperty = new SimpleStringProperty();
+	}
+	
+	public PLPProject(String name, String type)
+	{
+		this();
+		nameProperty.set(name);
+		typeProperty.set(type);
 	}
 	
 	public PLPProject(String name)
 	{
-		this();
-		nameProperty.set(name);
+		// TODO: remove this constructor and force a filetype to be declared
+		this(name, "plp");
 	}
 	
 	/**
@@ -202,6 +214,21 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	public void setName(String name)
 	{
 		nameProperty.set(name);
+	}
+	
+	public StringProperty getTypeProperty()
+	{
+		return typeProperty;
+	}
+	
+	public String getType()
+	{
+		return typeProperty.get();
+	}
+	
+	public void setType(String type)
+	{
+		typeProperty.set(type);
 	}
 	
 	public StringProperty getPathProperty()
