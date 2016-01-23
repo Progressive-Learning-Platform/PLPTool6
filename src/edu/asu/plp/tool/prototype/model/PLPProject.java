@@ -261,4 +261,16 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	{
 		return this.size();
 	}
+	
+	/**
+	 * Convenience method for accessing the {@link ISARegistry}
+	 * 
+	 * @return
+	 */
+	public Optional<ISAModule> getISA()
+	{
+		ISARegistry registry = ISARegistry.getGlobalRegistry();
+		String type = getType();
+		return registry.lookupByProjectType(type);
+	}
 }
