@@ -38,6 +38,7 @@ public enum PLPInstruction
 	private int byteCode;
 	private int instructionType;
 	
+	// TODO: consider removing "type"
 	private PLPInstruction(String identifier, String type, int byteCode, int instructionType)
 	{
 		this.identifier = identifier;

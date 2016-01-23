@@ -6,14 +6,11 @@ public class PLPAssemblyInstruction implements ASMInstruction
 {
 	private final int lineNumber;
 	private final String instructionContents;
-	private final String filePath;
 	
-	public PLPAssemblyInstruction(int lineNumber, String instructionContents,
-			String filePath)
+	public PLPAssemblyInstruction(int lineNumber, String instructionContents)
 	{
 		this.lineNumber = lineNumber;
 		this.instructionContents = instructionContents;
-		this.filePath = filePath;
 	}
 
 	@Override
@@ -27,11 +24,4 @@ public class PLPAssemblyInstruction implements ASMInstruction
 	{
 		return instructionContents;
 	}
-
-	@Override
-	public String filePath()
-	{
-		return filePath;
-	}
-	
 }

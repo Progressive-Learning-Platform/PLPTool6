@@ -8,7 +8,7 @@ public class ALU
 	
 	public void evaluate()
 	{
-		
+
 	}
-	
+
 }

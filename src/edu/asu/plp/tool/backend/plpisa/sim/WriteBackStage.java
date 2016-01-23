@@ -13,28 +13,28 @@ public class WriteBackStage implements Stage
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void clock()
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void printVariables()
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void printNextVariables()
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public String printInstruction()
 	{

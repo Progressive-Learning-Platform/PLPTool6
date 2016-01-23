@@ -44,7 +44,7 @@ public class ISAUtil
 	}
 	
 	/**
-	 * Assumes you have already checked that the string starts and ends with '
+	 * This method assumes that the given string starts and ends with single quotes (')
 	 * 
 	 * @param string
 	 * @return
