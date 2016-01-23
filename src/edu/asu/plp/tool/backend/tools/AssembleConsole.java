@@ -65,8 +65,8 @@ public class AssembleConsole
 		
 		try
 		{
-			assembler = new PLPAssembler(projectFiles);
-			assembler.assemble();
+			assembler = new PLPAssembler();
+			assembler.assemble(projectFiles);
 		}
 		catch (AssemblerException e)
 		{
