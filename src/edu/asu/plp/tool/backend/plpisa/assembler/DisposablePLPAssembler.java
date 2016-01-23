@@ -35,7 +35,6 @@ public class DisposablePLPAssembler
 {
 	private static final Logger LOG = Logger.getLogger(PLPAssembler.class.getName());
 	private List<ASMFile> asmFiles;
-	private List<Integer> regionMap;
 	
 	private BiDirectionalOneToManyMap<ASMInstruction, ASMDisassembly> assemblyToDisassemblyMap;
 	
@@ -1172,8 +1171,6 @@ public class DisposablePLPAssembler
 			appendPreprocessedInstruction(ASM__ORG__ + " " + currentAddress, lineNumber,
 					true);
 			directiveOffset++;
-			
-			regionMap.add(currentRegion);
 		}
 		catch (AssemblyException e)
 		{
@@ -1400,7 +1397,6 @@ public class DisposablePLPAssembler
 	
 	private void initialize()
 	{
-		regionMap = new ArrayList<>();
 		symbolTable = new HashMap<>();
 		instructionMap = new HashMap<>();
 		registerMap = new HashMap<>();
@@ -1687,10 +1683,6 @@ public class DisposablePLPAssembler
 	private void addRegionAndIncrementAddress(int timesToAddCurrentRegion,
 			int currentAddressIncrementSize)
 	{
-		for (int index = 0; index < timesToAddCurrentRegion; index++)
-		{
-			regionMap.add(currentRegion);
-		}
 		currentAddress += currentAddressIncrementSize;
 	}
 	
