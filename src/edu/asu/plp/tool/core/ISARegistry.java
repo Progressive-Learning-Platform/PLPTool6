@@ -2,6 +2,7 @@ package edu.asu.plp.tool.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import edu.asu.plp.tool.backend.isa.Simulator;
@@ -16,6 +17,14 @@ public class ISARegistry
 	{
 		initialize();
 		return globalInstance;
+	}
+	
+	/**
+	 * Shorthand for {@link #getGlobalRegistry()}
+	 */
+	public static ISARegistry get()
+	{
+		return getGlobalRegistry();
 	}
 	
 	public static void initialize()
@@ -43,5 +52,16 @@ public class ISARegistry
 		Simulator simulator = new PLPSimulator();
 		ISAModule plp6Module = new ISAModule(null, simulator, supportsProjectType);
 		registeredModules.add(plp6Module);
+	}
+	
+	public Optional<ISAModule> lookupByProjectType(String projectType)
+	{
+		for (ISAModule module : registeredModules)
+		{
+			if (module.supportsProjectType(projectType))
+				return Optional.of(module);
+		}
+		
+		return Optional.empty();
 	}
 }
