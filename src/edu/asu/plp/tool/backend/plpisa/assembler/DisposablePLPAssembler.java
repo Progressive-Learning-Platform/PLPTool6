@@ -89,14 +89,24 @@ public class DisposablePLPAssembler
 	public DisposablePLPAssembler(List<ASMFile> asmFiles)
 	{
 		this.asmFiles = asmFiles;
-		if (asmFiles.isEmpty())
-		{
-			System.out.println("ASM File list is empty");
-			System.exit(-1);
-		}
+		validateArgument(asmFiles);
 		initialize();
 	}
 	
+	private void validateArgument(List<ASMFile> asmFiles2)
+	{
+		if (asmFiles == null)
+		{
+			String message = "ASM File list must be non-null";
+			throw new IllegalArgumentException(message);
+		}
+		else if (asmFiles.isEmpty())
+		{
+			String message = "ASM File list is empty";
+			throw new IllegalArgumentException(message);
+		}
+	}
+
 	public ASMImage assemble() throws AssemblerException
 	{
 		assemblyToDisassemblyMap = null;
@@ -114,10 +124,9 @@ public class DisposablePLPAssembler
 				System.out.println("Starting lexing of " + asmFile.getAsmFilePath());
 				asmToTokensMap.put(asmFile, lexer.lex(asmFile.getAsmLines()));
 			}
-			catch (LexException e)
+			catch (LexException exception)
 			{
-				e.printStackTrace();
-				System.exit(1);
+				throw new AssemblerException(exception);
 			}
 		}
 		
