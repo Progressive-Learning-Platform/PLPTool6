@@ -28,6 +28,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
@@ -39,6 +40,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -70,6 +72,7 @@ public class Main extends Application
 	public static final long REVISION = 1;
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
+	public static boolean simMode = false;
 	
 	private Stage stage;
 	private TabPane openProjectsPanel;
@@ -277,6 +280,13 @@ public class Main extends Application
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
 	
+	private void saveProjectFile()
+	{
+		//need a variable for tab
+		int index = 0;
+		projects.get(index).save();
+	}
+	
 	private CodeEditor createCodeEditor()
 	{
 		return new CodeEditor();
@@ -400,23 +410,53 @@ public class Main extends Application
 	private Parent createToolbar()
 	{
 		HBox toolbar = new HBox();
-		toolbar.setPadding(new Insets(0, 0, 0, 5));
+		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
 		toolbar.setSpacing(5);
 		ObservableList<Node> buttons = toolbar.getChildren();
 		
 		EventHandler<MouseEvent> listener;
 		Node button;
 		
-		// TODO: replace event handlers with actual content
-		button = new ImageView("toolbar_new.png");
-		listener = (event) -> console.println("New Project Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
+		DropShadow lBlueShadow = new DropShadow();
+		lBlueShadow.setColor(Color.LIGHTBLUE);
+		DropShadow dBlueShadow = new DropShadow();
+		dBlueShadow.setColor(Color.DARKBLUE);
 		
-		button = new ImageView("menu_new.png");
+		
+		// TODO: replace event handlers with actual content
+		Node projectButton = new ImageView("toolbar_new.png");
+		projectButton.addEventHandler(MouseEvent.MOUSE_ENTERED, 
+			    new EventHandler<MouseEvent>() {
+			        @Override public void handle(MouseEvent e) {
+			            projectButton.setEffect(lBlueShadow);
+			        }
+			});
+			//Removing the shadow when the mouse cursor is off
+			projectButton.addEventHandler(MouseEvent.MOUSE_EXITED, 
+			    new EventHandler<MouseEvent>() {
+			        @Override public void handle(MouseEvent e) {
+			            projectButton.setEffect(null);
+			        }
+			});
+			projectButton.addEventHandler(MouseEvent.MOUSE_PRESSED, 
+				    new EventHandler<MouseEvent>() {
+				        @Override public void handle(MouseEvent e) {
+				        	console.println("New Project Clicked");
+				        	projectButton.setEffect(dBlueShadow);
+				        }
+				});
+			projectButton.addEventHandler(MouseEvent.MOUSE_RELEASED, 
+				    new EventHandler<MouseEvent>() {
+				        @Override public void handle(MouseEvent e) {
+				        	projectButton.setEffect(lBlueShadow);
+				        }
+				});
+		buttons.add(projectButton);
+		
+		Node newFileButton = new ImageView("menu_new.png");
 		listener = (event) -> console.println("New File Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
+		newFileButton.setOnMouseClicked(listener);
+		buttons.add(newFileButton);
 		
 		button = new ImageView("toolbar_open.png");
 		listener = this::onOpenProjectClicked;
@@ -426,7 +466,7 @@ public class Main extends Application
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		button = new ImageView("toolbar_save.png");
-		listener = (event) -> console.println("Save Project Clicked");
+		listener = this::onSaveProjectClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -436,7 +476,9 @@ public class Main extends Application
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_simulate.png");
-		listener = (event) -> console.println("Simulate Project Clicked");
+		listener = (event) -> (
+				onSimProjectClicked(event, toolbar)
+				);
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -521,6 +563,13 @@ public class Main extends Application
 		listener = (event) -> console.println("Interupt Clicked");
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
+		
+		for(int x = 9; x<=23; x++ )
+		{
+			DropShadow ds = new DropShadow();
+			toolbar.getChildren().get(x).setEffect(ds);
+			toolbar.getChildren().get(x).setDisable(true);
+		}
 		
 		return Components.wrap(toolbar);
 	}
@@ -892,5 +941,34 @@ public class Main extends Application
 	{
 		console.println("Open Project Clicked");
 		openProjectFromFile();
+	}
+	
+	private void onSaveProjectClicked(MouseEvent event)
+	{
+		console.println("Save Project Button Clicked");
+		saveProjectFile();
+	}
+	
+	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
+	{
+		DropShadow ds = new DropShadow();
+		if(!simMode)
+		{
+			for(int x = 9; x<=23; x++ )
+			{
+				toolbar.getChildren().get(x).setEffect(null);
+				toolbar.getChildren().get(x).setDisable(false);
+			}
+			simMode = true;
+		}
+		else
+		{
+			for(int x = 9; x<=23; x++ )
+			{
+				toolbar.getChildren().get(x).setEffect(ds);
+				toolbar.getChildren().get(x).setDisable(true);
+			}
+			simMode = false;
+		}
 	}
 }
