@@ -1109,11 +1109,10 @@ public class DisposablePLPAssembler
 		}
 		else
 		{
-			symbolTable.put(labelValue, new Long((int) currentAddress));
+			symbolTable.put(labelValue, currentAddress);
 			appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
 			directiveOffset++;
 		}
-		// System.out.println(directiveToken);
 	}
 	
 	/*
