@@ -69,8 +69,6 @@ public class DisposablePLPAssembler
 	private static final String ASM__WORD__ = "ASM__WORD__";
 	private static final String ASM__ORG__ = "ASM__ORG__";
 	private static final String ASM__SKIP__ = "ASM__SKIP__";
-	private static final String ASM__LINE__OFFSET__ = "ASM__LINE__OFFSET__";
-	private static final String ASM__POINTER__ = "ASM__POINTER__";
 	
 	private static final String ASM__HIGH__ = "$_hi:";
 	private static final String ASM__LOW__ = "$_lo:";
@@ -191,8 +189,6 @@ public class DisposablePLPAssembler
 		long[] objectCode = new long[asmLines.length - directiveOffset];
 		long[] addressTable = new long[asmLines.length - directiveOffset];
 		int[] entryType = new int[asmLines.length - directiveOffset];
-		int[] objCodeFileMapper = new int[asmLines.length - directiveOffset];
-		int[] objCodeLineNumMapper = new int[asmLines.length - directiveOffset];
 		currentActiveFile = topLevelFile;
 		System.out.println("Starting assembling of: " + currentActiveFile);
 		
@@ -1391,8 +1387,6 @@ public class DisposablePLPAssembler
 		expectedNextToken("include directive");
 		
 		appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
-		boolean found = false;
-		boolean conflict = false;
 		
 		throw new UnsupportedOperationException("Include Directive is not implemented");
 	}
@@ -1663,24 +1657,6 @@ public class DisposablePLPAssembler
 		if (!nextToken())
 			throw new AssemblerException("Previous token->(" + previousToken
 					+ ") Unexpected end of token stream. In " + location);
-	}
-	
-	private boolean previousToken()
-	{
-		return previousToken(1);
-	}
-	
-	private boolean previousToken(int count)
-	{
-		for (int index = 0; index < count; index++)
-		{
-			if (!tokenIterator.hasPrevious())
-				return false;
-				
-			currentToken = tokenIterator.previous();
-		}
-		
-		return true;
 	}
 	
 	private void addRegionAndIncrementAddress()
