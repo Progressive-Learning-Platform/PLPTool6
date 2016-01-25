@@ -177,6 +177,7 @@ public class DisposablePLPAssembler
 		int assemblerDirectiveSkips = 0;
 		currentRegion = 0;
 		
+		// FIXME: Should the delimiter match multiple commas?
 		String delimiters = "[ ,\t]+|[()]";
 		
 		String currentPreprocessedAsm = firstPassString.toString();
