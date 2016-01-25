@@ -1,9 +1,11 @@
 package edu.asu.plp.tool.prototype;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -923,7 +925,7 @@ public class Main extends Application
         });
 		MenuItem itemOnlineManual = new MenuItem ("Online Manual");
         itemOnlineManual.setOnAction((event)-> {
-        //TODO: Add Event for menu item
+        	onlineManualWeb();
         });
 		MenuItem itemReportIssue = new MenuItem ("Report Issue (Requires Google Account");
         itemReportIssue.setOnAction((event)-> {
@@ -982,5 +984,18 @@ public class Main extends Application
 			}
 			simMode = false;
 		}
+	}
+	
+	private void onlineManualWeb()
+	{
+		try{
+			
+			if(Desktop.isDesktopSupported())
+			{
+			  Desktop.getDesktop().browse(new URI("https://code.google.com/p/progressive-learning-platform/wiki/UserManual"));
+			}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 	}
 }
