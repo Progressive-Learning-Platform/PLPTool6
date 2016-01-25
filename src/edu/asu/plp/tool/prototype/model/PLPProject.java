@@ -1,8 +1,13 @@
 package edu.asu.plp.tool.prototype.model;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -56,9 +61,103 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 			IOException
 	{
 		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
-	}
+		//throw new UnsupportedOperationException("Not Yet Implemented");
+		List<String> list = readFile(file);
+
+		String fileContent = list.get(0);
+		if (!fileContent.contains(".metafile")) {
+			throw new UnexpectedFileTypeException("Invalid PLP Project file. " + fileContent);
+		}
+
+		String dirty = list.get(2);
+		if (dirty.contains("DIRTY=1")) {
+			throw new UnexpectedFileTypeException("PLP Project file seems to have some problem. " + dirty);
+		}
 	
+	PLPProject plpProject = new PLPProject();
+	List<String> plpSourceFileNames = new ArrayList<>();
+	List<PLPSourceFile> plpFiles = new ArrayList<>();
+
+	int i = getFileNames(list, plpSourceFileNames);
+
+	plpFiles = createFiles(list, plpSourceFileNames);
+	
+	plpProject.setName(file.getName());
+	plpProject.setPath(file.getAbsolutePath());
+	
+	return plpProject;
+	}
+private static List<PLPSourceFile> createFiles(List<String> list, List<String> plpSourceFileNames) {
+	int i = 6;
+	String temp;
+	boolean toWrite = false;
+	StringBuilder sb = new StringBuilder("");
+
+	while (true) {
+		temp = list.get(i);
+
+		if (temp.contains("32'h")) {
+			break;
+		}
+
+		if (temp.contains(".asm") && temp.contains("ustar")) {
+			// one file is ready
+			if (!sb.equals("")) {
+				System.out.println(">>>> " + sb.toString() + "<<<<");
+				sb = new StringBuilder("");
+			}
+			i++;
+			temp = list.get(i);
+			toWrite = true;
+		}
+
+		if (toWrite) {
+			sb.append("\n" + temp);
+		}
+
+	}
+	if (!sb.equals("")) {
+		System.out.println(">>>> " + sb.toString() + "<<<<");
+		sb = new StringBuilder("");
+	}
+	return null;
+}
+
+private static int getFileNames(List<String> list, List<String> plpSourceFiles) {
+	String temp;
+	int i = 6;
+	temp = list.get(i);
+
+	while (!temp.equals("")) {
+		if (temp.contains(".asm") && !temp.contains("ustar")) {
+			plpSourceFiles.add(temp);
+		}
+		i++;
+		temp = list.get(i);
+	}
+	return i;
+}
+
+private static int getFileFromPLPProjectFile(int i, PLPProject plpProject, List<String> list) {
+	
+	return 0;
+}
+private static List<String> readFile(File file) {
+	BufferedReader br = null;
+	String strLine = "";
+	List<String> lines = new ArrayList<>();
+	try {
+		br = new BufferedReader(new FileReader(file));
+		while ((strLine = br.readLine()) != null) {
+			lines.add(strLine);
+		}
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	return lines;
+}
 	/**
 	 * Loads a {@link PLPProject} from the given project file. This method calls
 	 * {@link #load(File)}, which auto-detects the project version, and is therefore
@@ -78,7 +177,9 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 			IOException
 	{
 		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		//throw new UnsupportedOperationException("Not Yet Implemented");
+		File file = new File(filePath);
+		return load(file);
 	}
 	
 	/**
