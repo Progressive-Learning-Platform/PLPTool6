@@ -284,7 +284,19 @@ public class Main extends Application
 	{
 		//need a variable for tab
 		int index = 0;
-		projects.get(index).save();
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
+		//fileChooser.setInitialFileName(openProjects.getKey(index).getName());
+		File file = fileChooser.showSaveDialog(null);
+		System.out.println(file);
+		try {
+			openProjects.getKey(openProjects.keySet()).writeToFile(file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//projects.get(index).save();
 	}
 	
 	private CodeEditor createCodeEditor()
