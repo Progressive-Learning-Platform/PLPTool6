@@ -283,21 +283,13 @@ public class Main extends Application
 	}
 	
 	private void saveProjectFile()
-	{
-		//need a variable for tab
-		int index = 0;
-		
+	{		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
 		//fileChooser.setInitialFileName(openProjects.getKey(index).getName());
 		File file = fileChooser.showSaveDialog(null);
 		System.out.println(file);
-		try {
-			openProjects.getKey(openProjects.keySet()).writeToFile(file);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println(openProjects.get(file).getContent().toString());
 		//projects.get(index).save();
 	}
 	
