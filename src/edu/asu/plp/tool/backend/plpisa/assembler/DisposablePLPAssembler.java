@@ -35,7 +35,6 @@ public class DisposablePLPAssembler
 {
 	private static final Logger LOG = Logger.getLogger(PLPAssembler.class.getName());
 	private List<ASMFile> asmFiles;
-	private List<Integer> regionMap;
 	
 	private BiDirectionalOneToManyMap<ASMInstruction, ASMDisassembly> assemblyToDisassemblyMap;
 	
@@ -70,8 +69,6 @@ public class DisposablePLPAssembler
 	private static final String ASM__WORD__ = "ASM__WORD__";
 	private static final String ASM__ORG__ = "ASM__ORG__";
 	private static final String ASM__SKIP__ = "ASM__SKIP__";
-	private static final String ASM__LINE__OFFSET__ = "ASM__LINE__OFFSET__";
-	private static final String ASM__POINTER__ = "ASM__POINTER__";
 	
 	private static final String ASM__HIGH__ = "$_hi:";
 	private static final String ASM__LOW__ = "$_lo:";
@@ -90,14 +87,24 @@ public class DisposablePLPAssembler
 	public DisposablePLPAssembler(List<ASMFile> asmFiles)
 	{
 		this.asmFiles = asmFiles;
-		if (asmFiles.isEmpty())
-		{
-			System.out.println("ASM File list is empty");
-			System.exit(-1);
-		}
+		validateArgument(asmFiles);
 		initialize();
 	}
 	
+	private void validateArgument(List<ASMFile> asmFiles2)
+	{
+		if (asmFiles == null)
+		{
+			String message = "ASM File list must be non-null";
+			throw new IllegalArgumentException(message);
+		}
+		else if (asmFiles.isEmpty())
+		{
+			String message = "ASM File list is empty";
+			throw new IllegalArgumentException(message);
+		}
+	}
+
 	public ASMImage assemble() throws AssemblerException
 	{
 		assemblyToDisassemblyMap = null;
@@ -115,10 +122,9 @@ public class DisposablePLPAssembler
 				System.out.println("Starting lexing of " + asmFile.getAsmFilePath());
 				asmToTokensMap.put(asmFile, lexer.lex(asmFile.getAsmLines()));
 			}
-			catch (LexException e)
+			catch (LexException exception)
 			{
-				e.printStackTrace();
-				System.exit(1);
+				throw new AssemblerException(exception);
 			}
 		}
 		
@@ -171,6 +177,7 @@ public class DisposablePLPAssembler
 		int assemblerDirectiveSkips = 0;
 		currentRegion = 0;
 		
+		// FIXME: Should the delimiter match multiple commas?
 		String delimiters = "[ ,\t]+|[()]";
 		
 		String currentPreprocessedAsm = firstPassString.toString();
@@ -183,8 +190,6 @@ public class DisposablePLPAssembler
 		long[] objectCode = new long[asmLines.length - directiveOffset];
 		long[] addressTable = new long[asmLines.length - directiveOffset];
 		int[] entryType = new int[asmLines.length - directiveOffset];
-		int[] objCodeFileMapper = new int[asmLines.length - directiveOffset];
-		int[] objCodeLineNumMapper = new int[asmLines.length - directiveOffset];
 		currentActiveFile = topLevelFile;
 		System.out.println("Starting assembling of: " + currentActiveFile);
 		
@@ -739,7 +744,7 @@ public class DisposablePLPAssembler
 		String label = currentToken.getValue();
 		ensureTokenEquality("(call) Expected a label, found: ", PLPTokenType.LABEL_PLAIN);
 		
-		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2t", "$t3",
+		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2", "$t3",
 				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
 				"$s4", "$s5", "$s6", "$s7", "$ra" };
 				
@@ -1110,11 +1115,10 @@ public class DisposablePLPAssembler
 		}
 		else
 		{
-			symbolTable.put(labelValue, new Long((int) currentAddress));
+			symbolTable.put(labelValue, currentAddress);
 			appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
 			directiveOffset++;
 		}
-		// System.out.println(directiveToken);
 	}
 	
 	/*
@@ -1172,8 +1176,6 @@ public class DisposablePLPAssembler
 			appendPreprocessedInstruction(ASM__ORG__ + " " + currentAddress, lineNumber,
 					true);
 			directiveOffset++;
-			
-			regionMap.add(currentRegion);
 		}
 		catch (AssemblyException e)
 		{
@@ -1386,8 +1388,6 @@ public class DisposablePLPAssembler
 		expectedNextToken("include directive");
 		
 		appendPreprocessedInstruction(ASM__SKIP__, lineNumber, true);
-		boolean found = false;
-		boolean conflict = false;
 		
 		throw new UnsupportedOperationException("Include Directive is not implemented");
 	}
@@ -1400,7 +1400,6 @@ public class DisposablePLPAssembler
 	
 	private void initialize()
 	{
-		regionMap = new ArrayList<>();
 		symbolTable = new HashMap<>();
 		instructionMap = new HashMap<>();
 		registerMap = new HashMap<>();
@@ -1661,24 +1660,6 @@ public class DisposablePLPAssembler
 					+ ") Unexpected end of token stream. In " + location);
 	}
 	
-	private boolean previousToken()
-	{
-		return previousToken(1);
-	}
-	
-	private boolean previousToken(int count)
-	{
-		for (int index = 0; index < count; index++)
-		{
-			if (!tokenIterator.hasPrevious())
-				return false;
-				
-			currentToken = tokenIterator.previous();
-		}
-		
-		return true;
-	}
-	
 	private void addRegionAndIncrementAddress()
 	{
 		addRegionAndIncrementAddress(1, 4);
@@ -1687,10 +1668,6 @@ public class DisposablePLPAssembler
 	private void addRegionAndIncrementAddress(int timesToAddCurrentRegion,
 			int currentAddressIncrementSize)
 	{
-		for (int index = 0; index < timesToAddCurrentRegion; index++)
-		{
-			regionMap.add(currentRegion);
-		}
 		currentAddress += currentAddressIncrementSize;
 	}
 	
