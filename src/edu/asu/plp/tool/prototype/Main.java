@@ -1,5 +1,12 @@
 package edu.asu.plp.tool.prototype;
 
+import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
+import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,26 +17,33 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import moore.fx.components.Components;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
-import edu.asu.plp.tool.prototype.model.Project;
-import edu.asu.plp.tool.prototype.model.ProjectFile;
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
+import edu.asu.plp.tool.prototype.model.PLPProject;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
@@ -51,9 +65,10 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
+	private Stage stage;
 	private TabPane openProjectsPanel;
-	private BidiMap<ProjectFile, Tab> openProjects;
-	private ObservableList<Project> projects;
+	private BidiMap<PLPSourceFile, Tab> openProjects;
+	private ObservableList<PLPProject> projects;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
 	
@@ -65,6 +80,7 @@ public class Main extends Application
 	@Override
 	public void start(Stage primaryStage)
 	{
+		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 		
 		this.openProjects = new DualHashBidiMap<>();
@@ -107,6 +123,145 @@ public class Main extends Application
 		primaryStage.show();
 	}
 	
+	private File showOpenDialogue()
+	{
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Resource File");
+		
+		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("PLP6 Project Files", plp6Extension),
+				new ExtensionFilter("Legacy Project Files", "*.plp"),
+				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
+				new ExtensionFilter("All Files", "*.*"));
+		
+		return fileChooser.showOpenDialog(stage);
+	}
+	
+	private void openProjectFromFile()
+	{
+		File selectedFile = showOpenDialogue();
+		if (selectedFile != null)
+		{
+			openProjectFromFile(selectedFile);
+		}
+	}
+	
+	/**
+	 * Loads the given file from disk using {@link PLPProject#load(File)}, and adds the
+	 * project to the project explorer.
+	 * <p>
+	 * If the project is already in the project explorer, a message will be displayed
+	 * indicating the project is already open, and the project will be expanded in the
+	 * project tree.
+	 * <p>
+	 * If the project is not in the tree, but a project with the same name is in the tree,
+	 * then a message will be displayed indicating that a project with the same name
+	 * already exists, and will ask if the user would like to rename one of the projects.
+	 * If not, the dialogue will be closed and the project will not be opened.
+	 * 
+	 * @param file
+	 *            The file or directory (PLP6 only) containing the project to be opened
+	 */
+	private void openProjectFromFile(File file)
+	{
+		try
+		{
+			PLPProject project = PLPProject.load(file);
+			addProject(project);
+		}
+		catch (UnexpectedFileTypeException e)
+		{
+			showAlertDialogue(e, "The selected file could not be loaded");
+		}
+		catch (IOException e)
+		{
+			showAlertDialogue(e, "There was a problem loading the selected file");
+		}
+		catch (Exception e)
+		{
+			showAlertDialogue(e);
+		}
+	}
+	
+	private void addProject(PLPProject project)
+	{
+		PLPProject existingProject = getProjectByName(project.getName());
+		if (existingProject != null)
+		{
+			if (existingProject.getPath().equals(project.getPath()))
+			{
+				// Projects are the same
+				showInfoDialogue("This project is already open!");
+				// TODO: expand project in the projectExplorer
+			}
+			else
+			{
+				// Project with the same name already exists
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Confirmation Dialog");
+				alert.setGraphic(null);
+				alert.setHeaderText(null);
+				alert.setContentText("A project with the name \""
+						+ project.getName()
+						+ "\" already exists. In order to open this project, you must choose a different name."
+						+ "\n\n"
+						+ "Press OK to choose a new name, or Cancel to close this dialog.");
+				
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.get() == ButtonType.OK)
+				{
+					boolean renamed = renameProject(project);
+					if (renamed)
+						addProject(project);
+				}
+			}
+		}
+		else
+		{
+			projects.add(project);
+		}
+	}
+
+	private boolean renameProject(PLPProject project)
+	{
+		TextInputDialog dialog = new TextInputDialog(project.getName());
+		dialog.setTitle("Rename Project");
+		dialog.setHeaderText(null);
+		dialog.setGraphic(null);
+		dialog.setContentText("Enter a new name for the project:");
+		
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent())
+		{
+			String newName = result.get();
+			if (newName.equals(project.getName()))
+			{
+				showInfoDialogue("The new name must be different from the old name");
+				return renameProject(project);
+			}
+			else
+			{
+				project.setName(newName);
+			}
+		}
+		
+		return false;
+	}
+	
+	private PLPProject getProjectByName(String name)
+	{
+		for (PLPProject project : projects)
+		{
+			String projectName = project.getName();
+			boolean namesAreNull = (projectName == null && name == null);
+			if (namesAreNull || name.equals(projectName))
+				return project;
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * Creates a tab for the specified project, or selects the project, if the tab already
 	 * exists.
@@ -114,7 +269,7 @@ public class Main extends Application
 	 * @param project
 	 *            The project to open
 	 */
-	private void openFile(ProjectFile file)
+	private void openFile(PLPSourceFile file)
 	{
 		String fileName = file.getName();
 		
@@ -137,19 +292,11 @@ public class Main extends Application
 	{
 		return new CodeEditor();
 		/*
-		try
-		{
-			CodeEditor editor = new CodeEditor();
-			File syntaxFile = new File("resources/languages/plp.syn");
-			editor.setSyntaxHighlighting(syntaxFile);
-			return editor;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return new CodeEditor();
-		}
-		*/
+		 * try { CodeEditor editor = new CodeEditor(); File syntaxFile = new
+		 * File("resources/languages/plp.syn"); editor.setSyntaxHighlighting(syntaxFile);
+		 * return editor; } catch (IOException e) { e.printStackTrace(); return new
+		 * CodeEditor(); }
+		 */
 	}
 	
 	private Tab addTab(TabPane panel, String projectName, Node contentPanel)
@@ -168,7 +315,7 @@ public class Main extends Application
 			@Override
 			public void handle(Event event)
 			{
-				ProjectFile activeFile = openProjects.getKey(tab);
+				PLPSourceFile activeFile = openProjects.getKey(tab);
 				if (activeFile != null)
 					projectExplorer.setActiveFile(activeFile);
 			}
@@ -233,15 +380,15 @@ public class Main extends Application
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
-		Project project = new Project("Assignment1");
-		project.add(new ProjectFile(project, "main.asm"));
-		project.add(new ProjectFile(project, "sorting.asm"));
-		project.add(new ProjectFile(project, "division.asm"));
+		PLPProject project = new PLPProject("Assignment1");
+		project.add(new PLPSourceFile(project, "main.asm"));
+		project.add(new PLPSourceFile(project, "sorting.asm"));
+		project.add(new PLPSourceFile(project, "division.asm"));
 		projects.add(project);
 		
-		project = new Project("Assignment2");
-		project.add(new ProjectFile(project, "main.asm"));
-		project.add(new ProjectFile(project, "uart_utilities.asm"));
+		project = new PLPProject("Assignment2");
+		project.add(new PLPSourceFile(project, "main.asm"));
+		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
 		projects.add(project);
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
@@ -283,7 +430,7 @@ public class Main extends Application
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_open.png");
-		listener = (event) -> console.println("Open Project Clicked");
+		listener = this::onOpenProjectClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -298,5 +445,11 @@ public class Main extends Application
 		buttons.add(button);
 		
 		return Components.wrap(toolbar);
+	}
+	
+	private void onOpenProjectClicked(MouseEvent event)
+	{
+		console.println("Open Project Clicked");
+		openProjectFromFile();
 	}
 }
