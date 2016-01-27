@@ -6,6 +6,7 @@ import java.nio.file.FileAlreadyExistsException;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.stage.FileChooser;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 
 /**
@@ -131,8 +132,18 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 */
 	public void save()
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		if(this.getPath() == null)
+	    {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
+			fileChooser.setInitialFileName(this.getName());
+			File file = fileChooser.showSaveDialog(null);
+	    	this.saveAs(file.getName());
+	    }else
+	    {
+	    	//TODO Implement save feature
+	    }
+		//throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
 	/**
@@ -185,8 +196,8 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 */
 	public void saveAs(String filePath)
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		
+		
 	}
 	
 	public StringProperty getNameProperty()

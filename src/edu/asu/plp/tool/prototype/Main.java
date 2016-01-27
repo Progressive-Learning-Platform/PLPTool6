@@ -284,7 +284,23 @@ public class Main extends Application
 	
 	private void saveProjectFile()
 	{	
-		
+		for (PLPSourceFile key : openProjects.keySet()) {
+			
+			key.getProject().save();
+		}
+			}
+	
+	private void createTestFile()
+	{
+		String fileName = "Testing.plp";
+		CodeEditor content = createCodeEditor();
+		content.setText("This is a test");
+		Tab tab = addTab(openProjectsPanel, fileName, content);
+		PLPProject project = new PLPProject("PLPProjectHello");
+		//project.add(new PLPSourceFile(project, "PLPSrouceFile.plp"));
+		PLPSourceFile sl = new PLPSourceFile(project, fileName);
+		openProjects.put(sl, tab);
+		openProjectsPanel.getSelectionModel().select(tab);
 	}
 	
 	private CodeEditor createCodeEditor()
@@ -442,6 +458,10 @@ public class Main extends Application
 				    new EventHandler<MouseEvent>() {
 				        @Override public void handle(MouseEvent e) {
 				        	console.println("New Project Clicked");
+				    		
+				        	//TODO: remove this when im done
+				        	createTestFile();
+
 				        	projectButton.setEffect(dBlueShadow);
 				        }
 				});
