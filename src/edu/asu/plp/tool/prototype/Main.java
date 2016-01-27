@@ -10,17 +10,22 @@ import java.net.URI;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -30,6 +35,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,9 +46,12 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -458,9 +467,8 @@ public class Main extends Application
 				    new EventHandler<MouseEvent>() {
 				        @Override public void handle(MouseEvent e) {
 				        	console.println("New Project Clicked");
-				    		
-				        	//TODO: remove this when im done
-				        	createTestFile();
+				    	
+				        	createNewProject();
 
 				        	projectButton.setEffect(dBlueShadow);
 				        }
@@ -697,7 +705,6 @@ public class Main extends Application
 		cItemToolbar.setSelected(true);
 		cItemProjectPane.setSelected(true);
 		cItemOutputPane.setSelected(true);
-		
 		
 		//Menu Items Under "Project"
 		Menu project = new Menu("Project");
@@ -1003,5 +1010,90 @@ public class Main extends Application
 			}catch(Exception e){
 				e.printStackTrace();
 			}
+	}
+	
+	private void createNewProject()
+	{
+		Stage createProjectStage = new Stage();
+		Parent myPane = projectCreateMenu();
+		Scene scene = new Scene(myPane, 450, 350);
+		createProjectStage.setTitle("Create New PLP Project");
+		createProjectStage.setScene(scene);
+		createProjectStage.setResizable(false);
+		createProjectStage.show();
+		
+	}
+	
+	private Parent projectCreateMenu()
+	{
+		BorderPane border = new BorderPane();
+		border.setPadding(new Insets(20));
+		GridPane grid = new GridPane();
+		HBox buttons = new HBox(10);
+		grid.setHgap(10);
+		grid.setVgap(30);
+		grid.setPadding(new Insets(10,10,10,10));
+		
+		Label projectName = new Label();
+		projectName.setText("Project Name: ");
+		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label projectLocation = new Label();
+		projectLocation.setText("Location: ");
+		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projText = new TextField();
+		projText.setPrefWidth(200);
+		
+		TextField projLocation = new TextField();
+		projText.setPrefWidth(200);
+		
+		Button browseLocation = new Button();
+		browseLocation.setText("Browse");
+		browseLocation.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {
+		    	String chosenLocation = "";
+		    	FileChooser fileChooser = new FileChooser();
+				fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
+				fileChooser.setInitialFileName(projText.getText());
+				fileChooser.setTitle("Choose Project Location");
+				File file = fileChooser.showSaveDialog(null);
+				//If Cancel is chosen, throws a null pointer, needs to be fixed
+				chosenLocation = file.getAbsolutePath();
+		        projLocation.setText(chosenLocation);
+		    }
+		});
+		
+		Label target = new Label();
+		target.setText("Targetted ISA: ");
+		target.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		ComboBox<String> isaType = new ComboBox<String>();
+		isaType.getItems().addAll("PLP", "MIPS");
+		isaType.setValue("PLP");
+		
+		Label version = new Label();
+		version.setText("Version: ");
+		version.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		grid.add(projectName, 0, 0);
+		grid.add(projText, 1, 0);
+		grid.add(projectLocation, 0, 1);
+		grid.add(projLocation, 1, 1);
+		grid.add(browseLocation, 2, 1);
+		grid.add(target, 0, 2);
+		grid.add(isaType, 1, 2);
+		grid.add(version, 0, 3);
+		
+		border.setCenter(grid);
+		
+		Button createProject = new Button("Create Project");
+		Button cancelCreate = new Button("Cancel");
+		
+		buttons.getChildren().addAll(createProject, cancelCreate);
+		buttons.setAlignment(Pos.BASELINE_RIGHT);
+		border.setBottom(buttons);
+		
+		return Components.wrap(border);
 	}
 }
