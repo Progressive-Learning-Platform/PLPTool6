@@ -283,14 +283,8 @@ public class Main extends Application
 	}
 	
 	private void saveProjectFile()
-	{		
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
-		//fileChooser.setInitialFileName(openProjects.getKey(index).getName());
-		File file = fileChooser.showSaveDialog(null);
-		System.out.println(file);
-		System.out.println(openProjects.get(file).getContent().toString());
-		//projects.get(index).save();
+	{	
+		
 	}
 	
 	private CodeEditor createCodeEditor()
