@@ -299,19 +299,6 @@ public class Main extends Application
 		}
 			}
 	
-	private void createTestFile()
-	{
-		String fileName = "Testing.plp";
-		CodeEditor content = createCodeEditor();
-		content.setText("This is a test");
-		Tab tab = addTab(openProjectsPanel, fileName, content);
-		PLPProject project = new PLPProject("PLPProjectHello");
-		//project.add(new PLPSourceFile(project, "PLPSrouceFile.plp"));
-		PLPSourceFile sl = new PLPSourceFile(project, fileName);
-		openProjects.put(sl, tab);
-		openProjectsPanel.getSelectionModel().select(tab);
-	}
-	
 	private CodeEditor createCodeEditor()
 	{
 		return new CodeEditor();
@@ -1043,6 +1030,8 @@ public class Main extends Application
 		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		TextField projText = new TextField();
+		projText.setText("Project Name");
+		projText.requestFocus();
 		projText.setPrefWidth(200);
 		
 		TextField projLocation = new TextField();
@@ -1088,6 +1077,22 @@ public class Main extends Application
 		border.setCenter(grid);
 		
 		Button createProject = new Button("Create Project");
+		createProject.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {
+				String fileName = projText.getText();
+				CodeEditor content = createCodeEditor();
+				content.setText("#New PLP Project");
+				Tab tab = addTab(openProjectsPanel, "Unsaved Tab", content);
+				PLPProject project = new PLPProject(fileName);
+				PLPSourceFile sf = new PLPSourceFile(project, fileName);
+				openProjects.put(sf, tab);
+				openProjectsPanel.getSelectionModel().select(tab);
+				projects.add(project);
+				projectExplorer.setProjectsModel(projects);
+			    Stage stage = (Stage) createProject.getScene().getWindow();
+			    stage.close();
+		    }
+		});
 		Button cancelCreate = new Button("Cancel");
 		
 		buttons.getChildren().addAll(createProject, cancelCreate);
