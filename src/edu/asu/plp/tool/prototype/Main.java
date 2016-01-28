@@ -1025,17 +1025,24 @@ public class Main extends Application
 		projectName.setText("Project Name: ");
 		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
+		TextField projTextField = new TextField();
+		projTextField.setText("Project Name");
+		projTextField.requestFocus();
+		projTextField.setPrefWidth(200);
+		
+		Label mainSourceFile = new Label();
+		mainSourceFile.setText("File Name: ");
+		mainSourceFile.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField sourceFileField = new TextField();
+		projTextField.setPrefWidth(200);
+				
 		Label projectLocation = new Label();
 		projectLocation.setText("Location: ");
 		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField projText = new TextField();
-		projText.setText("Project Name");
-		projText.requestFocus();
-		projText.setPrefWidth(200);
-		
-		TextField projLocation = new TextField();
-		projText.setPrefWidth(200);
+		TextField projLocationField = new TextField();
+		projTextField.setPrefWidth(200);
 		
 		Button browseLocation = new Button();
 		browseLocation.setText("Browse");
@@ -1044,12 +1051,12 @@ public class Main extends Application
 		    	String chosenLocation = "";
 		    	FileChooser fileChooser = new FileChooser();
 				fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
-				fileChooser.setInitialFileName(projText.getText());
+				fileChooser.setInitialFileName(projTextField.getText());
 				fileChooser.setTitle("Choose Project Location");
 				File file = fileChooser.showSaveDialog(null);
 				//If Cancel is chosen, throws a null pointer, needs to be fixed
 				chosenLocation = file.getAbsolutePath();
-		        projLocation.setText(chosenLocation);
+		        projLocationField.setText(chosenLocation);
 		    }
 		});
 		
@@ -1066,34 +1073,46 @@ public class Main extends Application
 		version.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		grid.add(projectName, 0, 0);
-		grid.add(projText, 1, 0);
-		grid.add(projectLocation, 0, 1);
-		grid.add(projLocation, 1, 1);
-		grid.add(browseLocation, 2, 1);
-		grid.add(target, 0, 2);
-		grid.add(isaType, 1, 2);
-		grid.add(version, 0, 3);
+		grid.add(projTextField, 1, 0);
+		grid.add(mainSourceFile, 0, 1);
+		grid.add(sourceFileField, 1, 1);
+		grid.add(projectLocation, 0, 2);
+		grid.add(projLocationField, 1, 2);
+		grid.add(browseLocation, 2, 2);
+		grid.add(target, 0, 3);
+		grid.add(isaType, 1, 3);
+		grid.add(version, 0, 4);
 		
 		border.setCenter(grid);
 		
 		Button createProject = new Button("Create Project");
 		createProject.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
-				String fileName = projText.getText();
+				String projectName = projTextField.getText();
+				String fileName = sourceFileField.getText();
 				CodeEditor content = createCodeEditor();
 				content.setText("#New PLP Project");
-				Tab tab = addTab(openProjectsPanel, "Unsaved Tab", content);
-				PLPProject project = new PLPProject(fileName);
+				Tab tab = addTab(openProjectsPanel, fileName, content);
+				PLPProject project = new PLPProject(projectName);
+				project.setPath(projLocationField.getText());
 				PLPSourceFile sf = new PLPSourceFile(project, fileName);
+				project.add(sf);
 				openProjects.put(sf, tab);
-				openProjectsPanel.getSelectionModel().select(tab);
 				projects.add(project);
+				openFile(sf);
 				projectExplorer.setProjectsModel(projects);
 			    Stage stage = (Stage) createProject.getScene().getWindow();
 			    stage.close();
 		    }
 		});
+		createProject.setDefaultButton(true);
 		Button cancelCreate = new Button("Cancel");
+		cancelCreate.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {
+			    Stage stage = (Stage) cancelCreate.getScene().getWindow();
+			    stage.close();
+		    }
+		});
 		
 		buttons.getChildren().addAll(createProject, cancelCreate);
 		buttons.setAlignment(Pos.BASELINE_RIGHT);
