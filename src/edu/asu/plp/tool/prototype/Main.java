@@ -1,11 +1,13 @@
 package edu.asu.plp.tool.prototype;
 
+import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
+import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URI;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -22,6 +24,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -36,6 +39,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -193,77 +197,98 @@ public class Main extends Application
 		try
 		{
 			PLPProject project = PLPProject.load(file);
-			if (this.containsProjectWithName(project.getName()))
-			{
-				// TODO: display 'project with name 'x' already exists' message
-				// TODO: if the project is already loaded, display 'project is already
-				// open' message, and expand project in the projectExplorer
-			}
-			else
-			{
-				projects.add(project);
-			}
+			addProject(project);
 		}
 		catch (UnexpectedFileTypeException e)
 		{
-			alert(e, "The selected file could not be loaded");
+			showAlertDialogue(e, "The selected file could not be loaded");
 		}
 		catch (IOException e)
 		{
-			alert(e, "There was a problem loading the selected file");
+			showAlertDialogue(e, "There was a problem loading the selected file");
 		}
 		catch (Exception e)
 		{
-			alert(e);
+			showAlertDialogue(e);
 		}
 	}
 	
-	private void alert(Exception exception)
+	private void addProject(PLPProject project)
 	{
-		alert(exception, "An error has occurred!");
+		PLPProject existingProject = getProjectByName(project.getName());
+		if (existingProject != null)
+		{
+			if (existingProject.getPath().equals(project.getPath()))
+			{
+				// Projects are the same
+				showInfoDialogue("This project is already open!");
+				// TODO: expand project in the projectExplorer
+			}
+			else
+			{
+				// Project with the same name already exists
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Confirmation Dialog");
+				alert.setGraphic(null);
+				alert.setHeaderText(null);
+				alert.setContentText("A project with the name \""
+						+ project.getName()
+						+ "\" already exists. In order to open this project, you must choose a different name."
+						+ "\n\n"
+						+ "Press OK to choose a new name, or Cancel to close this dialog.");
+				
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.get() == ButtonType.OK)
+				{
+					boolean renamed = renameProject(project);
+					if (renamed)
+						addProject(project);
+				}
+			}
+		}
+		else
+		{
+			projects.add(project);
+		}
+	}
+
+	private boolean renameProject(PLPProject project)
+	{
+		TextInputDialog dialog = new TextInputDialog(project.getName());
+		dialog.setTitle("Rename Project");
+		dialog.setHeaderText(null);
+		dialog.setGraphic(null);
+		dialog.setContentText("Enter a new name for the project:");
+		
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent())
+		{
+			String newName = result.get();
+			if (newName.equals(project.getName()))
+			{
+				showInfoDialogue("The new name must be different from the old name");
+				return renameProject(project);
+			}
+			else
+			{
+				project.setName(newName);
+			}
+		}
+		
+		return false;
 	}
 	
-	private void alert(Exception exception, String message)
-	{
-		String context = exception.getMessage();
-		boolean valid = (context != null && !context.isEmpty());
-		context = (valid) ? "Cause: " + context : null;
-		
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle("Exception Dialog");
-		alert.setHeaderText(message);
-		alert.setContentText(context);
-		alert.setGraphic(null);
-		
-		String exceptionText = getStackTraceAsString(exception);
-		TextArea textArea = new TextArea(exceptionText);
-		textArea.setEditable(false);
-		textArea.setWrapText(false);
-		
-		alert.getDialogPane().setExpandableContent(textArea);
-		alert.showAndWait();
-	}
-	
-	private String getStackTraceAsString(Exception exception)
-	{
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-		exception.printStackTrace(printWriter);
-		
-		return stringWriter.toString();
-	}
-	
-	private boolean containsProjectWithName(String name)
+	private PLPProject getProjectByName(String name)
 	{
 		for (PLPProject project : projects)
 		{
 			String projectName = project.getName();
 			boolean namesAreNull = (projectName == null && name == null);
 			if (namesAreNull || name.equals(projectName))
-				return true;
+				return project;
 		}
 		
-		return false;
+		return null;
 	}
 	
 	/**
