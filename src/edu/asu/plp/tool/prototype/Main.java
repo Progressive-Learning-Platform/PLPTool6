@@ -52,6 +52,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -294,7 +295,7 @@ public class Main extends Application
 	private void saveProjectFile()
 	{	
 		for (PLPSourceFile key : openProjects.keySet()) {
-			
+			console.println(key.getProject().getPath());
 			key.getProject().save();
 		}
 			}
@@ -599,7 +600,7 @@ public class Main extends Application
 		itemNew.setGraphic(new ImageView(new Image("menu_new.png")));
 		itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         itemNew.setOnAction((event)-> {
-        //TODO: Add Event for menu item
+        createNewProject();
         });
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
 		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
@@ -1049,11 +1050,11 @@ public class Main extends Application
 		browseLocation.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
 		    	String chosenLocation = "";
-		    	FileChooser fileChooser = new FileChooser();
-				fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
-				fileChooser.setInitialFileName(projTextField.getText());
-				fileChooser.setTitle("Choose Project Location");
-				File file = fileChooser.showSaveDialog(null);
+		    	DirectoryChooser directoryChooser = new DirectoryChooser();
+				//directoryChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
+				//directoryChooser.setInitialDirectory(projTextField.getText());
+				directoryChooser.setTitle("Choose Project Location");
+				File file = directoryChooser.showDialog(null);
 				//If Cancel is chosen, throws a null pointer, needs to be fixed
 				chosenLocation = file.getAbsolutePath();
 		        projLocationField.setText(chosenLocation);
