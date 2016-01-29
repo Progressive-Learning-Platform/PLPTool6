@@ -8,6 +8,7 @@ import java.util.Optional;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.stage.FileChooser;
+import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
@@ -19,7 +20,7 @@ import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
  * @author Moore, Zachary
  *
  */
-public class PLPProject extends ArrayListProperty<PLPSourceFile>
+public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
 	public static final String FILE_EXTENSION = ".project";
 	private static final String PROJECT_FILE_NAME = "" + FILE_EXTENSION;
@@ -79,7 +80,7 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 *             if an IO problem occurs while opening the specified file.
 	 * @see #load(File)
 	 */
-	public static PLPProject load(String filePath) throws UnexpectedFileTypeException,
+	public static Project load(String filePath) throws UnexpectedFileTypeException,
 			IOException
 	{
 		// TODO: implement
@@ -98,7 +99,7 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 * @returnA {@link PLPProject} representative of the information stored in the given
 	 *          file.
 	 */
-	private static PLPProject loadLegacy(String filePath)
+	private static Project loadLegacy(String filePath)
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -142,6 +143,7 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
+	@Override
 	public void save()
 	{
 		//make sure it creates a src folder
@@ -208,47 +210,56 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
+	@Override
 	public void saveAs(String filePath)
 	{
 		
 		
 	}
 	
+	@Override
 	public StringProperty getNameProperty()
 	{
 		return nameProperty;
 	}
 	
+	@Override
 	public String getName()
 	{
 		return nameProperty.get();
 	}
 	
+	@Override
 	public void setName(String name)
 	{
 		nameProperty.set(name);
 	}
 	
+	@Override
 	public StringProperty getTypeProperty()
 	{
 		return typeProperty;
 	}
 	
+	@Override
 	public String getType()
 	{
 		return typeProperty.get();
 	}
 	
+	@Override
 	public void setType(String type)
 	{
 		typeProperty.set(type);
 	}
 	
+	@Override
 	public StringProperty getPathProperty()
 	{
 		return pathProperty;
 	}
 	
+	@Override
 	public String getPath()
 	{
 		return pathProperty.get();
@@ -265,11 +276,13 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 * 
 	 * @param path
 	 */
+	@Override
 	public void setPath(String path)
 	{
 		pathProperty.set(path);
 	}
 	
+	@Override
 	public int getFileCount()
 	{
 		return this.size();
@@ -280,6 +293,7 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 * 
 	 * @return
 	 */
+	@Override
 	public Optional<ISAModule> getISA()
 	{
 		ISARegistry registry = ISARegistry.getGlobalRegistry();

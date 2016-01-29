@@ -2,7 +2,6 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
-import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 
 public class PLPSimulator implements Simulator

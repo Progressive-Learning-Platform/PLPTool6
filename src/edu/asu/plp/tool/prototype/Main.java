@@ -65,11 +65,13 @@ import moore.fx.components.Components;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
+import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
@@ -95,8 +97,8 @@ public class Main extends Application
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	// XXX: openProjects is a misnomer - should be openFiles
-	private BidiMap<PLPSourceFile, Tab> openProjects;
-	private ObservableList<PLPProject> projects;
+	private BidiMap<ASMFile, Tab> openProjects;
+	private ObservableList<Project> projects;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
 	
@@ -180,7 +182,7 @@ public class Main extends Application
 	}
 	
 	/**
-	 * Loads the given file from disk using {@link PLPProject#load(File)}, and adds the
+	 * Loads the given file from disk using {@link Project#load(File)}, and adds the
 	 * project to the project explorer.
 	 * <p>
 	 * If the project is already in the project explorer, a message will be displayed
@@ -199,7 +201,7 @@ public class Main extends Application
 	{
 		try
 		{
-			PLPProject project = PLPProject.load(file);
+			Project project = PLPProject.load(file);
 			addProject(project);
 		}
 		catch (UnexpectedFileTypeException e)
@@ -216,9 +218,9 @@ public class Main extends Application
 		}
 	}
 	
-	private void addProject(PLPProject project)
+	private void addProject(Project project)
 	{
-		PLPProject existingProject = getProjectByName(project.getName());
+		Project existingProject = getProjectByName(project.getName());
 		if (existingProject != null)
 		{
 			if (existingProject.getPath().equals(project.getPath()))
@@ -253,8 +255,8 @@ public class Main extends Application
 			projects.add(project);
 		}
 	}
-	
-	private boolean renameProject(PLPProject project)
+
+	private boolean renameProject(Project project)
 	{
 		TextInputDialog dialog = new TextInputDialog(project.getName());
 		dialog.setTitle("Rename Project");
@@ -280,9 +282,9 @@ public class Main extends Application
 		return false;
 	}
 	
-	private PLPProject getProjectByName(String name)
+	private Project getProjectByName(String name)
 	{
-		for (PLPProject project : projects)
+		for (Project project : projects)
 		{
 			String projectName = project.getName();
 			boolean namesAreNull = (projectName == null && name == null);
@@ -300,7 +302,7 @@ public class Main extends Application
 	 * @param project
 	 *            The project to open
 	 */
-	private void openFile(PLPSourceFile file)
+	private void openFile(ASMFile file)
 	{
 		String fileName = file.getName();
 		
@@ -321,7 +323,7 @@ public class Main extends Application
 	
 	private void saveProjectFile()
 	{
-		for (PLPSourceFile sourceFile : openProjects.keySet())
+		for (ASMFile sourceFile : openProjects.keySet())
 		{
 			console.println(sourceFile.getProject().getPath());
 			sourceFile.getProject().save();
@@ -355,7 +357,7 @@ public class Main extends Application
 			@Override
 			public void handle(Event event)
 			{
-				PLPSourceFile activeFile = openProjects.getKey(tab);
+				ASMFile activeFile = openProjects.getKey(tab);
 				if (activeFile != null)
 					projectExplorer.setActiveFile(activeFile);
 			}
@@ -439,10 +441,10 @@ public class Main extends Application
 	/**
 	 * Creates a horizontal toolbar containing controls to:
 	 * <ul>
-	 * <li>Create a new project
+	 * <li>Create a new PLPProject
 	 * <li>Add a new file
 	 * <li>Save the current project
-	 * <li>Open a new project
+	 * <li>Open a new PLPProject
 	 * <li>Assemble the current project
 	 * </ul>
 	 * 
@@ -503,6 +505,11 @@ public class Main extends Application
 					}
 				});
 		buttons.add(projectButton);
+
+		button = new ImageView("toolbar_new.png");
+		listener = (event) -> console.println("new Project Clicked");
+		button.setOnMouseClicked(listener);
+		buttons.add(button);
 		
 		Node newFileButton = new ImageView("menu_new.png");
 		listener = (event) -> console.println("New File Clicked");
@@ -1051,7 +1058,7 @@ public class Main extends Application
 	private void onAssembleProjectClicked(MouseEvent event)
 	{
 		console.println("Assemble Button Clicked");
-		PLPProject activeProject = getActiveProject();
+		Project activeProject = getActiveProject();
 		Optional<ISAModule> optionalISA = activeProject.getISA();
 		if (optionalISA.isPresent())
 		{
@@ -1068,10 +1075,10 @@ public class Main extends Application
 		}
 	}
 	
-	private PLPProject getActiveProject()
+	private Project getActiveProject()
 	{
 		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
-		PLPSourceFile activeFile = openProjects.getKey(selectedTab);
+		ASMFile activeFile = openProjects.getKey(selectedTab);
 		// TODO: check activeFile for null-value
 		return activeFile.getProject();
 	}

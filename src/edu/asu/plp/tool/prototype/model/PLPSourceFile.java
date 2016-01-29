@@ -8,30 +8,33 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import edu.asu.plp.tool.backend.isa.ASMFile;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class PLPSourceFile
+public class PLPSourceFile implements ASMFile
 {
 	private static final String ENCODING_NAME = "UTF-8";
 	private static final String FILE_EXTENSION = ".asm";
 	
-	private PLPProject project;
+	private Project project;
 	private StringProperty nameProperty;
 	private StringProperty contentProperty;
 	
-	public PLPSourceFile(PLPProject project, String name)
+	public PLPSourceFile(Project project, String name)
 	{
 		this.project = project;
 		this.nameProperty = new SimpleStringProperty(name);
 		this.contentProperty = new SimpleStringProperty();
 	}
 	
+	@Override
 	public boolean writeToFile(File file) throws IOException
 	{
 		return writeToFile(file, true);
 	}
 	
+	@Override
 	public boolean writeToFile(File file, boolean overwrite) throws IOException
 	{
 		String content = getContent();
@@ -71,6 +74,7 @@ public class PLPSourceFile
 	 *             if the file cannot be overwritten, the path is invalid, the path is
 	 *             restricted, or the write fails from another IO issue.
 	 */
+	@Override
 	public boolean writeToFile(String path) throws IOException
 	{
 		return writeToFile(path, true);
@@ -102,6 +106,7 @@ public class PLPSourceFile
 	 *             if the file cannot be overwritten, the path is invalid, the path is
 	 *             restricted, or the write fails from another IO issue.
 	 */
+	@Override
 	public boolean writeToFile(String path, boolean overwrite) throws IOException
 	{
 		File file = new File(path);
@@ -118,37 +123,44 @@ public class PLPSourceFile
 			return name + FILE_EXTENSION;
 	}
 	
+	@Override
 	public String getName()
 	{
 		return nameProperty.get();
 	}
 	
+	@Override
 	public void setName(String name)
 	{
 		nameProperty.set(name);
 	}
 	
+	@Override
 	public StringProperty nameProperty()
 	{
 		return nameProperty;
 	}
 	
+	@Override
 	public String getContent()
 	{
 		return contentProperty.get();
 	}
 	
+	@Override
 	public void setContent(String content)
 	{
 		contentProperty.set(content);
 	}
 	
+	@Override
 	public StringProperty contentProperty()
 	{
 		return contentProperty;
 	}
 	
-	public PLPProject getProject()
+	@Override
+	public Project getProject()
 	{
 		return project;
 	}
