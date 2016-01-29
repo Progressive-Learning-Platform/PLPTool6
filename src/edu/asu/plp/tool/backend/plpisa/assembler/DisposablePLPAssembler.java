@@ -2,6 +2,7 @@ package edu.asu.plp.tool.backend.plpisa.assembler;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Logger;
+
+import org.apache.commons.io.FileUtils;
 
 import javafx.util.Pair;
 import plptool.PLPAsm;
@@ -30,6 +33,7 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 
 public class DisposablePLPAssembler
 {
@@ -81,9 +85,18 @@ public class DisposablePLPAssembler
 	
 	public DisposablePLPAssembler(String asmFilePath) throws IOException
 	{
-		this(Arrays.asList(new PLPAsm[] { new PLPAsm(asmFilePath) }));
+		this(Arrays.asList(readASM(asmFilePath)));
 	}
 	
+	private static ASMFile readASM(String asmFilePath) throws IOException
+	{
+		File file = new File(asmFilePath);
+		String fileContent = FileUtils.readFileToString(file);
+		ASMFile asmFile = new PLPSourceFile(null, file.getName());
+		asmFile.setContent(fileContent);
+		return asmFile;
+	}
+
 	public DisposablePLPAssembler(List<ASMFile> asmFiles)
 	{
 		this.asmFiles = asmFiles;
