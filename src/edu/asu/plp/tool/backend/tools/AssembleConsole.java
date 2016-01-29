@@ -16,6 +16,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 
 import com.google.common.base.Joiner;
 
@@ -24,6 +25,7 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.util.FileUtil;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 
 //@formatter:off
 /**
@@ -208,7 +210,10 @@ public class AssembleConsole
 		{
 			try
 			{
-				projectFiles = Arrays.asList(new ASMFile(assembleFile.getPath()));
+				String fileContent = FileUtils.readFileToString(assembleFile);
+				ASMFile asmFile = new PLPSourceFile(null, assembleFile.getName());
+				asmFile.setContent(fileContent);
+				projectFiles = Arrays.asList(asmFile);
 			}
 			catch (IOException e)
 			{
