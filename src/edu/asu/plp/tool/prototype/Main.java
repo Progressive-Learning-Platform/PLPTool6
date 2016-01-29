@@ -294,11 +294,11 @@ public class Main extends Application
 	
 	private void saveProjectFile()
 	{	
-		for (PLPSourceFile key : openProjects.keySet()) {
-			console.println(key.getProject().getPath());
-			key.getProject().save();
+		for (PLPSourceFile sourceFile : openProjects.keySet()) {
+			console.println(sourceFile.getProject().getPath());
+			sourceFile.getProject().save();
 		}
-			}
+	}
 	
 	private CodeEditor createCodeEditor()
 	{
@@ -1093,15 +1093,13 @@ public class Main extends Application
 				String fileName = sourceFileField.getText();
 				CodeEditor content = createCodeEditor();
 				content.setText("#New PLP Project");
-				Tab tab = addTab(openProjectsPanel, fileName, content);
 				PLPProject project = new PLPProject(projectName);
 				project.setPath(projLocationField.getText());
-				PLPSourceFile sf = new PLPSourceFile(project, fileName);
-				project.add(sf);
-				openProjects.put(sf, tab);
+				PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
+				project.add(sourceFile);
+				project.save();
 				projects.add(project);
-				openFile(sf);
-				projectExplorer.setProjectsModel(projects);
+				openFile(sourceFile);
 			    Stage stage = (Stage) createProject.getScene().getWindow();
 			    stage.close();
 		    }

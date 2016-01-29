@@ -132,6 +132,8 @@ public class PLPProject extends ArrayListProperty<PLPSourceFile>
 	 */
 	public void save()
 	{
+		//make sure it creates a src folder
+		//NO GUI STuff HERE
 		if(this.getPath() == null)
 	    {
 			FileChooser fileChooser = new FileChooser();
