@@ -800,6 +800,16 @@ public class Main extends Application
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
 		itemExportASM.setOnAction((event) -> {
 			// TODO: Add Event for menu item
+			ASMFile activeFile = getActiveFile();
+			// TODO: check activeFile for null;
+			// TODO: if null, check selected file in projectExplorer
+			// TODO: if no file is selected or active, display a message for the user
+			
+			// TODO: display file selection dialogue
+			// TODO: validate export target
+			// TODO: if selected file is a directory, have the user confirm export
+			// TODO: if the selected file is a file, export the activeFile
+			// TODO: if the selected file already exists, confirm overwrite with user
 		});
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
 		itemRemoveASM.setAccelerator(
@@ -1116,12 +1126,17 @@ public class Main extends Application
 
 	private Project getActiveProject()
 	{
-		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
-		ASMFile activeFile = openProjects.getKey(selectedTab);
+		ASMFile activeFile = getActiveFile();
 		// TODO: check activeFile for null-value
 		return activeFile.getProject();
 	}
 	
+	private ASMFile getActiveFile()
+	{
+		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		return openProjects.getKey(selectedTab);
+	}
+
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
 	{
 		DropShadow ds = new DropShadow();
