@@ -66,7 +66,9 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
+import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
@@ -1064,9 +1066,7 @@ public class Main extends Application
 		{
 			ISAModule isa = optionalISA.get();
 			Assembler assembler = isa.getAssembler();
-			// TODO: finish implementation
-			// assembler.assemble(activeProject);
-			throw new UnsupportedOperationException("Not yet implemented");
+			assemble(assembler, activeProject);
 		}
 		else
 		{
@@ -1075,6 +1075,22 @@ public class Main extends Application
 		}
 	}
 	
+	private void assemble(Assembler assembler, Project activeProject)
+	{
+		try
+		{
+			ASMImage assembledImage = assembler.assemble(activeProject);
+			// TODO: finish implementation
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+		catch (AssemblerException e)
+		{
+			// TODO: print assemble exception to console
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private Project getActiveProject()
 	{
 		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
