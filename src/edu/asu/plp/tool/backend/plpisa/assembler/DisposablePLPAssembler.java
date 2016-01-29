@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FileUtils;
-
 import javafx.util.Pair;
-import plptool.PLPAsm;
+
+import org.apache.commons.io.FileUtils;
 
 import com.faeysoft.preceptor.lexer.LexException;
 import com.faeysoft.preceptor.lexer.Lexer;
@@ -133,7 +132,9 @@ public class DisposablePLPAssembler
 			try
 			{
 				System.out.println("Starting lexing of " + asmFile.getName());
-				asmToTokensMap.put(asmFile, lexer.lex(asmFile.getAsmLines()));
+				String fileContent = asmFile.getContent();
+				String[] lines = fileContent.split("\\r?\\n");
+				asmToTokensMap.put(asmFile, lexer.lex(Arrays.asList(lines)));
 			}
 			catch (LexException exception)
 			{
