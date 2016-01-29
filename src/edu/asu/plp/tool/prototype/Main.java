@@ -766,8 +766,11 @@ public class Main extends Application
 		itemAssemble.setGraphic(new ImageView(new Image("toolbar_assemble.png")));
 		itemAssemble.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 		itemAssemble.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			console.println("Assemble Menu Item Clicked");
+			Project activeProject = getActiveProject();
+			assemble(activeProject);
 		});
+		
 		MenuItem itemSimulate = new MenuItem("Simulate");
 		itemSimulate.setGraphic(new ImageView(new Image("toolbar_simulate.png")));
 		itemSimulate.setAccelerator(new KeyCodeCombination(KeyCode.F3));
@@ -1065,12 +1068,17 @@ public class Main extends Application
 	{
 		console.println("Assemble Button Clicked");
 		Project activeProject = getActiveProject();
-		Optional<ISAModule> optionalISA = activeProject.getISA();
+		assemble(activeProject);
+	}
+	
+	private void assemble(Project project)
+	{
+		Optional<ISAModule> optionalISA = project.getISA();
 		if (optionalISA.isPresent())
 		{
 			ISAModule isa = optionalISA.get();
 			Assembler assembler = isa.getAssembler();
-			assemble(assembler, activeProject);
+			assemble(assembler, project);
 		}
 		else
 		{
@@ -1079,12 +1087,12 @@ public class Main extends Application
 		}
 	}
 	
-	private void assemble(Assembler assembler, Project activeProject)
+	private void assemble(Assembler assembler, Project project)
 	{
 		try
 		{
-			ASMImage assembledImage = assembler.assemble(activeProject);
-			ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject);
+			ASMImage assembledImage = assembler.assemble(project);
+			ProjectAssemblyDetails details = getAssemblyDetailsFor(project);
 			details.setAssembledImage(assembledImage);
 		}
 		catch (AssemblerException exception)
