@@ -65,6 +65,8 @@ import moore.fx.components.Components;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
+import edu.asu.plp.tool.backend.isa.Assembler;
+import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
@@ -92,6 +94,7 @@ public class Main extends Application
 	
 	private Stage stage;
 	private TabPane openProjectsPanel;
+	// XXX: openProjects is a misnomer - should be openFiles
 	private BidiMap<PLPSourceFile, Tab> openProjects;
 	private ObservableList<PLPProject> projects;
 	private ProjectExplorerTree projectExplorer;
@@ -1047,10 +1050,31 @@ public class Main extends Application
 	private void onAssembleProjectClicked(MouseEvent event)
 	{
 		console.println("Assemble Button Clicked");
-		// TODO implement
-		throw new UnsupportedOperationException("Not yet implemented");
+		PLPProject activeProject = getActiveProject();
+		Optional<ISAModule> optionalISA = activeProject.getISA();
+		if (optionalISA.isPresent())
+		{
+			ISAModule isa = optionalISA.get();
+			Assembler assembler = isa.getAssembler();
+			// TODO: finish implementation
+			// assembler.assemble(activeProject);
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+		else
+		{
+			// TODO: handle "no compatible ISA" case
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
 	}
 	
+	private PLPProject getActiveProject()
+	{
+		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		PLPSourceFile activeFile = openProjects.getKey(selectedTab);
+		// TODO: check activeFile for null-value
+		return activeFile.getProject();
+	}
+
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
 	{
 		DropShadow ds = new DropShadow();
