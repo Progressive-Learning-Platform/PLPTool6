@@ -132,7 +132,7 @@ public class DisposablePLPAssembler
 		{
 			try
 			{
-				System.out.println("Starting lexing of " + asmFile.getAsmFilePath());
+				System.out.println("Starting lexing of " + asmFile.getName());
 				asmToTokensMap.put(asmFile, lexer.lex(asmFile.getAsmLines()));
 			}
 			catch (LexException exception)
@@ -424,7 +424,7 @@ public class DisposablePLPAssembler
 		for (ASMFile asmFile : asmFiles)
 		{
 			currentToken = null;
-			currentActiveFile = asmFile.getAsmFilePath();
+			currentActiveFile = asmFile.getName();
 			tokenIterator = asmToTokensMap.get(asmFile).listIterator();
 			
 			if (!nextToken())
@@ -1401,7 +1401,7 @@ public class DisposablePLPAssembler
 		directiveOffset = 0;
 		byteSpace = 0;
 		lineNumber = 1;
-		topLevelFile = asmFiles.get(0).getAsmFilePath();
+		topLevelFile = asmFiles.get(0).getName();
 		
 		setInstructionMapValues();
 		setRegisterMapValues();
