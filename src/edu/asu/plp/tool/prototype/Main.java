@@ -7,6 +7,8 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
@@ -101,6 +103,7 @@ public class Main extends Application
 	// XXX: openProjects is a misnomer - should be openFiles
 	private BidiMap<ASMFile, Tab> openProjects;
 	private ObservableList<Project> projects;
+	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
 	
@@ -115,6 +118,7 @@ public class Main extends Application
 		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 		
+		this.assemblyDetails = new HashMap<>();
 		this.openProjects = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
@@ -1080,15 +1084,26 @@ public class Main extends Application
 		try
 		{
 			ASMImage assembledImage = assembler.assemble(activeProject);
-			// TODO: finish implementation
-			throw new UnsupportedOperationException("Not yet implemented");
+			ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject);
+			details.setAssembledImage(assembledImage);
 		}
-		catch (AssemblerException e)
+		catch (AssemblerException exception)
 		{
-			// TODO: print assemble exception to console
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			console.error(exception.getLocalizedMessage());
 		}
+	}
+
+	private ProjectAssemblyDetails getAssemblyDetailsFor(Project activeProject)
+	{
+		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
+		
+		if (details == null)
+		{
+			details = new ProjectAssemblyDetails();
+			assemblyDetails.put(activeProject, details);
+		}
+		
+		return details;
 	}
 
 	private Project getActiveProject()
