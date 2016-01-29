@@ -2,126 +2,74 @@ package edu.asu.plp.tool.backend.isa;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
-import edu.asu.plp.tool.backend.util.FileUtil;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.Project;
+import javafx.beans.property.StringProperty;
 
-public class ASMFile
+public interface ASMFile
 {
-	protected String asmFilePath;
-	protected String asmContents;
-	protected List<String> asmLines;
+	boolean writeToFile(File file) throws IOException;
 	
-	public ASMFile(String asmFilePath) throws IOException
-	{
-		this(FileUtil.readAllLines(asmFilePath), asmFilePath);
-	}
-	
-	public ASMFile(String asmContents, String asmFilePath) throws IOException
-	{
-		if (asmContents == null && asmFilePath != null)
-		{
-			setAsmFilePath(asmFilePath, true);
-		}
-		else
-		{
-			this.asmContents = asmContents;
-			this.asmFilePath = asmFilePath;
-			this.asmLines = Arrays.asList(asmContents.split("\n"));
-		}
-	}
-
-	public boolean loadFromFile()
-	{
-		return loadFromFile(asmFilePath);
-	}
-	
-	private boolean loadFromFile(String asmFilePath)
-	{
-		if (FileUtil.isValidFile(asmFilePath))
-		{
-			File asmFile = new File(asmFilePath);
-			
-			try
-			{
-				this.asmLines = Files.readAllLines(asmFile.toPath());
-				this.asmContents = String.join("\n", this.asmLines);
-				return true;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-				return false;
-			}
-		}
-		
-		return false;
-	}
-	
-	public String getAsmFilePath()
-	{
-		return asmFilePath;
-	}
+	boolean writeToFile(File file, boolean overwrite) throws IOException;
 	
 	/**
-	 * Will set the filePath to the one specified and overwrite the current file contents
-	 * stored in this class with the ones from the newly specified file.
+	 * Writes the contents of this {@link PLPSourceFile}, specified by {@link #getContent()}
+	 * , to the specified path, overwriting the current contents.
+	 * <p>
+	 * This method is equivalent to {@link #writeToFile(String, boolean)} with the
+	 * parameters (path, true).
+	 * <p>
+	 * See {@link #writeToFile(String, boolean)} for more details.
 	 * 
-	 * @param asmFilePath
+	 * @param path
+	 *            Path to a directory or file at which to save this file.
+	 * @return True if the file was written, false otherwise.
+	 * @throws IOException
+	 *             if the file cannot be overwritten, the path is invalid, the path is
+	 *             restricted, or the write fails from another IO issue.
 	 */
-	public void setAsmFilePath(String asmFilePath)
-	{
-		setAsmFilePath(asmFilePath, true);
-	}
+	boolean writeToFile(String path) throws IOException;
 	
 	/**
-	 * Sets the reference path to the one specified.
+	 * Writes the contents of this {@link PLPSourceFile}, specified by {@link #getContent()}
+	 * , to the specified path.
+	 * <p>
+	 * If the path references a file, the specified name will be used. If the specified
+	 * file already exists, this operation will overwrite it only if the "overwrite"
+	 * parameter is set to true. If it is set to false, this method will not overwrite the
+	 * file, and return false.
+	 * <p>
+	 * If the path references a directory, this file will be named according to this
+	 * file's {@link #nameProperty()}, with the extension "{@value #FILE_EXTENSION}". If
+	 * this files name is null, {@link IllegalStateException} will be thrown.
+	 * <p>
+	 * If the file cannot be overwritten, the path is invalid, the path is restricted, or
+	 * the write fails from another IO issue, and {@link IOException} will be thrown.
 	 * 
-	 * @param asmFilePath
-	 * @param overwriteCurrent
-	 *            If overwrite current is true, it will overwrite the current contents of
-	 *            this class.
+	 * @param path
+	 *            Path to a directory or file at which to save this file.
+	 * @param overwrite
+	 *            True if this operation should overwrite a pre-existing file, false
+	 *            otherwise.
+	 * @return True if the file was written, false otherwise.
+	 * @throws IOException
+	 *             if the file cannot be overwritten, the path is invalid, the path is
+	 *             restricted, or the write fails from another IO issue.
 	 */
-	public void setAsmFilePath(String asmFilePath, boolean overwriteCurrent)
-	{
-		this.asmFilePath = asmFilePath;
-		if (overwriteCurrent)
-		{
-			loadFromFile(asmFilePath);
-		}
-	}
+	boolean writeToFile(String path, boolean overwrite) throws IOException;
 	
-	public String getAsmContents()
-	{
-		return asmContents;
-	}
+	String getName();
 	
-	public void setAsmContents(String asmContents)
-	{
-		this.asmContents = asmContents;
-		this.asmLines = Arrays.asList(asmContents.split("\n"));
-	}
+	void setName(String name);
 	
-	/**
-	 * Retrieve a Line from the ASM file.
-	 * 
-	 * @param lineNumber
-	 *            Follows the file format, 1-n.
-	 * @return If the file contains that line number, returns and that string wrapped in
-	 *         an optional. Otherwise it returns an empty optional
-	 */
-	public Optional<String> getAsmLine(int lineNumber)
-	{
-		if (lineNumber > asmLines.size() || lineNumber <= 0)
-			return Optional.empty();
-		return Optional.of(asmLines.get(lineNumber - 1));
-	}
+	StringProperty nameProperty();
 	
-	public List<String> getAsmLines()
-	{
-		return asmLines;
-	}
+	String getContent();
+	
+	void setContent(String content);
+	
+	StringProperty contentProperty();
+	
+	Project getProject();
 }

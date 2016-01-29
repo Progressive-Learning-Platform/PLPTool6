@@ -14,6 +14,7 @@ import java.util.ListIterator;
 import java.util.logging.Logger;
 
 import javafx.util.Pair;
+import plptool.PLPAsm;
 
 import com.faeysoft.preceptor.lexer.LexException;
 import com.faeysoft.preceptor.lexer.Lexer;
@@ -27,7 +28,6 @@ import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
-import edu.asu.plp.tool.backend.plpisa.PLPAsm;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 

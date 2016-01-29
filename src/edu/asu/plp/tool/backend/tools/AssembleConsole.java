@@ -24,6 +24,7 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.util.FileUtil;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 
 //@formatter:off
 /**
