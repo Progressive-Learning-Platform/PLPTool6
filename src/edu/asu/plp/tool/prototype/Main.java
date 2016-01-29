@@ -512,7 +512,7 @@ public class Main extends Application
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_assemble.png");
-		listener = (event) -> console.println("Assemble Project Clicked");
+		listener = this::onAssembleProjectClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -987,6 +987,13 @@ public class Main extends Application
 	{
 		console.println("Save Project Button Clicked");
 		saveProjectFile();
+	}
+	
+	private void onAssembleProjectClicked(MouseEvent event)
+	{
+		console.println("Assemble Button Clicked");
+		// TODO implement
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
