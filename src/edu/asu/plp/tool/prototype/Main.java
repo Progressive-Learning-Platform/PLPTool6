@@ -62,6 +62,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import moore.fx.components.Components;
 
 import org.apache.commons.collections4.BidiMap;
@@ -1131,10 +1132,26 @@ public class Main extends Application
 		return activeFile.getProject();
 	}
 	
-	private ASMFile getActiveFile()
+	private ASMFile getActiveFileInTabPane()
 	{
 		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
 		return openProjects.getKey(selectedTab);
+	}
+	
+	private ASMFile getActiveFileInProjectExplorer()
+	{
+		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
+		ASMFile selectedFile = selection.getValue();
+		return selectedFile;
+	}
+	
+	private ASMFile getActiveFile()
+	{
+		ASMFile selectedFile = getActiveFileInTabPane();
+		if (selectedFile == null)
+			return getActiveFileInProjectExplorer();
+		else 
+			return selectedFile;
 	}
 
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
