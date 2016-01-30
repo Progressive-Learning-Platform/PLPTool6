@@ -197,6 +197,18 @@ public class Main extends Application
 		return fileChooser.showOpenDialog(stage);
 	}
 	
+	private File showImportDialogue()
+	{
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Import ASM");
+		
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("ASM Files", "*.asm"),
+				new ExtensionFilter("All Files", "*.*"));
+				
+		return fileChooser.showOpenDialog(stage);
+	}
+	
 	private void openProjectFromFile()
 	{
 		File selectedFile = showOpenDialogue();
@@ -814,7 +826,23 @@ public class Main extends Application
 		});
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
 		itemImportASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			File importTarget = showImportDialogue();
+			try
+			{
+				String content = FileUtils.readFileToString(importTarget);
+				Project activeProject = getActiveProject();
+				String name = importTarget.getName();
+				
+				// TODO: account for non-PLP source files
+				ASMFile asmFile = new PLPSourceFile(activeProject, name);
+				asmFile.setContent(content);
+				activeProject.add(asmFile);
+				activeProject.save();
+			}
+			catch (Exception exception)
+			{
+				Dialogues.showAlertDialogue(exception, "Failed to import asm");
+			}
 		});
 		
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
