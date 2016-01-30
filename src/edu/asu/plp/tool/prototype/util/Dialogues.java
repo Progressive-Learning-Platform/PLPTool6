@@ -2,10 +2,12 @@ package edu.asu.plp.tool.prototype.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
 
 /**
  * Support class to spawn basic dialogues with a similar look and feel. This class
@@ -35,6 +37,24 @@ public class Dialogues
 		alert.setContentText(message);
 		
 		alert.showAndWait();
+	}
+	
+	/**
+	 * Spawns a confirmation dialogue with the specified message, and returns the result
+	 * (OK or cancel)
+	 * 
+	 * @param message
+	 *            The message to display. This will appear in the context field of the
+	 *            dialogue.
+	 */
+	public static Optional<ButtonType> showConfirmationDialogue(String message)
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation Dialog");
+		alert.setHeaderText(null);
+		alert.setContentText(message);
+		
+		return alert.showAndWait();
 	}
 	
 	/**
