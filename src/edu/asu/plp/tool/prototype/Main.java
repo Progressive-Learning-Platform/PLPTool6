@@ -3,6 +3,7 @@ package edu.asu.plp.tool.prototype;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -65,8 +67,10 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import moore.fx.components.Components;
 
+
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
@@ -77,6 +81,7 @@ import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
@@ -168,6 +173,22 @@ public class Main extends Application
 	{
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Resource File");
+		
+		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("PLP6 Project Files", plp6Extension),
+				new ExtensionFilter("Legacy Project Files", "*.plp"),
+				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
+				new ExtensionFilter("All Files", "*.*"));
+				
+		return fileChooser.showOpenDialog(stage);
+	}
+	
+	private File showExportDialogue(ASMFile exportItem)
+	{
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Export");
+		fileChooser.setInitialFileName(exportItem.getName() + ".asm");
 		
 		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
 		fileChooser.getExtensionFilters().addAll(
@@ -798,20 +819,34 @@ public class Main extends Application
 		itemImportASM.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
 		itemExportASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
 			ASMFile activeFile = getActiveFile();
-			// TODO: check activeFile for null;
-			// TODO: if null, check selected file in projectExplorer
-			// TODO: if no file is selected or active, display a message for the user
+			if (activeFile == null)
+			{
+				// XXX: possible feature: select file from a list or dropdown
+				String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
+				Dialogues.showInfoDialogue(message);
+			}
 			
-			// TODO: display file selection dialogue
-			// TODO: validate export target
-			// TODO: if selected file is a directory, have the user confirm export
-			// TODO: if the selected file is a file, export the activeFile
-			// TODO: if the selected file already exists, confirm overwrite with user
+			File exportTarget = showExportDialogue(activeFile);
+			if (exportTarget == null)
+				return;
+			
+			if (exportTarget.isDirectory())
+			{
+				// TODO: if selected file is a directory, have the user confirm export
+			}
+			
+			if (exportTarget.exists())
+			{
+				// TODO: if the selected file already exists, confirm overwrite with user
+			}
+			
+			// TODO: export the activeFile
 		});
+		
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
 		itemRemoveASM.setAccelerator(
 				new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
