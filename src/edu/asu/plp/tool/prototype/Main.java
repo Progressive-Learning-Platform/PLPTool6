@@ -3,7 +3,6 @@ package edu.asu.plp.tool.prototype;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
-
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -67,10 +65,9 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import moore.fx.components.Components;
 
-
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-
+import org.apache.commons.io.FileUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
@@ -836,15 +833,41 @@ public class Main extends Application
 			
 			if (exportTarget.isDirectory())
 			{
-				// TODO: if selected file is a directory, have the user confirm export
+				String exportPath = exportTarget.getAbsolutePath() 
+						+ activeFile.constructFileName();
+				exportTarget = new File(exportPath);
+				
+				String message = "File will be exported to " + exportPath;
+				Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+				
+				if (result.get() != ButtonType.OK)
+				{
+					// Export was canceled
+					return;
+				}
 			}
 			
 			if (exportTarget.exists())
 			{
-				// TODO: if the selected file already exists, confirm overwrite with user
+				String message = "The specified file already exists. Press OK to overwrite this file, or cancel to cancel the export.";
+				Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+				
+				if (result.get() != ButtonType.OK)
+				{
+					// Export was canceled
+					return;
+				}
 			}
 			
-			// TODO: export the activeFile
+			String fileContents = activeFile.getContent();
+			try
+			{
+				FileUtils.write(exportTarget, fileContents);
+			}
+			catch (Exception exception)
+			{
+				Dialogues.showAlertDialogue(exception, "Failed to export asm");
+			}
 		});
 		
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
