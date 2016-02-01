@@ -902,7 +902,7 @@ public class Main extends Application
 		itemRemoveASM.setAccelerator(
 				new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
 		itemRemoveASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			removeActiveFile();
 		});
 		MenuItem itemCurrentAsMain = new MenuItem(
 				"Set Current Open File as Main Program");
@@ -1279,6 +1279,88 @@ public class Main extends Application
 		}
 	}
 	
+	private void removeActiveFile()
+	{
+		ASMFile activeFile = getActiveFile();
+		if (activeFile == null)
+		{
+			// XXX: possible feature: select file from a list or dropdown
+			String message = "No file is selected! Select the file you wish to remove in the ProjectExplorer, then click remove.";
+			Dialogues.showInfoDialogue(message);
+			return;
+		}
+		
+		File removalTarget = findDiskObjectForASM(activeFile);
+		if (removalTarget == null)
+		{
+			// XXX: show a confirmation dialogue to confirm removal
+			String message = "Unable to locate file on disk. "
+					+ "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + 
+					"\" but it is suggested that you verify the deletion from disk manually.";
+			Dialogues.showInfoDialogue(message);
+			Project activeProject = activeFile.getProject();
+			activeProject.remove(activeFile);
+			return;
+		}
+		
+		if (removalTarget.isDirectory())
+		{
+			// XXX: show a confirmation dialogue to confirm removal
+			String message = "The path specified is a directory, but should be a file."
+					+ "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + 
+					"\" but it is suggested that you verify the deletion from disk manually.";
+			Exception exception = new IllegalStateException("The path to the specified ASMFile is a directory, but should be a file.");
+			Dialogues.showAlertDialogue(exception, message);
+			return;
+		}
+		else
+		{
+			String message = "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + "\" and the file at \""
+					+ removalTarget.getAbsolutePath() + "\" will be deleted.";
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Removal was canceled
+				return;
+			}
+		}
+		
+		if (!removalTarget.exists())
+		{
+			String message = "Unable to locate file on disk. The file will be removed from the project, but it is suggested that you verify the deletion from disk manually.";
+			Dialogues.showInfoDialogue(message);
+		}
+		
+		try
+		{
+			boolean wasRemoved = removalTarget.delete();
+			if (!wasRemoved)
+				throw new Exception("The file \"" 
+						+ removalTarget.getAbsolutePath() + "\" was not deleted.");
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception, "Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
+		}
+	}
+	
+	private File findDiskObjectForASM(ASMFile activeFile)
+	{
+		Project project = activeFile.getProject();
+		String path = project.getPathFor(activeFile);
+		if (path == null)
+			return null;
+		
+		return new File(path);
+	}
+	
 	private void createNewProject()
 	{
 		Stage createProjectStage = new Stage();
@@ -1288,7 +1370,6 @@ public class Main extends Application
 		createProjectStage.setScene(scene);
 		createProjectStage.setResizable(false);
 		createProjectStage.show();
-		
 	}
 	
 	private Parent projectCreateMenu()
