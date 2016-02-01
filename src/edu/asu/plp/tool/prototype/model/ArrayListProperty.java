@@ -40,50 +40,43 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	@Override
 	public boolean addAll(int arg0, Collection<? extends E> arg1)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.addAll(arg0, arg1);
 	}
 	
 	@Override
 	public void clear()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		backingList.clear();
 	}
 	
 	@Override
 	public boolean contains(Object arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.contains(arg0);
 	}
 	
 	@Override
 	public boolean containsAll(Collection<?> arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.containsAll(arg0);
 	}
 	
 	@Override
 	public E get(int arg0)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.get(arg0);
 	}
 	
 	@Override
 	public int indexOf(Object arg0)
 	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.indexOf(arg0);
 	}
 	
 	@Override
 	public boolean isEmpty()
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.isEmpty();
 	}
 	
 	@Override
@@ -125,36 +118,31 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	@Override
 	public boolean removeAll(Collection<?> arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.removeAll(arg0);
 	}
 	
 	@Override
 	public boolean retainAll(Collection<?> arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.retainAll(arg0);
 	}
 	
 	@Override
 	public E set(int arg0, E arg1)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.set(arg0, arg1);
 	}
 	
 	@Override
 	public int size()
 	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.size();
 	}
 	
 	@Override
 	public List<E> subList(int arg0, int arg1)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.subList(arg0, arg1);
 	}
 	
 	@Override
