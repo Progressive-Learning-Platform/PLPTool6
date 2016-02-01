@@ -146,19 +146,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void save()
 	{
-		//make sure it creates a src folder
-		//NO GUI STuff HERE
-		if(this.getPath() == null)
-	    {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
-			fileChooser.setInitialFileName(this.getName());
-			File file = fileChooser.showSaveDialog(null);
-	    	this.saveAs(file.getName());
-	    }else
-	    {
-	    	//TODO Implement save feature
-	    }
+		
+		
 		//throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
