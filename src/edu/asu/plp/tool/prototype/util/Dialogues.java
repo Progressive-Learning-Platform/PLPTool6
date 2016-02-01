@@ -106,6 +106,13 @@ public class Dialogues
 		alert.showAndWait();
 	}
 	
+	/**
+	 * Prints the stack trace (specified by {@link Exception#printStackTrace()}) of the
+	 * given exception to a new string, with newline characters in tact.
+	 * 
+	 * @param exception The stack trace of this variable will be returned as a String
+	 * @return A string containing the stack trace of the specified exception
+	 */
 	private static String getStackTraceAsString(Exception exception)
 	{
 		StringWriter stringWriter = new StringWriter();
