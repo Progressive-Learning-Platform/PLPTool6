@@ -1184,8 +1184,10 @@ public class Main extends Application
 			public void handle(ActionEvent e)
 			{
 				String chosenLocation = "";
+				FileChooser fileChooser = new FileChooser();
+				// fileChooser.setTitle("Choose Project Location");
 				DirectoryChooser directoryChooser = new DirectoryChooser();
-				// directoryChooser.getExtensionFilters().add(new
+				//directoryChooser.getExtensionFilters().add(new
 				// FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
 				// directoryChooser.setInitialDirectory(projTextField.getText());
 				directoryChooser.setTitle("Choose Project Location");
@@ -1228,10 +1230,11 @@ public class Main extends Application
 			{
 				String projectName;
 				String fileName;
+				String projectLocation;
 				Alert alert = new Alert(AlertType.INFORMATION);
-				// boolean validEntry = false;
 				projectName = projTextField.getText();
 				fileName = sourceFileField.getText();
+				projectLocation = projLocationField.getText();
 				if (projectName.equals(""))
 				{
 					alert.setTitle("Invalid Project Name");
@@ -1246,6 +1249,14 @@ public class Main extends Application
 					alert.setHeaderText(null);
 					alert.setContentText("You entered and invalid File Name");
 					alert.showAndWait();
+				}
+				else if(projectLocation.equals(""))
+				{
+					alert.setTitle("Invalid Project Loaction");
+					alert.setHeaderText(null);
+					alert.setContentText("You entered and invalid Project Locaction");
+					alert.showAndWait();
+					
 				}
 				else
 				{
@@ -1266,7 +1277,7 @@ public class Main extends Application
 					project.setPath(projLocationField.getText());
 					PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
 					project.add(sourceFile);
-					// project.save();
+					project.save();
 					projects.add(project);
 					openFile(sourceFile);
 					Stage stage = (Stage) createProject.getScene().getWindow();

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.core.ISAModule;
@@ -146,8 +147,12 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void save()
 	{
-		
-		
+		File file = new File(this.getPath());
+		file.mkdirs();
+		System.out.println(this.getPath());
+		System.out.println(this.getName());
+		//System.out.println(this.getFileCount());
+
 		//throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
