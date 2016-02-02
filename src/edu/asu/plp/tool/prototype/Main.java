@@ -72,6 +72,7 @@ import org.apache.commons.io.FileUtils;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
+import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
@@ -598,7 +599,7 @@ public class Main extends Application
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_run.png");
-		listener = (event) -> console.println("Run Project Clicked");
+		listener = this::onRunProjectClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -677,6 +678,50 @@ public class Main extends Application
 		return Components.wrap(toolbar);
 	}
 	
+	private void onRunProjectClicked(ActionEvent event)
+	{
+		console.println("Run Project Clicked (from menu)");
+		onRunProjectClicked();
+	}
+	
+	private void onRunProjectClicked(MouseEvent event)
+	{
+		console.println("Run Project Clicked (from button)");
+		onRunProjectClicked();
+	}
+	
+	private void onRunProjectClicked()
+	{
+		Project activeProject = getActiveProject();
+		
+		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
+		if (details != null && !details.isDirty())
+		{
+			run(activeProject);
+		}
+		else
+		{
+			// TODO: handle "Project Not Assembled" case
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+	}
+	
+	private void run(Project project)
+	{
+		Optional<ISAModule> optionalISA = project.getISA();
+		if (optionalISA.isPresent())
+		{
+			ISAModule isa = optionalISA.get();
+			Simulator simulator = isa.getSimulator();
+			simulator.run();
+		}
+		else
+		{
+			// TODO: handle "no compatible ISA" case
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+	}
+
 	private Parent createMenuBar()
 	{
 		MenuBar menuBar = new MenuBar();
@@ -973,9 +1018,7 @@ public class Main extends Application
 		});
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
-		itemRun.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemRun.setOnAction(this::onRunProjectClicked);
 		Menu cyclesSteps = new Menu("Cycles/Steps");
 		MenuItem itemOne = new MenuItem("1");
 		itemOne.setAccelerator(
