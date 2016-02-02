@@ -184,8 +184,9 @@ public class ArrayListProperty<E> implements ObservableList<E>
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-	
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean addAll(E... arg0)
 	{
 		// TODO Auto-generated method stub return false;
@@ -205,6 +206,7 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean removeAll(E... arg0)
 	{
 		// TODO Auto-generated method stub return false;
@@ -219,6 +221,7 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean retainAll(E... arg0)
 	{
 		// TODO Auto-generated method stub return false;
@@ -226,6 +229,7 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean setAll(E... arg0)
 	{
 		// TODO Auto-generated method stub return false;

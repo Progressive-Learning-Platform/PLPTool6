@@ -9,8 +9,8 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
-import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.prototype.model.Project;
 
 /**
  * An FX view of a list of known projects and their files displayed as a tree. This class
@@ -32,7 +32,7 @@ public class ProjectExplorerTree extends BorderPane
 	 * <p>
 	 * This list is backed externally, and will thus be modified externally.
 	 */
-	private ObservableList<PLPProject> projects;
+	private ObservableList<? extends Project> projects;
 	
 	/** The view of this explorer */
 	private TreeView<String> projectTreeDisplay;
@@ -44,9 +44,9 @@ public class ProjectExplorerTree extends BorderPane
 	 * This is intended to be specified externally (not inside this class) using
 	 * {@link #setOnFileDoubleClicked(Consumer)}
 	 */
-	private Consumer<PLPSourceFile> onFileDoubleClicked;
+	private Consumer<ASMFile> onFileDoubleClicked;
 	
-	public ProjectExplorerTree(ObservableList<PLPProject> projectsModel)
+	public ProjectExplorerTree(ObservableList<? extends Project> projectsModel)
 	{
 		assert projectsModel != null;
 		projectTreeDisplay = createEmptyRootedProjectTree();
@@ -59,7 +59,7 @@ public class ProjectExplorerTree extends BorderPane
 	/**
 	 * Set the listener for when a file is double clicked in this view. If an item
 	 * representing a file is double clicked, the specified {@link Consumer} will be
-	 * invoked, passing the selected {@link PLPSourceFile} as a parameter.
+	 * invoked, passing the selected {@link ASMFile} as a parameter.
 	 * <p>
 	 * The specified listener will not be invoked if a file is single clicked, or if a
 	 * <em>project</em> is double clicked.
@@ -67,7 +67,7 @@ public class ProjectExplorerTree extends BorderPane
 	 * @param onFileDoubleClicked
 	 *            Listener to be called when a file item is double clicked
 	 */
-	public void setOnFileDoubleClicked(Consumer<PLPSourceFile> onFileDoubleClicked)
+	public void setOnFileDoubleClicked(Consumer<ASMFile> onFileDoubleClicked)
 	{
 		this.onFileDoubleClicked = onFileDoubleClicked;
 	}
@@ -80,7 +80,7 @@ public class ProjectExplorerTree extends BorderPane
 	 * 
 	 * @param projectsModel
 	 */
-	public void setProjectsModel(ObservableList<PLPProject> projectsModel)
+	public void setProjectsModel(ObservableList<? extends Project> projectsModel)
 	{
 		if (projects != null)
 			this.projects.removeListener(this::projectListChanged);
@@ -90,7 +90,7 @@ public class ProjectExplorerTree extends BorderPane
 		this.projects.addListener(this::projectListChanged);
 		
 		this.projectTreeDisplay.getRoot().getChildren().clear();
-		for (PLPProject project : projectsModel)
+		for (Project project : projectsModel)
 			addProjectToTree(project);
 	}
 	
@@ -105,7 +105,7 @@ public class ProjectExplorerTree extends BorderPane
 	 * @param file
 	 *            The target to focus
 	 */
-	public void setActiveFile(PLPSourceFile file)
+	public void setActiveFile(ASMFile file)
 	{
 		TreeItem<String> fileNode = getFileNode(file);
 		int focusIndex = getGlobalIndexOf(fileNode);
@@ -150,8 +150,8 @@ public class ProjectExplorerTree extends BorderPane
 			else if (parent != null && parent.getValue().length() > 0)
 			{
 				// Selection is a file
-				PLPProject project = lookupProjectByName(parent.getValue());
-				for (PLPSourceFile file : project)
+				Project project = lookupProjectByName(parent.getValue());
+				for (ASMFile file : project)
 				{
 					if (file.getName().equals(selection.getValue()))
 					{
@@ -163,9 +163,9 @@ public class ProjectExplorerTree extends BorderPane
 		}
 	}
 	
-	private PLPProject lookupProjectByName(String value)
+	private Project lookupProjectByName(String value)
 	{
-		for (PLPProject project : projects)
+		for (Project project : projects)
 			if (project.getName().equals(value))
 				return project;
 		
@@ -184,36 +184,36 @@ public class ProjectExplorerTree extends BorderPane
 		return treeView;
 	}
 	
-	private void projectListChanged(Change<? extends PLPProject> change)
+	private void projectListChanged(Change<? extends Project> change)
 	{
 		while (change.next())
 		{
-			for (PLPProject project : change.getAddedSubList())
+			for (Project project : change.getAddedSubList())
 				addProjectToTree(project);
 			
-			for (PLPProject project : change.getRemoved())
+			for (Project project : change.getRemoved())
 				removeProjectFromTree(project);
 		}
 	}
 	
-	private void projectFilesChanged(Change<? extends PLPSourceFile> change)
+	private void projectFilesChanged(Change<? extends ASMFile> change)
 	{
 		while (change.next())
 		{
-			for (PLPSourceFile file : change.getAddedSubList())
+			for (ASMFile file : change.getAddedSubList())
 				addFileToTree(file);
 			
-			for (PLPSourceFile file : change.getRemoved())
+			for (ASMFile file : change.getRemoved())
 				removeFileFromTree(file);
 		}
 	}
 	
-	private void addProjectToTree(PLPProject project)
+	private void addProjectToTree(Project project)
 	{
 		project.addListener(this::projectFilesChanged);
 		TreeItem<String> projectItem = new TreeItem<>(project.getName());
 		
-		for (PLPSourceFile file : project)
+		for (ASMFile file : project)
 		{
 			TreeItem<String> item = new TreeItem<>(file.getName());
 			projectItem.getChildren().add(item);
@@ -222,7 +222,7 @@ public class ProjectExplorerTree extends BorderPane
 		projectTreeDisplay.getRoot().getChildren().add(projectItem);
 	}
 	
-	private void addFileToTree(PLPSourceFile file)
+	private void addFileToTree(ASMFile file)
 	{
 		TreeItem<String> fileNode = new TreeItem<>(file.getName());
 		TreeItem<String> projectNode = getProjectNode(file.getProject());
@@ -230,21 +230,21 @@ public class ProjectExplorerTree extends BorderPane
 		projectNode.getChildren().add(fileNode);
 	}
 	
-	private void removeProjectFromTree(PLPProject project)
+	private void removeProjectFromTree(Project project)
 	{
 		TreeItem<String> projectNode = getProjectNode(project);
 		projectTreeDisplay.getRoot().getChildren().remove(projectNode);
 	}
 	
-	private void removeFileFromTree(PLPSourceFile file)
+	private void removeFileFromTree(ASMFile file)
 	{
-		PLPProject project = file.getProject();
+		Project project = file.getProject();
 		TreeItem<String> projectNode = getProjectNode(project);
 		TreeItem<String> fileNode = getFileNode(file, projectNode);
 		projectNode.getChildren().remove(fileNode);
 	}
 	
-	private TreeItem<String> getProjectNode(PLPProject project)
+	private TreeItem<String> getProjectNode(Project project)
 	{
 		String name = project.getName();
 		
@@ -257,15 +257,15 @@ public class ProjectExplorerTree extends BorderPane
 		return null;
 	}
 	
-	private TreeItem<String> getFileNode(PLPSourceFile file)
+	private TreeItem<String> getFileNode(ASMFile file)
 	{
-		PLPProject project = file.getProject();
+		Project project = file.getProject();
 		TreeItem<String> projectNode = getProjectNode(project);
 		
 		return getFileNode(file, projectNode);
 	}
 	
-	private TreeItem<String> getFileNode(PLPSourceFile file, TreeItem<String> projectNode)
+	private TreeItem<String> getFileNode(ASMFile file, TreeItem<String> projectNode)
 	{
 		String name = file.getName();
 		
