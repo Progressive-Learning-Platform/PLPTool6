@@ -90,7 +90,7 @@ import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
  * also defines the window and its contents.
  * 
  * @author Moore, Zachary
- *		
+ * 		
  */
 public class Main extends Application
 {
@@ -292,7 +292,7 @@ public class Main extends Application
 			projects.add(project);
 		}
 	}
-
+	
 	private boolean renameProject(Project project)
 	{
 		TextInputDialog dialog = new TextInputDialog(project.getName());
@@ -362,8 +362,18 @@ public class Main extends Application
 	{
 		for (ASMFile sourceFile : openProjects.keySet())
 		{
+			File tempFile = new File(sourceFile.getName());
 			console.println(sourceFile.getProject().getPath());
-			sourceFile.getProject().save();
+			try
+			{
+				sourceFile.writeToFile(tempFile);
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// sourceFile.getProject().save();
 		}
 	}
 	
@@ -542,7 +552,7 @@ public class Main extends Application
 					}
 				});
 		buttons.add(projectButton);
-
+		
 		button = new ImageView("toolbar_new.png");
 		listener = (event) -> console.println("new Project Clicked");
 		button.setOnMouseClicked(listener);
@@ -1412,8 +1422,10 @@ public class Main extends Application
 			public void handle(ActionEvent e)
 			{
 				String chosenLocation = "";
+				FileChooser fileChooser = new FileChooser();
+				// fileChooser.setTitle("Choose Project Location");
 				DirectoryChooser directoryChooser = new DirectoryChooser();
-				// directoryChooser.getExtensionFilters().add(new
+				//directoryChooser.getExtensionFilters().add(new
 				// FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
 				// directoryChooser.setInitialDirectory(projTextField.getText());
 				directoryChooser.setTitle("Choose Project Location");
@@ -1454,19 +1466,61 @@ public class Main extends Application
 			@Override
 			public void handle(ActionEvent e)
 			{
-				String projectName = projTextField.getText();
-				String fileName = sourceFileField.getText();
-				CodeEditor content = createCodeEditor();
-				content.setText("#New PLP Project");
-				PLPProject project = new PLPProject(projectName);
-				project.setPath(projLocationField.getText());
-				PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
-				project.add(sourceFile);
-				project.save();
-				projects.add(project);
-				openFile(sourceFile);
-				Stage stage = (Stage) createProject.getScene().getWindow();
-				stage.close();
+				String projectName;
+				String fileName;
+				String projectLocation;
+				Alert alert = new Alert(AlertType.INFORMATION);
+				projectName = projTextField.getText();
+				fileName = sourceFileField.getText();
+				projectLocation = projLocationField.getText();
+				if (projectName.equals(""))
+				{
+					alert.setTitle("Invalid Project Name");
+					alert.setHeaderText(null);
+					alert.setContentText("You entered and invalid Project Name");
+					alert.showAndWait();
+					
+				}
+				else if (fileName.equals(""))
+				{
+					alert.setTitle("Invalid Project Name");
+					alert.setHeaderText(null);
+					alert.setContentText("You entered and invalid File Name");
+					alert.showAndWait();
+				}
+				else if(projectLocation.equals(""))
+				{
+					alert.setTitle("Invalid Project Loaction");
+					alert.setHeaderText(null);
+					alert.setContentText("You entered and invalid Project Locaction");
+					alert.showAndWait();
+					
+				}
+				else
+				{
+					projectName = projTextField.getText();
+					fileName = sourceFileField.getText();
+					
+					System.out.println(fileName);
+					
+					if (!fileName.contains(".asm"))
+					{
+						fileName = fileName.concat(".asm");
+					}
+					System.out.println("After: " + fileName);
+					
+					CodeEditor content = createCodeEditor();
+					content.setText("#New PLP Project");
+					PLPProject project = new PLPProject(projectName);
+					project.setPath(projLocationField.getText());
+					PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
+					project.add(sourceFile);
+					project.save();
+					projects.add(project);
+					openFile(sourceFile);
+					Stage stage = (Stage) createProject.getScene().getWindow();
+					stage.close();
+				}
 			}
 		});
 		createProject.setDefaultButton(true);
