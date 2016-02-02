@@ -29,8 +29,23 @@ public class Dialogues
 	 */
 	public static void showInfoDialogue(String message)
 	{
+		String title = "Information Dialog";
+		showInfoDialogue(title, message);
+	}
+	
+	/**
+	 * Spawns an information dialogue with the specified title and message.
+	 * 
+	 * @param title The title of the dialogue. This will appear in the title field of the
+	 *            dialogue.
+	 * @param message
+	 *            The message to display. This will appear in the context field of the
+	 *            dialogue.
+	 */
+	public static void showInfoDialogue(String title, String message)
+	{
 		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Information Dialog");
+		alert.setTitle(title);
 		alert.setHeaderText(null);
 		alert.setContentText(message);
 		
