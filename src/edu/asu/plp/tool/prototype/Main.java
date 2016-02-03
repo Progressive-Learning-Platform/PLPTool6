@@ -321,23 +321,9 @@ public class Main extends Application
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
 	
-	private void saveProjectFile()
+	private void saveProject(MouseEvent event)
 	{
-		for (ASMFile sourceFile : openProjects.keySet())
-		{
-			File tempFile = new File(sourceFile.getName());
-			console.println(sourceFile.getProject().getPath());
-			try
-			{
-				sourceFile.writeToFile(tempFile);
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// sourceFile.getProject().save();
-		}
+		getActiveProject().save();
 	}
 	
 	private CodeEditor createCodeEditor()
@@ -436,12 +422,12 @@ public class Main extends Application
 		project.add(new PLPSourceFile(project, "main.asm"));
 		project.add(new PLPSourceFile(project, "sorting.asm"));
 		project.add(new PLPSourceFile(project, "division.asm"));
-		projects.add(project);
+		//projects.add(project);
 		
 		project = new PLPProject("Assignment2");
 		project.add(new PLPSourceFile(project, "main.asm"));
 		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
-		projects.add(project);
+		//projects.add(project);
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
@@ -516,13 +502,8 @@ public class Main extends Application
 				});
 		buttons.add(projectButton);
 		
-		button = new ImageView("toolbar_new.png");
-		listener = (event) -> console.println("new Project Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
 		Node newFileButton = new ImageView("menu_new.png");
-		listener = (event) -> console.println("New File Clicked");
+		listener = this::createASMFile;
 		newFileButton.setOnMouseClicked(listener);
 		buttons.add(newFileButton);
 		
@@ -534,7 +515,7 @@ public class Main extends Application
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		button = new ImageView("toolbar_save.png");
-		listener = this::onSaveProjectClicked;
+		listener = this::saveProject;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -1059,12 +1040,6 @@ public class Main extends Application
 		openProjectFromFile();
 	}
 	
-	private void onSaveProjectClicked(MouseEvent event)
-	{
-		console.println("Save Project Button Clicked");
-		saveProjectFile();
-	}
-	
 	private void onAssembleProjectClicked(MouseEvent event)
 	{
 		console.println("Assemble Button Clicked");
@@ -1132,6 +1107,97 @@ public class Main extends Application
 		}
 	}
 	
+	private void createASMFile(MouseEvent event)
+	{
+		Stage createASMStage = new Stage();
+		Parent myPane = createASMMenu();
+		Scene scene = new Scene(myPane, 450, 350);
+		createASMStage.setTitle("New ASMFile");
+		createASMStage.setScene(scene);
+		createASMStage.setResizable(false);
+		createASMStage.show();
+	}
+	
+	private Parent createASMMenu()
+	{
+		BorderPane border = new BorderPane();
+		border.setPadding(new Insets(20));
+		GridPane grid = new GridPane();
+		HBox buttons = new HBox(10);
+		grid.setHgap(10);
+		grid.setVgap(30);
+		grid.setPadding(new Insets(10, 10, 10, 10));
+		
+		Label ASMFileName = new Label();
+		ASMFileName.setText("File Name: ");
+		ASMFileName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField nameText = new TextField();
+		nameText.setText("");
+		nameText.requestFocus();
+		nameText.setPrefWidth(200);
+		
+		Label projectName = new Label();
+		projectName.setText("Add to Project: ");
+		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projectText = new TextField();
+		projectText.setText(getActiveProject().getName());
+		projectText.setPrefWidth(200);
+		
+		Button create = new Button();
+		create.setText("Create");
+		create.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				Alert alert = new Alert(AlertType.INFORMATION);
+				String projectName = projectText.getText();
+				String fileName = nameText.getText();
+				if (projectName.equals("") || getProjectByName(projectName).equals(null))
+				{
+					alert.setTitle("Invalid Project Name");
+					alert.setHeaderText(null);
+					alert.setContentText("You entered and invalid Project Name");
+					alert.showAndWait();
+					
+				}
+				else if (fileName.equals(""))
+				{
+					alert.setTitle("Invalid File Name");
+					alert.setHeaderText(null);
+					alert.setContentText("You entered and invalid File Name");
+					alert.showAndWait();
+				}
+				
+				if(!fileName.contains(".asm"))
+				{
+					fileName = fileName.concat(".asm");
+				}
+				
+				PLPSourceFile createASM = new PLPSourceFile(getProjectByName(projectName), fileName);
+				getProjectByName(projectName).add(createASM);
+				openFile(createASM);
+				
+				Stage stage = (Stage) create.getScene().getWindow();
+				stage.close();
+			}
+		
+		});
+		
+		grid.add(ASMFileName, 0, 0);
+		grid.add(nameText, 1, 0);
+		grid.add(projectName, 0, 1);
+		grid.add(projectText, 1, 1);
+		
+		border.setCenter(grid);
+		buttons.getChildren().add(create);
+		buttons.setAlignment(Pos.BASELINE_RIGHT);
+		border.setBottom(buttons);
+		
+		return Components.wrap(border);
+	}
+	
 	private void createNewProject()
 	{
 		Stage createProjectStage = new Stage();
@@ -1168,6 +1234,7 @@ public class Main extends Application
 		mainSourceFile.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		TextField sourceFileField = new TextField();
+		sourceFileField.setText("Main.asm");
 		projTextField.setPrefWidth(200);
 		
 		Label projectLocation = new Label();
@@ -1187,13 +1254,14 @@ public class Main extends Application
 				FileChooser fileChooser = new FileChooser();
 				// fileChooser.setTitle("Choose Project Location");
 				DirectoryChooser directoryChooser = new DirectoryChooser();
-				//directoryChooser.getExtensionFilters().add(new
+				// directoryChooser.getExtensionFilters().add(new
 				// FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
 				// directoryChooser.setInitialDirectory(projTextField.getText());
 				directoryChooser.setTitle("Choose Project Location");
 				File file = directoryChooser.showDialog(null);
 				// If Cancel is chosen, throws a null pointer, needs to be fixed
-				chosenLocation = file.getAbsolutePath();
+				chosenLocation = file.getAbsolutePath()
+						.concat(File.separator + projTextField.getText());
 				projLocationField.setText(chosenLocation);
 			}
 		});
@@ -1202,26 +1270,13 @@ public class Main extends Application
 		target.setText("Targetted ISA: ");
 		target.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		ComboBox<String> isaType = new ComboBox<String>();
-		isaType.getItems().addAll("PLP", "MIPS");
-		isaType.setValue("PLP");
+		ComboBox<String> projectType = new ComboBox<String>();
+		projectType.getItems().addAll("PLP6", "MIPS", "PLP5(Legacy)");
+		projectType.setValue("PLP6");
 		
 		Label version = new Label();
 		version.setText("Version: ");
 		version.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		grid.add(projectName, 0, 0);
-		grid.add(projTextField, 1, 0);
-		grid.add(mainSourceFile, 0, 1);
-		grid.add(sourceFileField, 1, 1);
-		grid.add(projectLocation, 0, 2);
-		grid.add(projLocationField, 1, 2);
-		grid.add(browseLocation, 2, 2);
-		grid.add(target, 0, 3);
-		grid.add(isaType, 1, 3);
-		grid.add(version, 0, 4);
-		
-		border.setCenter(grid);
 		
 		Button createProject = new Button("Create Project");
 		createProject.setOnAction(new EventHandler<ActionEvent>() {
@@ -1235,6 +1290,7 @@ public class Main extends Application
 				projectName = projTextField.getText();
 				fileName = sourceFileField.getText();
 				projectLocation = projLocationField.getText();
+				File projectDirectory = new File(projectLocation);
 				if (projectName.equals(""))
 				{
 					alert.setTitle("Invalid Project Name");
@@ -1245,12 +1301,12 @@ public class Main extends Application
 				}
 				else if (fileName.equals(""))
 				{
-					alert.setTitle("Invalid Project Name");
+					alert.setTitle("Invalid File Name");
 					alert.setHeaderText(null);
 					alert.setContentText("You entered and invalid File Name");
 					alert.showAndWait();
 				}
-				else if(projectLocation.equals(""))
+				else if (projectLocation.equals(""))
 				{
 					alert.setTitle("Invalid Project Loaction");
 					alert.setHeaderText(null);
@@ -1258,18 +1314,30 @@ public class Main extends Application
 					alert.showAndWait();
 					
 				}
+				else if (projectDirectory.exists())
+				{
+					alert.setTitle("Error");
+					alert.setHeaderText(null);
+					alert.setContentText("Project already exists");
+					alert.showAndWait();
+				}
 				else
 				{
 					projectName = projTextField.getText();
 					fileName = sourceFileField.getText();
 					
-					System.out.println(fileName);
+					File srcFile = new File(projectLocation + File.separator + "src");
+					srcFile.mkdirs();
 					
-					if (!fileName.contains(".asm"))
+					if (projectType.equals("PLP6") && !fileName.contains(".asm"))
 					{
 						fileName = fileName.concat(".asm");
 					}
-					System.out.println("After: " + fileName);
+					
+					if (projectType.equals("PLP5(Legacy)") && !fileName.contains(".plp"))
+					{
+						fileName = fileName.concat(".plp");
+					}
 					
 					CodeEditor content = createCodeEditor();
 					content.setText("#New PLP Project");
@@ -1282,6 +1350,7 @@ public class Main extends Application
 					openFile(sourceFile);
 					Stage stage = (Stage) createProject.getScene().getWindow();
 					stage.close();
+					
 				}
 			}
 		});
@@ -1295,6 +1364,20 @@ public class Main extends Application
 				stage.close();
 			}
 		});
+		
+		
+		grid.add(projectName, 0, 0);
+		grid.add(projTextField, 1, 0);
+		grid.add(mainSourceFile, 0, 1);
+		grid.add(sourceFileField, 1, 1);
+		grid.add(projectLocation, 0, 2);
+		grid.add(projLocationField, 1, 2);
+		grid.add(browseLocation, 2, 2);
+		grid.add(target, 0, 3);
+		grid.add(projectType, 1, 3);
+		grid.add(version, 0, 4);
+		
+		border.setCenter(grid);
 		
 		buttons.getChildren().addAll(createProject, cancelCreate);
 		buttons.setAlignment(Pos.BASELINE_RIGHT);

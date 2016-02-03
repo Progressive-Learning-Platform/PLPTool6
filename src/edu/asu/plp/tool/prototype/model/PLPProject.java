@@ -3,6 +3,7 @@ package edu.asu.plp.tool.prototype.model;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.util.Optional;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -147,11 +148,24 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void save()
 	{
-		File file = new File(this.getPath());
-		file.mkdirs();
 		System.out.println(this.getPath());
 		System.out.println(this.getName());
-		//System.out.println(this.getFileCount());
+		for(ASMFile sourceFile : this)
+		{
+			File tempFile = new File(this.getPath() + File.separator + "src" + File.separator + sourceFile.getName());
+			System.out.println("Project: " + this.getName() + ", File: " + sourceFile.getName());
+			System.out.println("File location: " + this.getPath() + File.separator + "src" + File.separator + sourceFile.getName());
+			try
+			{
+				sourceFile.writeToFile(tempFile.getPath());
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 
 		//throw new UnsupportedOperationException("Not Yet Implemented");
 	}
@@ -207,6 +221,17 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void saveAs(String filePath)
 	{
+		File location = new File(filePath);
+		if(location.exists())
+		{
+			System.out.println("Already Exists");
+		}else
+		{
+			File srcFile = new File(filePath + File.separator + "src");
+			srcFile.mkdirs();
+		}
+		this.setPath(filePath);
+		this.save();
 		
 		
 	}
