@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -316,6 +317,14 @@ public class Main extends Application
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openProjects.put(file, tab);
+			
+			// Set content
+			content.setText(file.getContent());
+			
+			// Bind content
+			ChangeListener<? super String> onChanged;
+			onChanged = (value, old, current) -> content.setText(file.getContent());
+			file.contentProperty().addListener(onChanged);
 		}
 		
 		// Activate the specified tab
