@@ -7,11 +7,13 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
+
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.util.PLP5ProjectParser;
 import edu.asu.plp.tool.core.ISAModule;
@@ -29,6 +31,9 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
 	public static final String FILE_EXTENSION = ".project";
 	private static final String PROJECT_FILE_NAME = "" + FILE_EXTENSION;
+	private static final String NAME_KEY = "projectName";
+	private static final String TYPE_KEY = "projectType";
+	private static final String SOURCE_NAME_KEY = "sourceDirectoryName";
 	
 	/**
 	 * Path to this project in the file system. If the this project exists in memory only
@@ -67,8 +72,51 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	public static PLPProject load(File file) throws UnexpectedFileTypeException,
 			IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		if (file.isFile())
+			return loadLegacy(file);
+		else
+			return loadCurrent(file);
+	}
+	
+	/**
+	 * Loads a PLP6 project. The given file must be a directory, and have a structure as
+	 * specified by {@link #save()}
+	 * 
+	 * @param projectDirectory
+	 *            The directory of the project to load. This file must be a DIRECTORY, and
+	 *            have a structure as specified by {@link #save()}
+	 * @return A {@link PLPProject} representative of the information stored in the given
+	 *         directory.
+	 * @throws IOException 
+	 */
+	private static PLPProject loadCurrent(File projectDirectory) throws IOException
+	{
+		validateProjectDirectory(projectDirectory);
+		File projectFile = validateAndFilizeProjectFile(projectDirectory);
+		
+		if (!projectFile.exists())
+			throw new IllegalArgumentException("Project file not found.");
+		
+		String fileString = FileUtils.readFileToString(projectFile);
+		JSONObject projectDetails = new JSONObject(fileString);
+		String name = projectDetails.optString(NAME_KEY);
+		String type = projectDetails.optString(NAME_KEY);
+		String sourceDirectoryName = projectDetails.optString(SOURCE_NAME_KEY, "src");
+		
+		Path projectPath = projectDirectory.toPath();
+		Path sourcePath = projectPath.resolve(sourceDirectoryName);
+		File sourceDirectory = sourcePath.toFile();
+		
+		PLPProject project = new PLPProject(name, type);
+		for (File file : sourceDirectory.listFiles())
+		{
+			String sourceName = file.getName();
+			sourceName = FilenameUtils.removeExtension(sourceName);
+			PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+			project.add(sourceFile);
+		}
+		
+		return project;
 	}
 	
 	/**
@@ -111,6 +159,29 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	{
 		PLP5ProjectParser parser = new PLP5ProjectParser();
 		return parser.parse(file);
+	}
+	
+	private static void validateProjectDirectory(File projectDirectory)
+	{
+		if (!projectDirectory.isDirectory())
+		{
+			throw new IllegalPathStateException("Path must point to a directory. Found: "
+					+ projectDirectory.getAbsolutePath());
+		}
+	}
+	
+	private static File validateAndFilizeProjectFile(File projectDirectory)
+	{
+		Path rootPath = projectDirectory.toPath();
+		Path filePath = rootPath.resolve(PROJECT_FILE_NAME);
+		File projectFile = filePath.toFile();
+		if (projectFile.isDirectory())
+		{
+			throw new IllegalStateException("ProjectFile resolved to a directory: "
+					+ projectFile.getAbsolutePath());
+		}
+		
+		return projectFile;
 	}
 	
 	public PLPProject()
@@ -184,26 +255,12 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	private String createProjectFileContent()
 	{
 		JSONObject root = new JSONObject();
-		root.put("projectName", getName());
-		root.put("projectType", getType());
+		root.put(NAME_KEY, getName());
+		root.put(TYPE_KEY, getType());
 		// TODO: make "src" a constant
-		root.put("sourceDirectoryName", "src");
+		root.put(SOURCE_NAME_KEY, "src");
 		
 		return root.toString();
-	}
-	
-	private File validateAndFilizeProjectFile(File projectDirectory)
-	{
-		Path rootPath = projectDirectory.toPath();
-		Path filePath = rootPath.resolve(PROJECT_FILE_NAME);
-		File projectFile = filePath.toFile();
-		if (projectFile.isDirectory())
-		{
-			throw new IllegalStateException("ProjectFile resolved to a file: "
-					+ projectFile.getAbsolutePath());
-		}
-		
-		return projectFile;
 	}
 	
 	private File validateAndFilizeSourceDirectory(File projectDirectory)
@@ -230,12 +287,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		}
 		
 		File directory = new File(path);
-		if (!directory.isDirectory())
-		{
-			throw new IllegalPathStateException("Path must point to a directory. Found: "
-					+ directory.getAbsolutePath());
-		}
-		
+		validateProjectDirectory(directory);
 		return directory;
 	}
 	
