@@ -1266,9 +1266,13 @@ public class Main extends Application
 		target.setText("Targetted ISA: ");
 		target.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
+		String PLP6 = "PLP6";
+		String legacy = "PLP5(Legacy)";
+		String mips = "MIPS";
+		
 		ComboBox<String> projectType = new ComboBox<String>();
-		projectType.getItems().addAll("PLP6", "MIPS", "PLP5(Legacy)");
-		projectType.setValue("PLP6");
+		projectType.getItems().addAll(PLP6, legacy, mips);
+		projectType.setValue(PLP6);
 		
 		Label version = new Label();
 		version.setText("Version: ");
@@ -1325,25 +1329,39 @@ public class Main extends Application
 					File srcFile = new File(projectLocation + File.separator + "src");
 					srcFile.mkdirs();
 					
-					if (projectType.equals("PLP6") && !fileName.contains(".asm"))
+					if (projectType.getValue().equals(PLP6) && !fileName.contains(".asm"))
 					{
 						fileName = fileName.concat(".asm");
 					}
 					
-					if (projectType.equals("PLP5(Legacy)") && !fileName.contains(".plp"))
+					if (projectType.getValue().equals(legacy) && !fileName.contains(".plp"))
 					{
 						fileName = fileName.concat(".plp");
 					}
 					
-					CodeEditor content = createCodeEditor();
-					content.setText("#New PLP Project");
-					PLPProject project = new PLPProject(projectName);
-					project.setPath(projLocationField.getText());
-					PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
-					project.add(sourceFile);
-					project.save();
-					projects.add(project);
-					openFile(sourceFile);
+					if (projectType.getValue().equals(legacy))
+					{
+						PLPProject legacyProject = new PLPProject(projectName);
+						legacyProject.setPath(projLocationField.getText());
+						PLPSourceFile legacySourceFile = new PLPSourceFile(legacyProject,
+								fileName);
+						legacyProject.saveLegacy();
+						projects.add(legacyProject);
+						openFile(legacySourceFile);
+					}
+					
+					if (projectType.getValue().equals(PLP6))
+					{
+						PLPProject project = new PLPProject(projectName);
+						project.setPath(projLocationField.getText());
+						PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
+						sourceFile.setContent("#New Project");
+						project.add(sourceFile);
+						project.save();
+						projects.add(project);
+						openFile(sourceFile);
+					}
+					
 					Stage stage = (Stage) createProject.getScene().getWindow();
 					stage.close();
 					
