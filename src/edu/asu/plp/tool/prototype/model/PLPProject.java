@@ -7,6 +7,9 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import edu.asu.plp.tool.backend.isa.ASMFile;
@@ -162,11 +165,67 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	{
 		File directory = validateAndFilizePath();
 		if (!directory.exists())
-			directory.createNewFile();
+			directory.mkdir();
 		
+		File sourceDirectory = validateAndFilizeSourceDirectory(directory);
+		if (!sourceDirectory.exists())
+			sourceDirectory.mkdir();
 		
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		File projectFile = validateAndFilizeProjectFile(directory);
+		if (!projectFile.exists())
+			projectFile.createNewFile();
+		String projectFileContent = createProjectFileContent();
+		FileUtils.write(projectFile, projectFileContent);
+		
+		Path sourcePath = sourceDirectory.toPath();
+		for (ASMFile file : this)
+		{
+			String fileName = file.constructFileName();
+			Path asmPath = sourcePath.resolve(fileName);
+			File diskFile = asmPath.toFile();
+			String asmContent = file.getContent();
+			FileUtils.write(diskFile, asmContent);
+		}
+	}
+	
+	private String createProjectFileContent()
+	{
+		JSONObject root = new JSONObject();
+		root.put("projectName", getName());
+		root.put("projectType", getType());
+		// TODO: make "src" a constant
+		root.put("sourceDirectoryName", "src");
+		
+		return root.toString();
+	}
+
+	private File validateAndFilizeProjectFile(File projectDirectory)
+	{
+		Path rootPath = projectDirectory.toPath();
+		Path filePath = rootPath.resolve(PROJECT_FILE_NAME);
+		File projectFile = filePath.toFile();
+		if (projectFile.isDirectory())
+		{
+			throw new IllegalStateException("ProjectFile resolved to a file: "
+					+ projectFile.getAbsolutePath());
+		}
+		
+		return projectFile;
+	}
+
+	private File validateAndFilizeSourceDirectory(File projectDirectory)
+	{
+		Path projectPath = projectDirectory.toPath();
+		// TODO: make the directory "src" a constant variable
+		Path sourcePath = projectPath.resolve("src");
+		File sourceDirectory = sourcePath.toFile();
+		if (!sourceDirectory.isDirectory())
+		{
+			throw new IllegalStateException("Source directory resolved to a file: "
+					+ sourceDirectory.getAbsolutePath());
+		}
+		
+		return sourceDirectory;
 	}
 	
 	private File validateAndFilizePath()
@@ -186,7 +245,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		
 		return directory;
 	}
-
+	
 	/**
 	 * Outputs this project and all its files to the path specified by {@link #getPath()},
 	 * as a PLP5 (legacy) project file. This method is intended only for backwards
