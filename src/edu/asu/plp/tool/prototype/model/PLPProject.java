@@ -8,6 +8,7 @@ import java.util.Optional;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.backend.util.PLP5ProjectParser;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
@@ -100,8 +101,17 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 */
 	private static Project loadLegacy(String filePath)
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		try
+		{
+			File file = new File(filePath);
+			PLP5ProjectParser parser = new PLP5ProjectParser();
+			return parser.parse(file);
+		}
+		catch (IOException exception)
+		{
+			// TODO: rethrow appropriate exception
+			return null;
+		}
 	}
 	
 	public PLPProject()
