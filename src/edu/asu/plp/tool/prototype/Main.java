@@ -1558,7 +1558,15 @@ public class Main extends Application
 					project.setPath(projLocationField.getText());
 					PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
 					project.add(sourceFile);
-					project.save();
+					try
+					{
+						project.save();
+					}
+					catch (IOException e1)
+					{
+						// TODO report exception to user
+						throw new UnsupportedOperationException("Not yet implemented");
+					}
 					projects.add(project);
 					openFile(sourceFile);
 					Stage stage = (Stage) createProject.getScene().getWindow();
