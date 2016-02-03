@@ -72,6 +72,7 @@ import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
@@ -92,7 +93,7 @@ public class Main extends Application
 	public static final long REVISION = 1;
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
-	public static boolean simMode = false;
+	public boolean simMode = false;
 	
 	private Stage stage;
 	private TabPane openProjectsPanel;
@@ -456,10 +457,10 @@ public class Main extends Application
 		EventHandler<MouseEvent> listener;
 		Node button;
 		
-		DropShadow lBlueShadow = new DropShadow();
-		lBlueShadow.setColor(Color.LIGHTBLUE);
-		DropShadow dBlueShadow = new DropShadow();
-		dBlueShadow.setColor(Color.DARKBLUE);
+		DropShadow lightBlueShadow = new DropShadow();
+		lightBlueShadow.setColor(Color.LIGHTBLUE);
+		DropShadow darkBlueShadow = new DropShadow();
+		darkBlueShadow.setColor(Color.DARKBLUE);
 		
 		// TODO: replace event handlers with actual content
 		Node projectButton = new ImageView("toolbar_new.png");
@@ -468,7 +469,7 @@ public class Main extends Application
 					@Override
 					public void handle(MouseEvent e)
 					{
-						projectButton.setEffect(lBlueShadow);
+						projectButton.setEffect(lightBlueShadow);
 					}
 				});
 		// Removing the shadow when the mouse cursor is off
@@ -489,7 +490,7 @@ public class Main extends Application
 						
 						createNewProject();
 						
-						projectButton.setEffect(dBlueShadow);
+						projectButton.setEffect(darkBlueShadow);
 					}
 				});
 		projectButton.addEventHandler(MouseEvent.MOUSE_RELEASED,
@@ -497,7 +498,7 @@ public class Main extends Application
 					@Override
 					public void handle(MouseEvent e)
 					{
-						projectButton.setEffect(lBlueShadow);
+						projectButton.setEffect(lightBlueShadow);
 					}
 				});
 		buttons.add(projectButton);
@@ -613,8 +614,8 @@ public class Main extends Application
 		
 		for (int x = 9; x <= 23; x++)
 		{
-			DropShadow ds = new DropShadow();
-			toolbar.getChildren().get(x).setEffect(ds);
+			DropShadow dropShadow = new DropShadow();
+			toolbar.getChildren().get(x).setEffect(dropShadow);
 			toolbar.getChildren().get(x).setDisable(true);
 		}
 		
@@ -634,6 +635,7 @@ public class Main extends Application
 		itemNew.setOnAction((event) -> {
 			createNewProject();
 		});
+		
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
 		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
 		itemOpen.setAccelerator(
@@ -641,6 +643,7 @@ public class Main extends Application
 		itemOpen.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSave = new MenuItem("Save");
 		itemSave.setGraphic(new ImageView(new Image("toolbar_save.png")));
 		itemSave.setAccelerator(
@@ -648,18 +651,21 @@ public class Main extends Application
 		itemSave.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSaveAs = new MenuItem("Save As");
 		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemSaveAs.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPrint = new MenuItem("Print");
 		itemPrint.setAccelerator(
 				new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN));
 		itemPrint.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemExit = new MenuItem("Exit");
 		itemExit.setAccelerator(
 				new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
@@ -679,36 +685,42 @@ public class Main extends Application
 		itemCopy.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCut = new MenuItem("Cut");
 		itemCut.setAccelerator(
 				new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
 		itemCut.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPaste = new MenuItem("Paste");
 		itemPaste.setAccelerator(
 				new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
 		itemPaste.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemFandR = new MenuItem("Find and Replace");
 		itemFandR.setAccelerator(
 				new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 		itemFandR.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemUndo = new MenuItem("Undo");
 		itemUndo.setAccelerator(
 				new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
 		itemUndo.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRedo = new MenuItem("Redo");
 		itemRedo.setAccelerator(
 				new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
 		itemRedo.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		edit.getItems().addAll(itemCopy, itemCut, itemPaste, new SeparatorMenuItem(),
 				itemFandR, new SeparatorMenuItem(), itemUndo, itemRedo);
 				
@@ -720,18 +732,21 @@ public class Main extends Application
 		cItemToolbar.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		CheckMenuItem cItemProjectPane = new CheckMenuItem("Project Pane");
 		cItemProjectPane.setAccelerator(new KeyCodeCombination(KeyCode.P,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		cItemProjectPane.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		CheckMenuItem cItemOutputPane = new CheckMenuItem("Output Pane");
 		cItemOutputPane.setAccelerator(new KeyCodeCombination(KeyCode.O,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		cItemOutputPane.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemClearOutput = new MenuItem("Clear Output Pane");
 		itemClearOutput.setAccelerator(
 				new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
@@ -753,12 +768,14 @@ public class Main extends Application
 		itemAssemble.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSimulate = new MenuItem("Simulate");
 		itemSimulate.setGraphic(new ImageView(new Image("toolbar_simulate.png")));
 		itemSimulate.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 		itemSimulate.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPLPBoard = new MenuItem("Program PLP Board...");
 		itemPLPBoard.setGraphic(new ImageView(new Image("toolbar_program.png")));
 		itemPLPBoard.setAccelerator(
@@ -766,34 +783,41 @@ public class Main extends Application
 		itemPLPBoard.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemQuickProgram = new MenuItem("Quick Program");
 		itemQuickProgram.setAccelerator(new KeyCodeCombination(KeyCode.F4));
 		itemQuickProgram.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemNewASM = new MenuItem("New ASM File...");
 		itemNewASM.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
 		itemImportASM.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
 		itemExportASM.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
 		itemRemoveASM.setAccelerator(
 				new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
 		itemRemoveASM.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCurrentAsMain = new MenuItem(
 				"Set Current Open File as Main Program");
 		itemCurrentAsMain.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		project.getItems().addAll(itemAssemble, itemSimulate, itemPLPBoard,
 				itemQuickProgram, new SeparatorMenuItem(), itemNewASM, itemImportASM,
 				itemExportASM, itemRemoveASM, new SeparatorMenuItem(), itemCurrentAsMain);
@@ -804,30 +828,36 @@ public class Main extends Application
 		itemOptions.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu modules = new Menu("Modules");
 		MenuItem itemModuleManager = new MenuItem("Module Manager...");
 		itemModuleManager.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemLoadJar = new MenuItem("Load Module JAR File...");
 		itemLoadJar.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemClearCache = new MenuItem("Clear Module Auto-Load Cache");
 		itemClearCache.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSerialTerminal = new MenuItem("Serial Terminal");
 		itemSerialTerminal.setAccelerator(
 				new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN));
 		itemSerialTerminal.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemNumConverter = new MenuItem("Number Converter");
 		itemNumConverter.setAccelerator(new KeyCodeCombination(KeyCode.F12));
 		itemNumConverter.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		modules.getItems().addAll(itemModuleManager, itemLoadJar, itemClearCache);
 		tools.getItems().addAll(itemOptions, modules, new SeparatorMenuItem(),
 				itemSerialTerminal, itemNumConverter);
@@ -840,17 +870,20 @@ public class Main extends Application
 		itemStep.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemReset = new MenuItem("Reset");
 		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
 		itemReset.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
 		itemRun.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu cyclesSteps = new Menu("Cycles/Steps");
 		MenuItem itemOne = new MenuItem("1");
 		itemOne.setAccelerator(
@@ -858,36 +891,42 @@ public class Main extends Application
 		itemOne.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemFive = new MenuItem("5");
 		itemFive.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD2, KeyCombination.ALT_DOWN));
 		itemFive.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemTwenty = new MenuItem("20");
 		itemTwenty.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD3, KeyCombination.ALT_DOWN));
 		itemTwenty.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemHundred = new MenuItem("100");
 		itemHundred.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD4, KeyCombination.ALT_DOWN));
 		itemHundred.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemFiveThousand = new MenuItem("5000");
 		itemFiveThousand.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD5, KeyCombination.ALT_DOWN));
 		itemFiveThousand.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemClearBreakpoints = new MenuItem("Clear Breakpoints");
 		itemClearBreakpoints.setAccelerator(
 				new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN));
 		itemClearBreakpoints.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu views = new Menu("Views");
 		MenuItem itemCpuView = new MenuItem("CPU View");
 		itemCpuView.setAccelerator(new KeyCodeCombination(KeyCode.C,
@@ -895,18 +934,21 @@ public class Main extends Application
 		itemCpuView.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCpuWindow = new MenuItem("Watcher Window");
 		itemCpuWindow.setAccelerator(new KeyCodeCombination(KeyCode.W,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemCpuWindow.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSimControlWindow = new MenuItem("Simulation Control Window");
 		itemSimControlWindow.setAccelerator(
 				new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
 		itemSimControlWindow.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu toolsSubMenu = new Menu("Tools");
 		MenuItem itemioRegistry = new MenuItem("I/O Registry");
 		itemioRegistry.setAccelerator(new KeyCodeCombination(KeyCode.R,
@@ -914,23 +956,28 @@ public class Main extends Application
 		itemioRegistry.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemASMView = new MenuItem("ASM View");
 		itemASMView.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCreateMemVis = new MenuItem("Create a PLP CPU Memory Visualizer");
 		itemCreateMemVis.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRemoveMemVis = new MenuItem(
 				"Remove Memory Visualizers from Project");
 		itemRemoveMemVis.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemDisplayBus = new MenuItem("Display Bus Monitor Timing Diagram");
 		itemDisplayBus.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu ioDevices = new Menu("I/O Devices");
 		MenuItem itemLedArray = new MenuItem("LED Array");
 		itemLedArray.setGraphic(new ImageView(new Image("toolbar_sim_leds.png")));
@@ -939,6 +986,7 @@ public class Main extends Application
 		itemLedArray.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSwitches = new MenuItem("Switches");
 		itemSwitches.setGraphic(new ImageView(new Image("toolbar_sim_switches.png")));
 		itemSwitches.setAccelerator(
@@ -946,6 +994,7 @@ public class Main extends Application
 		itemSwitches.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSevenSeg = new MenuItem("Seven Segments");
 		itemSevenSeg.setGraphic(new ImageView(new Image("toolbar_sim_7segments.png")));
 		itemSevenSeg.setAccelerator(
@@ -953,6 +1002,7 @@ public class Main extends Application
 		itemSevenSeg.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemUART = new MenuItem("UART");
 		itemUART.setGraphic(new ImageView(new Image("toolbar_sim_uart.png")));
 		itemUART.setAccelerator(
@@ -960,6 +1010,7 @@ public class Main extends Application
 		itemUART.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemVGA = new MenuItem("VGA");
 		itemVGA.setGraphic(new ImageView(new Image("toolbar_sim_vga.png")));
 		itemVGA.setAccelerator(
@@ -967,6 +1018,7 @@ public class Main extends Application
 		itemVGA.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPLPID = new MenuItem("PLPID");
 		itemPLPID.setGraphic(new ImageView(new Image("toolbar_sim_plpid.png")));
 		itemPLPID.setAccelerator(
@@ -974,6 +1026,7 @@ public class Main extends Application
 		itemPLPID.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemGPIO = new MenuItem("GPIO");
 		itemGPIO.setGraphic(new ImageView(new Image("toolbar_sim_gpio.png")));
 		itemGPIO.setAccelerator(
@@ -981,11 +1034,13 @@ public class Main extends Application
 		itemGPIO.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemExitSim = new MenuItem("ExitSimulation");
 		itemExitSim.setAccelerator(new KeyCodeCombination(KeyCode.F11));
 		itemExitSim.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		cyclesSteps.getItems().addAll(itemOne, itemFive, itemTwenty, itemHundred,
 				itemFiveThousand);
 		views.getItems().addAll(itemCpuView, itemCpuWindow, itemSimControlWindow);
@@ -1005,26 +1060,32 @@ public class Main extends Application
 		itemQuickRef.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemOnlineManual = new MenuItem("Online Manual");
 		itemOnlineManual.setOnAction((event) -> {
 			onlineManualWeb();
 		});
+		
 		MenuItem itemReportIssue = new MenuItem("Report Issue (Requires Google Account");
 		itemReportIssue.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemGoogleIssues = new MenuItem("Open Google Code Issues Page");
 		itemGoogleIssues.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemAboutPLP = new MenuItem("About PLP Tool...");
 		itemAboutPLP.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSWLicense = new MenuItem("Third Party Software License");
 		itemSWLicense.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		help.getItems().addAll(itemQuickRef, itemOnlineManual, new SeparatorMenuItem(),
 				itemReportIssue, itemGoogleIssues, new SeparatorMenuItem(), itemAboutPLP,
 				itemSWLicense);
@@ -1070,6 +1131,7 @@ public class Main extends Application
 	
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
 	{
+		// TODO: Take out the hard values and replace with a better solution
 		DropShadow ds = new DropShadow();
 		if (!simMode)
 		{
@@ -1097,12 +1159,17 @@ public class Main extends Application
 		{
 			if (Desktop.isDesktopSupported())
 			{
-				Desktop.getDesktop().browse(new URI(
-						"https://code.google.com/p/progressive-learning-platform/wiki/UserManual"));
+				URI webAddress = new URI(
+						"https://code.google.com/p/progressive-learning-platform/wiki/UserManual");
+				Desktop.getDesktop().browse(webAddress);
 			}
+			else
+				Dialogues.showInfoDialogue(
+						"The Wiki page was unable to open\nTo open Manually here is the link:\nhttps://code.google.com/p/progressive-learning-platform/wiki/UserManual ");
 		}
 		catch (Exception e)
 		{
+			Dialogues.showInfoDialogue("There was a problem, unable to open webpage.");
 			e.printStackTrace();
 		}
 	}
@@ -1151,23 +1218,16 @@ public class Main extends Application
 			@Override
 			public void handle(ActionEvent e)
 			{
-				Alert alert = new Alert(AlertType.INFORMATION);
 				String projectName = projectText.getText();
 				String fileName = nameText.getText();
 				if (projectName.equals("") || getProjectByName(projectName).equals(null))
 				{
-					alert.setTitle("Invalid Project Name");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid Project Name");
-					alert.showAndWait();
+					Dialogues.showInfoDialogue("You entered an invalid Project Name");
 					
 				}
-				else if (fileName.equals(""))
+				else if (fileName == null || fileName.trim().isEmpty())
 				{
-					alert.setTitle("Invalid File Name");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid File Name");
-					alert.showAndWait();
+					Dialogues.showInfoDialogue("You entered an invalid File Name");
 				}
 				
 				if (!fileName.contains(".asm"))
@@ -1255,10 +1315,13 @@ public class Main extends Application
 				DirectoryChooser directoryChooser = new DirectoryChooser();
 				directoryChooser.setTitle("Choose Project Location");
 				File file = directoryChooser.showDialog(null);
-				// If Cancel is chosen, throws a null pointer, needs to be fixed
-				chosenLocation = file.getAbsolutePath()
-						.concat(File.separator + projTextField.getText());
-				projLocationField.setText(chosenLocation);
+				if(file != null)
+				{
+					chosenLocation = file.getAbsolutePath()
+							.concat(File.separator + projTextField.getText());
+					projLocationField.setText(chosenLocation);
+				}
+				
 			}
 		});
 		
@@ -1286,40 +1349,26 @@ public class Main extends Application
 				String projectName;
 				String fileName;
 				String projectLocation;
-				Alert alert = new Alert(AlertType.INFORMATION);
 				projectName = projTextField.getText();
 				fileName = sourceFileField.getText();
 				projectLocation = projLocationField.getText();
 				File projectDirectory = new File(projectLocation);
-				if (projectName.equals(""))
+				if (projectName == null || projectName.trim().isEmpty())
 				{
-					alert.setTitle("Invalid Project Name");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid Project Name");
-					alert.showAndWait();
-					
+					Dialogues.showInfoDialogue("You entered an invalid Project Name");
 				}
-				else if (fileName.equals(""))
+				else if (fileName == null || fileName.trim().isEmpty())
 				{
-					alert.setTitle("Invalid File Name");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid File Name");
-					alert.showAndWait();
+					Dialogues.showInfoDialogue("You entered an invalid File Name");
 				}
-				else if (projectLocation.equals(""))
+				else if (projectLocation == null || projectLocation.trim().isEmpty())
 				{
-					alert.setTitle("Invalid Project Loaction");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid Project Locaction");
-					alert.showAndWait();
+					Dialogues.showInfoDialogue("You entered an invalid Project Location");
 					
 				}
 				else if (projectDirectory.exists())
 				{
-					alert.setTitle("Error");
-					alert.setHeaderText(null);
-					alert.setContentText("Project already exists");
-					alert.showAndWait();
+					Dialogues.showInfoDialogue("This Project Already Exists");
 				}
 				else
 				{
@@ -1334,7 +1383,8 @@ public class Main extends Application
 						fileName = fileName.concat(".asm");
 					}
 					
-					if (projectType.getValue().equals(legacy) && !fileName.contains(".plp"))
+					if (projectType.getValue().equals(legacy)
+							&& !fileName.contains(".plp"))
 					{
 						fileName = fileName.concat(".plp");
 					}
@@ -1355,7 +1405,6 @@ public class Main extends Application
 						PLPProject project = new PLPProject(projectName);
 						project.setPath(projLocationField.getText());
 						PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
-						sourceFile.setContent("#New Project");
 						project.add(sourceFile);
 						project.save();
 						projects.add(project);

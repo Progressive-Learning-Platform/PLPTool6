@@ -11,13 +11,14 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
+import edu.asu.plp.tool.prototype.util.Dialogues;
 
 /**
  * A {@link PLPProject} represents an ordered, observable collection of
  * {@link PLPSourceFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
- *		
+ * 		
  */
 public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
@@ -57,7 +58,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
 	 */
-	public static PLPProject load(File file) throws UnexpectedFileTypeException, IOException
+	public static PLPProject load(File file)
+			throws UnexpectedFileTypeException, IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -78,7 +80,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *             if an IO problem occurs while opening the specified file.
 	 * @see #load(File)
 	 */
-	public static Project load(String filePath) throws UnexpectedFileTypeException, IOException
+	public static Project load(String filePath)
+			throws UnexpectedFileTypeException, IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -143,13 +146,14 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void save()
 	{
+		// TODO: Finish Implementation, need to take content from the tab, insert it into
+		// PLPSourceFile content property
 		for (ASMFile sourceFile : this)
 		{
-			File tempFile = new File(this.getPath() + File.separator + "src"
-					+ File.separator + sourceFile.getName());
 			try
 			{
-				sourceFile.writeToFile(tempFile);
+				sourceFile.writeToFile(this.getPath() + File.separator + "src"
+						+ File.separator + sourceFile.getName());
 			}
 			catch (IOException e)
 			{
@@ -213,10 +217,11 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void saveAs(String filePath)
 	{
+		// TODO: create the Exceptions
 		File location = new File(filePath);
 		if (location.exists())
 		{
-			System.out.println("Already Exists");
+			Dialogues.showInfoDialogue("This Project location already exists.");
 		}
 		else
 		{
