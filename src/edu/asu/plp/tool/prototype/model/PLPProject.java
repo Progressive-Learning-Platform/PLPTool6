@@ -107,9 +107,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @returnA {@link PLPProject} representative of the information stored in the given
 	 *          file.
 	 */
-	private static Project loadLegacy(String filePath) throws IOException
+	private static PLPProject loadLegacy(File file) throws IOException
 	{
-		File file = new File(filePath);
 		PLP5ProjectParser parser = new PLP5ProjectParser();
 		return parser.parse(file);
 	}
