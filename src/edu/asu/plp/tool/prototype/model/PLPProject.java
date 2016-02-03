@@ -89,8 +89,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	public static Project load(String filePath) throws UnexpectedFileTypeException,
 			IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		File file = new File(filePath);
+		return load(file);
 	}
 	
 	/**
@@ -102,22 +102,16 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * 
 	 * @param filePath
 	 *            Path to the specified file; may be relative or absolute
+	 * @throws IOException
+	 *             if there was an issue loading the Tarball
 	 * @returnA {@link PLPProject} representative of the information stored in the given
 	 *          file.
 	 */
-	private static Project loadLegacy(String filePath)
+	private static Project loadLegacy(String filePath) throws IOException
 	{
-		try
-		{
-			File file = new File(filePath);
-			PLP5ProjectParser parser = new PLP5ProjectParser();
-			return parser.parse(file);
-		}
-		catch (IOException exception)
-		{
-			// TODO: rethrow appropriate exception
-			return null;
-		}
+		File file = new File(filePath);
+		PLP5ProjectParser parser = new PLP5ProjectParser();
+		return parser.parse(file);
 	}
 	
 	public PLPProject()
@@ -198,7 +192,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		
 		return root.toString();
 	}
-
+	
 	private File validateAndFilizeProjectFile(File projectDirectory)
 	{
 		Path rootPath = projectDirectory.toPath();
@@ -212,7 +206,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		
 		return projectFile;
 	}
-
+	
 	private File validateAndFilizeSourceDirectory(File projectDirectory)
 	{
 		Path projectPath = projectDirectory.toPath();
