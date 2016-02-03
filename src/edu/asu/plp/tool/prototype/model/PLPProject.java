@@ -308,7 +308,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		String childFileName = child.constructFileName();
 		// TODO: make the directory "src" a constant variable
 		if (file.isDirectory() && childFileName != null)
-			return path.resolve("/src/" + childFileName).toString();
+			return path.resolve("src/" + childFileName).toString();
 		else
 			return null;
 	}
