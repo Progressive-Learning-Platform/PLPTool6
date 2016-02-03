@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.model;
 
+import java.awt.geom.IllegalPathStateException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -149,16 +150,41 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @see
 	 * @throws IllegalStateException
 	 *             if the specified path is null
+	 * @throws IllegalPathStateException
+	 *             if the path does not point to a directory
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
 	@Override
-	public void save()
+	public void save() throws IOException
 	{
+		File directory = validateAndFilizePath();
+		if (!directory.exists())
+			directory.createNewFile();
+		
+		
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
+	private File validateAndFilizePath()
+	{
+		String path = getPath();
+		if (path == null)
+		{
+			throw new IllegalStateException("Path must be non-null");
+		}
+		
+		File directory = new File(path);
+		if (!directory.isDirectory())
+		{
+			throw new IllegalPathStateException("Path must point to a directory. Found: "
+					+ directory.getAbsolutePath());
+		}
+		
+		return directory;
+	}
+
 	/**
 	 * Outputs this project and all its files to the path specified by {@link #getPath()},
 	 * as a PLP5 (legacy) project file. This method is intended only for backwards
@@ -173,7 +199,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
-	public void saveLegacy()
+	public void saveLegacy() throws IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -208,7 +234,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *             if there is an issue outputting to the specified path
 	 */
 	@Override
-	public void saveAs(String filePath)
+	public void saveAs(String filePath) throws IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
