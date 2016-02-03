@@ -227,10 +227,9 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		{
 			File srcFile = new File(filePath + File.separator + "src");
 			srcFile.mkdirs();
+			this.setPath(filePath);
+			this.save();
 		}
-		this.setPath(filePath);
-		this.save();
-		
 	}
 	
 	@Override

@@ -327,6 +327,124 @@ public class Main extends Application
 		getActiveProject().save();
 	}
 	
+	private void saveProjectAs()
+	{
+		Stage createProjectStage = new Stage();
+		Parent myPane = saveAsMenu();
+		Scene scene = new Scene(myPane, 600, 350);
+		createProjectStage.setTitle("Save Project As");
+		createProjectStage.setScene(scene);
+		createProjectStage.setResizable(false);
+		createProjectStage.show();
+		
+	}
+	
+	private Parent saveAsMenu()
+	{
+		BorderPane border = new BorderPane();
+		border.setPadding(new Insets(20));
+		GridPane grid = new GridPane();
+		HBox buttons = new HBox(10);
+		grid.setHgap(10);
+		grid.setVgap(30);
+		grid.setPadding(new Insets(10, 10, 10, 10));
+		
+		Label projectName = new Label();
+		projectName.setText("New Project Name: ");
+		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projTextField = new TextField();
+		projTextField.setText("Project Name");
+		projTextField.requestFocus();
+		projTextField.setPrefWidth(200);
+		
+		Label selectedProject = new Label();
+		selectedProject.setText("Save Project: \"" + getActiveProject().getName() + "\" as :");
+		selectedProject.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label projectLocation = new Label();
+		projectLocation.setText("Location: ");
+		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projLocationField = new TextField();
+		projTextField.setPrefWidth(200);
+		
+		Button browseLocation = new Button();
+		browseLocation.setText("Browse");
+		browseLocation.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				String chosenLocation = "";
+				DirectoryChooser directoryChooser = new DirectoryChooser();
+				directoryChooser.setTitle("Choose Project Location");
+				File file = directoryChooser.showDialog(null);
+				if (file != null)
+				{
+					chosenLocation = file.getAbsolutePath()
+							.concat(File.separator + projTextField.getText());
+					projLocationField.setText(chosenLocation);
+				}
+				
+			}
+		});
+		
+		Button saveAsButton = new Button("Save");
+		saveAsButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				String projectName;
+				String projectLocation;
+				projectName = projTextField.getText();
+				projectLocation = projLocationField.getText();
+				if (projectName == null || projectName.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid Project Name");
+				}
+				else if (projectLocation == null || projectLocation.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid Project Location");
+					
+				}
+				else
+				{
+					projectName = projLocationField.getText();
+					getActiveProject().saveAs(projectName);
+					Stage stage = (Stage) saveAsButton.getScene().getWindow();
+					stage.close();
+					
+				}
+			}
+		});
+		saveAsButton.setDefaultButton(true);
+		Button cancelCreate = new Button("Cancel");
+		cancelCreate.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				Stage stage = (Stage) cancelCreate.getScene().getWindow();
+				stage.close();
+			}
+		});
+		
+		grid.add(projectName, 0, 0);
+		grid.add(projTextField, 1, 0);
+		//grid.add(selectedProject, 0, 1);
+		grid.add(projectLocation, 0, 2);
+		grid.add(projLocationField, 1, 2);
+		grid.add(browseLocation, 2, 2);
+		
+		border.setTop(selectedProject);
+		border.setCenter(grid);
+		
+		buttons.getChildren().addAll(saveAsButton, cancelCreate);
+		buttons.setAlignment(Pos.BASELINE_RIGHT);
+		border.setBottom(buttons);
+		
+		return Components.wrap(border);
+	}
+	
 	private CodeEditor createCodeEditor()
 	{
 		return new CodeEditor();
@@ -657,6 +775,7 @@ public class Main extends Application
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemSaveAs.setOnAction((event) -> {
 			// TODO: Add Event for menu item
+			saveProjectAs();
 		});
 		
 		MenuItem itemPrint = new MenuItem("Print");
@@ -792,7 +911,8 @@ public class Main extends Application
 		
 		MenuItem itemNewASM = new MenuItem("New ASM File...");
 		itemNewASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			createASMFile(null);
+			// TODO: Check this implementation, doesnt look correct
 		});
 		
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
@@ -1176,13 +1296,21 @@ public class Main extends Application
 	
 	private void createASMFile(MouseEvent event)
 	{
-		Stage createASMStage = new Stage();
-		Parent myPane = createASMMenu();
-		Scene scene = new Scene(myPane, 450, 350);
-		createASMStage.setTitle("New ASMFile");
-		createASMStage.setScene(scene);
-		createASMStage.setResizable(false);
-		createASMStage.show();
+		if (projects.isEmpty())
+		{
+			Dialogues.showInfoDialogue(
+					"There are not projects open, please create a project first.");
+		}
+		else
+		{
+			Stage createASMStage = new Stage();
+			Parent myPane = createASMMenu();
+			Scene scene = new Scene(myPane, 450, 200);
+			createASMStage.setTitle("New ASMFile");
+			createASMStage.setScene(scene);
+			createASMStage.setResizable(false);
+			createASMStage.show();
+		}
 	}
 	
 	private Parent createASMMenu()
@@ -1220,12 +1348,14 @@ public class Main extends Application
 			{
 				String projectName = projectText.getText();
 				String fileName = nameText.getText();
+				
 				if (projectName.equals("") || getProjectByName(projectName).equals(null))
 				{
 					Dialogues.showInfoDialogue("You entered an invalid Project Name");
 					
 				}
-				else if (fileName == null || fileName.trim().isEmpty())
+				
+				if (fileName == null || fileName.trim().isEmpty())
 				{
 					Dialogues.showInfoDialogue("You entered an invalid File Name");
 				}
@@ -1315,7 +1445,7 @@ public class Main extends Application
 				DirectoryChooser directoryChooser = new DirectoryChooser();
 				directoryChooser.setTitle("Choose Project Location");
 				File file = directoryChooser.showDialog(null);
-				if(file != null)
+				if (file != null)
 				{
 					chosenLocation = file.getAbsolutePath()
 							.concat(File.separator + projTextField.getText());
