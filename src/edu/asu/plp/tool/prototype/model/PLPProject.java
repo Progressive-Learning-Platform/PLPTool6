@@ -3,13 +3,10 @@ package edu.asu.plp.tool.prototype.model;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.util.Optional;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
@@ -20,7 +17,7 @@ import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
  * {@link PLPSourceFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
- *
+ *		
  */
 public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
@@ -60,8 +57,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
 	 */
-	public static PLPProject load(File file) throws UnexpectedFileTypeException,
-			IOException
+	public static PLPProject load(File file) throws UnexpectedFileTypeException, IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -82,8 +78,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *             if an IO problem occurs while opening the specified file.
 	 * @see #load(File)
 	 */
-	public static Project load(String filePath) throws UnexpectedFileTypeException,
-			IOException
+	public static Project load(String filePath) throws UnexpectedFileTypeException, IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -148,16 +143,13 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void save()
 	{
-		System.out.println(this.getPath());
-		System.out.println(this.getName());
-		for(ASMFile sourceFile : this)
+		for (ASMFile sourceFile : this)
 		{
-			File tempFile = new File(this.getPath() + File.separator + "src" + File.separator + sourceFile.getName());
-			System.out.println("Project: " + this.getName() + ", File: " + sourceFile.getName());
-			System.out.println("File location: " + this.getPath() + File.separator + "src" + File.separator + sourceFile.getName());
+			File tempFile = new File(this.getPath() + File.separator + "src"
+					+ File.separator + sourceFile.getName());
 			try
 			{
-				sourceFile.writeToFile(tempFile.getPath());
+				sourceFile.writeToFile(tempFile);
 			}
 			catch (IOException e)
 			{
@@ -166,8 +158,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 			}
 			
 		}
-
-		//throw new UnsupportedOperationException("Not Yet Implemented");
+		
+		// throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
 	/**
@@ -207,7 +199,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @param directoryPath
 	 *            The location in the file system to save this project to. This path
 	 *            should point to a DIRECTORY.
-	 * 
+	 * 			
 	 * @see #save()
 	 * @throws IllegalArgumentException
 	 *             if the specified path is null, or points to a file instead of a
@@ -222,17 +214,17 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	public void saveAs(String filePath)
 	{
 		File location = new File(filePath);
-		if(location.exists())
+		if (location.exists())
 		{
 			System.out.println("Already Exists");
-		}else
+		}
+		else
 		{
 			File srcFile = new File(filePath + File.separator + "src");
 			srcFile.mkdirs();
 		}
 		this.setPath(filePath);
 		this.save();
-		
 		
 	}
 	

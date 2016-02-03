@@ -422,12 +422,12 @@ public class Main extends Application
 		project.add(new PLPSourceFile(project, "main.asm"));
 		project.add(new PLPSourceFile(project, "sorting.asm"));
 		project.add(new PLPSourceFile(project, "division.asm"));
-		//projects.add(project);
+		// projects.add(project);
 		
 		project = new PLPProject("Assignment2");
 		project.add(new PLPSourceFile(project, "main.asm"));
 		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
-		//projects.add(project);
+		// projects.add(project);
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
@@ -1170,19 +1170,20 @@ public class Main extends Application
 					alert.showAndWait();
 				}
 				
-				if(!fileName.contains(".asm"))
+				if (!fileName.contains(".asm"))
 				{
 					fileName = fileName.concat(".asm");
 				}
 				
-				PLPSourceFile createASM = new PLPSourceFile(getProjectByName(projectName), fileName);
+				PLPSourceFile createASM = new PLPSourceFile(getProjectByName(projectName),
+						fileName);
 				getProjectByName(projectName).add(createASM);
 				openFile(createASM);
 				
 				Stage stage = (Stage) create.getScene().getWindow();
 				stage.close();
 			}
-		
+			
 		});
 		
 		grid.add(ASMFileName, 0, 0);
@@ -1251,12 +1252,7 @@ public class Main extends Application
 			public void handle(ActionEvent e)
 			{
 				String chosenLocation = "";
-				FileChooser fileChooser = new FileChooser();
-				// fileChooser.setTitle("Choose Project Location");
 				DirectoryChooser directoryChooser = new DirectoryChooser();
-				// directoryChooser.getExtensionFilters().add(new
-				// FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
-				// directoryChooser.setInitialDirectory(projTextField.getText());
 				directoryChooser.setTitle("Choose Project Location");
 				File file = directoryChooser.showDialog(null);
 				// If Cancel is chosen, throws a null pointer, needs to be fixed
@@ -1364,7 +1360,6 @@ public class Main extends Application
 				stage.close();
 			}
 		});
-		
 		
 		grid.add(projectName, 0, 0);
 		grid.add(projTextField, 1, 0);
