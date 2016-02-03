@@ -78,6 +78,8 @@ public interface Project extends ObservableList<ASMFile>
 	
 	String getPath();
 	
+	String getPathFor(ASMFile child);
+	
 	/**
 	 * Sets the path pointer of this {@link PLPProject}.
 	 * <p>

@@ -4,6 +4,7 @@ import java.awt.geom.IllegalPathStateException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -27,16 +28,17 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	private static final String PROJECT_FILE_NAME = "" + FILE_EXTENSION;
 	
 	/**
-	 * Path to this project on in the file system. If the this project exists in memory
-	 * only (it has not yet been written to disk), then the value contained by
+	 * Path to this project in the file system. If the this project exists in memory only
+	 * (it has not yet been written to disk), then the value contained by
 	 * {@link #pathProperty} should be null.
 	 * <p>
 	 * Note that {@link #pathProperty} itself should always be non-null.
 	 * <p>
 	 * Also note that the path should point to a directory, unless the project was loaded
 	 * from a legacy source. The actual project FILE will be located in the given
-	 * directory, with the name "{@value #PROJECT_FILE_NAME}" The files contained by this
-	 * project will be located in a subdirectory named "src"
+	 * directory, with the name "{@value #PROJECT_FILE_NAME}"
+	 * <p>
+	 * The files contained by this project will be located in a subdirectory named "src"
 	 * <p>
 	 * In the case of a legacy file, the path will point to the project file directly, and
 	 * no src directory will exist.
@@ -236,8 +238,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	@Override
 	public void saveAs(String filePath) throws IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		
 	}
 	
 	@Override
@@ -286,6 +287,30 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	public String getPath()
 	{
 		return pathProperty.get();
+	}
+	
+	@Override
+	public String getPathFor(ASMFile child)
+	{
+		if (!this.contains(child))
+		{
+			String message = "The specified ASMFile must be a child of this Project. "
+					+ "However, the given file {" + child.getName() + "} is not.";
+			throw new IllegalArgumentException(message);
+		}
+		
+		String location = getPath();
+		if (location == null)
+			return null;
+		
+		File file = new File(location);
+		Path path = file.toPath();
+		String childFileName = child.constructFileName();
+		// TODO: make the directory "src" a constant variable
+		if (file.isDirectory() && childFileName != null)
+			return path.resolve("/src/" + childFileName).toString();
+		else
+			return null;
 	}
 	
 	/**

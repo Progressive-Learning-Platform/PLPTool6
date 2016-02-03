@@ -15,7 +15,6 @@ import javafx.beans.property.StringProperty;
 public class PLPSourceFile implements ASMFile
 {
 	private static final String ENCODING_NAME = "UTF-8";
-	private static final String FILE_EXTENSION = ".asm";
 	
 	private Project project;
 	private StringProperty nameProperty;
@@ -111,16 +110,6 @@ public class PLPSourceFile implements ASMFile
 	{
 		File file = new File(path);
 		return writeToFile(file, overwrite);
-	}
-	
-	private String constructFileName()
-	{
-		// TODO: check name for illegal characters
-		String name = getName();
-		if (name == null)
-			throw new IllegalStateException("Null file name is not allowed");
-		else
-			return name + FILE_EXTENSION;
 	}
 	
 	@Override
