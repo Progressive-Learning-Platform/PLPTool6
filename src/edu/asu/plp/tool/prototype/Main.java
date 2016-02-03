@@ -550,12 +550,12 @@ public class Main extends Application
 		project.add(new PLPSourceFile(project, "main.asm"));
 		project.add(new PLPSourceFile(project, "sorting.asm"));
 		project.add(new PLPSourceFile(project, "division.asm"));
-		// projects.add(project);
+		projects.add(project);
 		
 		project = new PLPProject("Assignment2");
 		project.add(new PLPSourceFile(project, "main.asm"));
 		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
-		// projects.add(project);
+		projects.add(project);
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
