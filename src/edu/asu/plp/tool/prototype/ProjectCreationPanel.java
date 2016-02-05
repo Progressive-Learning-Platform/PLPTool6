@@ -25,6 +25,11 @@ import javafx.stage.Stage;
 
 public class ProjectCreationPanel extends BorderPane
 {
+	private TextField projectNameField;
+	private TextField mainSourceFileNameField;
+	private TextField projectLocationField;
+	private ComboBox<String> projectTypeDropdown;
+
 	public ProjectCreationPanel()
 	{
 		this.setPadding(new Insets(20));
@@ -38,7 +43,7 @@ public class ProjectCreationPanel extends BorderPane
 		projectNameLabel.setText("Project Name: ");
 		projectNameLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField projectNameField = new TextField();
+		projectNameField = new TextField();
 		projectNameField.setText("Project Name");
 		projectNameField.requestFocus();
 		projectNameField.setPrefWidth(200);
@@ -47,7 +52,7 @@ public class ProjectCreationPanel extends BorderPane
 		mainSourceFileNameLabel.setText("File Name: ");
 		mainSourceFileNameLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField mainSourceFileNameField = new TextField();
+		mainSourceFileNameField = new TextField();
 		mainSourceFileNameField.setText("Main.asm");
 		mainSourceFileNameField.setPrefWidth(200);
 		
@@ -55,28 +60,24 @@ public class ProjectCreationPanel extends BorderPane
 		projectLocationLabel.setText("Location: ");
 		projectLocationLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField projectLocationField = new TextField();
+		projectLocationField = new TextField();
 		projectLocationField.setPrefWidth(200);
 		
 		Button browseLocationButton = new Button();
 		browseLocationButton.setText("Browse");
 		browseLocationButton.setOnAction(this::onBrowseLocation);
 		
-		Label target = new Label();
-		target.setText("Targetted ISA: ");
-		target.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		Label projectTypeLabel = new Label();
+		projectTypeLabel.setText("Targetted ISA: ");
+		projectTypeLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		String PLP6 = "PLP6";
 		String legacy = "PLP5(Legacy)";
 		String mips = "MIPS";
 		
-		ComboBox<String> projectType = new ComboBox<String>();
-		projectType.getItems().addAll(PLP6, legacy, mips);
-		projectType.setValue(PLP6);
-		
-		Label version = new Label();
-		version.setText("Version: ");
-		version.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		projectTypeDropdown = new ComboBox<>();
+		projectTypeDropdown.getItems().addAll(PLP6, legacy, mips);
+		projectTypeDropdown.setValue(PLP6);
 		
 		Button createProject = new Button("Create Project");
 		createProject.setOnAction(this::onCreateProject);
@@ -99,9 +100,8 @@ public class ProjectCreationPanel extends BorderPane
 		grid.add(projectLocationLabel, 0, 2);
 		grid.add(projectLocationField, 1, 2);
 		grid.add(browseLocationButton, 2, 2);
-		grid.add(target, 0, 3);
-		grid.add(projectType, 1, 3);
-		grid.add(version, 0, 4);
+		grid.add(projectTypeLabel, 0, 3);
+		grid.add(projectTypeDropdown, 1, 3);
 		
 		this.setCenter(grid);
 		
@@ -158,17 +158,17 @@ public class ProjectCreationPanel extends BorderPane
 			File srcFile = new File(projectLocation + File.separator + "src");
 			srcFile.mkdirs();
 			
-			if (projectType.getValue().equals(PLP6) && !fileName.contains(".asm"))
+			if (projectTypeDropdown.getValue().equals(PLP6) && !fileName.contains(".asm"))
 			{
 				fileName = fileName.concat(".asm");
 			}
 			
-			if (projectType.getValue().equals(legacy) && !fileName.contains(".plp"))
+			if (projectTypeDropdown.getValue().equals(legacy) && !fileName.contains(".plp"))
 			{
 				fileName = fileName.concat(".plp");
 			}
 			
-			if (projectType.getValue().equals(legacy))
+			if (projectTypeDropdown.getValue().equals(legacy))
 			{
 				PLPProject legacyProject = new PLPProject(projectName);
 				legacyProject.setPath(projLocationField.getText());
@@ -187,7 +187,7 @@ public class ProjectCreationPanel extends BorderPane
 				openFile(legacySourceFile);
 			}
 			
-			if (projectType.getValue().equals(PLP6))
+			if (projectTypeDropdown.getValue().equals(PLP6))
 			{
 				PLPProject project = new PLPProject(projectName);
 				project.setPath(projLocationField.getText());
