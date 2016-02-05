@@ -30,7 +30,7 @@ public interface Project extends ObservableList<ASMFile>
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
-	void save();
+	void save() throws IOException;
 	
 	/**
 	 * Outputs this project and all its files, as specified by {@link #save()}, to the
@@ -60,7 +60,7 @@ public interface Project extends ObservableList<ASMFile>
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
-	void saveAs(String filePath);
+	void saveAs(String filePath) throws IOException;
 	
 	StringProperty getNameProperty();
 	
@@ -77,6 +77,8 @@ public interface Project extends ObservableList<ASMFile>
 	StringProperty getPathProperty();
 	
 	String getPath();
+	
+	String getPathFor(ASMFile child);
 	
 	/**
 	 * Sets the path pointer of this {@link PLPProject}.

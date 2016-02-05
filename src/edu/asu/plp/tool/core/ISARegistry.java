@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
 
 public class ISARegistry
@@ -50,7 +52,8 @@ public class ISARegistry
 		Function<String, Boolean> supportsProjectType;
 		supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
 		Simulator simulator = new PLPSimulator();
-		ISAModule plp6Module = new ISAModule(null, simulator, supportsProjectType);
+		Assembler assembler = new PLPAssembler();
+		ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
 		registeredModules.add(plp6Module);
 	}
 	

@@ -7,6 +7,8 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
@@ -61,13 +63,18 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import moore.fx.components.Components;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.io.FileUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
+import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.PLPProject;
@@ -96,11 +103,13 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	public boolean simMode = false;
 	
+	private Simulator activeSimulator;
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	// XXX: openProjects is a misnomer - should be openFiles
 	private BidiMap<ASMFile, Tab> openProjects;
 	private ObservableList<Project> projects;
+	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
 	
@@ -115,6 +124,7 @@ public class Main extends Application
 		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 		
+		this.assemblyDetails = new HashMap<>();
 		this.openProjects = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
@@ -169,6 +179,34 @@ public class Main extends Application
 				new ExtensionFilter("PLP6 Project Files", plp6Extension),
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
+				new ExtensionFilter("All Files", "*.*"));
+				
+		return fileChooser.showOpenDialog(stage);
+	}
+	
+	private File showExportDialogue(ASMFile exportItem)
+	{
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Export");
+		fileChooser.setInitialFileName(exportItem.getName() + ".asm");
+		
+		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("PLP6 Project Files", plp6Extension),
+				new ExtensionFilter("Legacy Project Files", "*.plp"),
+				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
+				new ExtensionFilter("All Files", "*.*"));
+				
+		return fileChooser.showOpenDialog(stage);
+	}
+	
+	private File showImportDialogue()
+	{
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Import ASM");
+		
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("ASM Files", "*.asm"),
 				new ExtensionFilter("All Files", "*.*"));
 				
 		return fileChooser.showOpenDialog(stage);
@@ -333,7 +371,15 @@ public class Main extends Application
 	
 	private void saveProject(MouseEvent event)
 	{
-		getActiveProject().save();
+		try
+		{
+			getActiveProject().save();
+		}
+		catch (IOException e)
+		{
+			// TODO report exception to user
+			e.printStackTrace();
+		}
 	}
 	
 	private void saveProjectAs()
@@ -418,11 +464,20 @@ public class Main extends Application
 				}
 				else
 				{
+					// TODO: this is either a misnomer (should be path) or an issue
 					projectName = projLocationField.getText();
-					getActiveProject().saveAs(projectName);
+					Project activeProject = getActiveProject();
+					try
+					{
+						activeProject.saveAs(projectName);
+					}
+					catch (IOException ioException)
+					{
+						// TODO report exception to user
+						ioException.printStackTrace();
+					}
 					Stage stage = (Stage) saveAsButton.getScene().getWindow();
 					stage.close();
-					
 				}
 			}
 		});
@@ -665,12 +720,12 @@ public class Main extends Application
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		button = new ImageView("toolbar_step.png");
-		listener = (event) -> console.println("Step Through Project Clicked");
+		listener = this::onStepClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
 		button = new ImageView("toolbar_run.png");
-		listener = (event) -> console.println("Run Project Clicked");
+		listener = this::onRunProjectClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -749,6 +804,56 @@ public class Main extends Application
 		return Components.wrap(toolbar);
 	}
 	
+	private void onStepClicked(MouseEvent event)
+	{
+		console.println("Step Through Project Clicked");
+		activeSimulator.step();
+	}
+	
+	private void onRunProjectClicked(ActionEvent event)
+	{
+		console.println("Run Project Clicked (from menu)");
+		onRunProjectClicked();
+	}
+	
+	private void onRunProjectClicked(MouseEvent event)
+	{
+		console.println("Run Project Clicked (from button)");
+		onRunProjectClicked();
+	}
+	
+	private void onRunProjectClicked()
+	{
+		Project activeProject = getActiveProject();
+		
+		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
+		if (details != null && !details.isDirty())
+		{
+			run(activeProject);
+		}
+		else
+		{
+			// TODO: handle "Project Not Assembled" case
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+	}
+	
+	private void run(Project project)
+	{
+		Optional<ISAModule> optionalISA = project.getISA();
+		if (optionalISA.isPresent())
+		{
+			ISAModule isa = optionalISA.get();
+			Simulator simulator = isa.getSimulator();
+			simulator.run();
+		}
+		else
+		{
+			// TODO: handle "no compatible ISA" case
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+	}
+
 	private Parent createMenuBar()
 	{
 		MenuBar menuBar = new MenuBar();
@@ -894,7 +999,9 @@ public class Main extends Application
 		itemAssemble.setGraphic(new ImageView(new Image("toolbar_assemble.png")));
 		itemAssemble.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 		itemAssemble.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			console.println("Assemble Menu Item Clicked");
+			Project activeProject = getActiveProject();
+			assemble(activeProject);
 		});
 		
 		MenuItem itemSimulate = new MenuItem("Simulate");
@@ -926,19 +1033,83 @@ public class Main extends Application
 		
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
 		itemImportASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			File importTarget = showImportDialogue();
+			try
+			{
+				String content = FileUtils.readFileToString(importTarget);
+				Project activeProject = getActiveProject();
+				String name = importTarget.getName();
+				
+				// TODO: account for non-PLP source files
+				ASMFile asmFile = new PLPSourceFile(activeProject, name);
+				asmFile.setContent(content);
+				activeProject.add(asmFile);
+				activeProject.save();
+			}
+			catch (Exception exception)
+			{
+				Dialogues.showAlertDialogue(exception, "Failed to import asm");
+			}
 		});
 		
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
 		itemExportASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			ASMFile activeFile = getActiveFile();
+			if (activeFile == null)
+			{
+				// XXX: possible feature: select file from a list or dropdown
+				String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
+				Dialogues.showInfoDialogue(message);
+			}
+			
+			File exportTarget = showExportDialogue(activeFile);
+			if (exportTarget == null)
+				return;
+			
+			if (exportTarget.isDirectory())
+			{
+				String exportPath = exportTarget.getAbsolutePath() 
+						+ activeFile.constructFileName();
+				exportTarget = new File(exportPath);
+				
+				String message = "File will be exported to " + exportPath;
+				Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+				
+				if (result.get() != ButtonType.OK)
+				{
+					// Export was canceled
+					return;
+				}
+			}
+			
+			if (exportTarget.exists())
+			{
+				String message = "The specified file already exists. Press OK to overwrite this file, or cancel to cancel the export.";
+				Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+				
+				if (result.get() != ButtonType.OK)
+				{
+					// Export was canceled
+					return;
+				}
+			}
+			
+			String fileContents = activeFile.getContent();
+			try
+			{
+				FileUtils.write(exportTarget, fileContents);
+			}
+			catch (Exception exception)
+			{
+				Dialogues.showAlertDialogue(exception, "Failed to export asm");
+			}
 		});
 		
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
 		itemRemoveASM.setAccelerator(
 				new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
 		itemRemoveASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			removeActiveFile();
 		});
 		
 		MenuItem itemCurrentAsMain = new MenuItem(
@@ -1009,10 +1180,7 @@ public class Main extends Application
 		
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
-		itemRun.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
-		
+		itemRun.setOnAction(this::onRunProjectClicked);
 		Menu cyclesSteps = new Menu("Cycles/Steps");
 		MenuItem itemOne = new MenuItem("1");
 		itemOne.setAccelerator(
@@ -1234,14 +1402,17 @@ public class Main extends Application
 	{
 		console.println("Assemble Button Clicked");
 		Project activeProject = getActiveProject();
-		Optional<ISAModule> optionalISA = activeProject.getISA();
+		assemble(activeProject);
+	}
+	
+	private void assemble(Project project)
+	{
+		Optional<ISAModule> optionalISA = project.getISA();
 		if (optionalISA.isPresent())
 		{
 			ISAModule isa = optionalISA.get();
 			Assembler assembler = isa.getAssembler();
-			// TODO: finish implementation
-			// assembler.assemble(activeProject);
-			throw new UnsupportedOperationException("Not yet implemented");
+			assemble(assembler, project);
 		}
 		else
 		{
@@ -1250,14 +1421,62 @@ public class Main extends Application
 		}
 	}
 	
+	private void assemble(Assembler assembler, Project project)
+	{
+		try
+		{
+			ASMImage assembledImage = assembler.assemble(project);
+			ProjectAssemblyDetails details = getAssemblyDetailsFor(project);
+			details.setAssembledImage(assembledImage);
+		}
+		catch (AssemblerException exception)
+		{
+			console.error(exception.getLocalizedMessage());
+		}
+	}
+
+	private ProjectAssemblyDetails getAssemblyDetailsFor(Project activeProject)
+	{
+		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
+		
+		if (details == null)
+		{
+			details = new ProjectAssemblyDetails();
+			assemblyDetails.put(activeProject, details);
+		}
+		
+		return details;
+	}
+
 	private Project getActiveProject()
 	{
-		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
-		ASMFile activeFile = openProjects.getKey(selectedTab);
+		ASMFile activeFile = getActiveFile();
 		// TODO: check activeFile for null-value
 		return activeFile.getProject();
 	}
 	
+	private ASMFile getActiveFileInTabPane()
+	{
+		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		return openProjects.getKey(selectedTab);
+	}
+	
+	private ASMFile getActiveFileInProjectExplorer()
+	{
+		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
+		ASMFile selectedFile = selection.getValue();
+		return selectedFile;
+	}
+	
+	private ASMFile getActiveFile()
+	{
+		ASMFile selectedFile = getActiveFileInTabPane();
+		if (selectedFile == null)
+			return getActiveFileInProjectExplorer();
+		else 
+			return selectedFile;
+	}
+
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
 	{
 		// TODO: Take out the hard values and replace with a better solution
@@ -1269,6 +1488,7 @@ public class Main extends Application
 				toolbar.getChildren().get(x).setEffect(null);
 				toolbar.getChildren().get(x).setDisable(false);
 			}
+			// TODO: instantiate and set this.activeSimulator
 			simMode = true;
 		}
 		else
@@ -1278,6 +1498,7 @@ public class Main extends Application
 				toolbar.getChildren().get(x).setEffect(ds);
 				toolbar.getChildren().get(x).setDisable(true);
 			}
+			activeSimulator = null;
 			simMode = false;
 		}
 	}
@@ -1301,6 +1522,88 @@ public class Main extends Application
 			Dialogues.showInfoDialogue("There was a problem, unable to open webpage.");
 			e.printStackTrace();
 		}
+	}
+	
+	private void removeActiveFile()
+	{
+		ASMFile activeFile = getActiveFile();
+		if (activeFile == null)
+		{
+			// XXX: possible feature: select file from a list or dropdown
+			String message = "No file is selected! Select the file you wish to remove in the ProjectExplorer, then click remove.";
+			Dialogues.showInfoDialogue(message);
+			return;
+		}
+		
+		File removalTarget = findDiskObjectForASM(activeFile);
+		if (removalTarget == null)
+		{
+			// XXX: show a confirmation dialogue to confirm removal
+			String message = "Unable to locate file on disk. "
+					+ "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + 
+					"\" but it is suggested that you verify the deletion from disk manually.";
+			Dialogues.showInfoDialogue(message);
+			Project activeProject = activeFile.getProject();
+			activeProject.remove(activeFile);
+			return;
+		}
+		
+		if (removalTarget.isDirectory())
+		{
+			// XXX: show a confirmation dialogue to confirm removal
+			String message = "The path specified is a directory, but should be a file."
+					+ "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + 
+					"\" but it is suggested that you verify the deletion from disk manually.";
+			Exception exception = new IllegalStateException("The path to the specified ASMFile is a directory, but should be a file.");
+			Dialogues.showAlertDialogue(exception, message);
+			return;
+		}
+		else
+		{
+			String message = "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + "\" and the file at \""
+					+ removalTarget.getAbsolutePath() + "\" will be deleted.";
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Removal was canceled
+				return;
+			}
+		}
+		
+		if (!removalTarget.exists())
+		{
+			String message = "Unable to locate file on disk. The file will be removed from the project, but it is suggested that you verify the deletion from disk manually.";
+			Dialogues.showInfoDialogue(message);
+		}
+		
+		try
+		{
+			boolean wasRemoved = removalTarget.delete();
+			if (!wasRemoved)
+				throw new Exception("The file \"" 
+						+ removalTarget.getAbsolutePath() + "\" was not deleted.");
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception, "Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
+		}
+	}
+	
+	private File findDiskObjectForASM(ASMFile activeFile)
+	{
+		Project project = activeFile.getProject();
+		String path = project.getPathFor(activeFile);
+		if (path == null)
+			return null;
+		
+		return new File(path);
 	}
 	
 	private void createASMFile(MouseEvent event)
@@ -1407,7 +1710,6 @@ public class Main extends Application
 		createProjectStage.setScene(scene);
 		createProjectStage.setResizable(false);
 		createProjectStage.show();
-		
 	}
 	
 	private Parent projectCreateMenu()
@@ -1534,7 +1836,15 @@ public class Main extends Application
 						legacyProject.setPath(projLocationField.getText());
 						PLPSourceFile legacySourceFile = new PLPSourceFile(legacyProject,
 								fileName);
-						legacyProject.saveLegacy();
+						try
+						{
+							legacyProject.saveLegacy();
+						}
+						catch (IOException ioException)
+						{
+							// TODO report exception to user
+							ioException.printStackTrace();
+						}
 						projects.add(legacyProject);
 						openFile(legacySourceFile);
 					}
@@ -1545,7 +1855,15 @@ public class Main extends Application
 						project.setPath(projLocationField.getText());
 						PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
 						project.add(sourceFile);
-						project.save();
+						try
+						{
+							project.save();
+						}
+						catch (IOException ioException)
+						{
+							// TODO report exception to user
+							ioException.printStackTrace();
+						}
 						projects.add(project);
 						openFile(sourceFile);
 					}
@@ -1556,6 +1874,7 @@ public class Main extends Application
 				}
 			}
 		});
+		
 		createProject.setDefaultButton(true);
 		Button cancelCreate = new Button("Cancel");
 		cancelCreate.setOnAction(new EventHandler<ActionEvent>() {
