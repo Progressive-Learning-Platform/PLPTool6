@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -100,7 +101,7 @@ public class Main extends Application
 	public static final long REVISION = 1;
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
-	public static boolean simMode = false;
+	public boolean simMode = false;
 	
 	private Simulator activeSimulator;
 	private Stage stage;
@@ -354,29 +355,158 @@ public class Main extends Application
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openProjects.put(file, tab);
+			
+			// Set content
+			content.setText(file.getContent());
+			
+			// Bind content
+			ChangeListener<? super String> onChanged;
+			onChanged = (value, old, current) -> content.setText(file.getContent());
+			file.contentProperty().addListener(onChanged);
 		}
 		
 		// Activate the specified tab
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
 	
-	private void saveProjectFile()
+	private void saveProject(MouseEvent event)
 	{
-		for (ASMFile sourceFile : openProjects.keySet())
+		try
 		{
-			File tempFile = new File(sourceFile.getName());
-			console.println(sourceFile.getProject().getPath());
-			try
-			{
-				sourceFile.writeToFile(tempFile);
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// sourceFile.getProject().save();
+			getActiveProject().save();
 		}
+		catch (IOException e)
+		{
+			// TODO report exception to user
+			e.printStackTrace();
+		}
+	}
+	
+	private void saveProjectAs()
+	{
+		Stage createProjectStage = new Stage();
+		Parent myPane = saveAsMenu();
+		Scene scene = new Scene(myPane, 600, 350);
+		createProjectStage.setTitle("Save Project As");
+		createProjectStage.setScene(scene);
+		createProjectStage.setResizable(false);
+		createProjectStage.show();
+		
+	}
+	
+	private Parent saveAsMenu()
+	{
+		BorderPane border = new BorderPane();
+		border.setPadding(new Insets(20));
+		GridPane grid = new GridPane();
+		HBox buttons = new HBox(10);
+		grid.setHgap(10);
+		grid.setVgap(30);
+		grid.setPadding(new Insets(10, 10, 10, 10));
+		
+		Label projectName = new Label();
+		projectName.setText("New Project Name: ");
+		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projTextField = new TextField();
+		projTextField.setText("Project Name");
+		projTextField.requestFocus();
+		projTextField.setPrefWidth(200);
+		
+		Label selectedProject = new Label();
+		selectedProject.setText("Save Project: \"" + getActiveProject().getName() + "\" as :");
+		selectedProject.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label projectLocation = new Label();
+		projectLocation.setText("Location: ");
+		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projLocationField = new TextField();
+		projTextField.setPrefWidth(200);
+		
+		Button browseLocation = new Button();
+		browseLocation.setText("Browse");
+		browseLocation.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				String chosenLocation = "";
+				DirectoryChooser directoryChooser = new DirectoryChooser();
+				directoryChooser.setTitle("Choose Project Location");
+				File file = directoryChooser.showDialog(null);
+				if (file != null)
+				{
+					chosenLocation = file.getAbsolutePath()
+							.concat(File.separator + projTextField.getText());
+					projLocationField.setText(chosenLocation);
+				}
+				
+			}
+		});
+		
+		Button saveAsButton = new Button("Save");
+		saveAsButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				String projectName;
+				String projectLocation;
+				projectName = projTextField.getText();
+				projectLocation = projLocationField.getText();
+				if (projectName == null || projectName.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid Project Name");
+				}
+				else if (projectLocation == null || projectLocation.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid Project Location");
+					
+				}
+				else
+				{
+					// TODO: this is either a misnomer (should be path) or an issue
+					projectName = projLocationField.getText();
+					Project activeProject = getActiveProject();
+					try
+					{
+						activeProject.saveAs(projectName);
+					}
+					catch (IOException ioException)
+					{
+						// TODO report exception to user
+						ioException.printStackTrace();
+					}
+					Stage stage = (Stage) saveAsButton.getScene().getWindow();
+					stage.close();
+				}
+			}
+		});
+		saveAsButton.setDefaultButton(true);
+		Button cancelCreate = new Button("Cancel");
+		cancelCreate.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				Stage stage = (Stage) cancelCreate.getScene().getWindow();
+				stage.close();
+			}
+		});
+		
+		grid.add(projectName, 0, 0);
+		grid.add(projTextField, 1, 0);
+		//grid.add(selectedProject, 0, 1);
+		grid.add(projectLocation, 0, 2);
+		grid.add(projLocationField, 1, 2);
+		grid.add(browseLocation, 2, 2);
+		
+		border.setTop(selectedProject);
+		border.setCenter(grid);
+		
+		buttons.getChildren().addAll(saveAsButton, cancelCreate);
+		buttons.setAlignment(Pos.BASELINE_RIGHT);
+		border.setBottom(buttons);
+		
+		return Components.wrap(border);
 	}
 	
 	private CodeEditor createCodeEditor()
@@ -509,10 +639,10 @@ public class Main extends Application
 		EventHandler<MouseEvent> listener;
 		Node button;
 		
-		DropShadow lBlueShadow = new DropShadow();
-		lBlueShadow.setColor(Color.LIGHTBLUE);
-		DropShadow dBlueShadow = new DropShadow();
-		dBlueShadow.setColor(Color.DARKBLUE);
+		DropShadow lightBlueShadow = new DropShadow();
+		lightBlueShadow.setColor(Color.LIGHTBLUE);
+		DropShadow darkBlueShadow = new DropShadow();
+		darkBlueShadow.setColor(Color.DARKBLUE);
 		
 		// TODO: replace event handlers with actual content
 		Node projectButton = new ImageView("toolbar_new.png");
@@ -521,7 +651,7 @@ public class Main extends Application
 					@Override
 					public void handle(MouseEvent e)
 					{
-						projectButton.setEffect(lBlueShadow);
+						projectButton.setEffect(lightBlueShadow);
 					}
 				});
 		// Removing the shadow when the mouse cursor is off
@@ -542,7 +672,7 @@ public class Main extends Application
 						
 						createNewProject();
 						
-						projectButton.setEffect(dBlueShadow);
+						projectButton.setEffect(darkBlueShadow);
 					}
 				});
 		projectButton.addEventHandler(MouseEvent.MOUSE_RELEASED,
@@ -550,18 +680,13 @@ public class Main extends Application
 					@Override
 					public void handle(MouseEvent e)
 					{
-						projectButton.setEffect(lBlueShadow);
+						projectButton.setEffect(lightBlueShadow);
 					}
 				});
 		buttons.add(projectButton);
 		
-		button = new ImageView("toolbar_new.png");
-		listener = (event) -> console.println("new Project Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
 		Node newFileButton = new ImageView("menu_new.png");
-		listener = (event) -> console.println("New File Clicked");
+		listener = this::createASMFile;
 		newFileButton.setOnMouseClicked(listener);
 		buttons.add(newFileButton);
 		
@@ -573,7 +698,7 @@ public class Main extends Application
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		button = new ImageView("toolbar_save.png");
-		listener = this::onSaveProjectClicked;
+		listener = this::saveProject;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -671,8 +796,8 @@ public class Main extends Application
 		
 		for (int x = 9; x <= 23; x++)
 		{
-			DropShadow ds = new DropShadow();
-			toolbar.getChildren().get(x).setEffect(ds);
+			DropShadow dropShadow = new DropShadow();
+			toolbar.getChildren().get(x).setEffect(dropShadow);
 			toolbar.getChildren().get(x).setDisable(true);
 		}
 		
@@ -742,6 +867,7 @@ public class Main extends Application
 		itemNew.setOnAction((event) -> {
 			createNewProject();
 		});
+		
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
 		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
 		itemOpen.setAccelerator(
@@ -749,6 +875,7 @@ public class Main extends Application
 		itemOpen.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSave = new MenuItem("Save");
 		itemSave.setGraphic(new ImageView(new Image("toolbar_save.png")));
 		itemSave.setAccelerator(
@@ -756,18 +883,22 @@ public class Main extends Application
 		itemSave.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSaveAs = new MenuItem("Save As");
 		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemSaveAs.setOnAction((event) -> {
 			// TODO: Add Event for menu item
+			saveProjectAs();
 		});
+		
 		MenuItem itemPrint = new MenuItem("Print");
 		itemPrint.setAccelerator(
 				new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN));
 		itemPrint.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemExit = new MenuItem("Exit");
 		itemExit.setAccelerator(
 				new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
@@ -787,36 +918,42 @@ public class Main extends Application
 		itemCopy.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCut = new MenuItem("Cut");
 		itemCut.setAccelerator(
 				new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
 		itemCut.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPaste = new MenuItem("Paste");
 		itemPaste.setAccelerator(
 				new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
 		itemPaste.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemFandR = new MenuItem("Find and Replace");
 		itemFandR.setAccelerator(
 				new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 		itemFandR.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemUndo = new MenuItem("Undo");
 		itemUndo.setAccelerator(
 				new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
 		itemUndo.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRedo = new MenuItem("Redo");
 		itemRedo.setAccelerator(
 				new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
 		itemRedo.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		edit.getItems().addAll(itemCopy, itemCut, itemPaste, new SeparatorMenuItem(),
 				itemFandR, new SeparatorMenuItem(), itemUndo, itemRedo);
 				
@@ -828,18 +965,21 @@ public class Main extends Application
 		cItemToolbar.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		CheckMenuItem cItemProjectPane = new CheckMenuItem("Project Pane");
 		cItemProjectPane.setAccelerator(new KeyCodeCombination(KeyCode.P,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		cItemProjectPane.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		CheckMenuItem cItemOutputPane = new CheckMenuItem("Output Pane");
 		cItemOutputPane.setAccelerator(new KeyCodeCombination(KeyCode.O,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		cItemOutputPane.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemClearOutput = new MenuItem("Clear Output Pane");
 		itemClearOutput.setAccelerator(
 				new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
@@ -870,6 +1010,7 @@ public class Main extends Application
 		itemSimulate.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPLPBoard = new MenuItem("Program PLP Board...");
 		itemPLPBoard.setGraphic(new ImageView(new Image("toolbar_program.png")));
 		itemPLPBoard.setAccelerator(
@@ -877,15 +1018,19 @@ public class Main extends Application
 		itemPLPBoard.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemQuickProgram = new MenuItem("Quick Program");
 		itemQuickProgram.setAccelerator(new KeyCodeCombination(KeyCode.F4));
 		itemQuickProgram.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemNewASM = new MenuItem("New ASM File...");
 		itemNewASM.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			createASMFile(null);
+			// TODO: Check this implementation, doesnt look correct
 		});
+		
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
 		itemImportASM.setOnAction((event) -> {
 			File importTarget = showImportDialogue();
@@ -966,11 +1111,13 @@ public class Main extends Application
 		itemRemoveASM.setOnAction((event) -> {
 			removeActiveFile();
 		});
+		
 		MenuItem itemCurrentAsMain = new MenuItem(
 				"Set Current Open File as Main Program");
 		itemCurrentAsMain.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		project.getItems().addAll(itemAssemble, itemSimulate, itemPLPBoard,
 				itemQuickProgram, new SeparatorMenuItem(), itemNewASM, itemImportASM,
 				itemExportASM, itemRemoveASM, new SeparatorMenuItem(), itemCurrentAsMain);
@@ -981,30 +1128,36 @@ public class Main extends Application
 		itemOptions.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu modules = new Menu("Modules");
 		MenuItem itemModuleManager = new MenuItem("Module Manager...");
 		itemModuleManager.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemLoadJar = new MenuItem("Load Module JAR File...");
 		itemLoadJar.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemClearCache = new MenuItem("Clear Module Auto-Load Cache");
 		itemClearCache.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSerialTerminal = new MenuItem("Serial Terminal");
 		itemSerialTerminal.setAccelerator(
 				new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN));
 		itemSerialTerminal.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemNumConverter = new MenuItem("Number Converter");
 		itemNumConverter.setAccelerator(new KeyCodeCombination(KeyCode.F12));
 		itemNumConverter.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		modules.getItems().addAll(itemModuleManager, itemLoadJar, itemClearCache);
 		tools.getItems().addAll(itemOptions, modules, new SeparatorMenuItem(),
 				itemSerialTerminal, itemNumConverter);
@@ -1017,12 +1170,14 @@ public class Main extends Application
 		itemStep.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemReset = new MenuItem("Reset");
 		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
 		itemReset.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
 		itemRun.setOnAction(this::onRunProjectClicked);
@@ -1033,36 +1188,42 @@ public class Main extends Application
 		itemOne.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemFive = new MenuItem("5");
 		itemFive.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD2, KeyCombination.ALT_DOWN));
 		itemFive.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemTwenty = new MenuItem("20");
 		itemTwenty.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD3, KeyCombination.ALT_DOWN));
 		itemTwenty.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemHundred = new MenuItem("100");
 		itemHundred.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD4, KeyCombination.ALT_DOWN));
 		itemHundred.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemFiveThousand = new MenuItem("5000");
 		itemFiveThousand.setAccelerator(
 				new KeyCodeCombination(KeyCode.NUMPAD5, KeyCombination.ALT_DOWN));
 		itemFiveThousand.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemClearBreakpoints = new MenuItem("Clear Breakpoints");
 		itemClearBreakpoints.setAccelerator(
 				new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN));
 		itemClearBreakpoints.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu views = new Menu("Views");
 		MenuItem itemCpuView = new MenuItem("CPU View");
 		itemCpuView.setAccelerator(new KeyCodeCombination(KeyCode.C,
@@ -1070,18 +1231,21 @@ public class Main extends Application
 		itemCpuView.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCpuWindow = new MenuItem("Watcher Window");
 		itemCpuWindow.setAccelerator(new KeyCodeCombination(KeyCode.W,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemCpuWindow.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSimControlWindow = new MenuItem("Simulation Control Window");
 		itemSimControlWindow.setAccelerator(
 				new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
 		itemSimControlWindow.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu toolsSubMenu = new Menu("Tools");
 		MenuItem itemioRegistry = new MenuItem("I/O Registry");
 		itemioRegistry.setAccelerator(new KeyCodeCombination(KeyCode.R,
@@ -1089,23 +1253,28 @@ public class Main extends Application
 		itemioRegistry.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemASMView = new MenuItem("ASM View");
 		itemASMView.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemCreateMemVis = new MenuItem("Create a PLP CPU Memory Visualizer");
 		itemCreateMemVis.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemRemoveMemVis = new MenuItem(
 				"Remove Memory Visualizers from Project");
 		itemRemoveMemVis.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemDisplayBus = new MenuItem("Display Bus Monitor Timing Diagram");
 		itemDisplayBus.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		Menu ioDevices = new Menu("I/O Devices");
 		MenuItem itemLedArray = new MenuItem("LED Array");
 		itemLedArray.setGraphic(new ImageView(new Image("toolbar_sim_leds.png")));
@@ -1114,6 +1283,7 @@ public class Main extends Application
 		itemLedArray.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSwitches = new MenuItem("Switches");
 		itemSwitches.setGraphic(new ImageView(new Image("toolbar_sim_switches.png")));
 		itemSwitches.setAccelerator(
@@ -1121,6 +1291,7 @@ public class Main extends Application
 		itemSwitches.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSevenSeg = new MenuItem("Seven Segments");
 		itemSevenSeg.setGraphic(new ImageView(new Image("toolbar_sim_7segments.png")));
 		itemSevenSeg.setAccelerator(
@@ -1128,6 +1299,7 @@ public class Main extends Application
 		itemSevenSeg.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemUART = new MenuItem("UART");
 		itemUART.setGraphic(new ImageView(new Image("toolbar_sim_uart.png")));
 		itemUART.setAccelerator(
@@ -1135,6 +1307,7 @@ public class Main extends Application
 		itemUART.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemVGA = new MenuItem("VGA");
 		itemVGA.setGraphic(new ImageView(new Image("toolbar_sim_vga.png")));
 		itemVGA.setAccelerator(
@@ -1142,6 +1315,7 @@ public class Main extends Application
 		itemVGA.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemPLPID = new MenuItem("PLPID");
 		itemPLPID.setGraphic(new ImageView(new Image("toolbar_sim_plpid.png")));
 		itemPLPID.setAccelerator(
@@ -1149,6 +1323,7 @@ public class Main extends Application
 		itemPLPID.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemGPIO = new MenuItem("GPIO");
 		itemGPIO.setGraphic(new ImageView(new Image("toolbar_sim_gpio.png")));
 		itemGPIO.setAccelerator(
@@ -1156,11 +1331,13 @@ public class Main extends Application
 		itemGPIO.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemExitSim = new MenuItem("ExitSimulation");
 		itemExitSim.setAccelerator(new KeyCodeCombination(KeyCode.F11));
 		itemExitSim.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		cyclesSteps.getItems().addAll(itemOne, itemFive, itemTwenty, itemHundred,
 				itemFiveThousand);
 		views.getItems().addAll(itemCpuView, itemCpuWindow, itemSimControlWindow);
@@ -1180,26 +1357,32 @@ public class Main extends Application
 		itemQuickRef.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemOnlineManual = new MenuItem("Online Manual");
 		itemOnlineManual.setOnAction((event) -> {
 			onlineManualWeb();
 		});
+		
 		MenuItem itemReportIssue = new MenuItem("Report Issue (Requires Google Account");
 		itemReportIssue.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemGoogleIssues = new MenuItem("Open Google Code Issues Page");
 		itemGoogleIssues.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemAboutPLP = new MenuItem("About PLP Tool...");
 		itemAboutPLP.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		MenuItem itemSWLicense = new MenuItem("Third Party Software License");
 		itemSWLicense.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 		});
+		
 		help.getItems().addAll(itemQuickRef, itemOnlineManual, new SeparatorMenuItem(),
 				itemReportIssue, itemGoogleIssues, new SeparatorMenuItem(), itemAboutPLP,
 				itemSWLicense);
@@ -1213,12 +1396,6 @@ public class Main extends Application
 	{
 		console.println("Open Project Clicked");
 		openProjectFromFile();
-	}
-	
-	private void onSaveProjectClicked(MouseEvent event)
-	{
-		console.println("Save Project Button Clicked");
-		saveProjectFile();
 	}
 	
 	private void onAssembleProjectClicked(MouseEvent event)
@@ -1302,6 +1479,7 @@ public class Main extends Application
 
 	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
 	{
+		// TODO: Take out the hard values and replace with a better solution
 		DropShadow ds = new DropShadow();
 		if (!simMode)
 		{
@@ -1331,12 +1509,17 @@ public class Main extends Application
 		{
 			if (Desktop.isDesktopSupported())
 			{
-				Desktop.getDesktop().browse(new URI(
-						"https://code.google.com/p/progressive-learning-platform/wiki/UserManual"));
+				URI webAddress = new URI(
+						"https://code.google.com/p/progressive-learning-platform/wiki/UserManual");
+				Desktop.getDesktop().browse(webAddress);
 			}
+			else
+				Dialogues.showInfoDialogue(
+						"The Wiki page was unable to open\nTo open Manually here is the link:\nhttps://code.google.com/p/progressive-learning-platform/wiki/UserManual ");
 		}
 		catch (Exception e)
 		{
+			Dialogues.showInfoDialogue("There was a problem, unable to open webpage.");
 			e.printStackTrace();
 		}
 	}
@@ -1423,6 +1606,101 @@ public class Main extends Application
 		return new File(path);
 	}
 	
+	private void createASMFile(MouseEvent event)
+	{
+		if (projects.isEmpty())
+		{
+			Dialogues.showInfoDialogue(
+					"There are not projects open, please create a project first.");
+		}
+		else
+		{
+			Stage createASMStage = new Stage();
+			Parent myPane = createASMMenu();
+			Scene scene = new Scene(myPane, 450, 200);
+			createASMStage.setTitle("New ASMFile");
+			createASMStage.setScene(scene);
+			createASMStage.setResizable(false);
+			createASMStage.show();
+		}
+	}
+	
+	private Parent createASMMenu()
+	{
+		BorderPane border = new BorderPane();
+		border.setPadding(new Insets(20));
+		GridPane grid = new GridPane();
+		HBox buttons = new HBox(10);
+		grid.setHgap(10);
+		grid.setVgap(30);
+		grid.setPadding(new Insets(10, 10, 10, 10));
+		
+		Label ASMFileName = new Label();
+		ASMFileName.setText("File Name: ");
+		ASMFileName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField nameText = new TextField();
+		nameText.setText("");
+		nameText.requestFocus();
+		nameText.setPrefWidth(200);
+		
+		Label projectName = new Label();
+		projectName.setText("Add to Project: ");
+		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		TextField projectText = new TextField();
+		projectText.setText(getActiveProject().getName());
+		projectText.setPrefWidth(200);
+		
+		Button create = new Button();
+		create.setText("Create");
+		create.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e)
+			{
+				String projectName = projectText.getText();
+				String fileName = nameText.getText();
+				
+				if (projectName.equals("") || getProjectByName(projectName).equals(null))
+				{
+					Dialogues.showInfoDialogue("You entered an invalid Project Name");
+					
+				}
+				
+				if (fileName == null || fileName.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid File Name");
+				}
+				
+				if (!fileName.contains(".asm"))
+				{
+					fileName = fileName.concat(".asm");
+				}
+				
+				PLPSourceFile createASM = new PLPSourceFile(getProjectByName(projectName),
+						fileName);
+				getProjectByName(projectName).add(createASM);
+				openFile(createASM);
+				
+				Stage stage = (Stage) create.getScene().getWindow();
+				stage.close();
+			}
+			
+		});
+		
+		grid.add(ASMFileName, 0, 0);
+		grid.add(nameText, 1, 0);
+		grid.add(projectName, 0, 1);
+		grid.add(projectText, 1, 1);
+		
+		border.setCenter(grid);
+		buttons.getChildren().add(create);
+		buttons.setAlignment(Pos.BASELINE_RIGHT);
+		border.setBottom(buttons);
+		
+		return Components.wrap(border);
+	}
+	
 	private void createNewProject()
 	{
 		Stage createProjectStage = new Stage();
@@ -1458,6 +1736,7 @@ public class Main extends Application
 		mainSourceFile.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		TextField sourceFileField = new TextField();
+		sourceFileField.setText("Main.asm");
 		projTextField.setPrefWidth(200);
 		
 		Label projectLocation = new Label();
@@ -1474,17 +1753,16 @@ public class Main extends Application
 			public void handle(ActionEvent e)
 			{
 				String chosenLocation = "";
-				FileChooser fileChooser = new FileChooser();
-				// fileChooser.setTitle("Choose Project Location");
 				DirectoryChooser directoryChooser = new DirectoryChooser();
-				//directoryChooser.getExtensionFilters().add(new
-				// FileChooser.ExtensionFilter("PLP files (*.plp)", "*.plp"));
-				// directoryChooser.setInitialDirectory(projTextField.getText());
 				directoryChooser.setTitle("Choose Project Location");
 				File file = directoryChooser.showDialog(null);
-				// If Cancel is chosen, throws a null pointer, needs to be fixed
-				chosenLocation = file.getAbsolutePath();
-				projLocationField.setText(chosenLocation);
+				if (file != null)
+				{
+					chosenLocation = file.getAbsolutePath()
+							.concat(File.separator + projTextField.getText());
+					projLocationField.setText(chosenLocation);
+				}
+				
 			}
 		});
 		
@@ -1492,26 +1770,17 @@ public class Main extends Application
 		target.setText("Targetted ISA: ");
 		target.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		ComboBox<String> isaType = new ComboBox<String>();
-		isaType.getItems().addAll("PLP", "MIPS");
-		isaType.setValue("PLP");
+		String PLP6 = "PLP6";
+		String legacy = "PLP5(Legacy)";
+		String mips = "MIPS";
+		
+		ComboBox<String> projectType = new ComboBox<String>();
+		projectType.getItems().addAll(PLP6, legacy, mips);
+		projectType.setValue(PLP6);
 		
 		Label version = new Label();
 		version.setText("Version: ");
 		version.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		grid.add(projectName, 0, 0);
-		grid.add(projTextField, 1, 0);
-		grid.add(mainSourceFile, 0, 1);
-		grid.add(sourceFileField, 1, 1);
-		grid.add(projectLocation, 0, 2);
-		grid.add(projLocationField, 1, 2);
-		grid.add(browseLocation, 2, 2);
-		grid.add(target, 0, 3);
-		grid.add(isaType, 1, 3);
-		grid.add(version, 0, 4);
-		
-		border.setCenter(grid);
 		
 		Button createProject = new Button("Create Project");
 		createProject.setOnAction(new EventHandler<ActionEvent>() {
@@ -1521,60 +1790,91 @@ public class Main extends Application
 				String projectName;
 				String fileName;
 				String projectLocation;
-				Alert alert = new Alert(AlertType.INFORMATION);
 				projectName = projTextField.getText();
 				fileName = sourceFileField.getText();
 				projectLocation = projLocationField.getText();
-				if (projectName.equals(""))
+				File projectDirectory = new File(projectLocation);
+				if (projectName == null || projectName.trim().isEmpty())
 				{
-					alert.setTitle("Invalid Project Name");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid Project Name");
-					alert.showAndWait();
+					Dialogues.showInfoDialogue("You entered an invalid Project Name");
+				}
+				else if (fileName == null || fileName.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid File Name");
+				}
+				else if (projectLocation == null || projectLocation.trim().isEmpty())
+				{
+					Dialogues.showInfoDialogue("You entered an invalid Project Location");
 					
 				}
-				else if (fileName.equals(""))
+				else if (projectDirectory.exists())
 				{
-					alert.setTitle("Invalid Project Name");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid File Name");
-					alert.showAndWait();
-				}
-				else if(projectLocation.equals(""))
-				{
-					alert.setTitle("Invalid Project Loaction");
-					alert.setHeaderText(null);
-					alert.setContentText("You entered and invalid Project Locaction");
-					alert.showAndWait();
-					
+					Dialogues.showInfoDialogue("This Project Already Exists");
 				}
 				else
 				{
 					projectName = projTextField.getText();
 					fileName = sourceFileField.getText();
 					
-					System.out.println(fileName);
+					File srcFile = new File(projectLocation + File.separator + "src");
+					srcFile.mkdirs();
 					
-					if (!fileName.contains(".asm"))
+					if (projectType.getValue().equals(PLP6) && !fileName.contains(".asm"))
 					{
 						fileName = fileName.concat(".asm");
 					}
-					System.out.println("After: " + fileName);
 					
-					CodeEditor content = createCodeEditor();
-					content.setText("#New PLP Project");
-					PLPProject project = new PLPProject(projectName);
-					project.setPath(projLocationField.getText());
-					PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
-					project.add(sourceFile);
-					project.save();
-					projects.add(project);
-					openFile(sourceFile);
+					if (projectType.getValue().equals(legacy)
+							&& !fileName.contains(".plp"))
+					{
+						fileName = fileName.concat(".plp");
+					}
+					
+					if (projectType.getValue().equals(legacy))
+					{
+						PLPProject legacyProject = new PLPProject(projectName);
+						legacyProject.setPath(projLocationField.getText());
+						PLPSourceFile legacySourceFile = new PLPSourceFile(legacyProject,
+								fileName);
+						try
+						{
+							legacyProject.saveLegacy();
+						}
+						catch (IOException ioException)
+						{
+							// TODO report exception to user
+							ioException.printStackTrace();
+						}
+						projects.add(legacyProject);
+						openFile(legacySourceFile);
+					}
+					
+					if (projectType.getValue().equals(PLP6))
+					{
+						PLPProject project = new PLPProject(projectName);
+						project.setPath(projLocationField.getText());
+						PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
+						project.add(sourceFile);
+						try
+						{
+							project.save();
+						}
+						catch (IOException ioException)
+						{
+							// TODO report exception to user
+							ioException.printStackTrace();
+						}
+						projects.add(project);
+						openFile(sourceFile);
+					}
+					
 					Stage stage = (Stage) createProject.getScene().getWindow();
 					stage.close();
+					
 				}
 			}
 		});
+		
 		createProject.setDefaultButton(true);
 		Button cancelCreate = new Button("Cancel");
 		cancelCreate.setOnAction(new EventHandler<ActionEvent>() {
@@ -1585,6 +1885,19 @@ public class Main extends Application
 				stage.close();
 			}
 		});
+		
+		grid.add(projectName, 0, 0);
+		grid.add(projTextField, 1, 0);
+		grid.add(mainSourceFile, 0, 1);
+		grid.add(sourceFileField, 1, 1);
+		grid.add(projectLocation, 0, 2);
+		grid.add(projLocationField, 1, 2);
+		grid.add(browseLocation, 2, 2);
+		grid.add(target, 0, 3);
+		grid.add(projectType, 1, 3);
+		grid.add(version, 0, 4);
+		
+		border.setCenter(grid);
 		
 		buttons.getChildren().addAll(createProject, cancelCreate);
 		buttons.setAlignment(Pos.BASELINE_RIGHT);

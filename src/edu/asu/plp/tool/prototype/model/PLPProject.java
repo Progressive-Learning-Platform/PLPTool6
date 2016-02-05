@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.model;
 
+import java.awt.geom.IllegalPathStateException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -8,7 +9,13 @@ import java.util.Optional;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
+
 import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.backend.util.PLP5ProjectParser;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
@@ -18,12 +25,15 @@ import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
  * {@link PLPSourceFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
- *
+ * 		
  */
 public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
 	public static final String FILE_EXTENSION = ".project";
 	private static final String PROJECT_FILE_NAME = "" + FILE_EXTENSION;
+	private static final String NAME_KEY = "projectName";
+	private static final String TYPE_KEY = "projectType";
+	private static final String SOURCE_NAME_KEY = "sourceDirectoryName";
 	
 	/**
 	 * Path to this project in the file system. If the this project exists in memory only
@@ -59,11 +69,54 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
 	 */
-	public static PLPProject load(File file) throws UnexpectedFileTypeException,
-			IOException
+	public static PLPProject load(File file)
+			throws UnexpectedFileTypeException, IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		if (file.isFile())
+			return loadLegacy(file);
+		else
+			return loadCurrent(file);
+	}
+	
+	/**
+	 * Loads a PLP6 project. The given file must be a directory, and have a structure as
+	 * specified by {@link #save()}
+	 * 
+	 * @param projectDirectory
+	 *            The directory of the project to load. This file must be a DIRECTORY, and
+	 *            have a structure as specified by {@link #save()}
+	 * @return A {@link PLPProject} representative of the information stored in the given
+	 *         directory.
+	 * @throws IOException
+	 */
+	private static PLPProject loadCurrent(File projectDirectory) throws IOException
+	{
+		validateProjectDirectory(projectDirectory);
+		File projectFile = validateAndFilizeProjectFile(projectDirectory);
+		
+		if (!projectFile.exists())
+			throw new IllegalArgumentException("Project file not found.");
+		
+		String fileString = FileUtils.readFileToString(projectFile);
+		JSONObject projectDetails = new JSONObject(fileString);
+		String name = projectDetails.optString(NAME_KEY);
+		String type = projectDetails.optString(NAME_KEY);
+		String sourceDirectoryName = projectDetails.optString(SOURCE_NAME_KEY, "src");
+		
+		Path projectPath = projectDirectory.toPath();
+		Path sourcePath = projectPath.resolve(sourceDirectoryName);
+		File sourceDirectory = sourcePath.toFile();
+		
+		PLPProject project = new PLPProject(name, type);
+		for (File file : sourceDirectory.listFiles())
+		{
+			String sourceName = file.getName();
+			sourceName = FilenameUtils.removeExtension(sourceName);
+			PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+			project.add(sourceFile);
+		}
+		
+		return project;
 	}
 	
 	/**
@@ -81,11 +134,11 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *             if an IO problem occurs while opening the specified file.
 	 * @see #load(File)
 	 */
-	public static Project load(String filePath) throws UnexpectedFileTypeException,
-			IOException
+	public static Project load(String filePath)
+			throws UnexpectedFileTypeException, IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		File file = new File(filePath);
+		return load(file);
 	}
 	
 	/**
@@ -97,13 +150,69 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * 
 	 * @param filePath
 	 *            Path to the specified file; may be relative or absolute
+	 * @throws IOException
+	 *             if there was an issue loading the Tarball
 	 * @returnA {@link PLPProject} representative of the information stored in the given
 	 *          file.
 	 */
-	private static Project loadLegacy(String filePath)
+	private static PLPProject loadLegacy(File file) throws IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		PLP5ProjectParser parser = new PLP5ProjectParser();
+		return parser.parse(file);
+	}
+	
+	/**
+	 * Validates the given file to be a directory, and throws an exception if the given
+	 * file is not a directory, or if the file is null.
+	 * 
+	 * @param projectDirectory
+	 *            File to validate
+	 */
+	private static void validateProjectDirectory(File projectDirectory)
+	{
+		if (projectDirectory == null)
+		{
+			throw new IllegalArgumentException("Directory must be non-null");
+		}
+		else if (!projectDirectory.isDirectory())
+		{
+			String path = projectDirectory.getAbsolutePath();
+			String message = "Path must point to a directory. Found: " + path;
+			throw new IllegalPathStateException(message);
+		}
+	}
+	
+	/**
+	 * Given the project directory, this method locates, validates, and returns the
+	 * project file located in the given directory.
+	 * <p>
+	 * The project file will be a direct child of the given directory, will be a file (not
+	 * a directory), and will have the name {@value #PROJECT_FILE_NAME}
+	 * <p>
+	 * If the above conditions are not met, an {@link IllegalStateException} will be
+	 * thrown.
+	 * 
+	 * @param projectDirectory
+	 *            The root directory containing the project
+	 * @return A File representing the project file for the given project directory
+	 */
+	private static File validateAndFilizeProjectFile(File projectDirectory)
+	{
+		if (projectDirectory == null)
+		{
+			throw new IllegalArgumentException("Directory must be non-null");
+		}
+		
+		Path rootPath = projectDirectory.toPath();
+		Path filePath = rootPath.resolve(PROJECT_FILE_NAME);
+		File projectFile = filePath.toFile();
+		if (projectFile.isDirectory())
+		{
+			throw new IllegalStateException("ProjectFile resolved to a directory: "
+					+ projectFile.getAbsolutePath());
+		}
+		
+		return projectFile;
 	}
 	
 	public PLPProject()
@@ -141,14 +250,76 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @see
 	 * @throws IllegalStateException
 	 *             if the specified path is null
+	 * @throws IllegalPathStateException
+	 *             if the path does not point to a directory
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
 	@Override
-	public void save()
+	public void save() throws IOException
 	{
-		// TODO Implement 
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		File directory = validateAndFilizePath();
+		if (!directory.exists())
+			directory.mkdir();
+		
+		File sourceDirectory = validateAndFilizeSourceDirectory(directory);
+		if (!sourceDirectory.exists())
+			sourceDirectory.mkdir();
+		
+		File projectFile = validateAndFilizeProjectFile(directory);
+		if (!projectFile.exists())
+			projectFile.createNewFile();
+		String projectFileContent = createProjectFileContent();
+		FileUtils.write(projectFile, projectFileContent);
+		
+		Path sourcePath = sourceDirectory.toPath();
+		for (ASMFile file : this)
+		{
+			String fileName = file.constructFileName();
+			Path asmPath = sourcePath.resolve(fileName);
+			File diskFile = asmPath.toFile();
+			String asmContent = file.getContent();
+			FileUtils.write(diskFile, asmContent);
+		}
+	}
+	
+	private String createProjectFileContent()
+	{
+		JSONObject root = new JSONObject();
+		root.put(NAME_KEY, getName());
+		root.put(TYPE_KEY, getType());
+		// TODO: make "src" a constant
+		root.put(SOURCE_NAME_KEY, "src");
+		
+		return root.toString();
+	}
+	
+	private File validateAndFilizeSourceDirectory(File projectDirectory)
+	{
+		Path projectPath = projectDirectory.toPath();
+		// TODO: make the directory "src" a constant variable
+		Path sourcePath = projectPath.resolve("src");
+		File sourceDirectory = sourcePath.toFile();
+		if (!sourceDirectory.isDirectory())
+		{
+			throw new IllegalStateException("Source directory resolved to a file: "
+					+ sourceDirectory.getAbsolutePath());
+		}
+		
+		return sourceDirectory;
+	}
+	
+	private File validateAndFilizePath()
+	{
+		String path = getPath();
+		if (path == null)
+		{
+			throw new IllegalStateException("Path must be non-null");
+		}
+		
+		File directory = new File(path);
+		validateProjectDirectory(directory);
+		return directory;
 	}
 	
 	/**
@@ -165,7 +336,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
-	public void saveLegacy()
+	public void saveLegacy() throws IOException
 	{
 		// TODO: implement
 		throw new UnsupportedOperationException("Not Yet Implemented");
@@ -188,7 +359,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @param directoryPath
 	 *            The location in the file system to save this project to. This path
 	 *            should point to a DIRECTORY.
-	 * 
+	 * 			
 	 * @see #save()
 	 * @throws IllegalArgumentException
 	 *             if the specified path is null, or points to a file instead of a
@@ -200,9 +371,10 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *             if there is an issue outputting to the specified path
 	 */
 	@Override
-	public void saveAs(String filePath)
+	public void saveAs(String filePath) throws IOException
 	{
-		
+		// TODO implement
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
 	@Override
@@ -272,7 +444,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		String childFileName = child.constructFileName();
 		// TODO: make the directory "src" a constant variable
 		if (file.isDirectory() && childFileName != null)
-			return path.resolve("/src/" + childFileName).toString();
+			return path.resolve("src/" + childFileName).toString();
 		else
 			return null;
 	}

@@ -36,11 +36,13 @@ public class PLPSourceFile implements ASMFile
 	@Override
 	public boolean writeToFile(File file, boolean overwrite) throws IOException
 	{
+		// TODO: cleanup this method
 		String content = getContent();
 		content = (content != null) ? content : "";
 		
 		if (file.isDirectory())
 		{
+			// TODO: use path.resolve() instead - its safer
 			String filePath = file.getAbsolutePath() + "/" + constructFileName();
 			file = new File(filePath);
 		}
@@ -50,6 +52,7 @@ public class PLPSourceFile implements ASMFile
 		else if (!overwrite)
 			return false;
 		
+		// TODO: consider FileUtils.write() instead
 		List<String> lines = Collections.singletonList(content);
 		Path path = file.toPath();
 		Files.write(path, lines, Charset.forName(ENCODING_NAME));
