@@ -2,10 +2,12 @@ package edu.asu.plp.tool.prototype.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
 
 /**
  * Support class to spawn basic dialogues with a similar look and feel. This class
@@ -50,6 +52,24 @@ public class Dialogues
 		alert.setContentText(message);
 		
 		alert.showAndWait();
+	}
+	
+	/**
+	 * Spawns a confirmation dialogue with the specified message, and returns the result
+	 * (OK or cancel)
+	 * 
+	 * @param message
+	 *            The message to display. This will appear in the context field of the
+	 *            dialogue.
+	 */
+	public static Optional<ButtonType> showConfirmationDialogue(String message)
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation Dialog");
+		alert.setHeaderText(null);
+		alert.setContentText(message);
+		
+		return alert.showAndWait();
 	}
 	
 	/**
@@ -101,6 +121,13 @@ public class Dialogues
 		alert.showAndWait();
 	}
 	
+	/**
+	 * Prints the stack trace (specified by {@link Exception#printStackTrace()}) of the
+	 * given exception to a new string, with newline characters in tact.
+	 * 
+	 * @param exception The stack trace of this variable will be returned as a String
+	 * @return A string containing the stack trace of the specified exception
+	 */
 	private static String getStackTraceAsString(Exception exception)
 	{
 		StringWriter stringWriter = new StringWriter();

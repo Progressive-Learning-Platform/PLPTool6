@@ -9,6 +9,8 @@ import javafx.beans.property.StringProperty;
 
 public interface ASMFile
 {
+	public static final String DEFAULT_FILE_EXTENSION = ".asm";
+	
 	boolean writeToFile(File file) throws IOException;
 	
 	boolean writeToFile(File file, boolean overwrite) throws IOException;
@@ -58,6 +60,16 @@ public interface ASMFile
 	 *             restricted, or the write fails from another IO issue.
 	 */
 	boolean writeToFile(String path, boolean overwrite) throws IOException;
+	
+	public default String constructFileName()
+	{
+		// TODO: check name for illegal characters
+		String name = getName();
+		if (name == null)
+			throw new IllegalStateException("Null file name is not allowed");
+		else
+			return name + DEFAULT_FILE_EXTENSION;
+	}
 	
 	String getName();
 	
