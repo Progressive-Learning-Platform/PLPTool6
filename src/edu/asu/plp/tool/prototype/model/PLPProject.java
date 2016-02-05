@@ -87,7 +87,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *            have a structure as specified by {@link #save()}
 	 * @return A {@link PLPProject} representative of the information stored in the given
 	 *         directory.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private static PLPProject loadCurrent(File projectDirectory) throws IOException
 	{
@@ -161,12 +161,24 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		return parser.parse(file);
 	}
 	
+	/**
+	 * Validates the given file to be a directory, and throws an exception if the given
+	 * file is not a directory, or if the file is null.
+	 * 
+	 * @param projectDirectory
+	 *            File to validate
+	 */
 	private static void validateProjectDirectory(File projectDirectory)
 	{
-		if (!projectDirectory.isDirectory())
+		if (projectDirectory == null)
 		{
-			throw new IllegalPathStateException("Path must point to a directory. Found: "
-					+ projectDirectory.getAbsolutePath());
+			throw new IllegalArgumentException("Directory must be non-null");
+		}
+		else if (!projectDirectory.isDirectory())
+		{
+			String path = projectDirectory.getAbsolutePath();
+			String message = "Path must point to a directory. Found: " + path;
+			throw new IllegalPathStateException(message);
 		}
 	}
 	
