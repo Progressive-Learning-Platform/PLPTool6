@@ -103,6 +103,7 @@ public class Main extends Application
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	public boolean simMode = false;
 	
+	private Simulator activeSimulator;
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	// XXX: openProjects is a misnomer - should be openFiles
@@ -719,7 +720,7 @@ public class Main extends Application
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		button = new ImageView("toolbar_step.png");
-		listener = (event) -> console.println("Step Through Project Clicked");
+		listener = this::onStepClicked;
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
@@ -801,6 +802,12 @@ public class Main extends Application
 		}
 		
 		return Components.wrap(toolbar);
+	}
+	
+	private void onStepClicked(MouseEvent event)
+	{
+		console.println("Step Through Project Clicked");
+		activeSimulator.step();
 	}
 	
 	private void onRunProjectClicked(ActionEvent event)
@@ -1481,6 +1488,7 @@ public class Main extends Application
 				toolbar.getChildren().get(x).setEffect(null);
 				toolbar.getChildren().get(x).setDisable(false);
 			}
+			// TODO: instantiate and set this.activeSimulator
 			simMode = true;
 		}
 		else
@@ -1490,6 +1498,7 @@ public class Main extends Application
 				toolbar.getChildren().get(x).setEffect(ds);
 				toolbar.getChildren().get(x).setDisable(true);
 			}
+			activeSimulator = null;
 			simMode = false;
 		}
 	}
