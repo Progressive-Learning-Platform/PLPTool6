@@ -370,7 +370,15 @@ public class Main extends Application
 	
 	private void saveProject(MouseEvent event)
 	{
-		getActiveProject().save();
+		try
+		{
+			getActiveProject().save();
+		}
+		catch (IOException e)
+		{
+			// TODO report exception to user
+			e.printStackTrace();
+		}
 	}
 	
 	private void saveProjectAs()
@@ -455,11 +463,20 @@ public class Main extends Application
 				}
 				else
 				{
+					// TODO: this is either a misnomer (should be path) or an issue
 					projectName = projLocationField.getText();
-					getActiveProject().saveAs(projectName);
+					Project activeProject = getActiveProject();
+					try
+					{
+						activeProject.saveAs(projectName);
+					}
+					catch (IOException ioException)
+					{
+						// TODO report exception to user
+						ioException.printStackTrace();
+					}
 					Stage stage = (Stage) saveAsButton.getScene().getWindow();
 					stage.close();
-					
 				}
 			}
 		});
@@ -1810,7 +1827,15 @@ public class Main extends Application
 						legacyProject.setPath(projLocationField.getText());
 						PLPSourceFile legacySourceFile = new PLPSourceFile(legacyProject,
 								fileName);
-						legacyProject.saveLegacy();
+						try
+						{
+							legacyProject.saveLegacy();
+						}
+						catch (IOException ioException)
+						{
+							// TODO report exception to user
+							ioException.printStackTrace();
+						}
 						projects.add(legacyProject);
 						openFile(legacySourceFile);
 					}
@@ -1821,7 +1846,15 @@ public class Main extends Application
 						project.setPath(projLocationField.getText());
 						PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
 						project.add(sourceFile);
-						project.save();
+						try
+						{
+							project.save();
+						}
+						catch (IOException ioException)
+						{
+							// TODO report exception to user
+							ioException.printStackTrace();
+						}
 						projects.add(project);
 						openFile(sourceFile);
 					}
