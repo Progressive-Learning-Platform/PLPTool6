@@ -34,33 +34,33 @@ public class ProjectCreationPanel extends BorderPane
 		grid.setVgap(30);
 		grid.setPadding(new Insets(10, 10, 10, 10));
 		
-		Label projectName = new Label();
-		projectName.setText("Project Name: ");
-		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		Label projectNameLabel = new Label();
+		projectNameLabel.setText("Project Name: ");
+		projectNameLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField projTextField = new TextField();
-		projTextField.setText("Project Name");
-		projTextField.requestFocus();
-		projTextField.setPrefWidth(200);
+		TextField projectNameField = new TextField();
+		projectNameField.setText("Project Name");
+		projectNameField.requestFocus();
+		projectNameField.setPrefWidth(200);
 		
-		Label mainSourceFile = new Label();
-		mainSourceFile.setText("File Name: ");
-		mainSourceFile.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		Label mainSourceFileNameLabel = new Label();
+		mainSourceFileNameLabel.setText("File Name: ");
+		mainSourceFileNameLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField sourceFileField = new TextField();
-		sourceFileField.setText("Main.asm");
-		sourceFileField.setPrefWidth(200);
+		TextField mainSourceFileNameField = new TextField();
+		mainSourceFileNameField.setText("Main.asm");
+		mainSourceFileNameField.setPrefWidth(200);
 		
-		Label projectLocation = new Label();
-		projectLocation.setText("Location: ");
-		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		Label projectLocationLabel = new Label();
+		projectLocationLabel.setText("Location: ");
+		projectLocationLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		TextField projLocationField = new TextField();
-		projLocationField.setPrefWidth(200);
+		TextField projectLocationField = new TextField();
+		projectLocationField.setPrefWidth(200);
 		
-		Button browseLocation = new Button();
-		browseLocation.setText("Browse");
-		browseLocation.setOnAction(this::onBrowseLocation);
+		Button browseLocationButton = new Button();
+		browseLocationButton.setText("Browse");
+		browseLocationButton.setOnAction(this::onBrowseLocation);
 		
 		Label target = new Label();
 		target.setText("Targetted ISA: ");
@@ -92,13 +92,13 @@ public class ProjectCreationPanel extends BorderPane
 			}
 		});
 		
-		grid.add(projectName, 0, 0);
-		grid.add(projTextField, 1, 0);
-		grid.add(mainSourceFile, 0, 1);
-		grid.add(sourceFileField, 1, 1);
-		grid.add(projectLocation, 0, 2);
-		grid.add(projLocationField, 1, 2);
-		grid.add(browseLocation, 2, 2);
+		grid.add(projectNameLabel, 0, 0);
+		grid.add(projectNameField, 1, 0);
+		grid.add(mainSourceFileNameLabel, 0, 1);
+		grid.add(mainSourceFileNameField, 1, 1);
+		grid.add(projectLocationLabel, 0, 2);
+		grid.add(projectLocationField, 1, 2);
+		grid.add(browseLocationButton, 2, 2);
 		grid.add(target, 0, 3);
 		grid.add(projectType, 1, 3);
 		grid.add(version, 0, 4);
