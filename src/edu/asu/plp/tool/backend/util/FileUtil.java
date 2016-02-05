@@ -25,7 +25,9 @@ public class FileUtil
 		return FileUtils.readFileToString(file);
 	}
 	
-	// TODO replace with new project standard / backward compatibility?
+	/**
+	 * @deprecated replaced by {@link PLP5ProjectParser#parse(File)}
+	 */
 	public static List<ASMFile> openProject(File projectFile)
 	{
 		try (TarArchiveInputStream plpInputStream = new TarArchiveInputStream(
@@ -56,9 +58,12 @@ public class FileUtil
 		return null;
 	}
 	
+	/**
+	 * @deprecated see {@link PLP5ProjectParser#parse(File)}
+	 */
 	private static void addFile(TarArchiveInputStream plpInputStream,
 			TarArchiveEntry entry, File assembleFile, List<ASMFile> projectFiles)
-					throws IOException
+			throws IOException
 	{
 		byte[] content = new byte[(int) entry.getSize()];
 		int currentIndex = 0;
@@ -75,9 +80,12 @@ public class FileUtil
 		}
 	}
 	
+	/**
+	 * @deprecated see {@link PLP5ProjectParser#parse(File)}
+	 */
 	private static void addDirectory(TarArchiveInputStream plpInputStream,
 			TarArchiveEntry entry, File assembleFile, List<ASMFile> projectFiles)
-					throws IOException
+			throws IOException
 	{
 		for (TarArchiveEntry subEntry : entry.getDirectoryEntries())
 		{
