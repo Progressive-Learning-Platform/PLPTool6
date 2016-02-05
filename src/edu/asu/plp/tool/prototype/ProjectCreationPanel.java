@@ -49,14 +49,14 @@ public class ProjectCreationPanel extends BorderPane
 		
 		TextField sourceFileField = new TextField();
 		sourceFileField.setText("Main.asm");
-		projTextField.setPrefWidth(200);
+		sourceFileField.setPrefWidth(200);
 		
 		Label projectLocation = new Label();
 		projectLocation.setText("Location: ");
 		projectLocation.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		TextField projLocationField = new TextField();
-		projTextField.setPrefWidth(200);
+		projLocationField.setPrefWidth(200);
 		
 		Button browseLocation = new Button();
 		browseLocation.setText("Browse");
