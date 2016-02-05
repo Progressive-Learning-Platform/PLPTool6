@@ -81,6 +81,7 @@ import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.util.Dialogues;
+import edu.asu.plp.tool.prototype.view.AboutPLPTool;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
@@ -1365,17 +1366,17 @@ public class Main extends Application
 		
 		MenuItem itemReportIssue = new MenuItem("Report Issue (Requires Google Account");
 		itemReportIssue.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			reportIssuesWeb();
 		});
 		
 		MenuItem itemGoogleIssues = new MenuItem("Open Google Code Issues Page");
 		itemGoogleIssues.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			openIssuesPageWeb();
 		});
 		
 		MenuItem itemAboutPLP = new MenuItem("About PLP Tool...");
 		itemAboutPLP.setOnAction((event) -> {
-			// TODO: Add Event for menu item
+			aboutPLPToolWeb();
 		});
 		
 		MenuItem itemSWLicense = new MenuItem("Third Party Software License");
@@ -1524,6 +1525,59 @@ public class Main extends Application
 		}
 	}
 	
+	private void aboutPLPToolWeb()
+	{
+		Stage createASMStage = new Stage();
+		Parent myPane = new AboutPLPTool();		
+		Scene scene = new Scene(myPane, 700, 500);
+		createASMStage.setTitle("About PLPTool");
+		createASMStage.setScene(scene);
+		createASMStage.setResizable(false);
+		createASMStage.show();
+	}
+	
+	private void openIssuesPageWeb()
+	{
+		try
+		{
+			if (Desktop.isDesktopSupported())
+			{
+				URI webAddress = new URI(
+						"https://code.google.com/archive/p/progressive-learning-platform/issues");
+				Desktop.getDesktop().browse(webAddress);
+			}
+			else
+				Dialogues.showInfoDialogue(
+						"The PLP Issues page was unable to open\nTo open Manually here is the link:\nhttps://code.google.com/archive/p/progressive-learning-platform/issues ");
+		}
+		catch (Exception e)
+		{
+			Dialogues.showInfoDialogue("There was a problem, unable to open webpage.");
+			e.printStackTrace();
+		}
+	}
+	
+	private void reportIssuesWeb()
+	{
+		try
+		{
+			if (Desktop.isDesktopSupported())
+			{
+				URI webAddress = new URI(
+						"https://code.google.com/archive/p/progressive-learning-platform/");
+				Desktop.getDesktop().browse(webAddress);
+			}
+			else
+				Dialogues.showInfoDialogue(
+						"The Report Issues page was unable to open\nTo open Manually here is the link:\nhttps://code.google.com/archive/p/progressive-learning-platform/ ");
+		}
+		catch (Exception e)
+		{
+			Dialogues.showInfoDialogue("There was a problem, unable to open webpage.");
+			e.printStackTrace();
+		}
+	}
+	
 	private void removeActiveFile()
 	{
 		ASMFile activeFile = getActiveFile();
@@ -1661,7 +1715,7 @@ public class Main extends Application
 				String projectName = projectText.getText();
 				String fileName = nameText.getText();
 				
-				if (projectName.equals("") || getProjectByName(projectName).equals(null))
+				if (projectName.trim().isEmpty() || getProjectByName(projectName).equals(null))
 				{
 					Dialogues.showInfoDialogue("You entered an invalid Project Name");
 					
