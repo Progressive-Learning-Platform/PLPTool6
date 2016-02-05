@@ -182,8 +182,27 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		}
 	}
 	
+	/**
+	 * Given the project directory, this method locates, validates, and returns the
+	 * project file located in the given directory.
+	 * <p>
+	 * The project file will be a direct child of the given directory, will be a file (not
+	 * a directory), and will have the name {@value #PROJECT_FILE_NAME}
+	 * <p>
+	 * If the above conditions are not met, an {@link IllegalStateException} will be
+	 * thrown.
+	 * 
+	 * @param projectDirectory
+	 *            The root directory containing the project
+	 * @return A File representing the project file for the given project directory
+	 */
 	private static File validateAndFilizeProjectFile(File projectDirectory)
 	{
+		if (projectDirectory == null)
+		{
+			throw new IllegalArgumentException("Directory must be non-null");
+		}
+		
 		Path rootPath = projectDirectory.toPath();
 		Path filePath = rootPath.resolve(PROJECT_FILE_NAME);
 		File projectFile = filePath.toFile();
