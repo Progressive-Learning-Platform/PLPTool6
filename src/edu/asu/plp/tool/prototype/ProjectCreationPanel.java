@@ -128,13 +128,11 @@ public class ProjectCreationPanel extends BorderPane
 	
 	private void onCreateProject(ActionEvent event)
 	{
-		String projectName;
-		String fileName;
-		String projectLocation;
-		projectName = projTextField.getText();
-		fileName = sourceFileField.getText();
-		projectLocation = projLocationField.getText();
+		String projectName = projectNameField.getText();
+		String fileName = mainSourceFileNameField.getText();
+		String projectLocation = projectLocationField.getText();
 		File projectDirectory = new File(projectLocation);
+		
 		if (projectName == null || projectName.trim().isEmpty())
 		{
 			Dialogues.showInfoDialogue("You entered an invalid Project Name");
@@ -146,7 +144,6 @@ public class ProjectCreationPanel extends BorderPane
 		else if (projectLocation == null || projectLocation.trim().isEmpty())
 		{
 			Dialogues.showInfoDialogue("You entered an invalid Project Location");
-			
 		}
 		else if (projectDirectory.exists())
 		{
@@ -154,9 +151,6 @@ public class ProjectCreationPanel extends BorderPane
 		}
 		else
 		{
-			projectName = projTextField.getText();
-			fileName = sourceFileField.getText();
-			
 			File srcFile = new File(projectLocation + File.separator + "src");
 			srcFile.mkdirs();
 			
