@@ -133,23 +133,9 @@ public class ProjectCreationPanel extends BorderPane
 		String projectLocation = projectLocationField.getText();
 		File projectDirectory = new File(projectLocation);
 		
-		if (projectName == null || projectName.trim().isEmpty())
-		{
-			Dialogues.showInfoDialogue("You entered an invalid Project Name");
-		}
-		else if (fileName == null || fileName.trim().isEmpty())
-		{
-			Dialogues.showInfoDialogue("You entered an invalid File Name");
-		}
-		else if (projectLocation == null || projectLocation.trim().isEmpty())
-		{
-			Dialogues.showInfoDialogue("You entered an invalid Project Location");
-		}
-		else if (projectDirectory.exists())
-		{
-			Dialogues.showInfoDialogue("This Project Already Exists");
-		}
-		else
+		ProjectCreationDetails details = new ProjectCreationDetails(projectName, fileName, projectLocation);
+		boolean isValid = validateDefaultProjectDetails(details);
+		if (isValid)
 		{
 			File srcFile = new File(projectLocation + File.separator + "src");
 			srcFile.mkdirs();
@@ -205,5 +191,36 @@ public class ProjectCreationPanel extends BorderPane
 			Stage stage = (Stage) createProject.getScene().getWindow();
 			stage.close();
 		}
+	}
+	
+	private boolean validateDefaultProjectDetails(ProjectCreationDetails details)
+	{
+		String projectName = details.getProjectName();
+		String fileName = details.getMainSourceFileName();
+		String projectLocation = details.getProjectLocation();
+		File projectDirectory = details.getProjectDirectory();
+		
+		if (projectName == null || projectName.trim().isEmpty())
+		{
+			Dialogues.showInfoDialogue("You entered an invalid Project Name");
+		}
+		else if (fileName == null || fileName.trim().isEmpty())
+		{
+			Dialogues.showInfoDialogue("You entered an invalid File Name");
+		}
+		else if (projectLocation == null || projectLocation.trim().isEmpty())
+		{
+			Dialogues.showInfoDialogue("You entered an invalid Project Location");
+		}
+		else if (projectDirectory.exists())
+		{
+			Dialogues.showInfoDialogue("This Project Already Exists");
+		}
+		else
+		{
+			return true;
+		}
+		
+		return false;
 	}
 }
