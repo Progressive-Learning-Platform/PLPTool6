@@ -2,6 +2,7 @@ package edu.asu.plp.tool.prototype;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import moore.fx.components.Components;
 import edu.asu.plp.tool.prototype.model.PLPProject;
@@ -112,15 +113,16 @@ public class ProjectCreationPanel extends BorderPane
 	
 	private void onBrowseLocation(ActionEvent event)
 	{
-		String chosenLocation = "";
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		directoryChooser.setTitle("Choose Project Location");
 		File file = directoryChooser.showDialog(null);
 		if (file != null)
 		{
-			chosenLocation = file.getAbsolutePath().concat(
-					File.separator + projTextField.getText());
-			projLocationField.setText(chosenLocation);
+			Path directoryPath = file.toPath();
+			String newProjectName = projectNameField.getText();
+			Path targetProjectPath = directoryPath.resolve(newProjectName);
+			String targetLocation = targetProjectPath.toString();
+			projectLocationField.setText(targetLocation);
 		}
 	}
 	
