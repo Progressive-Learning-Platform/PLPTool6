@@ -30,7 +30,7 @@ public class ProjectCreationPanel extends BorderPane
 	private TextField mainSourceFileNameField;
 	private TextField projectLocationField;
 	private ComboBox<String> projectTypeDropdown;
-
+	
 	public ProjectCreationPanel()
 	{
 		this.setPadding(new Insets(20));
@@ -131,9 +131,10 @@ public class ProjectCreationPanel extends BorderPane
 		String projectName = projectNameField.getText();
 		String fileName = mainSourceFileNameField.getText();
 		String projectLocation = projectLocationField.getText();
-		File projectDirectory = new File(projectLocation);
+		String projectType = projectTypeDropdown.getValue();
 		
-		ProjectCreationDetails details = new ProjectCreationDetails(projectName, fileName, projectLocation);
+		ProjectCreationDetails details = new ProjectCreationDetails(projectName,
+				fileName, projectLocation, projectType);
 		boolean isValid = validateDefaultProjectDetails(details);
 		if (isValid)
 		{
@@ -145,7 +146,8 @@ public class ProjectCreationPanel extends BorderPane
 				fileName = fileName.concat(".asm");
 			}
 			
-			if (projectTypeDropdown.getValue().equals(legacy) && !fileName.contains(".plp"))
+			if (projectTypeDropdown.getValue().equals(legacy)
+					&& !fileName.contains(".plp"))
 			{
 				fileName = fileName.concat(".plp");
 			}

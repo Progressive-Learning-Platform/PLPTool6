@@ -7,15 +7,27 @@ public class ProjectCreationDetails
 	private String projectName;
 	private String mainSourceFileName;
 	private String projectLocation;
+	private String projectType;
 	private File projectDirectory;
 	
 	public ProjectCreationDetails(String projectName, String mainSourceFileName,
-			String projectLocation)
+			String projectLocation, String projectType)
 	{
 		this.projectName = projectName;
 		this.mainSourceFileName = mainSourceFileName;
 		this.projectLocation = projectLocation;
+		this.projectType = projectType;
 		this.projectDirectory = new File(projectLocation);
+	}
+	
+	public String getProjectType()
+	{
+		return projectType;
+	}
+	
+	public void setProjectType(String projectType)
+	{
+		this.projectType = projectType;
 	}
 	
 	public String getProjectName()
