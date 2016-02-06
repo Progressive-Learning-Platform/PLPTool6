@@ -81,7 +81,7 @@ public class ProjectCreationPanel extends BorderPane
 		projectTypeDropdown.setValue(PLP6);
 		
 		Button createProject = new Button("Create Project");
-		createProject.setOnAction(this::onCreateProject);
+		createProject.setOnAction(this::onCreateProjectClicked);
 		
 		createProject.setDefaultButton(true);
 		Button cancelCreate = new Button("Cancel");
@@ -126,15 +126,9 @@ public class ProjectCreationPanel extends BorderPane
 		}
 	}
 	
-	private void onCreateProject(ActionEvent event)
+	private void onCreateProjectClicked(ActionEvent event)
 	{
-		String projectName = projectNameField.getText();
-		String fileName = mainSourceFileNameField.getText();
-		String projectLocation = projectLocationField.getText();
-		String projectType = projectTypeDropdown.getValue();
-		
-		ProjectCreationDetails details = new ProjectCreationDetails(projectName,
-				fileName, projectLocation, projectType);
+		ProjectCreationDetails details = extractDetailsFromGUI();
 		boolean isValid = validateDefaultProjectDetails(details);
 		if (isValid)
 		{
@@ -193,6 +187,16 @@ public class ProjectCreationPanel extends BorderPane
 			Stage stage = (Stage) createProject.getScene().getWindow();
 			stage.close();
 		}
+	}
+	
+	private ProjectCreationDetails extractDetailsFromGUI()
+	{
+		String name = projectNameField.getText();
+		String mainSource = mainSourceFileNameField.getText();
+		String location = projectLocationField.getText();
+		String type = projectTypeDropdown.getValue();
+		
+		return new ProjectCreationDetails(name, mainSource, location, type);
 	}
 	
 	private boolean validateDefaultProjectDetails(ProjectCreationDetails details)
