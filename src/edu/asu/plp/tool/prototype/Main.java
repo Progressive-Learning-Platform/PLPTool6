@@ -29,7 +29,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -92,6 +91,7 @@ import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
  * also defines the window and its contents.
  * 
  * @author Moore, Zachary
+ * @author Hawks, Elliott
  * 		
  */
 public class Main extends Application
