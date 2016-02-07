@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.apache.commons.io.FilenameUtils;
+
 import moore.fx.components.Components;
 import edu.asu.plp.tool.prototype.model.PLPProject;
 import edu.asu.plp.tool.prototype.model.PLPSourceFile;
@@ -135,19 +137,13 @@ public class ProjectCreationPanel extends BorderPane
 			details.getProjectDirectory().mkdirs();
 			String projectType = details.getProjectType();
 			
-			if (projectType.equals(PLP6) && !fileName.contains(".asm"))
-			{
-				fileName = fileName.concat(".asm");
-			}
-			
-			if (projectType.equals(legacy)
-					&& !fileName.contains(".plp"))
-			{
-				fileName = fileName.concat(".plp");
-			}
-			
 			if (projectType.equals(legacy))
 			{
+				if (!fileName.contains(".plp"))
+				{
+					fileName = fileName.concat(".plp");
+				}
+				
 				PLPProject legacyProject = new PLPProject(projectName);
 				legacyProject.setPath(projLocationField.getText());
 				PLPSourceFile legacySourceFile = new PLPSourceFile(legacyProject,
@@ -164,9 +160,13 @@ public class ProjectCreationPanel extends BorderPane
 				projects.add(legacyProject);
 				openFile(legacySourceFile);
 			}
-			
-			if (projectType.equals(PLP6))
+			else if (projectType.equals(PLP6))
 			{
+				if (!fileName.contains(".asm"))
+				{
+					fileName = fileName.concat(".asm");
+				}
+				
 				PLPProject project = new PLPProject(projectName);
 				project.setPath(projLocationField.getText());
 				PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
