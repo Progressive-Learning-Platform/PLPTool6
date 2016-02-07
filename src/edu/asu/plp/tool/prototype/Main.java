@@ -371,15 +371,8 @@ public class Main extends Application
 	
 	private void saveProject(MouseEvent event)
 	{
-		try
-		{
-			getActiveProject().save();
-		}
-		catch (IOException e)
-		{
-			// TODO report exception to user
-			e.printStackTrace();
-		}
+		Project activeProject = getActiveProject();
+		tryAndReport(activeProject::save);
 	}
 	
 	private void saveProjectAs()
