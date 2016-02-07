@@ -132,21 +132,21 @@ public class ProjectCreationPanel extends BorderPane
 		boolean isValid = validateDefaultProjectDetails(details);
 		if (isValid)
 		{
-			File srcFile = new File(projectLocation + File.separator + "src");
-			srcFile.mkdirs();
+			details.getProjectDirectory().mkdirs();
+			String projectType = details.getProjectType();
 			
-			if (projectTypeDropdown.getValue().equals(PLP6) && !fileName.contains(".asm"))
+			if (projectType.equals(PLP6) && !fileName.contains(".asm"))
 			{
 				fileName = fileName.concat(".asm");
 			}
 			
-			if (projectTypeDropdown.getValue().equals(legacy)
+			if (projectType.equals(legacy)
 					&& !fileName.contains(".plp"))
 			{
 				fileName = fileName.concat(".plp");
 			}
 			
-			if (projectTypeDropdown.getValue().equals(legacy))
+			if (projectType.equals(legacy))
 			{
 				PLPProject legacyProject = new PLPProject(projectName);
 				legacyProject.setPath(projLocationField.getText());
@@ -165,7 +165,7 @@ public class ProjectCreationPanel extends BorderPane
 				openFile(legacySourceFile);
 			}
 			
-			if (projectTypeDropdown.getValue().equals(PLP6))
+			if (projectType.equals(PLP6))
 			{
 				PLPProject project = new PLPProject(projectName);
 				project.setPath(projLocationField.getText());
