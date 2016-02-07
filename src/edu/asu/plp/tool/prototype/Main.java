@@ -1497,22 +1497,25 @@ public class Main extends Application
 	
 	private void onlineManualWeb()
 	{
+		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
 		try
 		{
 			if (Desktop.isDesktopSupported())
 			{
-				URI webAddress = new URI(
-						"https://code.google.com/p/progressive-learning-platform/wiki/UserManual");
-				Desktop.getDesktop().browse(webAddress);
+				URI location = new URI(webAddress);
+				Desktop.getDesktop().browse(location);
 			}
 			else
-				Dialogues.showInfoDialogue(
-						"The Wiki page was unable to open\nTo open Manually here is the link:\nhttps://code.google.com/p/progressive-learning-platform/wiki/UserManual ");
+			{
+				String cause = "This JVM does not support Desktop. Try updating Java to the latest version.";
+				throw new Exception(cause);
+			}
 		}
-		catch (Exception e)
+		catch (Exception exception)
 		{
-			Dialogues.showInfoDialogue("There was a problem, unable to open webpage.");
-			e.printStackTrace();
+			String recoveryMessage = "There was a problem opening the following webpage:"
+					+ "\n" + webAddress;
+			Dialogues.showAlertDialogue(exception, recoveryMessage);
 		}
 	}
 	
