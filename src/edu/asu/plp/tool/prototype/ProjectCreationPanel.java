@@ -1,18 +1,11 @@
 package edu.asu.plp.tool.prototype;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.apache.commons.io.FilenameUtils;
-
-import moore.fx.components.Components;
-import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
-import edu.asu.plp.tool.prototype.util.Dialogues;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -28,6 +21,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import moore.util.Subroutine;
+import edu.asu.plp.tool.prototype.util.Dialogues;
 
 public class ProjectCreationPanel extends BorderPane
 {
@@ -35,6 +30,8 @@ public class ProjectCreationPanel extends BorderPane
 	private TextField mainSourceFileNameField;
 	private TextField projectLocationField;
 	private ComboBox<String> projectTypeDropdown;
+	/** Routine to be performed after a project is created (usually to close the panel) */
+	private Subroutine finallyOperation;
 	private Map<String, Consumer<ProjectCreationDetails>> projectCreationHandlers;
 	
 	public ProjectCreationPanel()
@@ -123,6 +120,11 @@ public class ProjectCreationPanel extends BorderPane
 		projectTypeDropdown.setValue(type);
 	}
 	
+	public void setFinallyOperation(Subroutine finallyOperation)
+	{
+		this.finallyOperation = finallyOperation;
+	}
+	
 	private void onBrowseLocation(ActionEvent event)
 	{
 		DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -144,58 +146,17 @@ public class ProjectCreationPanel extends BorderPane
 		boolean isValid = validateDefaultProjectDetails(details);
 		if (isValid)
 		{
-			details.getProjectDirectory().mkdirs();
-			String projectType = details.getProjectType();
+			Consumer<ProjectCreationDetails> createFunction;
+			String selectedType = details.getProjectType();
+			createFunction = projectCreationHandlers.get(selectedType);
 			
-			if (projectType.equals(legacy))
-			{
-				if (!fileName.contains(".plp"))
-				{
-					fileName = fileName.concat(".plp");
-				}
-				
-				PLPProject legacyProject = new PLPProject(projectName);
-				legacyProject.setPath(projLocationField.getText());
-				PLPSourceFile legacySourceFile = new PLPSourceFile(legacyProject,
-						fileName);
-				try
-				{
-					legacyProject.saveLegacy();
-				}
-				catch (IOException ioException)
-				{
-					// TODO report exception to user
-					ioException.printStackTrace();
-				}
-				projects.add(legacyProject);
-				openFile(legacySourceFile);
-			}
-			else if (projectType.equals(PLP6))
-			{
-				if (!fileName.contains(".asm"))
-				{
-					fileName = fileName.concat(".asm");
-				}
-				
-				PLPProject project = new PLPProject(projectName);
-				project.setPath(projLocationField.getText());
-				PLPSourceFile sourceFile = new PLPSourceFile(project, fileName);
-				project.add(sourceFile);
-				try
-				{
-					project.save();
-				}
-				catch (IOException ioException)
-				{
-					// TODO report exception to user
-					ioException.printStackTrace();
-				}
-				projects.add(project);
-				openFile(sourceFile);
-			}
+			if (createFunction == null)
+				throw new IllegalStateException("Type defined without handler");
+			else
+				createFunction.accept(details);
 			
-			Stage stage = (Stage) createProject.getScene().getWindow();
-			stage.close();
+			if (finallyOperation != null)
+				finallyOperation.perform();
 		}
 	}
 	

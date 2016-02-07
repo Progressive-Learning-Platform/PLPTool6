@@ -1695,16 +1695,68 @@ public class Main extends Application
 	private void createNewProject()
 	{
 		Stage createProjectStage = new Stage();
-		Parent myPane = projectCreateMenu();
-		Scene scene = new Scene(myPane, 450, 350);
+		ProjectCreationPanel projectCreationPanel = projectCreateMenu();
+		projectCreationPanel.setFinallyOperation(() -> createProjectStage.close());
+		
+		Scene scene = new Scene(projectCreationPanel, 450, 350);
 		createProjectStage.setTitle("Create New PLP Project");
 		createProjectStage.setScene(scene);
 		createProjectStage.setResizable(false);
 		createProjectStage.show();
 	}
 	
-	private Parent projectCreateMenu()
+	private ProjectCreationPanel projectCreateMenu()
 	{
-		return new ProjectCreationPanel();
+		ProjectCreationPanel projectCreationPanel = new ProjectCreationPanel();
+		projectCreationPanel.addProjectType("PLP6", this::createProject);
+		projectCreationPanel.addProjectType("PLP5 (Legacy)", this::createLegacyProject);
+		projectCreationPanel.setSelectedType("PLP6");
+		return projectCreationPanel;
+	}
+	
+	private void createLegacyProject(ProjectCreationDetails details)
+	{
+		PLPProject project = new PLPProject(details.getProjectName());
+		project.setPath(details.getProjectLocation());
+		
+		String sourceName = details.getMainSourceFileName();
+		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+		project.add(sourceFile);
+		
+		try
+		{
+			project.saveLegacy();
+		}
+		catch (IOException ioException)
+		{
+			// TODO report exception to user
+			ioException.printStackTrace();
+		}
+		
+		projects.add(project);
+		openFile(sourceFile);
+	}
+	
+	private void createProject(ProjectCreationDetails details)
+	{
+		PLPProject project = new PLPProject(details.getProjectName());
+		project.setPath(details.getProjectLocation());
+		
+		String sourceName = details.getMainSourceFileName();
+		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+		project.add(sourceFile);
+		
+		try
+		{
+			project.save();
+		}
+		catch (IOException ioException)
+		{
+			// TODO report exception to user
+			ioException.printStackTrace();
+		}
+		
+		projects.add(project);
+		openFile(sourceFile);
 	}
 }
