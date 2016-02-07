@@ -64,6 +64,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import moore.fx.components.Components;
+import moore.util.ExceptionalSubroutine;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -1722,17 +1723,7 @@ public class Main extends Application
 		String sourceName = details.getMainSourceFileName();
 		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
 		project.add(sourceFile);
-		
-		try
-		{
-			project.saveLegacy();
-		}
-		catch (IOException ioException)
-		{
-			// TODO report exception to user
-			ioException.printStackTrace();
-		}
-		
+		tryAndReport(project::saveLegacy);
 		projects.add(project);
 		openFile(sourceFile);
 	}
@@ -1745,18 +1736,20 @@ public class Main extends Application
 		String sourceName = details.getMainSourceFileName();
 		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
 		project.add(sourceFile);
-		
-		try
-		{
-			project.save();
-		}
-		catch (IOException ioException)
-		{
-			// TODO report exception to user
-			ioException.printStackTrace();
-		}
-		
+		tryAndReport(project::save);
 		projects.add(project);
 		openFile(sourceFile);
+	}
+	
+	private void tryAndReport(ExceptionalSubroutine subroutine)
+	{
+		try
+		{
+			subroutine.perform();
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception);
+		}
 	}
 }
