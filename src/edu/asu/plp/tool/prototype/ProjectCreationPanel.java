@@ -3,6 +3,9 @@ package edu.asu.plp.tool.prototype;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -32,9 +35,11 @@ public class ProjectCreationPanel extends BorderPane
 	private TextField mainSourceFileNameField;
 	private TextField projectLocationField;
 	private ComboBox<String> projectTypeDropdown;
+	private Map<String, Consumer<ProjectCreationDetails>> projectCreationHandlers;
 	
 	public ProjectCreationPanel()
 	{
+		this.projectCreationHandlers = new HashMap<>();
 		this.setPadding(new Insets(20));
 		GridPane grid = new GridPane();
 		HBox buttons = new HBox(10);
@@ -74,13 +79,7 @@ public class ProjectCreationPanel extends BorderPane
 		projectTypeLabel.setText("Targetted ISA: ");
 		projectTypeLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		String PLP6 = "PLP6";
-		String legacy = "PLP5(Legacy)";
-		String mips = "MIPS";
-		
 		projectTypeDropdown = new ComboBox<>();
-		projectTypeDropdown.getItems().addAll(PLP6, legacy, mips);
-		projectTypeDropdown.setValue(PLP6);
 		
 		Button createProject = new Button("Create Project");
 		createProject.setOnAction(this::onCreateProjectClicked);
@@ -111,6 +110,17 @@ public class ProjectCreationPanel extends BorderPane
 		buttons.getChildren().addAll(createProject, cancelCreate);
 		buttons.setAlignment(Pos.BASELINE_RIGHT);
 		this.setBottom(buttons);
+	}
+	
+	public void addProjectType(String name, Consumer<ProjectCreationDetails> handler)
+	{
+		projectCreationHandlers.put(name, handler);
+		projectTypeDropdown.getItems().add(name);
+	}
+	
+	public void setSelectedType(String type)
+	{
+		projectTypeDropdown.setValue(type);
 	}
 	
 	private void onBrowseLocation(ActionEvent event)
