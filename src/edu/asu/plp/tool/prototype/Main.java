@@ -383,6 +383,23 @@ public class Main extends Application
 		}
 	}
 	
+	private void saveAll()
+	{
+		for(Project project : projects)
+		{
+			try
+			{
+				project.save();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	private void saveProjectAs()
 	{
 		Stage createProjectStage = new Stage();
@@ -886,11 +903,17 @@ public class Main extends Application
 		});
 		
 		MenuItem itemSaveAs = new MenuItem("Save As");
-		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A,
-				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemSaveAs.setOnAction((event) -> {
 			// TODO: Add Event for menu item
 			saveProjectAs();
+		});
+		
+		MenuItem itemSaveAll = new MenuItem("Save All");
+		itemSaveAll.setAccelerator(new KeyCodeCombination(KeyCode.A,
+				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+		itemSaveAll.setOnAction((event) -> {
+			// TODO: Add Event for menu item
+			saveAll();
 		});
 		
 		MenuItem itemPrint = new MenuItem("Print");
@@ -908,7 +931,7 @@ public class Main extends Application
 		});
 		
 		file.getItems().addAll(itemNew, new SeparatorMenuItem(), itemOpen, itemSave,
-				itemSaveAs, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(),
+				itemSaveAs, itemSaveAll, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(),
 				itemExit);
 				
 		// Menu Items under "Edit"
