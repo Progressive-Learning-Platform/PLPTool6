@@ -1529,8 +1529,8 @@ public class Main extends Application
 	{
 		Stage createASMStage = new Stage();
 		Parent myPane = new AboutPLPTool();		
-		Scene scene = new Scene(myPane, 700, 500);
-		createASMStage.setTitle("About PLPTool");
+		Scene scene = new Scene(myPane, 600, 500);
+		createASMStage.setTitle("About: PLPTool " + AboutPLPTool.versionString);
 		createASMStage.setScene(scene);
 		createASMStage.setResizable(false);
 		createASMStage.show();
