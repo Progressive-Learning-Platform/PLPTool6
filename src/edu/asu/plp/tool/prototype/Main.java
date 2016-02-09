@@ -787,6 +787,7 @@ public class Main extends Application
 		button.setOnMouseClicked(listener);
 		buttons.add(button);
 		
+		// TODO: remove hard-coded button group
 		for (int x = 9; x <= 23; x++)
 		{
 			DropShadow dropShadow = new DropShadow();
