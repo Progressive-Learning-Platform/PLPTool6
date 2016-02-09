@@ -1,15 +1,5 @@
 package edu.asu.plp.tool.prototype;
 
-import java.io.File;
-import java.util.Optional;
-
-import org.apache.commons.io.FileUtils;
-
-import edu.asu.plp.tool.backend.isa.ASMFile;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
-import edu.asu.plp.tool.prototype.model.Project;
-import edu.asu.plp.tool.prototype.util.Dialogues;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -24,8 +14,11 @@ import javafx.scene.layout.BorderPane;
 
 public class PLPToolMenuBarPanel extends BorderPane
 {
-	public PLPToolMenuBarPanel()
+	private BusinessLogic businessLogic;
+	
+	public PLPToolMenuBarPanel(BusinessLogic businessLogic)
 	{
+		this.businessLogic = businessLogic;
 		MenuBar menuBar = new MenuBar();
 		
 		Menu file = createFileMenu();
@@ -44,38 +37,26 @@ public class PLPToolMenuBarPanel extends BorderPane
 	{
 		Menu toolsMenu = new Menu("Tools");
 		MenuItem itemOptions = new MenuItem("Options");
-		itemOptions.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemOptions.setOnAction(businessLogic::onOpenOptionsMenu);
 		
 		Menu modules = new Menu("Modules");
 		MenuItem itemModuleManager = new MenuItem("Module Manager...");
-		itemModuleManager.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemModuleManager.setOnAction(businessLogic::onOpenModuleManager);
 		
 		MenuItem itemLoadJar = new MenuItem("Load Module JAR File...");
-		itemLoadJar.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemLoadJar.setOnAction(businessLogic::onLoadModule);
 		
 		MenuItem itemClearCache = new MenuItem("Clear Module Auto-Load Cache");
-		itemClearCache.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemClearCache.setOnAction(businessLogic::onClearModuleCache);
 		
 		MenuItem itemSerialTerminal = new MenuItem("Serial Terminal");
 		itemSerialTerminal.setAccelerator(new KeyCodeCombination(KeyCode.T,
 				KeyCombination.CONTROL_DOWN));
-		itemSerialTerminal.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemSerialTerminal.setOnAction(businessLogic::onOpenSerialTerminal);
 		
 		MenuItem itemNumConverter = new MenuItem("Number Converter");
 		itemNumConverter.setAccelerator(new KeyCodeCombination(KeyCode.F12));
-		itemNumConverter.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemNumConverter.setOnAction(businessLogic::onOpenNumberConverter);
 		
 		modules.getItems().addAll(itemModuleManager, itemLoadJar, itemClearCache);
 		toolsMenu.getItems().addAll(itemOptions, modules, new SeparatorMenuItem(),
@@ -90,176 +71,131 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemStep = new MenuItem("Step");
 		itemStep.setGraphic(new ImageView(new Image("toolbar_step.png")));
 		itemStep.setAccelerator(new KeyCodeCombination(KeyCode.F5));
-		itemStep.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemStep.setOnAction(businessLogic::onSimulationStep);
 		
 		MenuItem itemReset = new MenuItem("Reset");
 		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
-		itemReset.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemReset.setOnAction(businessLogic::onResetSimulation);
 		
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
-		itemRun.setOnAction(this::onRunProjectClicked);
+		itemRun.setOnAction(businessLogic::onRunSimulation);
+		// TODO: itemRun.setOnAction(this::onRunProjectClicked);
 		
 		Menu cyclesSteps = new Menu("Cycles/Steps");
 		MenuItem itemOne = new MenuItem("1");
 		itemOne.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD1,
 				KeyCombination.ALT_DOWN));
-		itemOne.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemOne.setOnAction((event) -> businessLogic.onChangeSimulationSpeed(event, 1));
 		
 		MenuItem itemFive = new MenuItem("5");
 		itemFive.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD2,
 				KeyCombination.ALT_DOWN));
-		itemFive.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemFive.setOnAction((event) -> businessLogic.onChangeSimulationSpeed(event, 5));
 		
 		MenuItem itemTwenty = new MenuItem("20");
 		itemTwenty.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD3,
 				KeyCombination.ALT_DOWN));
-		itemTwenty.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemTwenty.setOnAction((event) -> businessLogic.onChangeSimulationSpeed(event, 20));
 		
 		MenuItem itemHundred = new MenuItem("100");
 		itemHundred.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD4,
 				KeyCombination.ALT_DOWN));
-		itemHundred.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemHundred.setOnAction((event) -> businessLogic.onChangeSimulationSpeed(event, 100));
 		
 		MenuItem itemFiveThousand = new MenuItem("5000");
 		itemFiveThousand.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD5,
 				KeyCombination.ALT_DOWN));
-		itemFiveThousand.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemFiveThousand.setOnAction((event) -> businessLogic.onChangeSimulationSpeed(event, 5000));
 		
 		MenuItem itemClearBreakpoints = new MenuItem("Clear Breakpoints");
 		itemClearBreakpoints.setAccelerator(new KeyCodeCombination(KeyCode.B,
 				KeyCombination.CONTROL_DOWN));
-		itemClearBreakpoints.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemClearBreakpoints.setOnAction(businessLogic::onClearBreakpoints);
 		
 		Menu views = new Menu("Views");
 		MenuItem itemCpuView = new MenuItem("CPU View");
 		itemCpuView.setAccelerator(new KeyCodeCombination(KeyCode.C,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
-		itemCpuView.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemCpuView.setOnAction(businessLogic::onOpenCPUView);
 		
 		MenuItem itemCpuWindow = new MenuItem("Watcher Window");
 		itemCpuWindow.setAccelerator(new KeyCodeCombination(KeyCode.W,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
-		itemCpuWindow.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemCpuWindow.setOnAction(businessLogic::onOpenWatcherWindow);
 		
 		MenuItem itemSimControlWindow = new MenuItem("Simulation Control Window");
 		itemSimControlWindow.setAccelerator(new KeyCodeCombination(KeyCode.R,
 				KeyCombination.CONTROL_DOWN));
-		itemSimControlWindow.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemSimControlWindow.setOnAction(); {{what does this button do?}}
 		
 		Menu toolsSubMenu = new Menu("Tools");
 		MenuItem itemioRegistry = new MenuItem("I/O Registry");
 		itemioRegistry.setAccelerator(new KeyCodeCombination(KeyCode.R,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
-		itemioRegistry.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemioRegistry.setOnAction(); {{what does this button do?}}
 		
 		MenuItem itemASMView = new MenuItem("ASM View");
-		itemASMView.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemASMView.setOnAction(); {{what does this button do?}}
 		
 		MenuItem itemCreateMemVis = new MenuItem("Create a PLP CPU Memory Visualizer");
-		itemCreateMemVis.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemCreateMemVis.setOnAction(); {{what does this button do?}}
 		
 		MenuItem itemRemoveMemVis = new MenuItem("Remove Memory Visualizers from Project");
-		itemRemoveMemVis.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemRemoveMemVis.setOnAction(); {{what does this button do?}}
 		
 		MenuItem itemDisplayBus = new MenuItem("Display Bus Monitor Timing Diagram");
-		itemDisplayBus.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemDisplayBus.setOnAction(); {{what does this button do?}}
 		
+		// FIXME: These emulators depend on the context of the project. 
+		// FIXME: Not all ISAs support the same device emulators...
 		Menu ioDevices = new Menu("I/O Devices");
 		MenuItem itemLedArray = new MenuItem("LED Array");
 		itemLedArray.setGraphic(new ImageView(new Image("toolbar_sim_leds.png")));
 		itemLedArray.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD1,
 				KeyCombination.CONTROL_DOWN));
-		itemLedArray.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemLedArray.setOnAction(businessLogic::onDisplayLEDEmulator);
 		
 		MenuItem itemSwitches = new MenuItem("Switches");
 		itemSwitches.setGraphic(new ImageView(new Image("toolbar_sim_switches.png")));
 		itemSwitches.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD2,
 				KeyCombination.CONTROL_DOWN));
-		itemSwitches.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemSwitches.setOnAction(businessLogic::onDisplaySwitchesEmulator);
 		
 		MenuItem itemSevenSeg = new MenuItem("Seven Segments");
 		itemSevenSeg.setGraphic(new ImageView(new Image("toolbar_sim_7segments.png")));
 		itemSevenSeg.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD3,
 				KeyCombination.CONTROL_DOWN));
-		itemSevenSeg.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemSevenSeg.setOnAction(businessLogic::onDisplaySevenSegmentEmulator);
 		
 		MenuItem itemUART = new MenuItem("UART");
 		itemUART.setGraphic(new ImageView(new Image("toolbar_sim_uart.png")));
 		itemUART.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD4,
 				KeyCombination.CONTROL_DOWN));
-		itemUART.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemUART.setOnAction(businessLogic::onDisplayUARTEmulator);
 		
 		MenuItem itemVGA = new MenuItem("VGA");
 		itemVGA.setGraphic(new ImageView(new Image("toolbar_sim_vga.png")));
 		itemVGA.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD5,
 				KeyCombination.CONTROL_DOWN));
-		itemVGA.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemVGA.setOnAction(businessLogic::onDisplayVGAEmulator);
 		
 		MenuItem itemPLPID = new MenuItem("PLPID");
 		itemPLPID.setGraphic(new ImageView(new Image("toolbar_sim_plpid.png")));
 		itemPLPID.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD6,
 				KeyCombination.CONTROL_DOWN));
-		itemPLPID.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemPLPID.setOnAction(businessLogic::onDisplayPLPIDEmulator);
 		
 		MenuItem itemGPIO = new MenuItem("GPIO");
 		itemGPIO.setGraphic(new ImageView(new Image("toolbar_sim_gpio.png")));
 		itemGPIO.setAccelerator(new KeyCodeCombination(KeyCode.NUMPAD7,
 				KeyCombination.CONTROL_DOWN));
-		itemGPIO.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemGPIO.setOnAction(businessLogic::onDisplayGPIOEmulator);
 		
 		MenuItem itemExitSim = new MenuItem("ExitSimulation");
 		itemExitSim.setAccelerator(new KeyCodeCombination(KeyCode.F11));
-		itemExitSim.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemExitSim.setOnAction(businessLogic::onStopSimulation);
 		
 		cyclesSteps.getItems().addAll(itemOne, itemFive, itemTwenty, itemHundred,
 				itemFiveThousand);
@@ -281,34 +217,26 @@ public class PLPToolMenuBarPanel extends BorderPane
 		Menu helpMenu = new Menu("Help");
 		MenuItem itemQuickRef = new MenuItem("Quick Reference");
 		itemQuickRef.setAccelerator(new KeyCodeCombination(KeyCode.F1));
-		itemQuickRef.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemQuickRef.setOnAction(businessLogic::onOpenQuickReference);
 		
 		MenuItem itemOnlineManual = new MenuItem("Online Manual");
-		itemOnlineManual.setOnAction((event) -> {
-			onlineManualWeb();
-		});
+		itemOnlineManual.setOnAction(businessLogic::onOpenOnlineManual);
+		// TODO: itemOnlineManual.setOnAction((event) -> onlineManualWeb());
 		
 		MenuItem itemReportIssue = new MenuItem("Report Issue (Requires Google Account");
-		itemReportIssue.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemReportIssue.setOnAction(businessLogic::onOpenIssueReport);
 		
+		// FIXME: should be "Open Issues Page"
+		// FIXME: should open a GitHub page (not Google Code)
+		// FIXME: the host provider of the issues page may change in the future
 		MenuItem itemGoogleIssues = new MenuItem("Open Google Code Issues Page");
-		itemGoogleIssues.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemGoogleIssues.setOnAction(businessLogic::onOpenIssuesPage);
 		
 		MenuItem itemAboutPLP = new MenuItem("About PLP Tool...");
-		itemAboutPLP.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemAboutPLP.setOnAction(businessLogic::onAboutPLPToolPanel);
 		
 		MenuItem itemSWLicense = new MenuItem("Third Party Software License");
-		itemSWLicense.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemSWLicense.setOnAction(businessLogic::onOpenThirdPartyLicenses);
 		
 		helpMenu.getItems().addAll(itemQuickRef, itemOnlineManual,
 				new SeparatorMenuItem(), itemReportIssue, itemGoogleIssues,
@@ -323,40 +251,42 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemAssemble = new MenuItem("Assemble");
 		itemAssemble.setGraphic(new ImageView(new Image("toolbar_assemble.png")));
 		itemAssemble.setAccelerator(new KeyCodeCombination(KeyCode.F2));
+		// TODO: move the following block
+		//@formatter:off
+		/*
 		itemAssemble.setOnAction((event) -> {
 			console.println("Assemble Menu Item Clicked");
 			Project activeProject = getActiveProject();
 			assemble(activeProject);
 		});
+		*/
+		//@formatter:on
 		
 		MenuItem itemSimulate = new MenuItem("Simulate");
 		itemSimulate.setGraphic(new ImageView(new Image("toolbar_simulate.png")));
 		itemSimulate.setAccelerator(new KeyCodeCombination(KeyCode.F3));
-		itemSimulate.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemSimulate.setOnAction(businessLogic::onSimulate);
 		
 		MenuItem itemPLPBoard = new MenuItem("Program PLP Board...");
 		itemPLPBoard.setGraphic(new ImageView(new Image("toolbar_program.png")));
 		itemPLPBoard.setAccelerator(new KeyCodeCombination(KeyCode.F4,
 				KeyCombination.SHIFT_DOWN));
-		itemPLPBoard.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemPLPBoard.setOnAction(businessLogic::onDownloadToBoard);
 		
 		MenuItem itemQuickProgram = new MenuItem("Quick Program");
 		itemQuickProgram.setAccelerator(new KeyCodeCombination(KeyCode.F4));
-		itemQuickProgram.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		// TODO: itemQuickProgram.setOnAction(); {{what does this button do?}}
 		
 		MenuItem itemNewASM = new MenuItem("New ASM File...");
-		itemNewASM.setOnAction((event) -> {
-			createASMFile(null);
-			// TODO: Check this implementation, doesnt look correct
-			});
+		itemNewASM.setOnAction(businessLogic::onNewASMFile);
+		// TODO: Check this implementation, doesnt look correct
+		// TODO: itemNewASM.setOnAction((event) -> createASMFile(null));
 		
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
+		itemImportASM.setOnAction(businessLogic::onImportASMFile);
+		// TODO: move the following block
+		//@formatter:off
+		/*
 		itemImportASM.setOnAction((event) -> {
 			File importTarget = showImportDialogue();
 			try
@@ -376,8 +306,14 @@ public class PLPToolMenuBarPanel extends BorderPane
 				Dialogues.showAlertDialogue(exception, "Failed to import asm");
 			}
 		});
+		*/
+		//@formatter:on
 		
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
+		itemExportASM.setOnAction(businessLogic::onExportASMFile);
+		// TODO: move the following block
+		//@formatter:off
+		/*
 		itemExportASM.setOnAction((event) -> {
 			ASMFile activeFile = getActiveFile();
 			if (activeFile == null)
@@ -429,18 +365,17 @@ public class PLPToolMenuBarPanel extends BorderPane
 				Dialogues.showAlertDialogue(exception, "Failed to export asm");
 			}
 		});
+		*/
+		//@formatter:on
 		
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
 		itemRemoveASM.setAccelerator(new KeyCodeCombination(KeyCode.E,
 				KeyCombination.CONTROL_DOWN));
-		itemRemoveASM.setOnAction((event) -> {
-			removeActiveFile();
-		});
+		itemRemoveASM.setOnAction(businessLogic::onRemoveASMFile);
+		// TODO: itemRemoveASM.setOnAction((event) -> removeActiveFile());
 		
 		MenuItem itemCurrentAsMain = new MenuItem("Set Current Open File as Main Program");
-		itemCurrentAsMain.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemCurrentAsMain.setOnAction(businessLogic::onSetMainASMFile);
 		
 		projectMenu.getItems().addAll(itemAssemble, itemSimulate, itemPLPBoard,
 				itemQuickProgram, new SeparatorMenuItem(), itemNewASM, itemImportASM,
@@ -455,30 +390,22 @@ public class PLPToolMenuBarPanel extends BorderPane
 		CheckMenuItem cItemToolbar = new CheckMenuItem("Toolbar");
 		cItemToolbar.setAccelerator(new KeyCodeCombination(KeyCode.T,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
-		cItemToolbar.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		cItemToolbar.setOnAction(businessLogic::onToggleToolbar);
 		
 		CheckMenuItem cItemProjectPane = new CheckMenuItem("Project Pane");
 		cItemProjectPane.setAccelerator(new KeyCodeCombination(KeyCode.P,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
-		cItemProjectPane.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		cItemProjectPane.setOnAction(businessLogic::onToggleProjectPane);
 		
 		CheckMenuItem cItemOutputPane = new CheckMenuItem("Output Pane");
 		cItemOutputPane.setAccelerator(new KeyCodeCombination(KeyCode.O,
 				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
-		cItemOutputPane.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		cItemOutputPane.setOnAction(businessLogic::onToggleOutputPane);
 		
 		MenuItem itemClearOutput = new MenuItem("Clear Output Pane");
 		itemClearOutput.setAccelerator(new KeyCodeCombination(KeyCode.D,
 				KeyCombination.CONTROL_DOWN));
-		itemClearOutput.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemClearOutput.setOnAction(businessLogic::onClearOutputPane);
 		
 		viewMenu.getItems().addAll(cItemToolbar, cItemProjectPane, cItemOutputPane,
 				itemClearOutput);
@@ -495,44 +422,32 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemCopy = new MenuItem("Copy");
 		itemCopy.setAccelerator(new KeyCodeCombination(KeyCode.C,
 				KeyCombination.CONTROL_DOWN));
-		itemCopy.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemCopy.setOnAction(businessLogic::onCopy);
 		
 		MenuItem itemCut = new MenuItem("Cut");
 		itemCut.setAccelerator(new KeyCodeCombination(KeyCode.X,
 				KeyCombination.CONTROL_DOWN));
-		itemCut.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemCut.setOnAction(businessLogic::onCut);
 		
 		MenuItem itemPaste = new MenuItem("Paste");
 		itemPaste.setAccelerator(new KeyCodeCombination(KeyCode.V,
 				KeyCombination.CONTROL_DOWN));
-		itemPaste.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemPaste.setOnAction(businessLogic::onPaste);
 		
 		MenuItem itemFandR = new MenuItem("Find and Replace");
 		itemFandR.setAccelerator(new KeyCodeCombination(KeyCode.F,
 				KeyCombination.CONTROL_DOWN));
-		itemFandR.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemFandR.setOnAction(businessLogic::onFindAndReplace);
 		
 		MenuItem itemUndo = new MenuItem("Undo");
 		itemUndo.setAccelerator(new KeyCodeCombination(KeyCode.Z,
 				KeyCombination.CONTROL_DOWN));
-		itemUndo.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemUndo.setOnAction(businessLogic::onUndo);
 		
 		MenuItem itemRedo = new MenuItem("Redo");
 		itemRedo.setAccelerator(new KeyCodeCombination(KeyCode.Y,
 				KeyCombination.CONTROL_DOWN));
-		itemRedo.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemRedo.setOnAction(businessLogic::onRedo);
 		
 		editMenu.getItems().addAll(itemCopy, itemCut, itemPaste, new SeparatorMenuItem(),
 				itemFandR, new SeparatorMenuItem(), itemUndo, itemRedo);
@@ -547,47 +462,37 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemNew.setGraphic(new ImageView(new Image("menu_new.png")));
 		itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N,
 				KeyCombination.CONTROL_DOWN));
-		itemNew.setOnAction((event) -> {
-			createNewProject();
-		});
+		itemNew.setOnAction(businessLogic::onCreateNewProject);
+		// TODO: itemNew.setOnAction((event) -> createNewProject());
 		
+		// FIXME: Open PLP Project may be a misnomer; can the project be any ISA?
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
 		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
 		itemOpen.setAccelerator(new KeyCodeCombination(KeyCode.O,
 				KeyCombination.CONTROL_DOWN));
-		itemOpen.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemOpen.setOnAction(businessLogic::onOpenProject);
 		
 		MenuItem itemSave = new MenuItem("Save");
 		itemSave.setGraphic(new ImageView(new Image("toolbar_save.png")));
 		itemSave.setAccelerator(new KeyCodeCombination(KeyCode.S,
 				KeyCombination.CONTROL_DOWN));
-		itemSave.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemSave.setOnAction(businessLogic::onSaveProject);
 		
 		MenuItem itemSaveAs = new MenuItem("Save As");
 		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
-		itemSaveAs.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-				saveProjectAs();
-			});
+		itemSaveAs.setOnAction(businessLogic::onSaveProjectAs);
+		// TODO: itemSaveAs.setOnAction((event) -> saveProjectAs());
 		
 		MenuItem itemPrint = new MenuItem("Print");
 		itemPrint.setAccelerator(new KeyCodeCombination(KeyCode.P,
 				KeyCombination.CONTROL_DOWN));
-		itemPrint.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-			});
+		itemPrint.setOnAction(businessLogic::onPrint);
 		
 		MenuItem itemExit = new MenuItem("Exit");
 		itemExit.setAccelerator(new KeyCodeCombination(KeyCode.Q,
 				KeyCombination.CONTROL_DOWN));
-		itemExit.setOnAction((event) -> {
-			// TODO: Add Event for menu item
-		});
+		itemExit.setOnAction(businessLogic::onExit);
 		
 		fileMenu.getItems().addAll(itemNew, new SeparatorMenuItem(), itemOpen, itemSave,
 				itemSaveAs, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(),
