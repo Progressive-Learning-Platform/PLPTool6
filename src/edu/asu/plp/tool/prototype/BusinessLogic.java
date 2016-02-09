@@ -36,6 +36,8 @@ public interface BusinessLogic
 	
 	void onClearOutputPane(ActionEvent event);
 	
+	void onAssemble(ActionEvent event);
+	
 	void onSimulate(ActionEvent event);
 	
 	void onDownloadToBoard(ActionEvent event);

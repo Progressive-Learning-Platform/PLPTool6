@@ -60,6 +60,7 @@ import moore.util.ExceptionalSubroutine;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.io.FileUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
@@ -788,12 +789,6 @@ public class Main extends Application implements BusinessLogic
 		return Components.wrap(toolbar);
 	}
 	
-	private void onRunProjectClicked(ActionEvent event)
-	{
-		console.println("Run Project Clicked (from menu)");
-		onRunProjectClicked();
-	}
-	
 	private void onRunProjectClicked(MouseEvent event)
 	{
 		console.println("Run Project Clicked (from button)");
@@ -945,30 +940,6 @@ public class Main extends Application implements BusinessLogic
 				toolbar.getChildren().get(x).setDisable(true);
 			}
 			simMode = false;
-		}
-	}
-	
-	private void onlineManualWeb()
-	{
-		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
-		try
-		{
-			if (Desktop.isDesktopSupported())
-			{
-				URI location = new URI(webAddress);
-				Desktop.getDesktop().browse(location);
-			}
-			else
-			{
-				String cause = "This JVM does not support Desktop. Try updating Java to the latest version.";
-				throw new Exception(cause);
-			}
-		}
-		catch (Exception exception)
-		{
-			String recoveryMessage = "There was a problem opening the following webpage:"
-					+ "\n" + webAddress;
-			Dialogues.showAlertDialogue(exception, recoveryMessage);
 		}
 	}
 	
@@ -1212,8 +1183,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onCreateNewProject(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		createNewProject();
 	}
 
 	@Override
@@ -1233,8 +1203,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSaveProjectAs(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		saveProjectAs();
 	}
 
 	@Override
@@ -1322,6 +1291,14 @@ public class Main extends Application implements BusinessLogic
 	}
 
 	@Override
+	public void onAssemble(ActionEvent event)
+	{
+		console.println("Assemble Menu Item Clicked");
+		Project activeProject = getActiveProject();
+		assemble(activeProject);
+	}
+
+	@Override
 	public void onSimulate(ActionEvent event)
 	{
 		// TODO Auto-generated method stub 
@@ -1338,29 +1315,91 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onNewASMFile(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// TODO: Check this implementation, doesnt look correct
+		createASMFile(null);
 	}
 
 	@Override
 	public void onImportASMFile(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		File importTarget = showImportDialogue();
+		try
+		{
+			String content = FileUtils.readFileToString(importTarget);
+			Project activeProject = getActiveProject();
+			String name = importTarget.getName();
+			
+			// TODO: account for non-PLP source files
+			ASMFile asmFile = new PLPSourceFile(activeProject, name);
+			asmFile.setContent(content);
+			activeProject.add(asmFile);
+			activeProject.save();
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception, "Failed to import asm");
+		}
 	}
 
 	@Override
 	public void onExportASMFile(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// XXX: Consider moving this to a component
+		ASMFile activeFile = getActiveFile();
+		if (activeFile == null)
+		{
+			// XXX: possible feature: select file from a list or dropdown
+			String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
+			Dialogues.showInfoDialogue(message);
+		}
+		
+		File exportTarget = showExportDialogue(activeFile);
+		if (exportTarget == null)
+			return;
+		
+		if (exportTarget.isDirectory())
+		{
+			String exportPath = exportTarget.getAbsolutePath()
+					+ activeFile.constructFileName();
+			exportTarget = new File(exportPath);
+			
+			String message = "File will be exported to " + exportPath;
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Export was canceled
+				return;
+			}
+		}
+		
+		if (exportTarget.exists())
+		{
+			String message = "The specified file already exists. Press OK to overwrite this file, or cancel to cancel the export.";
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Export was canceled
+				return;
+			}
+		}
+		
+		String fileContents = activeFile.getContent();
+		try
+		{
+			FileUtils.write(exportTarget, fileContents);
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception, "Failed to export asm");
+		}
 	}
 
 	@Override
 	public void onRemoveASMFile(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		removeActiveFile();
 	}
 
 	@Override
@@ -1380,8 +1419,27 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onOpenOnlineManual(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// XXX: consider moving to a sub-component
+		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
+		try
+		{
+			if (Desktop.isDesktopSupported())
+			{
+				URI location = new URI(webAddress);
+				Desktop.getDesktop().browse(location);
+			}
+			else
+			{
+				String cause = "This JVM does not support Desktop. Try updating Java to the latest version.";
+				throw new Exception(cause);
+			}
+		}
+		catch (Exception exception)
+		{
+			String recoveryMessage = "There was a problem opening the following webpage:"
+					+ "\n" + webAddress;
+			Dialogues.showAlertDialogue(exception, recoveryMessage);
+		}
 	}
 
 	@Override
@@ -1429,8 +1487,8 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onRunSimulation(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.println("Run Project Clicked (from menu)");
+		onRunProjectClicked();
 	}
 
 	@Override

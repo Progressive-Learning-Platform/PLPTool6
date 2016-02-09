@@ -81,7 +81,6 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemRun = new MenuItem("Run");
 		itemRun.setAccelerator(new KeyCodeCombination(KeyCode.F7));
 		itemRun.setOnAction(businessLogic::onRunSimulation);
-		// TODO: itemRun.setOnAction(this::onRunProjectClicked);
 		
 		Menu cyclesSteps = new Menu("Cycles/Steps");
 		MenuItem itemOne = new MenuItem("1");
@@ -221,7 +220,6 @@ public class PLPToolMenuBarPanel extends BorderPane
 		
 		MenuItem itemOnlineManual = new MenuItem("Online Manual");
 		itemOnlineManual.setOnAction(businessLogic::onOpenOnlineManual);
-		// TODO: itemOnlineManual.setOnAction((event) -> onlineManualWeb());
 		
 		MenuItem itemReportIssue = new MenuItem("Report Issue (Requires Google Account");
 		itemReportIssue.setOnAction(businessLogic::onOpenIssueReport);
@@ -251,16 +249,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemAssemble = new MenuItem("Assemble");
 		itemAssemble.setGraphic(new ImageView(new Image("toolbar_assemble.png")));
 		itemAssemble.setAccelerator(new KeyCodeCombination(KeyCode.F2));
-		// TODO: move the following block
-		//@formatter:off
-		/*
-		itemAssemble.setOnAction((event) -> {
-			console.println("Assemble Menu Item Clicked");
-			Project activeProject = getActiveProject();
-			assemble(activeProject);
-		});
-		*/
-		//@formatter:on
+		itemAssemble.setOnAction(businessLogic::onAssemble);
 		
 		MenuItem itemSimulate = new MenuItem("Simulate");
 		itemSimulate.setGraphic(new ImageView(new Image("toolbar_simulate.png")));
@@ -279,100 +268,17 @@ public class PLPToolMenuBarPanel extends BorderPane
 		
 		MenuItem itemNewASM = new MenuItem("New ASM File...");
 		itemNewASM.setOnAction(businessLogic::onNewASMFile);
-		// TODO: Check this implementation, doesnt look correct
-		// TODO: itemNewASM.setOnAction((event) -> createASMFile(null));
 		
 		MenuItem itemImportASM = new MenuItem("Import ASM File...");
 		itemImportASM.setOnAction(businessLogic::onImportASMFile);
-		// TODO: move the following block
-		//@formatter:off
-		/*
-		itemImportASM.setOnAction((event) -> {
-			File importTarget = showImportDialogue();
-			try
-			{
-				String content = FileUtils.readFileToString(importTarget);
-				Project activeProject = getActiveProject();
-				String name = importTarget.getName();
-				
-				// TODO: account for non-PLP source files
-				ASMFile asmFile = new PLPSourceFile(activeProject, name);
-				asmFile.setContent(content);
-				activeProject.add(asmFile);
-				activeProject.save();
-			}
-			catch (Exception exception)
-			{
-				Dialogues.showAlertDialogue(exception, "Failed to import asm");
-			}
-		});
-		*/
-		//@formatter:on
 		
 		MenuItem itemExportASM = new MenuItem("Export Selected ASM File...");
 		itemExportASM.setOnAction(businessLogic::onExportASMFile);
-		// TODO: move the following block
-		//@formatter:off
-		/*
-		itemExportASM.setOnAction((event) -> {
-			ASMFile activeFile = getActiveFile();
-			if (activeFile == null)
-			{
-				// XXX: possible feature: select file from a list or dropdown
-				String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
-				Dialogues.showInfoDialogue(message);
-			}
-			
-			File exportTarget = showExportDialogue(activeFile);
-			if (exportTarget == null)
-				return;
-			
-			if (exportTarget.isDirectory())
-			{
-				String exportPath = exportTarget.getAbsolutePath()
-						+ activeFile.constructFileName();
-				exportTarget = new File(exportPath);
-				
-				String message = "File will be exported to " + exportPath;
-				Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
-				
-				if (result.get() != ButtonType.OK)
-				{
-					// Export was canceled
-					return;
-				}
-			}
-			
-			if (exportTarget.exists())
-			{
-				String message = "The specified file already exists. Press OK to overwrite this file, or cancel to cancel the export.";
-				Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
-				
-				if (result.get() != ButtonType.OK)
-				{
-					// Export was canceled
-					return;
-				}
-			}
-			
-			String fileContents = activeFile.getContent();
-			try
-			{
-				FileUtils.write(exportTarget, fileContents);
-			}
-			catch (Exception exception)
-			{
-				Dialogues.showAlertDialogue(exception, "Failed to export asm");
-			}
-		});
-		*/
-		//@formatter:on
 		
 		MenuItem itemRemoveASM = new MenuItem("Remove Selected ASM File from Project");
 		itemRemoveASM.setAccelerator(new KeyCodeCombination(KeyCode.E,
 				KeyCombination.CONTROL_DOWN));
 		itemRemoveASM.setOnAction(businessLogic::onRemoveASMFile);
-		// TODO: itemRemoveASM.setOnAction((event) -> removeActiveFile());
 		
 		MenuItem itemCurrentAsMain = new MenuItem("Set Current Open File as Main Program");
 		itemCurrentAsMain.setOnAction(businessLogic::onSetMainASMFile);
@@ -463,7 +369,6 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N,
 				KeyCombination.CONTROL_DOWN));
 		itemNew.setOnAction(businessLogic::onCreateNewProject);
-		// TODO: itemNew.setOnAction((event) -> createNewProject());
 		
 		// FIXME: Open PLP Project may be a misnomer; can the project be any ISA?
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
@@ -482,7 +387,6 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A,
 				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemSaveAs.setOnAction(businessLogic::onSaveProjectAs);
-		// TODO: itemSaveAs.setOnAction((event) -> saveProjectAs());
 		
 		MenuItem itemPrint = new MenuItem("Print");
 		itemPrint.setAccelerator(new KeyCodeCombination(KeyCode.P,
