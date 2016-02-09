@@ -86,7 +86,7 @@ import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
  * @author Hawks, Elliott
  * 		
  */
-public class Main extends Application
+public class Main extends Application implements BusinessLogic
 {
 	public static final String APPLICATION_NAME = "PLPTool";
 	public static final long VERSION = 0;
@@ -375,7 +375,6 @@ public class Main extends Application
 		createProjectStage.setScene(scene);
 		createProjectStage.setResizable(false);
 		createProjectStage.show();
-		
 	}
 	
 	private Parent saveAsMenu()
@@ -836,7 +835,7 @@ public class Main extends Application
 	private Parent createMenuBar()
 	{
 		// TODO: initialize menuBar
-		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel();
+		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel(this);
 		return menuBar;
 	}
 	
@@ -1208,5 +1207,355 @@ public class Main extends Application
 		{
 			Dialogues.showAlertDialogue(exception);
 		}
+	}
+
+	@Override
+	public void onCreateNewProject(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenProject(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSaveProject(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSaveProjectAs(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onPrint(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onExit(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onCopy(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onCut(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onPaste(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onFindAndReplace(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onUndo(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onRedo(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onToggleToolbar(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onToggleProjectPane(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onToggleOutputPane(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onClearOutputPane(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSimulate(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDownloadToBoard(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onNewASMFile(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onImportASMFile(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onExportASMFile(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onRemoveASMFile(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSetMainASMFile(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenQuickReference(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenOnlineManual(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenIssueReport(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenIssuesPage(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onAboutPLPToolPanel(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenThirdPartyLicenses(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSimulationStep(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onResetSimulation(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onRunSimulation(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onChangeSimulationSpeed(ActionEvent event, int requestedSpeed)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onClearBreakpoints(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenCPUView(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenWatcherWindow(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayLEDEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplaySwitchesEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplaySevenSegmentEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayUARTEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayVGAEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayPLPIDEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayGPIOEmulator(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onStopSimulation(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenOptionsMenu(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenModuleManager(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onLoadModule(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onClearModuleCache(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenSerialTerminal(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenNumberConverter(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 }
