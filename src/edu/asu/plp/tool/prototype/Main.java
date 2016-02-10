@@ -94,8 +94,7 @@ public class Main extends Application implements BusinessLogic
 	
 	private Stage stage;
 	private TabPane openProjectsPanel;
-	// XXX: openProjects is a misnomer - should be openFiles
-	private BidiMap<ASMFile, Tab> openProjects;
+	private BidiMap<ASMFile, Tab> openFileTabs;
 	private ObservableList<Project> projects;
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
@@ -113,7 +112,7 @@ public class Main extends Application implements BusinessLogic
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 		
 		this.assemblyDetails = new HashMap<>();
-		this.openProjects = new DualHashBidiMap<>();
+		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
 		Parent outlineView = createOutlineView();
@@ -335,14 +334,14 @@ public class Main extends Application implements BusinessLogic
 		String fileName = file.getName();
 		
 		System.out.println("Opening " + fileName);
-		Tab tab = openProjects.get(file);
+		Tab tab = openFileTabs.get(file);
 		
 		if (tab == null)
 		{
 			// Create new tab
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
-			openProjects.put(file, tab);
+			openFileTabs.put(file, tab);
 			
 			// Set content
 			content.setText(file.getContent());
@@ -503,14 +502,14 @@ public class Main extends Application implements BusinessLogic
 			@Override
 			public void handle(Event event)
 			{
-				openProjects.removeValue(tab);
+				openFileTabs.removeValue(tab);
 			}
 		});
 		tab.setOnSelectionChanged(new EventHandler<Event>() {
 			@Override
 			public void handle(Event event)
 			{
-				ASMFile activeFile = openProjects.getKey(tab);
+				ASMFile activeFile = openFileTabs.getKey(tab);
 				if (activeFile != null)
 					projectExplorer.setActiveFile(activeFile);
 			}
@@ -708,7 +707,7 @@ public class Main extends Application implements BusinessLogic
 	private ASMFile getActiveFileInTabPane()
 	{
 		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
-		return openProjects.getKey(selectedTab);
+		return openFileTabs.getKey(selectedTab);
 	}
 	
 	private ASMFile getActiveFileInProjectExplorer()
