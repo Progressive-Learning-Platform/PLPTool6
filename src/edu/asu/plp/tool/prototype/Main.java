@@ -844,8 +844,10 @@ public class Main extends Application implements BusinessLogic
 		else
 		{
 			Stage createASMStage = new Stage();
-			Parent myPane = createASMMenu();
-			Scene scene = new Scene(myPane, 450, 200);
+			ASMCreationPanel asmCreationMenu = createASMMenu();
+			asmCreationMenu.setFinallyOperation(createASMStage::close);
+			
+			Scene scene = new Scene(asmCreationMenu, 450, 200);
 			createASMStage.setTitle("New ASMFile");
 			createASMStage.setScene(scene);
 			createASMStage.setResizable(false);
@@ -853,87 +855,39 @@ public class Main extends Application implements BusinessLogic
 		}
 	}
 	
-	private Parent createASMMenu()
+	private ASMCreationPanel createASMMenu()
 	{
-		BorderPane border = new BorderPane();
-		border.setPadding(new Insets(20));
-		GridPane grid = new GridPane();
-		HBox buttons = new HBox(10);
-		grid.setHgap(10);
-		grid.setVgap(30);
-		grid.setPadding(new Insets(10, 10, 10, 10));
+		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
+		String projectName = getActiveProject().getName();
+		createASMMenu.setProjectName(projectName);
+		return createASMMenu;
+	}
+	
+	private void createASM(ASMCreationDetails details)
+	{
+		String projectName = details.getProjectName();
+		String fileName = details.getFileName();
 		
-		Label ASMFileName = new Label();
-		ASMFileName.setText("File Name: ");
-		ASMFileName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		TextField nameText = new TextField();
-		nameText.setText("");
-		nameText.requestFocus();
-		nameText.setPrefWidth(200);
-		
-		Label projectName = new Label();
-		projectName.setText("Add to Project: ");
-		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		TextField projectText = new TextField();
-		projectText.setText(getActiveProject().getName());
-		projectText.setPrefWidth(200);
-		
-		Button create = new Button();
-		create.setText("Create");
-		create.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e)
-			{
-				String projectName = projectText.getText();
-				String fileName = nameText.getText();
-				
-				if (projectName.equals("") || getProjectByName(projectName).equals(null))
-				{
-					Dialogues.showInfoDialogue("You entered an invalid Project Name");
-					
-				}
-				
-				if (fileName == null || fileName.trim().isEmpty())
-				{
-					Dialogues.showInfoDialogue("You entered an invalid File Name");
-				}
-				
-				if (!fileName.contains(".asm"))
-				{
-					fileName = fileName.concat(".asm");
-				}
-				
-				PLPSourceFile createASM = new PLPSourceFile(getProjectByName(projectName),
-						fileName);
-				getProjectByName(projectName).add(createASM);
-				openFile(createASM);
-				
-				Stage stage = (Stage) create.getScene().getWindow();
-				stage.close();
-			}
-			
-		});
-		
-		grid.add(ASMFileName, 0, 0);
-		grid.add(nameText, 1, 0);
-		grid.add(projectName, 0, 1);
-		grid.add(projectText, 1, 1);
-		
-		border.setCenter(grid);
-		buttons.getChildren().add(create);
-		buttons.setAlignment(Pos.BASELINE_RIGHT);
-		border.setBottom(buttons);
-		
-		return Components.wrap(border);
+		Project project = getProjectByName(projectName);
+		if (project != null)
+		{
+			PLPSourceFile createASM = new PLPSourceFile(project, fileName);
+			project.add(createASM);
+			openFile(createASM);
+		}
+		else
+		{
+			// TODO: display message "The project {name} was not found"
+			// TODO: ask to use the active project?
+			throw new IllegalStateException("Project \"" + projectName + "\" not found");
+		}
 	}
 	
 	private void createNewProject()
 	{
 		Stage createProjectStage = new Stage();
 		ProjectCreationPanel projectCreationPanel = projectCreateMenu();
-		projectCreationPanel.setFinallyOperation(() -> createProjectStage.close());
+		projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
 		Scene scene = new Scene(projectCreationPanel, 450, 350);
 		createProjectStage.setTitle("Create New PLP Project");
