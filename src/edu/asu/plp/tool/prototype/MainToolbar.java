@@ -1,7 +1,6 @@
 package edu.asu.plp.tool.prototype;
 
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -15,11 +14,8 @@ import javafx.scene.paint.Color;
 
 public class MainToolbar extends BorderPane
 {
-	private BusinessLogic businessLogic;
-	
 	public MainToolbar(BusinessLogic businessLogic)
 	{
-		this.businessLogic = businessLogic;
 		HBox toolbar = new HBox();
 		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
 		toolbar.setSpacing(5);
@@ -31,43 +27,23 @@ public class MainToolbar extends BorderPane
 		darkBlueShadow.setColor(Color.DARKBLUE);
 		
 		Node newProjectButton = new ImageView("toolbar_new.png");
+		// Hover style
 		newProjectButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						newProjectButton.setEffect(lightBlueShadow);
-					}
-				});
+				(event) -> newProjectButton.setEffect(lightBlueShadow));
+		
 		// Removing the shadow when the mouse cursor is off
 		newProjectButton.addEventHandler(MouseEvent.MOUSE_EXITED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						newProjectButton.setEffect(null);
-					}
-				});
-		newProjectButton.addEventHandler(MouseEvent.MOUSE_PRESSED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						console.println("New Project Clicked");
-						
-						createNewProject();
-						
-						newProjectButton.setEffect(darkBlueShadow);
-					}
-				});
+				(event) -> newProjectButton.setEffect(null));
+		
+		// Darken shadow on click
+		newProjectButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (event) -> {
+			businessLogic.onCreateNewProject(event);
+			newProjectButton.setEffect(darkBlueShadow);
+		});
+		
+		// Restore hover style on click end
 		newProjectButton.addEventHandler(MouseEvent.MOUSE_RELEASED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						newProjectButton.setEffect(lightBlueShadow);
-					}
-				});
+				(event) -> newProjectButton.setEffect(lightBlueShadow));
 		buttons.add(newProjectButton);
 		
 		Node newFileButton = new ImageView("menu_new.png");
@@ -117,7 +93,7 @@ public class MainToolbar extends BorderPane
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		// TODO: move these buttons to their own panel/frame		
+		// TODO: move these buttons to their own panel/frame
 		Node cpuButton = new ImageView("toolbar_cpu.png");
 		cpuButton.setOnMouseClicked(businessLogic::onOpenCPUView);
 		buttons.add(cpuButton);
@@ -135,7 +111,8 @@ public class MainToolbar extends BorderPane
 		buttons.add(switchesButton);
 		
 		Node sevenSegmentButton = new ImageView("toolbar_sim_7segments.png");
-		sevenSegmentButton.setOnMouseClicked(businessLogic::onDisplaySevenSegmentEmulator);
+		sevenSegmentButton
+				.setOnMouseClicked(businessLogic::onDisplaySevenSegmentEmulator);
 		buttons.add(sevenSegmentButton);
 		
 		Node uartButton = new ImageView("toolbar_sim_uart.png");
