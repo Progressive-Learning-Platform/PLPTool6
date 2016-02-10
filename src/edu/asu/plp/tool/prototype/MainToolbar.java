@@ -1,5 +1,8 @@
 package edu.asu.plp.tool.prototype;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -17,6 +20,7 @@ public class MainToolbar extends BorderPane
 	public MainToolbar(BusinessLogic businessLogic)
 	{
 		HBox toolbar = new HBox();
+		Set<Node> toggleButtons = new HashSet<>();
 		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
 		toolbar.setSpacing(5);
 		ObservableList<Node> buttons = toolbar.getChildren();
@@ -65,7 +69,10 @@ public class MainToolbar extends BorderPane
 		buttons.add(assembleButton);
 		
 		Node simulateButton = new ImageView("toolbar_simulate.png");
-		simulateButton.setOnMouseClicked(businessLogic::onSimulate);
+		simulateButton.setOnMouseClicked((event) -> {
+			businessLogic.onSimulate(event);
+			toggleButtons.forEach(MainToolbar::toggleDisabled);
+		});
 		buttons.add(simulateButton);
 		
 		Node programButton = new ImageView("toolbar_program.png");
@@ -77,19 +84,23 @@ public class MainToolbar extends BorderPane
 		Node stepButton = new ImageView("toolbar_step.png");
 		stepButton.setOnMouseClicked(businessLogic::onSimulationStep);
 		buttons.add(stepButton);
+		toggleButtons.add(stepButton);
 		
 		Node runButton = new ImageView("toolbar_run.png");
 		runButton.setOnMouseClicked(businessLogic::onRunSimulation);
 		buttons.add(runButton);
+		toggleButtons.add(runButton);
 		
 		Node resetButton = new ImageView("toolbar_reset.png");
 		resetButton.setOnMouseClicked(businessLogic::onResetSimulation);
 		buttons.add(resetButton);
+		toggleButtons.add(resetButton);
 		
 		Node remoteButton = new ImageView("toolbar_remote.png");
 		// TODO: listener = (e) -> console.println("Floating Sim Control Window Clicked");
 		// TODO: remoteButton.setOnMouseClicked(); {{what does this do? Is it needed?}}
 		buttons.add(remoteButton);
+		toggleButtons.add(remoteButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
@@ -97,52 +108,73 @@ public class MainToolbar extends BorderPane
 		Node cpuButton = new ImageView("toolbar_cpu.png");
 		cpuButton.setOnMouseClicked(businessLogic::onOpenCPUView);
 		buttons.add(cpuButton);
+		toggleButtons.add(cpuButton);
 		
 		Node watcherButton = new ImageView("toolbar_watcher.png");
 		watcherButton.setOnMouseClicked(businessLogic::onOpenWatcherWindow);
 		buttons.add(watcherButton);
+		toggleButtons.add(watcherButton);
 		
 		Node ledsButton = new ImageView("toolbar_sim_leds.png");
 		ledsButton.setOnMouseClicked(businessLogic::onDisplayLEDEmulator);
 		buttons.add(ledsButton);
+		toggleButtons.add(ledsButton);
 		
 		Node switchesButton = new ImageView("toolbar_sim_switches.png");
 		switchesButton.setOnMouseClicked(businessLogic::onDisplaySwitchesEmulator);
 		buttons.add(switchesButton);
+		toggleButtons.add(switchesButton);
 		
 		Node sevenSegmentButton = new ImageView("toolbar_sim_7segments.png");
 		sevenSegmentButton
 				.setOnMouseClicked(businessLogic::onDisplaySevenSegmentEmulator);
 		buttons.add(sevenSegmentButton);
+		toggleButtons.add(sevenSegmentButton);
 		
 		Node uartButton = new ImageView("toolbar_sim_uart.png");
 		uartButton.setOnMouseClicked(businessLogic::onDisplayUARTEmulator);
 		buttons.add(uartButton);
+		toggleButtons.add(uartButton);
 		
 		Node vgaButton = new ImageView("toolbar_sim_vga.png");
 		vgaButton.setOnMouseClicked(businessLogic::onDisplayVGAEmulator);
 		buttons.add(vgaButton);
+		toggleButtons.add(vgaButton);
 		
 		Node plpidButton = new ImageView("toolbar_sim_plpid.png");
 		plpidButton.setOnMouseClicked(businessLogic::onDisplayPLPIDEmulator);
 		buttons.add(plpidButton);
+		toggleButtons.add(plpidButton);
 		
 		Node gpioButton = new ImageView("toolbar_sim_gpio.png");
 		gpioButton.setOnMouseClicked(businessLogic::onDisplayGPIOEmulator);
 		buttons.add(gpioButton);
+		toggleButtons.add(gpioButton);
 		
 		Node interuptButton = new ImageView("toolbar_exclamation.png");
 		interuptButton.setOnMouseClicked(businessLogic::onSimulationInterrupt);
 		buttons.add(interuptButton);
-		
-		// TODO: remove hard-coded button group
-		for (int x = 9; x <= 23; x++)
-		{
-			DropShadow dropShadow = new DropShadow();
-			toolbar.getChildren().get(x).setEffect(dropShadow);
-			toolbar.getChildren().get(x).setDisable(true);
-		}
-		
+		toggleButtons.add(interuptButton);
+
+		toggleButtons.forEach(MainToolbar::disable);
 		this.setCenter(toolbar);
+	}
+	
+	private static void disable(Node node)
+	{
+		DropShadow dropShadow = new DropShadow();
+		node.setEffect(dropShadow);
+		node.setDisable(true);
+	}
+	
+	private static void toggleDisabled(Node node)
+	{
+		DropShadow dropShadow = new DropShadow();
+		
+		// Invert the isDisabled property
+		boolean isDisabled = !node.isDisabled();
+		
+		node.setEffect(isDisabled ? dropShadow : null);
+		node.setDisable(isDisabled);
 	}
 }

@@ -37,7 +37,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -690,6 +689,12 @@ public class Main extends Application implements BusinessLogic
 			throw new UnsupportedOperationException("Not yet implemented");
 		}
 	}
+
+	private void simulate()
+	{
+		// TODO: activate simulator?
+		simMode = !simMode;
+	}
 	
 	private void assemble(Assembler assembler, Project project)
 	{
@@ -745,30 +750,6 @@ public class Main extends Application implements BusinessLogic
 			return getActiveFileInProjectExplorer();
 		else 
 			return selectedFile;
-	}
-
-	private void onSimProjectClicked(MouseEvent event, HBox toolbar)
-	{
-		// TODO: Take out the hard values and replace with a better solution
-		DropShadow ds = new DropShadow();
-		if (!simMode)
-		{
-			for (int x = 9; x <= 23; x++)
-			{
-				toolbar.getChildren().get(x).setEffect(null);
-				toolbar.getChildren().get(x).setDisable(false);
-			}
-			simMode = true;
-		}
-		else
-		{
-			for (int x = 9; x <= 23; x++)
-			{
-				toolbar.getChildren().get(x).setEffect(ds);
-				toolbar.getChildren().get(x).setDisable(true);
-			}
-			simMode = false;
-		}
 	}
 	
 	private void removeActiveFile()
@@ -1129,8 +1110,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSimulate(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		simulate();
 	}
 
 	@Override
@@ -1483,8 +1463,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSimulate(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		simulate();
 	}
 
 	@Override
