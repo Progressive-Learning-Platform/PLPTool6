@@ -92,6 +92,7 @@ public class Main extends Application implements BusinessLogic
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	public boolean simMode = false;
 	
+	private Simulator activeSimulator;
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	private BidiMap<ASMFile, Tab> openFileTabs;
