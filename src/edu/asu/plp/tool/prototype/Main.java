@@ -357,12 +357,6 @@ public class Main extends Application implements BusinessLogic
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
 	
-	private void saveProject(MouseEvent event)
-	{
-		Project activeProject = getActiveProject();
-		tryAndReport(activeProject::save);
-	}
-	
 	private void saveProjectAs()
 	{
 		Stage createProjectStage = new Stage();
@@ -616,12 +610,6 @@ public class Main extends Application implements BusinessLogic
 		return toolbar;
 	}
 	
-	private void onRunProjectClicked(MouseEvent event)
-	{
-		console.println("Run Project Clicked (from button)");
-		onRunProjectClicked();
-	}
-	
 	private void onRunProjectClicked()
 	{
 		Project activeProject = getActiveProject();
@@ -659,19 +647,6 @@ public class Main extends Application implements BusinessLogic
 		// TODO: initialize menuBar
 		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel(this);
 		return menuBar;
-	}
-	
-	private void onOpenProjectClicked(MouseEvent event)
-	{
-		console.println("Open Project Clicked");
-		openProjectFromFile();
-	}
-	
-	private void onAssembleProjectClicked(MouseEvent event)
-	{
-		console.println("Assemble Button Clicked");
-		Project activeProject = getActiveProject();
-		assemble(activeProject);
 	}
 	
 	private void assemble(Project project)
@@ -952,15 +927,15 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onOpenProject(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.println("Open Project Clicked");
+		openProjectFromFile();
 	}
 
 	@Override
 	public void onSaveProject(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Project activeProject = getActiveProject();
+		tryAndReport(activeProject::save);
 	}
 
 	@Override
@@ -1389,29 +1364,29 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onOpenProject(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.println("Open Project Clicked");
+		openProjectFromFile();
 	}
 
 	@Override
 	public void onSaveProject(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Project activeProject = getActiveProject();
+		tryAndReport(activeProject::save);
 	}
 
 	@Override
 	public void onSaveProjectAs(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		saveProjectAs();
 	}
 
 	@Override
 	public void onAssemble(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.println("Assemble Button Clicked");
+		Project activeProject = getActiveProject();
+		assemble(activeProject);
 	}
 
 	@Override
@@ -1451,8 +1426,8 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onRunSimulation(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.println("Run Project Clicked (from button)");
+		onRunProjectClicked();
 	}
 
 	@Override
