@@ -598,7 +598,6 @@ public class Main extends Application implements BusinessLogic
 	 */
 	private Parent createToolbar()
 	{
-		// TODO: initialize toolbar
 		MainToolbar toolbar = new MainToolbar(this);
 		return toolbar;
 	}
@@ -637,7 +636,6 @@ public class Main extends Application implements BusinessLogic
 
 	private Parent createMenuBar()
 	{
-		// TODO: initialize menuBar
 		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel(this);
 		return menuBar;
 	}
