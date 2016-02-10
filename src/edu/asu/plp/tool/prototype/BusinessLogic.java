@@ -1,16 +1,25 @@
 package edu.asu.plp.tool.prototype;
 
 import javafx.event.ActionEvent;
+import javafx.scene.input.MouseEvent;
 
 public interface BusinessLogic
 {
 	void onCreateNewProject(ActionEvent event);
 	
+	void onCreateNewProject(MouseEvent event);
+	
 	void onOpenProject(ActionEvent event);
+	
+	void onOpenProject(MouseEvent event);
 	
 	void onSaveProject(ActionEvent event);
 	
+	void onSaveProject(MouseEvent event);
+	
 	void onSaveProjectAs(ActionEvent event);
+	
+	void onSaveProjectAs(MouseEvent event);
 	
 	void onPrint(ActionEvent event);
 	
@@ -38,11 +47,17 @@ public interface BusinessLogic
 	
 	void onAssemble(ActionEvent event);
 	
+	void onAssemble(MouseEvent event);
+	
 	void onSimulate(ActionEvent event);
+	
+	void onSimulate(MouseEvent event);
 	
 	void onDownloadToBoard(ActionEvent event);
 	
 	void onNewASMFile(ActionEvent event);
+	
+	void onNewASMFile(MouseEvent event);
 	
 	void onImportASMFile(ActionEvent event);
 	
@@ -66,9 +81,17 @@ public interface BusinessLogic
 	
 	void onSimulationStep(ActionEvent event);
 	
+	void onSimulationStep(MouseEvent event);
+	
+	void onSimulationInterrupt(MouseEvent event);
+	
 	void onResetSimulation(ActionEvent event);
 	
+	void onResetSimulation(MouseEvent event);
+	
 	void onRunSimulation(ActionEvent event);
+	
+	void onRunSimulation(MouseEvent event);
 	
 	void onChangeSimulationSpeed(ActionEvent event, int requestedSpeed);
 	
@@ -91,6 +114,24 @@ public interface BusinessLogic
 	void onDisplayPLPIDEmulator(ActionEvent event);
 	
 	void onDisplayGPIOEmulator(ActionEvent event);
+	
+	void onOpenCPUView(MouseEvent event);
+	
+	void onOpenWatcherWindow(MouseEvent event);
+	
+	void onDisplayLEDEmulator(MouseEvent event);
+	
+	void onDisplaySwitchesEmulator(MouseEvent event);
+	
+	void onDisplaySevenSegmentEmulator(MouseEvent event);
+	
+	void onDisplayUARTEmulator(MouseEvent event);
+	
+	void onDisplayVGAEmulator(MouseEvent event);
+	
+	void onDisplayPLPIDEmulator(MouseEvent event);
+	
+	void onDisplayGPIOEmulator(MouseEvent event);
 	
 	void onStopSimulation(ActionEvent event);
 	

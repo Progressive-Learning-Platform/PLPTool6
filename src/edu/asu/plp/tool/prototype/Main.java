@@ -31,7 +31,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -39,7 +38,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -47,7 +45,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.DirectoryChooser;
@@ -615,178 +612,9 @@ public class Main extends Application implements BusinessLogic
 	 */
 	private Parent createToolbar()
 	{
-		HBox toolbar = new HBox();
-		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
-		toolbar.setSpacing(5);
-		ObservableList<Node> buttons = toolbar.getChildren();
-		
-		EventHandler<MouseEvent> listener;
-		Node button;
-		
-		DropShadow lightBlueShadow = new DropShadow();
-		lightBlueShadow.setColor(Color.LIGHTBLUE);
-		DropShadow darkBlueShadow = new DropShadow();
-		darkBlueShadow.setColor(Color.DARKBLUE);
-		
-		// TODO: replace event handlers with actual content
-		Node projectButton = new ImageView("toolbar_new.png");
-		projectButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						projectButton.setEffect(lightBlueShadow);
-					}
-				});
-		// Removing the shadow when the mouse cursor is off
-		projectButton.addEventHandler(MouseEvent.MOUSE_EXITED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						projectButton.setEffect(null);
-					}
-				});
-		projectButton.addEventHandler(MouseEvent.MOUSE_PRESSED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						console.println("New Project Clicked");
-						
-						createNewProject();
-						
-						projectButton.setEffect(darkBlueShadow);
-					}
-				});
-		projectButton.addEventHandler(MouseEvent.MOUSE_RELEASED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent e)
-					{
-						projectButton.setEffect(lightBlueShadow);
-					}
-				});
-		buttons.add(projectButton);
-		
-		Node newFileButton = new ImageView("menu_new.png");
-		listener = this::createASMFile;
-		newFileButton.setOnMouseClicked(listener);
-		buttons.add(newFileButton);
-		
-		button = new ImageView("toolbar_open.png");
-		listener = this::onOpenProjectClicked;
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		buttons.add(new Separator(Orientation.VERTICAL));
-		
-		button = new ImageView("toolbar_save.png");
-		listener = this::saveProject;
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_assemble.png");
-		listener = this::onAssembleProjectClicked;
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_simulate.png");
-		listener = (event) -> (onSimProjectClicked(event, toolbar));
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_program.png");
-		listener = (event) -> console.println("Program Project Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		buttons.add(new Separator(Orientation.VERTICAL));
-		
-		button = new ImageView("toolbar_step.png");
-		listener = (event) -> console.println("Step Through Project Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_run.png");
-		listener = this::onRunProjectClicked;
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_reset.png");
-		listener = (event) -> console.println("Reset Sim Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_remote.png");
-		listener = (event) -> console.println("Floating Sim Control Window Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		buttons.add(new Separator(Orientation.VERTICAL));
-		
-		// I Think we are putting all these buttons onto one page
-		// but until that happens I laid them all out, just in case
-		
-		button = new ImageView("toolbar_cpu.png");
-		listener = (event) -> console.println("CPU View");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_watcher.png");
-		listener = (event) -> console.println("Watcher Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_leds.png");
-		listener = (event) -> console.println("LED's Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_switches.png");
-		listener = (event) -> console.println("Switches Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_7segments.png");
-		listener = (event) -> console.println("7 Seg Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_uart.png");
-		listener = (event) -> console.println("UART Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_vga.png");
-		listener = (event) -> console.println("VGA Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_plpid.png");
-		listener = (event) -> console.println("PLPID Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_sim_gpio.png");
-		listener = (event) -> console.println("GPIO Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		button = new ImageView("toolbar_exclamation.png");
-		listener = (event) -> console.println("Interupt Clicked");
-		button.setOnMouseClicked(listener);
-		buttons.add(button);
-		
-		// TODO: remove hard-coded button group
-		for (int x = 9; x <= 23; x++)
-		{
-			DropShadow dropShadow = new DropShadow();
-			toolbar.getChildren().get(x).setEffect(dropShadow);
-			toolbar.getChildren().get(x).setDisable(true);
-		}
-		
-		return Components.wrap(toolbar);
+		// TODO: initialize toolbar
+		MainToolbar toolbar = new MainToolbar(this);
+		return toolbar;
 	}
 	
 	private void onRunProjectClicked(MouseEvent event)
@@ -1612,6 +1440,146 @@ public class Main extends Application implements BusinessLogic
 
 	@Override
 	public void onOpenNumberConverter(ActionEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onCreateNewProject(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenProject(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSaveProject(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSaveProjectAs(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onAssemble(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSimulate(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onNewASMFile(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSimulationStep(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onSimulationInterrupt(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onResetSimulation(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onRunSimulation(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenCPUView(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onOpenWatcherWindow(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayLEDEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplaySwitchesEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplaySevenSegmentEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayUARTEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayVGAEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayPLPIDEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void onDisplayGPIOEmulator(MouseEvent event)
 	{
 		// TODO Auto-generated method stub 
 		throw new UnsupportedOperationException("The method is not implemented yet.");
