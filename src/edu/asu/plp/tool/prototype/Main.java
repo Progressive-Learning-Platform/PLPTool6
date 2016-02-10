@@ -485,12 +485,6 @@ public class Main extends Application implements BusinessLogic
 	private CodeEditor createCodeEditor()
 	{
 		return new CodeEditor();
-		/*
-		 * try { CodeEditor editor = new CodeEditor(); File syntaxFile = new
-		 * File("resources/languages/plp.syn"); editor.setSyntaxHighlighting(syntaxFile);
-		 * return editor; } catch (IOException e) { e.printStackTrace(); return new
-		 * CodeEditor(); }
-		 */
 	}
 	
 	private Tab addTab(TabPane panel, String projectName, Node contentPanel)
