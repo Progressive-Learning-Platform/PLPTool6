@@ -657,7 +657,7 @@ public class Main extends Application implements BusinessLogic
 		}
 	}
 
-	private void simulate()
+	private void toggleSimulation()
 	{
 		// TODO: activate simulator?
 		simMode = !simMode;
@@ -1031,7 +1031,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSimulate(ActionEvent event)
 	{
-		simulate();
+		toggleSimulation();
 	}
 
 	@Override
@@ -1384,7 +1384,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSimulate(MouseEvent event)
 	{
-		simulate();
+		toggleSimulation();
 	}
 
 	@Override
