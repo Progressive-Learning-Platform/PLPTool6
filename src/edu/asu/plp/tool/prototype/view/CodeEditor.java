@@ -1,14 +1,20 @@
 package edu.asu.plp.tool.prototype.view;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 
+import javax.swing.CodeEditorPane;
+import javax.swing.JSplitPane;
+
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
+
+import edu.asu.plp.tool.prototype.model.AceEditor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,13 +25,7 @@ import javafx.embed.swing.SwingNode;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
-
-import javax.swing.CodeEditorPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
-
-import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
+import javafx.scene.web.WebView;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -42,6 +42,7 @@ import org.json.JSONObject;
  * 
  * @author Moore, Zachary
  * @author Hawks, Elliott
+ * @author Nesbitt, Morgan
  *
  */
 public class CodeEditor extends BorderPane implements ObservableStringValue
@@ -49,30 +50,36 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	private static String REGEX_KEY = "regex";
 	private static String COLOR_KEY = "color";
 	
-	private CodeEditorPane textPane;
 	private StringProperty textProperty;
+	
+	private WebView webView;
+	private AceEditor aceEditor;
+	private StringProperty codeBodyProperty;
+	private StringProperty acePageContentsProperty;
 	
 	public CodeEditor()
 	{
-		textProperty = new SimpleStringProperty();
-		textPane = new CodeEditorPane();
-		textPane.addKeyListener(new UpdateOnKeyPressListener());
+		webView = new WebView();
+		aceEditor = new AceEditor();
 		
-		SwingNode swingNode = new SwingNode();
-		textPane.setText("");
-		updateText();
+		codeBodyProperty = aceEditor.getBodyProperty();
+		acePageContentsProperty = aceEditor.getPage();
 		
-		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
-		swingNode.setContent(paneWithLines);
-		setCenter(swingNode);
+		webView.getEngine().loadContent(aceEditor.getPage().get());
 		
+		acePageContentsProperty.addListener((observable, old, newValue) -> 
+		{
+			webView.getEngine().loadContent(newValue);
+		});
+		
+		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
-		this.textProperty.bindBidirectional(accessibleTextProperty());
 	}
 	
+
 	public void setSyntaxHighlighting(HashMap<String, Color> regexSyntaxHighlighting)
 	{
-		textPane.setKeywordColor(regexSyntaxHighlighting);
+//		textPane.setKeywordColor(regexSyntaxHighlighting);
 	}
 	
 	public void setSyntaxHighlighting(JSONObject syntaxSpecification)
@@ -106,30 +113,30 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	
 	public void setText(String text)
 	{
-		textPane.setText(text);
+//		textPane.setText(text);
 		updateText();
 	}
 	
 	private void updateText()
 	{
-		String text = textPane.getText();
-		this.textProperty.set(text);
+//		String text = textPane.getText();
+//		this.textProperty.set(text);
 		adjustLineNumbers();
 	}
 	
 	private void adjustLineNumbers()
 	{
 		// Workaround for a bug in CodeEditorPane.getNumberOfLines
-		int lineCount = textPane.getText().split("\n").length;
-		String lineNumberString = Integer.toString(lineCount);
+//		int lineCount = textPane.getText().split("\n").length;
+//		String lineNumberString = Integer.toString(lineCount);
 		
-		Font font = textPane.getFont();
-		FontMetrics metrics = textPane.getFontMetrics(font);
-		int width = SwingUtilities.computeStringWidth(metrics, lineNumberString);
+//		Font font = textPane.getFont();
+//		FontMetrics metrics = textPane.getFontMetrics(font);
+//		int width = SwingUtilities.computeStringWidth(metrics, lineNumberString);
 		
 		// Workaround for a bug in LineNumbersTextPane
-		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
-		paneWithLines.setDividerLocation(width);
+//		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
+//		paneWithLines.setDividerLocation(width);
 	}
 	
 	public String getText()
