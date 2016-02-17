@@ -7,7 +7,9 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -100,6 +102,7 @@ public class Main extends Application implements BusinessLogic
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
+	private Map<Tab, CodeEditor> fileEditors;
 	
 	public static void main(String[] args)
 	{
@@ -111,8 +114,9 @@ public class Main extends Application implements BusinessLogic
 	{
 		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
-		
+
 		this.assemblyDetails = new HashMap<>();
+		this.fileEditors = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
@@ -343,6 +347,7 @@ public class Main extends Application implements BusinessLogic
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openFileTabs.put(file, tab);
+			fileEditors.put(tab, content);
 			
 			// Set content
 			content.setText(file.getContent());
@@ -481,6 +486,22 @@ public class Main extends Application implements BusinessLogic
 		border.setBottom(buttons);
 		
 		return Components.wrap(border);
+	}
+	
+	private List<PLPLabel> scrapeLabelsInActiveTab()
+	{
+		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		if (selectedTab == null)
+			return Collections.emptyList();
+		else
+		{
+			CodeEditor editor = fileEditors.get(selectedTab);
+			if (editor == null)
+				throw new IllegalStateException();
+
+			String content = editor.getText();
+			return PLPLabel.scrape(content);
+		}
 	}
 	
 	private CodeEditor createCodeEditor()
