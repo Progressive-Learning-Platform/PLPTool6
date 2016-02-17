@@ -34,7 +34,7 @@ public class PLPLabel
 	public static List<PLPLabel> scrape(String content)
 	{
 		TokenTypeSet tokenTypes = new TokenTypeSet();
-		tokenTypes.add(new TokenType("[a-zA-Z_\\$][a-zA-Z_\\$0-9]*", "LABEL"));
+		tokenTypes.add(new TokenType("[a-zA-Z_\\$][a-zA-Z_\\$0-9]*:", "LABEL"));
 		tokenTypes.add(new TokenType("\\n\\r?", "NEW_LINE"));
 		Lexer lexer = new Lexer(tokenTypes);
 		
