@@ -35,30 +35,27 @@ public class PLPLabel
 	{
 		TokenTypeSet tokenTypes = new TokenTypeSet();
 		tokenTypes.add(new TokenType("[a-zA-Z_\\$][a-zA-Z_\\$0-9]*:", "LABEL"));
-		tokenTypes.add(new TokenType("\\n\\r?", "NEW_LINE"));
 		Lexer lexer = new Lexer(tokenTypes);
 		
 		try
 		{
-			List<Token> tokens = lexer.lex(content);
+			String[] lines = content.split("\\n\\r?");
 			List<PLPLabel> labels = new ArrayList<>();
 			int lineNumber = 1;
-			for (Token token : tokens)
+			
+			for (String line : lines)
 			{
-				if ("NEW_LINE".equals(token.getTypeName()))
+				List<Token> tokens = lexer.lex(line);
+				for (Token token : tokens)
 				{
-					lineNumber++;
+					if ("LABEL".equals(token.getTypeName()))
+					{
+						String name = token.getValue();
+						PLPLabel label = new PLPLabel(name, lineNumber);
+						labels.add(label);
+					}
 				}
-				else if ("LABEL".equals(token.getTypeName()))
-				{
-					String name = token.getValue();
-					PLPLabel label = new PLPLabel(name, lineNumber);
-					labels.add(label);
-				}
-				else
-				{
-					throw new IllegalStateException("Found token: " + token.getTypeName());
-				}
+				lineNumber++;
 			}
 			
 			return labels;
