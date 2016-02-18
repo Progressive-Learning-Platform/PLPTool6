@@ -939,6 +939,15 @@ public class Main extends Application implements BusinessLogic
 	{
 		saveProjectAs();
 	}
+	
+	@Override
+	public void onSaveAll(ActionEvent event)
+	{
+		for(Project project : projects)
+		{
+			tryAndReport(project::save);
+		}
+	}
 
 	@Override
 	public void onPrint(ActionEvent event)
@@ -1375,6 +1384,15 @@ public class Main extends Application implements BusinessLogic
 	public void onSaveProjectAs(MouseEvent event)
 	{
 		saveProjectAs();
+	}
+	
+	@Override
+	public void onSaveAll(MouseEvent event)
+	{
+		for(Project project : projects)
+		{
+			tryAndReport(project::save);
+		}
 	}
 
 	@Override

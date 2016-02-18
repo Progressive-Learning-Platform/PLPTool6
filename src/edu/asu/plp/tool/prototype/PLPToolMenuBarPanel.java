@@ -388,9 +388,12 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemSave.setOnAction(businessLogic::onSaveProject);
 		
 		MenuItem itemSaveAs = new MenuItem("Save As");
-		itemSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.A,
-				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		itemSaveAs.setOnAction(businessLogic::onSaveProjectAs);
+		
+		MenuItem itemSaveAll = new MenuItem("Save All");
+		itemSaveAll.setAccelerator(new KeyCodeCombination(KeyCode.A,
+				KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+		itemSaveAll.setOnAction(businessLogic::onSaveAll);
 		
 		MenuItem itemPrint = new MenuItem("Print");
 		itemPrint.setAccelerator(new KeyCodeCombination(KeyCode.P,

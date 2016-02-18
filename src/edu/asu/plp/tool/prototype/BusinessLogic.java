@@ -21,6 +21,10 @@ public interface BusinessLogic
 	
 	void onSaveProjectAs(MouseEvent event);
 	
+	void onSaveAll(ActionEvent event);
+	
+	void onSaveAll(MouseEvent event);
+	
 	void onPrint(ActionEvent event);
 	
 	void onExit(ActionEvent event);
