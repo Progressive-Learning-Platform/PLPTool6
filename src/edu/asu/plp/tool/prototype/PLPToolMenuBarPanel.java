@@ -370,6 +370,10 @@ public class PLPToolMenuBarPanel extends BorderPane
 				KeyCombination.CONTROL_DOWN));
 		itemNew.setOnAction(businessLogic::onCreateNewProject);
 		
+		MenuItem itemNewASMFile = new MenuItem("New ASM File");
+		itemNewASMFile.setGraphic(new ImageView(new Image("menu_new.png")));
+		itemNewASMFile.setOnAction(businessLogic::onNewASMFile);
+		
 		// FIXME: Open PLP Project may be a misnomer; can the project be any ISA?
 		MenuItem itemOpen = new MenuItem("Open PLP Project");
 		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
@@ -398,7 +402,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 				KeyCombination.CONTROL_DOWN));
 		itemExit.setOnAction(businessLogic::onExit);
 		
-		fileMenu.getItems().addAll(itemNew, new SeparatorMenuItem(), itemOpen, itemSave,
+		fileMenu.getItems().addAll(itemNew, itemNewASMFile, new SeparatorMenuItem(), itemOpen, itemSave,
 				itemSaveAs, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(),
 				itemExit);
 		

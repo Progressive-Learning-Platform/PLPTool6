@@ -826,8 +826,11 @@ public class Main extends Application implements BusinessLogic
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
-		String projectName = getActiveProject().getName();
-		createASMMenu.setProjectName(projectName);
+		for(Project project : projects)
+		{
+			 String projectName = project.getName();
+			 createASMMenu.addProjectName(projectName);
+		}
 		return createASMMenu;
 	}
 	

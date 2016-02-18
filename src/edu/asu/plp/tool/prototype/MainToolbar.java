@@ -75,9 +75,15 @@ public class MainToolbar extends BorderPane
 		});
 		buttons.add(simulateButton);
 		
-		Node programButton = new ImageView("toolbar_program.png");
+		/*This button is supposed Program the PLP Board
+		 *Not 100% to its use, may need to check with Dr.  Sohoni
+		 *because I don't ever remember using it.
+		 *
+		 *Probably not included in our scope.
+		 */
+		Node programBoardButton = new ImageView("toolbar_program.png");
 		// TODO: programButton.setOnMouseClicked(); {{what does this button do?}}
-		buttons.add(programButton);
+		buttons.add(programBoardButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
@@ -96,6 +102,13 @@ public class MainToolbar extends BorderPane
 		buttons.add(resetButton);
 		toggleButtons.add(resetButton);
 		
+		/*This Button opens up a separate window with the "step"
+		 * "run", and "reset" buttons. It also includes a slider that
+		 * can adjust how fast the program is simulated
+		 * 
+		 * Probably not necessary for our scope of the project
+		 * 
+		 */
 		Node remoteButton = new ImageView("toolbar_remote.png");
 		// TODO: listener = (e) -> console.println("Floating Sim Control Window Clicked");
 		// TODO: remoteButton.setOnMouseClicked(); {{what does this do? Is it needed?}}
