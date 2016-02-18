@@ -20,7 +20,6 @@ import edu.asu.plp.tool.prototype.util.Dialogues;
 public class ASMCreationPanel extends BorderPane
 {
 	private TextField nameText;
-	private TextField projectText;
 	private ComboBox<String> projectListDropdown;
 	
 	/** Routine to be performed after {@link #onCreateASM} (usually to close the panel) */
@@ -113,7 +112,7 @@ public class ASMCreationPanel extends BorderPane
 		
 		if (projectName == null || projectName.trim().isEmpty())
 		{
-			Dialogues.showInfoDialogue("You entered an invalid Project Name");
+			Dialogues.showInfoDialogue("You did not select a current Project");
 		}
 		else if (fileName == null || fileName.trim().isEmpty())
 		{
