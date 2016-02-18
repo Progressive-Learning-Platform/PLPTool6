@@ -46,7 +46,7 @@ public class AceEditor
 	public AceEditor()
 	{
 		currentTheme = "ambiance";
-		currentSessionMode = "javascript";
+		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
 		currentBodyProperty.set(getSampleBody());
 		
