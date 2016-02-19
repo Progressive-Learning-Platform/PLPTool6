@@ -345,7 +345,8 @@ public class Main extends Application implements BusinessLogic
 			openFileTabs.put(file, tab);
 			
 			// Set content
-			content.setText(file.getContent());
+			if(file.getContent() != null)
+				content.setText(file.getContent());
 			
 			// Bind content
 			ChangeListener<? super String> onChanged;
