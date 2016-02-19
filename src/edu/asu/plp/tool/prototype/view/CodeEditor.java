@@ -114,12 +114,24 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 				String content = (String) Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT);
 	            if (content != null) 
 	            {
-	            	webView.getEngine().executeScript("editor.onPaste(\"" + content.replace("\n", "\\n") + "\");");
+	            	webView.getEngine().executeScript("editor.onPaste('" + sanitizeForAce(content) + "');");
 	            }
             }
 		});
 	}
 	
+	private String sanitizeForAce(String content)
+	{
+		String intermediary = content;
+		
+		intermediary = intermediary.replace(System.getProperty("line.separator"), "\\n");
+		intermediary = intermediary.replace("\n", "\\n");
+		intermediary = intermediary.replace("\r", "\\n");
+		intermediary = intermediary.replace("'", "\\'");
+		
+		return intermediary;
+	}
+
 	// Custom Routines
 	
 	private void addDefaultRoutines()
