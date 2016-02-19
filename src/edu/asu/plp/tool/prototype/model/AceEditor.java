@@ -3,14 +3,12 @@ package edu.asu.plp.tool.prototype.model;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.asu.plp.tool.backend.util.FileUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.input.Clipboard;
 
 /**
  * 
@@ -54,7 +52,10 @@ public class AceEditor
 		currentTheme = "ambiance";
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
-		currentBodyProperty.set("");
+		currentBodyProperty.set("(0_0)");
+
+		editorSettings = new ArrayList<>();
+		editorRoutines = new ArrayList<>();
 		
 		fullPage = new SimpleStringProperty();
 		buildPage();
@@ -63,11 +64,7 @@ public class AceEditor
 			buildPage();
 		});
 		
-		editorSettings = new ArrayList<>();
-		editorRoutines = new ArrayList<>();
-		
 		addDefaultEditorSettings();
-		addCustomRoutines();
 	}
 	
 	private void addDefaultEditorSettings()
@@ -75,14 +72,10 @@ public class AceEditor
 		
 	}
 	
-	private void addCustomRoutines()
+	public void addCustomJavascriptRoutine(EditorRoutine routine)
 	{
-		editorRoutines.add(this::paste);
-	}
-	
-	private void paste()
-	{
-		
+		this.editorRoutines.add(routine);
+		buildPage();
 	}
 	
 	public StringProperty getPage()
@@ -134,6 +127,7 @@ public class AceEditor
 		builder.append("editor.setTheme(\"ace/theme/" + currentTheme + "\");");
 		builder.append(
 				"editor.getSession().setMode(\"ace/mode/" + currentSessionMode + "\");");
+		builder.append(getJavascriptRoutines());
 		builder.append("</script>");
 		
 		return builder.toString();
@@ -177,6 +171,24 @@ public class AceEditor
 		}
 		
 		return sampleBody;
+	}
+	
+	private String getJavascriptRoutines()
+	{
+		if(editorRoutines.size() > 0)
+		{
+			StringBuilder builder = new StringBuilder();
+			
+			for(EditorRoutine routine : editorRoutines)
+			{
+				builder.append(routine.get());
+			}
+			
+			return builder.toString();
+		}
+		else
+			return "";
+		
 	}
 	
 }

@@ -1,29 +1,17 @@
 package edu.asu.plp.tool.prototype.view;
 
-import java.awt.Color;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-
-import javax.swing.CodeEditorPane;
-import javax.swing.JSplitPane;
-
-import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
-
 import edu.asu.plp.tool.prototype.model.AceEditor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
-import javafx.embed.swing.SwingNode;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 
@@ -59,6 +47,9 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		
 		codeBodyProperty = aceEditor.getBodyProperty();
 		acePageContentsProperty = aceEditor.getPage();
+		
+		addDefaultRoutines();
+		initializeEngineEvents();
 		
 		webView.getEngine().loadContent(aceEditor.getPage().get());
 		
@@ -115,4 +106,23 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		codeBodyProperty.removeListener(listener);
 	}
 	
+	private void initializeEngineEvents()
+	{
+		webView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+			if( e.isShortcutDown() && e.getCode() == KeyCode.V) 
+			{
+				String content = (String) Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT);
+	            if (content != null) 
+	            {
+	            	webView.getEngine().executeScript("editor.onPaste(\"" + content.replace("\n", "\\n") + "\");");
+	            }
+            }
+		});
+	}
+	
+	// Custom Routines
+	
+	private void addDefaultRoutines()
+	{
+	}
 }

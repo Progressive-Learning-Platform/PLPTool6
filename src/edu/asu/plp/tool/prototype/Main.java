@@ -347,6 +347,8 @@ public class Main extends Application implements BusinessLogic
 			// Set content
 			if(file.getContent() != null)
 				content.setText(file.getContent());
+			else
+				content.setText("");
 			
 			// Bind content
 			ChangeListener<? super String> onChanged;
