@@ -46,12 +46,7 @@ import javafx.scene.web.WebView;
  *
  */
 public class CodeEditor extends BorderPane implements ObservableStringValue
-{
-	private static String REGEX_KEY = "regex";
-	private static String COLOR_KEY = "color";
-	
-	private StringProperty textProperty;
-	
+{	
 	private WebView webView;
 	private AceEditor aceEditor;
 	private StringProperty codeBodyProperty;
@@ -72,132 +67,52 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 			webView.getEngine().loadContent(newValue);
 		});
 		
+		webView.setContextMenuEnabled(false);
+		//TODO create custom context menu (right click menu)
+		
 		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 	}
 	
-
-	public void setSyntaxHighlighting(HashMap<String, Color> regexSyntaxHighlighting)
-	{
-//		textPane.setKeywordColor(regexSyntaxHighlighting);
-	}
-	
-	public void setSyntaxHighlighting(JSONObject syntaxSpecification)
-	{
-		HashMap<String, Color> regexSyntaxMap = new HashMap<>();
-		
-		for (String syntaxName : syntaxSpecification.keySet())
-		{
-			JSONObject syntax = syntaxSpecification.getJSONObject(syntaxName);
-			// TODO: account for invalid syn file (e.g. missing regex or color)
-			String regex = syntax.getString(REGEX_KEY);
-			String colorHexString = syntax.getString(COLOR_KEY);
-			
-			int red = Integer.valueOf(colorHexString.substring(1, 3), 16);
-			int green = Integer.valueOf(colorHexString.substring(3, 5), 16);
-			int blue = Integer.valueOf(colorHexString.substring(5, 7), 16);
-			
-			Color color = new Color(red, green, blue);
-			regexSyntaxMap.put(regex, color);
-		}
-		
-		setSyntaxHighlighting(regexSyntaxMap);
-	}
-	
-	public void setSyntaxHighlighting(File syntaxSpecificationFile) throws IOException
-	{
-		String jsonString = FileUtils.readFileToString(syntaxSpecificationFile, "UTF-8");
-		JSONObject syntaxSpecification = new JSONObject(jsonString);
-		setSyntaxHighlighting(syntaxSpecification);
-	}
-	
 	public void setText(String text)
 	{
-//		textPane.setText(text);
-		updateText();
-	}
-	
-	private void updateText()
-	{
-//		String text = textPane.getText();
-//		this.textProperty.set(text);
-		adjustLineNumbers();
-	}
-	
-	private void adjustLineNumbers()
-	{
-		// Workaround for a bug in CodeEditorPane.getNumberOfLines
-//		int lineCount = textPane.getText().split("\n").length;
-//		String lineNumberString = Integer.toString(lineCount);
-		
-//		Font font = textPane.getFont();
-//		FontMetrics metrics = textPane.getFontMetrics(font);
-//		int width = SwingUtilities.computeStringWidth(metrics, lineNumberString);
-		
-		// Workaround for a bug in LineNumbersTextPane
-//		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
-//		paneWithLines.setDividerLocation(width);
-	}
-	
-	public String getText()
-	{
-		return get();
+		codeBodyProperty.set(text);
 	}
 	
 	@Override
 	public String get()
 	{
-		return textProperty.get();
+		return codeBodyProperty.get();
 	}
 	
 	@Override
 	public String getValue()
 	{
-		return textProperty.getValue();
+		return codeBodyProperty.getValue();
 	}
 	
 	@Override
 	public void addListener(ChangeListener<? super String> listener)
 	{
-		textProperty.addListener(listener);
+		codeBodyProperty.addListener(listener);
 	}
 	
 	@Override
 	public void removeListener(ChangeListener<? super String> listener)
 	{
-		textProperty.removeListener(listener);
+		codeBodyProperty.removeListener(listener);
 	}
 	
 	@Override
 	public void addListener(InvalidationListener listener)
 	{
-		textProperty.addListener(listener);
+		codeBodyProperty.addListener(listener);
 	}
 	
 	@Override
 	public void removeListener(InvalidationListener listener)
 	{
-		textProperty.removeListener(listener);
+		codeBodyProperty.removeListener(listener);
 	}
 	
-	private class UpdateOnKeyPressListener implements KeyListener
-	{
-		@Override
-		public void keyTyped(KeyEvent arg0)
-		{
-			updateText();
-		}
-		
-		@Override
-		public void keyReleased(KeyEvent arg0)
-		{
-			updateText();
-		}
-		
-		@Override
-		public void keyPressed(KeyEvent arg0)
-		{
-			updateText();
-		}
-	}
 }

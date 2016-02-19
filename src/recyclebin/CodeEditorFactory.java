@@ -9,17 +9,7 @@ public class CodeEditorFactory
 {
 	public CodeEditor createEditorWithSyntaxHighlighting()
 	{
-		try
-		{
-			CodeEditor editor = new CodeEditor();
-			File syntaxFile = new File("resources/languages/plp.syn");
-			editor.setSyntaxHighlighting(syntaxFile);
-			return editor;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return new CodeEditor();
-		}
+		CodeEditor editor = new CodeEditor();
+		return editor;
 	}
 }
