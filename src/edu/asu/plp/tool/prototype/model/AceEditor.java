@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.asu.plp.tool.backend.util.FileUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.input.Clipboard;
 
 /**
  * 
@@ -17,20 +20,20 @@ import javafx.beans.property.StringProperty;
 public class AceEditor
 {
 	//@formatter:off
-	private static final String head = "<!DOCTYPE html>\n" 
-			+ "<html lang=\"en\">\n" 
-			+ "<head>\n"
-			+ "<title></title>\n" 
-			+ "<style type=\"text/css\" media=\"screen\">\n"
-			+ "#editor {\n" 
-			+ "position: absolute;\n" 
-			+ "top: 0;\n" 
-			+ "right: 0;\n" 
-			+ "bottom: 0;\n"
-			+ "left: 0;\n" 
-			+ "}\n" 
-			+ "</style>\n" 
-			+ "</head>\n";
+	private static final String head = "<!DOCTYPE html>" 
+			+ "<html lang=\"en\">" 
+			+ "<head>"
+			+ "<title></title>" 
+			+ "<style type=\"text/css\" media=\"screen\">"
+			+ "#editor {" 
+			+ "position: absolute;" 
+			+ "top: 0;" 
+			+ "right: 0;" 
+			+ "bottom: 0;"
+			+ "left: 0;" 
+			+ "}" 
+			+ "</style>" 
+			+ "</head>";
 
 	//@formatter:on
 	
@@ -38,6 +41,9 @@ public class AceEditor
 	
 	private String currentTheme;
 	private String currentSessionMode;
+	
+	private List<String> editorSettings;
+	private List<EditorRoutine> editorRoutines;
 	
 	private StringProperty currentBodyProperty;
 	
@@ -48,7 +54,7 @@ public class AceEditor
 		currentTheme = "ambiance";
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
-		currentBodyProperty.set(getSampleBody());
+		currentBodyProperty.set("");
 		
 		fullPage = new SimpleStringProperty();
 		buildPage();
@@ -56,6 +62,27 @@ public class AceEditor
 		currentBodyProperty.addListener((observable, oldValue, newValue) -> {
 			buildPage();
 		});
+		
+		editorSettings = new ArrayList<>();
+		editorRoutines = new ArrayList<>();
+		
+		addDefaultEditorSettings();
+		addCustomRoutines();
+	}
+	
+	private void addDefaultEditorSettings()
+	{
+		
+	}
+	
+	private void addCustomRoutines()
+	{
+		editorRoutines.add(this::paste);
+	}
+	
+	private void paste()
+	{
+		
 	}
 	
 	public StringProperty getPage()
