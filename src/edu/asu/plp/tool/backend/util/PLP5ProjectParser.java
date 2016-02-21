@@ -68,8 +68,9 @@ public class PLP5ProjectParser
 		}
 		if (entry.getName().endsWith(".asm"))
 		{
-			ASMFile asmFile = new PLPSourceFile(null, entry.getName());
+			ASMFile asmFile = new PLPSourceFile(project, entry.getName());
 			asmFile.setContent(new String(content));
+			
 			project.add(asmFile);
 		}
 	}
