@@ -350,7 +350,10 @@ public class Main extends Application implements BusinessLogic
 			fileEditors.put(tab, content);
 			
 			// Set content
-			content.setText(file.getContent());
+			if(file.getContent() != null)
+				content.setText(file.getContent());
+			else
+				content.setText("");
 			
 			// Bind content
 			ChangeListener<? super String> onChanged;
