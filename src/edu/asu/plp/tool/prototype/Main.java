@@ -502,7 +502,7 @@ public class Main extends Application implements BusinessLogic
 			if (editor == null)
 				throw new IllegalStateException();
 
-			String content = editor.getText();
+			String content = editor.getValue();
 			return PLPLabel.scrape(content);
 		}
 	}
