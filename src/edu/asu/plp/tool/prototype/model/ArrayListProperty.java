@@ -148,37 +148,32 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	@Override
 	public Object[] toArray()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.toArray();
 	}
 	
 	@Override
 	public <T> T[] toArray(T[] arg0)
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.toArray(arg0);
 	}
 	
 	@Override
 	public void addListener(InvalidationListener arg0)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		backingList.addListener(arg0);
 	}
 	
 	@Override
 	public void removeListener(InvalidationListener arg0)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		backingList.removeListener(arg0);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean addAll(E... arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.addAll(arg0);
 	}
 	
 	@Override
@@ -197,38 +192,33 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	@SuppressWarnings("unchecked")
 	public boolean removeAll(E... arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.removeAll(arg0);
 	}
 	
 	@Override
 	public void removeListener(ListChangeListener<? super E> arg0)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		backingList.removeListener(arg0);
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean retainAll(E... arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.retainAll(arg0);
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean setAll(E... arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.setAll(arg0);
 	}
 	
 	@Override
 	public boolean setAll(Collection<? extends E> arg0)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return backingList.setAll(arg0);
 	}
 	
 }
