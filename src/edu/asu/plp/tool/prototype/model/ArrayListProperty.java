@@ -20,27 +20,27 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	}
 	
 	@Override
-	public boolean add(E arg0)
+	public boolean add(E element)
 	{
-		return backingList.add(arg0);
+		return backingList.add(element);
 	}
 	
 	@Override
-	public void add(int arg0, E arg1)
+	public void add(int atIndex, E element)
 	{
-		backingList.add(arg0, arg1);
+		backingList.add(atIndex, element);
 	}
 	
 	@Override
-	public boolean addAll(Collection<? extends E> arg0)
+	public boolean addAll(Collection<? extends E> elements)
 	{
-		return backingList.addAll(arg0);
+		return backingList.addAll(elements);
 	}
 	
 	@Override
-	public boolean addAll(int arg0, Collection<? extends E> arg1)
+	public boolean addAll(int atIndex, Collection<? extends E> elements)
 	{
-		return backingList.addAll(arg0, arg1);
+		return backingList.addAll(atIndex, elements);
 	}
 	
 	@Override
@@ -50,27 +50,27 @@ public class ArrayListProperty<E> implements ObservableList<E>
 	}
 	
 	@Override
-	public boolean contains(Object arg0)
+	public boolean contains(Object element)
 	{
-		return backingList.contains(arg0);
+		return backingList.contains(element);
 	}
 	
 	@Override
-	public boolean containsAll(Collection<?> arg0)
+	public boolean containsAll(Collection<?> elements)
 	{
-		return backingList.containsAll(arg0);
+		return backingList.containsAll(elements);
 	}
 	
 	@Override
-	public E get(int arg0)
+	public E get(int index)
 	{
-		return backingList.get(arg0);
+		return backingList.get(index);
 	}
 	
 	@Override
-	public int indexOf(Object arg0)
+	public int indexOf(Object element)
 	{
-		return backingList.indexOf(arg0);
+		return backingList.indexOf(element);
 	}
 	
 	@Override
