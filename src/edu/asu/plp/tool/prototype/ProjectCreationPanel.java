@@ -48,12 +48,32 @@ import edu.asu.plp.tool.prototype.util.Dialogues;
  */
 public class ProjectCreationPanel extends BorderPane
 {
+	/** Input field for the name of the new project */
 	private TextField projectNameField;
+	
+	/**
+	 * Input field for the name of a new asm file to serve as the main source file for the
+	 * new project
+	 */
 	private TextField mainSourceFileNameField;
+	
+	/**
+	 * Input field to specify the location on disk where the project will be stored. This
+	 * will typically be a directory, but may be a file, depending on the user-specified
+	 * handler
+	 */
 	private TextField projectLocationField;
+	
+	/**
+	 * Dropdown of all valid project types, specified by
+	 * {@link #addProjectType(String, Consumer)}
+	 */
 	private ComboBox<String> projectTypeDropdown;
+	
 	/** Routine to be performed after a project is created (usually to close the panel) */
 	private Subroutine finallyOperation;
+	
+	/** Mapping of project types to the project creation handler for that type */
 	private Map<String, Consumer<ProjectCreationDetails>> projectCreationHandlers;
 	
 	/**
@@ -139,6 +159,17 @@ public class ProjectCreationPanel extends BorderPane
 		this.setBottom(buttons);
 	}
 	
+	/**
+	 * Adds a project type and creation handler to this panel. The specified type will be
+	 * displayed to the user in the {@link #projectTypeDropdown}, which is a
+	 * {@link ComboBox}.
+	 * 
+	 * @param name
+	 *            The name of the project type, to be displayed in the {@link ComboBox}
+	 * @param handler
+	 *            The method to be called when "create" is pressed for a project of this
+	 *            type. This method should create a new project of type "name"
+	 */
 	public void addProjectType(String name, Consumer<ProjectCreationDetails> handler)
 	{
 		projectCreationHandlers.put(name, handler);
