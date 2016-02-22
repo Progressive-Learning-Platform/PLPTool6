@@ -22,8 +22,30 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import moore.util.Subroutine;
+import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.util.Dialogues;
 
+/**
+ * An FX Panel to allow users to enter details for a new {@link Project}.
+ * <p>
+ * With this pane, users enter the details for the new ASMFile, specified by
+ * {@link ProjectCreationDetails}, and finish by pressing a "Create" button.
+ * <p>
+ * When this button is pressed, this class will call a method to create a project,
+ * depending on the type of project selected by the user. Project types and their
+ * corresponding create methods can be dynamically added using
+ * {@link #addProjectType(String, Consumer)}
+ * <p>
+ * Similar to {@link ASMCreationPanel}, this panel also specifies a
+ * {@link #finallyOperation} to be called after the project creation method has completed.
+ * Note that this method does not need to be specified, and will not be executed if it is
+ * null. However, it is typical for this panel to be the sole element of a {@link Stage}
+ * or other popup window, and in this case, the {@link #finallyOperation} can (and should)
+ * be used to close the window on completion.
+ * 
+ * @author Moore, Zachary
+ *
+ */
 public class ProjectCreationPanel extends BorderPane
 {
 	private TextField projectNameField;
@@ -34,8 +56,16 @@ public class ProjectCreationPanel extends BorderPane
 	private Subroutine finallyOperation;
 	private Map<String, Consumer<ProjectCreationDetails>> projectCreationHandlers;
 	
+	/**
+	 * Instantiates a {@link ProjectCreationPanel} with no specified project types.
+	 * <p>
+	 * It is necessary to specify one or more project types using
+	 * {@link #addProjectType(String, Consumer)}
+	 */
 	public ProjectCreationPanel()
 	{
+		// TODO: add a default project creation handler, and force it to be specified in
+		// this constructor
 		this.projectCreationHandlers = new HashMap<>();
 		this.setPadding(new Insets(20));
 		GridPane grid = new GridPane();
