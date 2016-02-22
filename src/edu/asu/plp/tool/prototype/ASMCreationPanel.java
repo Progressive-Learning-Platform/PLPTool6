@@ -57,6 +57,14 @@ public class ASMCreationPanel extends BorderPane
 	/** Method to call when "create" is clicked, given the fields of this form */
 	private Consumer<ASMCreationDetails> onCreateASM;
 	
+	/**
+	 * @param onCreateASM
+	 *            Method to call when "create" is clicked. This parameter must be
+	 *            non-null.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if onCreateASM is null
+	 */
 	public ASMCreationPanel(Consumer<ASMCreationDetails> onCreateASM)
 	{
 		this.onCreateASM = onCreateASM;
