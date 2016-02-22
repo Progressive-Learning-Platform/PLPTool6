@@ -6,6 +6,7 @@ import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -153,7 +154,18 @@ public class Main extends Application implements BusinessLogic
 		
 		int width = DEFAULT_WINDOW_WIDTH;
 		int height = DEFAULT_WINDOW_HEIGHT;
-		primaryStage.setScene(new Scene(Components.wrap(mainPanel), width, height));
+		
+		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
+		try
+		{
+			scene.getStylesheets().add(new File("resources/application/styling/seti/app.css").toURI().toURL().toString());
+		}
+		catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 	
@@ -572,17 +584,18 @@ public class Main extends Application implements BusinessLogic
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
-		PLPProject project = new PLPProject("Assignment1");
-		project.add(new PLPSourceFile(project, "main.asm"));
-		project.add(new PLPSourceFile(project, "sorting.asm"));
-		project.add(new PLPSourceFile(project, "division.asm"));
-		projects.add(project);
+		PLPProject project;
 		
-		project = new PLPProject("Assignment2");
-		project.add(new PLPSourceFile(project, "main.asm"));
-		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
-		projects.add(project);
-		
+		try
+		{
+			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
+			projects.add(project);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
 		return projectExplorer;
@@ -709,6 +722,9 @@ public class Main extends Application implements BusinessLogic
 	private ASMFile getActiveFileInProjectExplorer()
 	{
 		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
+		if(selection == null)
+			return null;
+		
 		ASMFile selectedFile = selection.getValue();
 		return selectedFile;
 	}
