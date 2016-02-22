@@ -32,6 +32,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -121,12 +123,20 @@ public class Main extends Application implements BusinessLogic
 		console = createConsole();
 		console.println(">> Console Initialized.");
 		
+		ScrollPane scrollPane = new ScrollPane(projectExplorer);
+		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollPane.setFitToHeight(true);
+		scrollPane.setFitToWidth(true);
+		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
 		leftSplitPane.orientationProperty().set(Orientation.VERTICAL);
-		leftSplitPane.getItems().addAll(Components.passiveScroll(projectExplorer),
+		leftSplitPane.getItems().addAll(scrollPane,
 				Components.wrap(outlineView));
+		
 		leftSplitPane.setDividerPositions(0.5, 1.0);
+		leftSplitPane.setMinSize(0, 0);
 		
 		// Right side holds the source editor and the output console
 		SplitPane rightSplitPane = new SplitPane();
@@ -134,12 +144,16 @@ public class Main extends Application implements BusinessLogic
 		rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
 				Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
+		rightSplitPane.setMinSize(0, 0);
 		
 		// Container for the whole view (everything under the toolbar)
 		SplitPane explorerEditorSplitPane = new SplitPane();
 		explorerEditorSplitPane.getItems().addAll(Components.wrap(leftSplitPane),
 				Components.wrap(rightSplitPane));
-		explorerEditorSplitPane.setDividerPositions(0.2, 1.0);
+		explorerEditorSplitPane.setDividerPositions(0.225, 1.0);
+		explorerEditorSplitPane.setMinSize(0, 0);
+		
+		SplitPane.setResizableWithParent(leftSplitPane, Boolean.FALSE);
 		
 		loadOpenProjects();
 		
