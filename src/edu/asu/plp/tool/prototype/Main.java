@@ -172,7 +172,7 @@ public class Main extends Application implements BusinessLogic
 		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
 		try
 		{
-			scene.getStylesheets().add(new File("resources/application/styling/seti/app.css").toURI().toURL().toString());
+			scene.getStylesheets().add(new File("resources/application/styling/light/app.css").toURI().toURL().toString());
 		}
 		catch (MalformedURLException e)
 		{
