@@ -49,7 +49,7 @@ public class AceEditor
 	
 	public AceEditor()
 	{
-		currentTheme = "ambiance";
+		currentTheme = "tomorrow";
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
 		currentBodyProperty.set("(0_0)");
