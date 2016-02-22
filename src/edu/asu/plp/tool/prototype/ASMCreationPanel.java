@@ -67,6 +67,9 @@ public class ASMCreationPanel extends BorderPane
 	 */
 	public ASMCreationPanel(Consumer<ASMCreationDetails> onCreateASM)
 	{
+		if (onCreateASM == null)
+			throw new IllegalArgumentException("onCreateASM must be non-null");
+		
 		this.onCreateASM = onCreateASM;
 		this.setPadding(new Insets(20));
 		GridPane grid = new GridPane();
