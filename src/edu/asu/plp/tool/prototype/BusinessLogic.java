@@ -25,18 +25,6 @@ public interface BusinessLogic
 	
 	void onExit(ActionEvent event);
 	
-	void onCopy(ActionEvent event);
-	
-	void onCut(ActionEvent event);
-	
-	void onPaste(ActionEvent event);
-	
-	void onFindAndReplace(ActionEvent event);
-	
-	void onUndo(ActionEvent event);
-	
-	void onRedo(ActionEvent event);
-	
 	void onToggleToolbar(ActionEvent event);
 	
 	void onToggleProjectPane(ActionEvent event);

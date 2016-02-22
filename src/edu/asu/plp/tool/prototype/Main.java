@@ -970,48 +970,6 @@ public class Main extends Application implements BusinessLogic
 	}
 
 	@Override
-	public void onCopy(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onCut(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onPaste(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onFindAndReplace(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onUndo(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onRedo(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
 	public void onToggleToolbar(ActionEvent event)
 	{
 		// TODO Auto-generated method stub 
