@@ -118,31 +118,37 @@ public class ProjectExplorerTree extends BorderPane
 	{
 		TreeItem<String> selection = projectTreeDisplay.getSelectionModel()
 				.getSelectedItem();
-		TreeItem<String> parent = selection.getParent();
-		
-		if (parent != null && parent.getValue().length() > 0)
+
+		if(selection != null)
 		{
-			// Selection is a file
-			Project project = lookupProjectByName(parent.getValue());
-			for (ASMFile file : project)
-			{
-				if (file.getName().equals(selection.getValue()))
-				{
-					return new Pair<>(project, file);
-				}
-			}
+			TreeItem<String> parent = selection.getParent();
 			
-			// If loop exits without return, then the tree state is invalid
-			throw new IllegalStateException("Expected file {" + selection.getValue()
-					+ "} to be a child of the project {" + project.getName()
-					+ "} but no such file was found.");
+			if (parent != null && parent.getValue().length() > 0)
+			{
+				// Selection is a file
+				Project project = lookupProjectByName(parent.getValue());
+				for (ASMFile file : project)
+				{
+					if (file.getName().equals(selection.getValue()))
+					{
+						return new Pair<>(project, file);
+					}
+				}
+				
+				// If loop exits without return, then the tree state is invalid
+				throw new IllegalStateException("Expected file {" + selection.getValue()
+						+ "} to be a child of the project {" + project.getName()
+						+ "} but no such file was found.");
+			}
+			else
+			{
+				// Selection is a project
+				Project project = lookupProjectByName(selection.getValue());
+				return new Pair<>(project, null);
+			}
 		}
-		else
-		{
-			// Selection is a project
-			Project project = lookupProjectByName(selection.getValue());
-			return new Pair<>(project, null);
-		}
+		
+		return null;
 	}
 	
 	private int getGlobalIndexOf(TreeItem<String> fileNode)
@@ -175,7 +181,12 @@ public class ProjectExplorerTree extends BorderPane
 			if (onFileDoubleClicked != null)
 			{
 				Pair<Project, ASMFile> selection = getActiveSelection();
+				if(selection == null)
+					return;
+				
 				ASMFile selectedFile = selection.getValue();
+//				if(selectedFile.getProject() == null)
+				
 				if (selectedFile != null)
 				{
 					onFileDoubleClicked.accept(selectedFile);
