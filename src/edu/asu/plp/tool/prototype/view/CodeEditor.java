@@ -80,6 +80,11 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 	}
 	
+	public StringProperty codeBodyProperty()
+	{
+		return codeBodyProperty;
+	}
+	
 	public void setText(String text)
 	{
 		codeBodyProperty.set(text);

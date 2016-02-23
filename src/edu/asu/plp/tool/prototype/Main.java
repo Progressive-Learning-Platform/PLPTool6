@@ -353,9 +353,8 @@ public class Main extends Application implements BusinessLogic
 				content.setText("");
 			
 			// Bind content
-			ChangeListener<? super String> onChanged;
-			onChanged = (value, old, current) -> content.setText(file.getContent());
-			file.contentProperty().addListener(onChanged);
+			file.contentProperty().bind(content.codeBodyProperty());
+			file.contentProperty().addListener((value, old, current) -> System.out.println(current));
 		}
 		
 		// Activate the specified tab
