@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.prototype.view;
 
-import edu.asu.plp.tool.prototype.model.AceEditor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -14,6 +13,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import netscape.javascript.JSObject;
+import edu.asu.plp.tool.prototype.model.AceEditor;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -53,13 +54,27 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		
 		webView.getEngine().loadContent(aceEditor.getPage().get());
 		
+		// Add interface to access Java model from Javascript
+		JSObject jsObject = (JSObject) webView.getEngine().executeScript("window");
+		jsObject.setMember("javaContentModel", this);
+		
 		acePageContentsProperty.addListener((observable, old, newValue) -> 
 		{
 			webView.getEngine().loadContent(newValue);
 		});
 		
+		codeBodyProperty.addListener(
+				(observable, old, newValue) -> System.out.println("Code changed"));
+		
 		webView.setContextMenuEnabled(false);
 		//TODO create custom context menu (right click menu)
+		
+		// TODO: move this to a js file
+		aceEditor.addCustomJavascriptRoutine(() -> "window.onload = function() {"
+				+ "editor.on(\"change\", function() {"
+				+ "javaContentModel.setText(editor.getValue());"
+				+ "});"
+				+ "};");
 		
 		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
