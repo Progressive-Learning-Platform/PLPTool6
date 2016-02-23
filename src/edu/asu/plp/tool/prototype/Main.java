@@ -102,7 +102,6 @@ public class Main extends Application implements BusinessLogic
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
-	private Map<Tab, CodeEditor> fileEditors;
 	
 	public static void main(String[] args)
 	{
@@ -116,7 +115,6 @@ public class Main extends Application implements BusinessLogic
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 
 		this.assemblyDetails = new HashMap<>();
-		this.fileEditors = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
@@ -347,7 +345,6 @@ public class Main extends Application implements BusinessLogic
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openFileTabs.put(file, tab);
-			fileEditors.put(tab, content);
 			
 			// Set content
 			if(file.getContent() != null)
@@ -498,11 +495,8 @@ public class Main extends Application implements BusinessLogic
 			return Collections.emptyList();
 		else
 		{
-			CodeEditor editor = fileEditors.get(selectedTab);
-			if (editor == null)
-				throw new IllegalStateException();
-
-			String content = editor.getValue();
+			ASMFile activeASM = openFileTabs.getKey(selectedTab);
+			String content = activeASM.getContent();
 			return PLPLabel.scrape(content);
 		}
 	}
