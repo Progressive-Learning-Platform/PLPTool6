@@ -13,7 +13,7 @@ import javafx.beans.property.StringProperty;
 /**
  * 
  * @author Nesbitt, Morgan
- * 		
+ * 
  */
 public class AceEditor
 {
@@ -53,16 +53,17 @@ public class AceEditor
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
 		currentBodyProperty.set("(0_0)");
-
+		
 		editorSettings = new ArrayList<>();
 		editorRoutines = new ArrayList<>();
 		
 		fullPage = new SimpleStringProperty();
 		buildPage();
 		
-		currentBodyProperty.addListener((observable, oldValue, newValue) -> {
-			buildPage();
-		});
+		// Listener to update the ace editor on a change to currentBodyProperty was
+		// removed due to an infinite loop caused by setting currentBodyProperty when the
+		// ace body is changed in the DOM (by user typing)
+		// TODO: add a way to set the body from Java, while bypassing the infinite loop
 		
 		addDefaultEditorSettings();
 	}
@@ -125,8 +126,8 @@ public class AceEditor
 		builder.append("<script>");
 		builder.append("var editor = ace.edit(\"editor\");");
 		builder.append("editor.setTheme(\"ace/theme/" + currentTheme + "\");");
-		builder.append(
-				"editor.getSession().setMode(\"ace/mode/" + currentSessionMode + "\");");
+		builder.append("editor.getSession().setMode(\"ace/mode/" + currentSessionMode
+				+ "\");");
 		builder.append(getJavascriptRoutines());
 		builder.append("</script>");
 		
@@ -163,7 +164,7 @@ public class AceEditor
 		{
 			sampleBody = FileUtil.readAllLines(new File(
 					"examples/Stripped PLP Projects (ASM Only)/memtest/main.asm"));
-					
+			
 		}
 		catch (IOException e)
 		{
@@ -175,11 +176,11 @@ public class AceEditor
 	
 	private String getJavascriptRoutines()
 	{
-		if(editorRoutines.size() > 0)
+		if (editorRoutines.size() > 0)
 		{
 			StringBuilder builder = new StringBuilder();
 			
-			for(EditorRoutine routine : editorRoutines)
+			for (EditorRoutine routine : editorRoutines)
 			{
 				builder.append(routine.get());
 			}
