@@ -60,21 +60,20 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		
 		acePageContentsProperty.addListener((observable, old, newValue) -> 
 		{
+			System.out.println("Loaded:\n" + newValue);
 			webView.getEngine().loadContent(newValue);
 		});
 		
 		codeBodyProperty.addListener(
-				(observable, old, newValue) -> System.out.println("Code changed"));
+				(observable, old, newValue) -> System.out.println("CodeProperty changed"));
 		
 		webView.setContextMenuEnabled(false);
 		//TODO create custom context menu (right click menu)
 		
 		// TODO: move this to a js file
-		aceEditor.addCustomJavascriptRoutine(() -> "window.onload = function() {"
-				+ "editor.on(\"change\", function() {"
-				+ "javaContentModel.setText(editor.getValue());"
-				+ "});"
-				+ "};");
+		aceEditor.addCustomJavascriptRoutine(() -> "editor.on(\"change\", function() {"
+				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
+				+ "});");
 		
 		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
@@ -85,9 +84,32 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		return codeBodyProperty;
 	}
 	
+	public void updateTextFromJavascript(String text)
+	{
+		codeBodyProperty.set(text);
+		System.out.println("Code updating");
+	}
+	
+	public void println(String string)
+	{
+		System.out.println(string);
+	}
+	
 	public void setText(String text)
 	{
 		codeBodyProperty.set(text);
+		System.out.println("Setting value");
+		webView.getEngine().executeScript(
+				"window.onload = function() {"
+				+ "editor.on(\"change\", function(){});"
+				+ "editor.setValue(\"" + text + "\","
+						+ text.length() + ");"
+				+ "editor.on(\"change\", function() {"
+				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
+				+ "});"
+				+ "javaContentModel.println(\"Value Set\");"
+				+ "};"
+				);
 	}
 	
 	@Override
