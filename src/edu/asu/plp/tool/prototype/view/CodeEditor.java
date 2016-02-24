@@ -49,7 +49,6 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		codeBodyProperty = aceEditor.getBodyProperty();
 		acePageContentsProperty = aceEditor.getPage();
 		
-		addDefaultRoutines();
 		initializeEngineEvents();
 		
 		webView.getEngine().loadContent(aceEditor.getPage().get());
@@ -172,11 +171,5 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		intermediary = intermediary.replace("'", "\\'");
 		
 		return intermediary;
-	}
-
-	// Custom Routines
-	
-	private void addDefaultRoutines()
-	{
 	}
 }

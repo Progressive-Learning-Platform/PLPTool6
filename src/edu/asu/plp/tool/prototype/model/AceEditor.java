@@ -1,12 +1,10 @@
 package edu.asu.plp.tool.prototype.model;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.asu.plp.tool.backend.util.FileUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -32,7 +30,6 @@ public class AceEditor
 			+ "}" 
 			+ "</style>" 
 			+ "</head>";
-
 	//@formatter:on
 	
 	private static final String tail = "</body></html>";
@@ -40,7 +37,6 @@ public class AceEditor
 	private String currentTheme;
 	private String currentSessionMode;
 	
-	private List<String> editorSettings;
 	private List<EditorRoutine> editorRoutines;
 	
 	private StringProperty currentBodyProperty;
@@ -52,25 +48,10 @@ public class AceEditor
 		currentTheme = "ambiance";
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
-		currentBodyProperty.set("(0_0)");
-		
-		editorSettings = new ArrayList<>();
 		editorRoutines = new ArrayList<>();
 		
 		fullPage = new SimpleStringProperty();
 		buildPage();
-		
-		// Listener to update the ace editor on a change to currentBodyProperty was
-		// removed due to an infinite loop caused by setting currentBodyProperty when the
-		// ace body is changed in the DOM (by user typing)
-		// TODO: add a way to set the body from Java, while bypassing the infinite loop
-		
-		addDefaultEditorSettings();
-	}
-	
-	private void addDefaultEditorSettings()
-	{
-		
 	}
 	
 	public void addCustomJavascriptRoutine(EditorRoutine routine)
@@ -156,24 +137,6 @@ public class AceEditor
 		return builder.toString();
 	}
 	
-	private String getSampleBody()
-	{
-		String sampleBody = ".org 0x10000000";
-		
-		try
-		{
-			sampleBody = FileUtil.readAllLines(new File(
-					"examples/Stripped PLP Projects (ASM Only)/memtest/main.asm"));
-			
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return sampleBody;
-	}
-	
 	private String getJavascriptRoutines()
 	{
 		if (editorRoutines.size() > 0)
@@ -189,7 +152,5 @@ public class AceEditor
 		}
 		else
 			return "";
-		
 	}
-	
 }
