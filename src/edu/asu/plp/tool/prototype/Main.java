@@ -6,6 +6,7 @@ import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -124,8 +125,8 @@ public class Main extends Application implements BusinessLogic
 		console.println(">> Console Initialized.");
 		
 		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
-		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.NEVER);
-		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.NEVER);
+		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollableProjectExplorer.setFitToHeight(true);
 		scrollableProjectExplorer.setFitToWidth(true);
 		
@@ -134,6 +135,7 @@ public class Main extends Application implements BusinessLogic
 		leftSplitPane.orientationProperty().set(Orientation.VERTICAL);
 		leftSplitPane.getItems().addAll(scrollableProjectExplorer, outlineView);
 		leftSplitPane.setDividerPositions(0.5, 1.0);
+		leftSplitPane.setMinSize(0, 0);
 		
 		// Right side holds the source editor and the output console
 		SplitPane rightSplitPane = new SplitPane();
@@ -141,12 +143,16 @@ public class Main extends Application implements BusinessLogic
 		rightSplitPane.getItems().addAll(Components.wrap(openProjectsPanel),
 				Components.wrap(console));
 		rightSplitPane.setDividerPositions(0.75, 1.0);
+		rightSplitPane.setMinSize(0, 0);
 		
 		// Container for the whole view (everything under the toolbar)
 		SplitPane explorerEditorSplitPane = new SplitPane();
 		explorerEditorSplitPane.getItems().addAll(Components.wrap(leftSplitPane),
 				Components.wrap(rightSplitPane));
-		explorerEditorSplitPane.setDividerPositions(0.2, 1.0);
+		explorerEditorSplitPane.setDividerPositions(0.225, 1.0);
+		explorerEditorSplitPane.setMinSize(0, 0);
+		
+		SplitPane.setResizableWithParent(leftSplitPane, Boolean.FALSE);
 		
 		loadOpenProjects();
 		
@@ -161,7 +167,18 @@ public class Main extends Application implements BusinessLogic
 		
 		int width = DEFAULT_WINDOW_WIDTH;
 		int height = DEFAULT_WINDOW_HEIGHT;
-		primaryStage.setScene(new Scene(Components.wrap(mainPanel), width, height));
+		
+		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
+		try
+		{
+			scene.getStylesheets().add(new File("resources/application/styling/seti/app.css").toURI().toURL().toString());
+		}
+		catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 	
@@ -592,17 +609,18 @@ public class Main extends Application implements BusinessLogic
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
-		PLPProject project = new PLPProject("Assignment1");
-		project.add(new PLPSourceFile(project, "main.asm"));
-		project.add(new PLPSourceFile(project, "sorting.asm"));
-		project.add(new PLPSourceFile(project, "division.asm"));
-		projects.add(project);
+		PLPProject project;
 		
-		project = new PLPProject("Assignment2");
-		project.add(new PLPSourceFile(project, "main.asm"));
-		project.add(new PLPSourceFile(project, "uart_utilities.asm"));
-		projects.add(project);
-		
+		try
+		{
+			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
+			projects.add(project);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
 		return projectExplorer;
@@ -729,6 +747,9 @@ public class Main extends Application implements BusinessLogic
 	private ASMFile getActiveFileInProjectExplorer()
 	{
 		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
+		if(selection == null)
+			return null;
+		
 		ASMFile selectedFile = selection.getValue();
 		return selectedFile;
 	}
@@ -968,48 +989,6 @@ public class Main extends Application implements BusinessLogic
 
 	@Override
 	public void onExit(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onCopy(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onCut(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onPaste(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onFindAndReplace(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onUndo(ActionEvent event)
-	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-
-	@Override
-	public void onRedo(ActionEvent event)
 	{
 		// TODO Auto-generated method stub 
 		throw new UnsupportedOperationException("The method is not implemented yet.");

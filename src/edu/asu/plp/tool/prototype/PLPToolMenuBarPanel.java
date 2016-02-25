@@ -328,32 +328,26 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemCopy = new MenuItem("Copy");
 		itemCopy.setAccelerator(new KeyCodeCombination(KeyCode.C,
 				KeyCombination.CONTROL_DOWN));
-		itemCopy.setOnAction(businessLogic::onCopy);
 		
 		MenuItem itemCut = new MenuItem("Cut");
 		itemCut.setAccelerator(new KeyCodeCombination(KeyCode.X,
 				KeyCombination.CONTROL_DOWN));
-		itemCut.setOnAction(businessLogic::onCut);
 		
 		MenuItem itemPaste = new MenuItem("Paste");
 		itemPaste.setAccelerator(new KeyCodeCombination(KeyCode.V,
 				KeyCombination.CONTROL_DOWN));
-		itemPaste.setOnAction(businessLogic::onPaste);
 		
 		MenuItem itemFandR = new MenuItem("Find and Replace");
 		itemFandR.setAccelerator(new KeyCodeCombination(KeyCode.F,
 				KeyCombination.CONTROL_DOWN));
-		itemFandR.setOnAction(businessLogic::onFindAndReplace);
 		
 		MenuItem itemUndo = new MenuItem("Undo");
 		itemUndo.setAccelerator(new KeyCodeCombination(KeyCode.Z,
 				KeyCombination.CONTROL_DOWN));
-		itemUndo.setOnAction(businessLogic::onUndo);
 		
 		MenuItem itemRedo = new MenuItem("Redo");
 		itemRedo.setAccelerator(new KeyCodeCombination(KeyCode.Y,
 				KeyCombination.CONTROL_DOWN));
-		itemRedo.setOnAction(businessLogic::onRedo);
 		
 		editMenu.getItems().addAll(itemCopy, itemCut, itemPaste, new SeparatorMenuItem(),
 				itemFandR, new SeparatorMenuItem(), itemUndo, itemRedo);

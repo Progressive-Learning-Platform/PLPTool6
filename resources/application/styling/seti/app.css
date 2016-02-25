@@ -1,0 +1,166 @@
+@font-face {
+  src: url("../../../fonts/Open_Sans/OpenSans-Regular.ttf");
+}
+
+/* Base Settings */
+.root
+{
+  -fx-background-color: #151718 !important;
+  -fx-font-size: 12px !important;
+  -fx-border-color: rgba(0, 0, 0, 0.5) !important;
+  -fx-focus-color: transparent;
+  -fx-faint-focus-color: transparent;
+}
+
+.parent, .control, .region, .scroll-pane, .scroll-pane .content, .pane
+{
+  -fx-background-color: #151718;
+  -fx-border-color: rgba(0, 0, 0, 0.5);
+}
+
+.separator .line
+{
+  -fx-background-color: rgba(0, 0, 0, 0.5);
+  -fx-border-color: rgba(0, 0, 0, 0.5);
+  -fx-border-width: 0.083333em;
+}
+
+/* Menu Bar */
+.hbox, .vbox, .grid, .flow-tile
+{
+  -fx-background-color: #151718;
+  -fx-border-color: rgba(0, 0, 0, 0.5);
+}
+
+.split-pane
+{
+  -fx-border-color: rgba(0, 0, 0, 0.5);
+  -fx-background-color: #151718;;
+}
+
+.split-pane .split-pane-divider
+{
+  -fx-background-color: rgba(0, 0, 0, 0.5);
+  -fx-border-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Tree View */
+.tree-view
+{
+  -fx-background-color: #101112;
+}
+
+.tree-view .tree-cell
+{
+  -fx-background-color: #101112;
+  -fx-text-fill: #FFFFFF;
+}
+
+.tree-view:focused .tree-cell:selected
+{
+  -fx-font-weight: bold;
+  -fx-background-color: #56B5DB !important;
+}
+
+.tree-cell:selected
+{
+  -fx-font-weight: bold;
+  -fx-background-color: #282828 !important;
+}
+
+/* Outline */
+.text-area, .text-area .content
+{
+  -fx-background-color: #101112;
+  -fx-border-color: rgba(0, 0, 0, 0.5);
+}
+
+/*
+  Code Editor (Tab-Pane)
+  The actual editor styling is handled via ace themes
+*/
+.tab-pane *.tab-header-area
+{
+  -fx-border-style: hidden hidden solid hidden;
+  -fx-border-color: rgb(16,17,18);
+}
+
+.tab-pane:top *.tab-header-area, .tab-pane:right *.tab-header-area, .tab-pane:bottom *.tab-header-area, .tab-pane:left *.tab-header-area
+{
+  -fx-background-insets: 0.08em, 0 0 0 0;
+  -fx-padding: 0.08em 0 0 0;
+}
+
+.tab-pane .tab-header-area .tab-header-background
+{
+  -fx-opacity: 0;
+}
+
+.tab-pane
+{
+  -fx-tab-min-width:90px;
+}
+
+.tab-pane .tab
+{
+  -fx-background-color: rgb(30,35,38);
+  -fx-border-width: 2;
+  -fx-border-style: hidden hidden solid hidden;
+  -fx-border-color: rgb(0,0,0);
+}
+
+.tab-pane .tab:selected
+{
+  -fx-background-color: rgb(16,17,18);
+  -fx-border-style: hidden hidden solid hidden;
+  -fx-border-color: rgb(79,153,211);
+}
+
+.tab .tab-label
+{
+  -fx-text-fill: #aaa;
+  -fx-font-size: 12px;
+  -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label
+{
+  -fx-text-fill: #fff;
+}
+
+.scroll-bar
+{
+  -fx-background-color: #151718;
+}
+
+.scroll-bar .thumb
+{
+  -fx-background-color: #666;
+}
+
+/* Console */
+body
+{
+  color: #FFFFFF;
+  background-color: #101112;
+}
+
+.message
+{
+	white-space: pre-wrap;
+	color: #FFFFFF;
+	font-size: 16;
+	line-height: 100%;
+}
+
+.warning
+{
+	color: #FFAA00;
+	font-weight: bold;
+}
+
+.error
+{
+	color: #FF0000;
+	font-weight: bold;
+}

@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -48,6 +50,16 @@ public class ConsolePane extends BorderPane
 		WebView view = new WebView();
 		view.setContextMenuEnabled(false);
 		webEngine = view.getEngine();
+		try
+		{
+			//TODO replace with application theme
+			webEngine.setUserStyleSheetLocation(new File("resources/application/styling/seti/app.css").toURI().toURL().toString());
+		}
+		catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+		
 		messageQueue = new LinkedList<>();
 		
 		ObservableValue<State> property = webEngine.getLoadWorker().stateProperty();
@@ -68,10 +80,6 @@ public class ConsolePane extends BorderPane
 		
 		Node body = dom.getElementsByTagName("body").item(0);
 		body.appendChild(textPaneElement);
-		
-		URL cssURL = getClass().getResource("defaultConsoleStyle.css");
-		String cssPath = cssURL.toExternalForm();
-		addStylesheet(cssPath);
 		
 		for (Message message : messageQueue)
 		{
