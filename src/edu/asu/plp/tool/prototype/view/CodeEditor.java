@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.prototype.view;
 
-import edu.asu.plp.tool.prototype.model.AceEditor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -14,6 +13,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import netscape.javascript.JSObject;
+import edu.asu.plp.tool.prototype.model.AceEditor;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -48,26 +49,66 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		codeBodyProperty = aceEditor.getBodyProperty();
 		acePageContentsProperty = aceEditor.getPage();
 		
-		addDefaultRoutines();
 		initializeEngineEvents();
 		
 		webView.getEngine().loadContent(aceEditor.getPage().get());
 		
+		// Add interface to access Java model from Javascript
+		JSObject jsObject = (JSObject) webView.getEngine().executeScript("window");
+		jsObject.setMember("javaContentModel", this);
+		
 		acePageContentsProperty.addListener((observable, old, newValue) -> 
 		{
+			System.out.println("Loaded:\n" + newValue);
 			webView.getEngine().loadContent(newValue);
 		});
 		
+		codeBodyProperty.addListener(
+				(observable, old, newValue) -> System.out.println("CodeProperty changed"));
+		
 		webView.setContextMenuEnabled(false);
 		//TODO create custom context menu (right click menu)
+		
+		// TODO: move this to a js file
+		aceEditor.addCustomJavascriptRoutine(() -> "editor.on(\"change\", function() {"
+				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
+				+ "});");
 		
 		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 	}
 	
+	public StringProperty codeBodyProperty()
+	{
+		return codeBodyProperty;
+	}
+	
+	public void updateTextFromJavascript(String text)
+	{
+		codeBodyProperty.set(text);
+		System.out.println("Code updating");
+	}
+	
+	public void println(String string)
+	{
+		System.out.println(string);
+	}
+	
 	public void setText(String text)
 	{
 		codeBodyProperty.set(text);
+		System.out.println("Setting value");
+		webView.getEngine().executeScript(
+				"window.onload = function() {"
+				+ "editor.on(\"change\", function(){});"
+				+ "editor.setValue(\"" + text + "\","
+						+ text.length() + ");"
+				+ "editor.on(\"change\", function() {"
+				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
+				+ "});"
+				+ "javaContentModel.println(\"Value Set\");"
+				+ "};"
+				);
 	}
 	
 	@Override
@@ -130,11 +171,5 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		intermediary = intermediary.replace("'", "\\'");
 		
 		return intermediary;
-	}
-
-	// Custom Routines
-	
-	private void addDefaultRoutines()
-	{
 	}
 }

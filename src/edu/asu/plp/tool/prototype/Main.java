@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -105,7 +104,6 @@ public class Main extends Application implements BusinessLogic
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
-	private Map<Tab, CodeEditor> fileEditors;
 	
 	public static void main(String[] args)
 	{
@@ -119,7 +117,6 @@ public class Main extends Application implements BusinessLogic
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 
 		this.assemblyDetails = new HashMap<>();
-		this.fileEditors = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
@@ -127,18 +124,16 @@ public class Main extends Application implements BusinessLogic
 		console = createConsole();
 		console.println(">> Console Initialized.");
 		
-		ScrollPane scrollPane = new ScrollPane(projectExplorer);
-		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setFitToHeight(true);
-		scrollPane.setFitToWidth(true);
+		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
+		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollableProjectExplorer.setFitToHeight(true);
+		scrollableProjectExplorer.setFitToWidth(true);
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
 		leftSplitPane.orientationProperty().set(Orientation.VERTICAL);
-		leftSplitPane.getItems().addAll(scrollPane,
-				Components.wrap(outlineView));
-		
+		leftSplitPane.getItems().addAll(scrollableProjectExplorer, outlineView);
 		leftSplitPane.setDividerPositions(0.5, 1.0);
 		leftSplitPane.setMinSize(0, 0);
 		
@@ -373,7 +368,6 @@ public class Main extends Application implements BusinessLogic
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openFileTabs.put(file, tab);
-			fileEditors.put(tab, content);
 			
 			// Set content
 			if(file.getContent() != null)
@@ -382,9 +376,8 @@ public class Main extends Application implements BusinessLogic
 				content.setText("");
 			
 			// Bind content
-			ChangeListener<? super String> onChanged;
-			onChanged = (value, old, current) -> content.setText(file.getContent());
-			file.contentProperty().addListener(onChanged);
+			file.contentProperty().bind(content.codeBodyProperty());
+			file.contentProperty().addListener((value, old, current) -> System.out.println(current));
 		}
 		
 		// Activate the specified tab
@@ -524,11 +517,8 @@ public class Main extends Application implements BusinessLogic
 			return Collections.emptyList();
 		else
 		{
-			CodeEditor editor = fileEditors.get(selectedTab);
-			if (editor == null)
-				throw new IllegalStateException();
-
-			String content = editor.getText();
+			ASMFile activeASM = openFileTabs.getKey(selectedTab);
+			String content = activeASM.getContent();
 			return PLPLabel.scrape(content);
 		}
 	}

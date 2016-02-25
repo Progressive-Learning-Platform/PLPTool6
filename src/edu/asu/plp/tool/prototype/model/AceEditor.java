@@ -1,19 +1,17 @@
 package edu.asu.plp.tool.prototype.model;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.asu.plp.tool.backend.util.FileUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
  * 
  * @author Nesbitt, Morgan
- * 		
+ * 
  */
 public class AceEditor
 {
@@ -32,7 +30,6 @@ public class AceEditor
 			+ "}" 
 			+ "</style>" 
 			+ "</head>";
-
 	//@formatter:on
 	
 	private static final String tail = "</body></html>";
@@ -40,7 +37,6 @@ public class AceEditor
 	private String currentTheme;
 	private String currentSessionMode;
 	
-	private List<String> editorSettings;
 	private List<EditorRoutine> editorRoutines;
 	
 	private StringProperty currentBodyProperty;
@@ -52,24 +48,10 @@ public class AceEditor
 		currentTheme = "ambiance";
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
-		currentBodyProperty.set("(0_0)");
-
-		editorSettings = new ArrayList<>();
 		editorRoutines = new ArrayList<>();
 		
 		fullPage = new SimpleStringProperty();
 		buildPage();
-		
-		currentBodyProperty.addListener((observable, oldValue, newValue) -> {
-			buildPage();
-		});
-		
-		addDefaultEditorSettings();
-	}
-	
-	private void addDefaultEditorSettings()
-	{
-		
 	}
 	
 	public void addCustomJavascriptRoutine(EditorRoutine routine)
@@ -125,8 +107,8 @@ public class AceEditor
 		builder.append("<script>");
 		builder.append("var editor = ace.edit(\"editor\");");
 		builder.append("editor.setTheme(\"ace/theme/" + currentTheme + "\");");
-		builder.append(
-				"editor.getSession().setMode(\"ace/mode/" + currentSessionMode + "\");");
+		builder.append("editor.getSession().setMode(\"ace/mode/" + currentSessionMode
+				+ "\");");
 		builder.append(getJavascriptRoutines());
 		builder.append("</script>");
 		
@@ -155,31 +137,13 @@ public class AceEditor
 		return builder.toString();
 	}
 	
-	private String getSampleBody()
-	{
-		String sampleBody = ".org 0x10000000";
-		
-		try
-		{
-			sampleBody = FileUtil.readAllLines(new File(
-					"examples/Stripped PLP Projects (ASM Only)/memtest/main.asm"));
-					
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return sampleBody;
-	}
-	
 	private String getJavascriptRoutines()
 	{
-		if(editorRoutines.size() > 0)
+		if (editorRoutines.size() > 0)
 		{
 			StringBuilder builder = new StringBuilder();
 			
-			for(EditorRoutine routine : editorRoutines)
+			for (EditorRoutine routine : editorRoutines)
 			{
 				builder.append(routine.get());
 			}
@@ -188,7 +152,5 @@ public class AceEditor
 		}
 		else
 			return "";
-		
 	}
-	
 }
