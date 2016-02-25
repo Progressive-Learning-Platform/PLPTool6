@@ -96,7 +96,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		
 		if (!projectFile.exists())
 			throw new IllegalArgumentException("Project file not found.");
-		
+			
 		String fileString = FileUtils.readFileToString(projectFile);
 		JSONObject projectDetails = new JSONObject(fileString);
 		String name = projectDetails.optString(NAME_KEY);
@@ -174,11 +174,21 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		{
 			throw new IllegalArgumentException("Directory must be non-null");
 		}
-		else if (!projectDirectory.isDirectory())
+		// When creating project, the directory has not been created yet so always throws
+		// error
+		else
 		{
-			String path = projectDirectory.getAbsolutePath();
-			String message = "Path must point to a directory. Found: " + path;
-			throw new IllegalPathStateException(message);
+			//moved this
+			if (!projectDirectory.exists())
+				projectDirectory.mkdir();
+			
+			if (!projectDirectory.isDirectory())
+			
+			{
+				String path = projectDirectory.getAbsolutePath();
+				String message = "Path must point to a directory. Found: " + path;
+				throw new IllegalPathStateException(message);
+			}
 		}
 	}
 	
@@ -206,11 +216,11 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		Path rootPath = projectDirectory.toPath();
 		Path filePath = rootPath.resolve(PROJECT_FILE_NAME);
 		File projectFile = filePath.toFile();
-		if (projectFile.isDirectory())
-		{
-			throw new IllegalStateException("ProjectFile resolved to a directory: "
-					+ projectFile.getAbsolutePath());
-		}
+		//if (projectFile.isDirectory())
+		//{
+		//	throw new IllegalStateException("ProjectFile resolved to a directory: "
+		//			+ projectFile.getAbsolutePath());
+		//}
 		
 		return projectFile;
 	}
@@ -259,13 +269,14 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	public void save() throws IOException
 	{
 		File directory = validateAndFilizePath();
-		if (!directory.exists())
-			directory.mkdir();
+		// moving this
+		// if (!directory.exists())
+		// directory.mkdir();
 		
 		File sourceDirectory = validateAndFilizeSourceDirectory(directory);
 		if (!sourceDirectory.exists())
 			sourceDirectory.mkdir();
-		
+			
 		File projectFile = validateAndFilizeProjectFile(directory);
 		if (!projectFile.exists())
 			projectFile.createNewFile();
@@ -300,11 +311,11 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		// TODO: make the directory "src" a constant variable
 		Path sourcePath = projectPath.resolve("src");
 		File sourceDirectory = sourcePath.toFile();
-		if (!sourceDirectory.isDirectory())
-		{
-			throw new IllegalStateException("Source directory resolved to a file: "
-					+ sourceDirectory.getAbsolutePath());
-		}
+		//if (!sourceDirectory.isDirectory())
+		//{
+		//	throw new IllegalStateException("Source directory resolved to a file: "
+		//			+ sourceDirectory.getAbsolutePath());
+		//}
 		
 		return sourceDirectory;
 	}
@@ -438,7 +449,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		String location = getPath();
 		if (location == null)
 			return null;
-		
+			
 		File file = new File(location);
 		Path path = file.toPath();
 		String childFileName = child.constructFileName();

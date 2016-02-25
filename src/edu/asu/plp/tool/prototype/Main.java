@@ -257,6 +257,8 @@ public class Main extends Application implements BusinessLogic
 				// Projects are the same
 				showInfoDialogue("This project is already open!");
 				// TODO: expand project in the projectExplorer
+				System.out.println("This was ran");
+				projectExplorer.expandProject(project);
 			}
 			else
 			{

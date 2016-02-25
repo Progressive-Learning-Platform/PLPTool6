@@ -300,4 +300,10 @@ public class ProjectExplorerTree extends BorderPane
 		
 		return null;
 	}
+
+	public void expandProject(Project project)
+	{
+		TreeItem<String> projectNode = getProjectNode(project);
+		projectNode.setExpanded(true);
+	}
 }
