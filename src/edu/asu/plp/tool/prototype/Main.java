@@ -376,7 +376,7 @@ public class Main extends Application implements BusinessLogic
 				content.setText("");
 			
 			// Bind content
-			file.contentProperty().bind(content.codeBodyProperty());
+			file.contentProperty().bind(content);
 			file.contentProperty().addListener((value, old, current) -> System.out.println(current));
 		}
 		
