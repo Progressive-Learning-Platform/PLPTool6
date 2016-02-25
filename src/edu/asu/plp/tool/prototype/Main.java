@@ -27,11 +27,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -121,11 +123,16 @@ public class Main extends Application implements BusinessLogic
 		console = createConsole();
 		console.println(">> Console Initialized.");
 		
+		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
+		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.NEVER);
+		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.NEVER);
+		scrollableProjectExplorer.setFitToHeight(true);
+		scrollableProjectExplorer.setFitToWidth(true);
+		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
 		leftSplitPane.orientationProperty().set(Orientation.VERTICAL);
-		leftSplitPane.getItems().addAll(Components.passiveScroll(projectExplorer),
-				Components.wrap(outlineView));
+		leftSplitPane.getItems().addAll(scrollableProjectExplorer, outlineView);
 		leftSplitPane.setDividerPositions(0.5, 1.0);
 		
 		// Right side holds the source editor and the output console
