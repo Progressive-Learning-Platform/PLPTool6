@@ -53,7 +53,7 @@ public class ConsolePane extends BorderPane
 		try
 		{
 			//TODO replace with application theme
-			webEngine.setUserStyleSheetLocation(new File("resources/application/styling/seti/app.css").toURI().toURL().toString());
+			webEngine.setUserStyleSheetLocation(new File("resources/application/styling/light/app.css").toURI().toURL().toString());
 		}
 		catch (MalformedURLException e)
 		{

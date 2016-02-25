@@ -45,7 +45,7 @@ public class AceEditor
 	
 	public AceEditor()
 	{
-		currentTheme = "ambiance";
+		currentTheme = "tomorrow";
 		currentSessionMode = "plp";
 		currentBodyProperty = new SimpleStringProperty();
 		editorRoutines = new ArrayList<>();
