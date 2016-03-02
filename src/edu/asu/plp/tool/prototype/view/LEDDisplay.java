@@ -13,19 +13,28 @@ public class LEDDisplay extends BorderPane
 {
 	private static final int MINIMUM_SIZE = 100;
 	private static final int NUMBER_OF_LEDS = 8;
-	private static final String FONT_NAME = "Arial";
 	private static final int FONT_SIZE = 30;
+	private static final String FONT_NAME = "Arial";
 	private static final Paint FONT_COLOR = Color.WHITE;
 	private static final String LIT_COLOR = "green";
 	private static final String UNLIT_COLOR = "black";
+	
+	/**
+	 * The state of each LED in this panel (on or off) where a bit set to 1 is "on" and a
+	 * bit set to 0 is "off."
+	 * <p>
+	 * Each led corresponds to the bit at {@link #ledStates} >> index, where "index" is the
+	 * index of the desired LED.
+	 */
+	private int ledStates;
 	
 	public LEDDisplay()
 	{
 		GridPane grid = new GridPane();
 		for (int index = 0; index < NUMBER_OF_LEDS; index++)
 		{
-			// TODO: replace isLit with state information; this calculation is placeholder
-			boolean isLit = index % 2 == 0;
+			int ledState = (ledStates >> index) & 1;
+			boolean isLit = (ledState != 0);
 			Node led = createLED(index, isLit);
 			grid.add(led, index, 0);
 		}
