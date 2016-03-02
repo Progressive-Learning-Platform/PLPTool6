@@ -35,8 +35,7 @@ public class LEDDisplay extends BorderPane
 		ledNodes = new BorderPane[NUMBER_OF_LEDS];
 		for (int index = 0; index < NUMBER_OF_LEDS; index++)
 		{
-			int ledState = (ledStates >> index) & 1;
-			boolean isLit = (ledState != 0);
+			boolean isLit = isLEDLit(index);
 			BorderPane led = createLED(index, isLit);
 			ledNodes[index] = led;
 			grid.add(led, index, 0);
@@ -71,22 +70,38 @@ public class LEDDisplay extends BorderPane
 		ledLabel.setTextAlignment(TextAlignment.CENTER);
 		ledLabel.setTextFill(FONT_COLOR);
 		
-		String style = "-fx-border-color: white; -fx-text-align: center; -fx-background-color:";
-		style += (isLit) ? LIT_COLOR : UNLIT_COLOR;
-		
 		BorderPane led = new BorderPane();
 		led.setPrefHeight(DEFAULT_SIZE);
 		led.setPrefWidth(DEFAULT_SIZE);
-		led.setStyle(style);
 		led.setCenter(ledLabel);
+		setLEDStyle(led, isLit);
 		
 		return led;
 	}
 	
 	public void setLEDState(int ledIndex, boolean isLit)
 	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		int ledBit = 1 << ledIndex;
+		if (isLit)
+		{
+			// Set bit to TRUE
+			ledStates |= ledBit;
+		}
+		else
+		{
+			// Set bit to FALSE
+			ledBit = ~ledBit;
+			ledStates &= ledBit;
+		}
+		
+		setLEDStyle(ledNodes[ledIndex], isLit);
+	}
+	
+	private void setLEDStyle(BorderPane led, boolean isLit)
+	{
+		String style = "-fx-border-color: white; -fx-text-align: center; -fx-background-color:";
+		style += (isLit) ? LIT_COLOR : UNLIT_COLOR;
+		led.setStyle(style);
 	}
 	
 	/**
@@ -101,10 +116,11 @@ public class LEDDisplay extends BorderPane
 		return isLEDLit(ledIndex);
 	}
 	
-	private boolean isLEDLit(int ledIndex)
+	private boolean isLEDLit(int index)
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		int ledState = (ledStates >> index) & 1;
+		boolean isLit = (ledState != 0);
+		return isLit;
 	}
 	
 	public void toggleLEDState(int ledIndex)
