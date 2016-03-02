@@ -25,6 +25,8 @@ public class LEDDisplay extends BorderPane
 	 * <p>
 	 * Each led corresponds to the bit at {@link #ledStates} >> index, where "index" is
 	 * the index of the desired LED.
+	 * <p>
+	 * Note that LEDs are displayed in reverse order (i.e. LED0 is on the far right)
 	 */
 	private int ledStates;
 	private BorderPane[] ledNodes;
@@ -38,7 +40,8 @@ public class LEDDisplay extends BorderPane
 			boolean isLit = isLEDLit(index);
 			BorderPane led = createLED(index, isLit);
 			ledNodes[index] = led;
-			grid.add(led, index, 0);
+			int position = NUMBER_OF_LEDS - index - 1;
+			grid.add(led, position, 0);
 		}
 		
 		setCenter(grid);
