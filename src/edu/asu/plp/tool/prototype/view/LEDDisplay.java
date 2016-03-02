@@ -61,4 +61,33 @@ public class LEDDisplay extends BorderPane
 		
 		return led;
 	}
+	
+	public void setLEDState(int ledIndex, boolean isLit)
+	{
+		// TODO
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+	
+	/**
+	 * Alias for {@link #isLEDLit(int)}
+	 * 
+	 * @param ledIndex Index of the LED to retrieve the state of
+	 * @return True if the LED is lit, false otherwise
+	 */
+	public boolean getLEDState(int ledIndex)
+	{
+		return isLEDLit(ledIndex);
+	}
+	
+	private boolean isLEDLit(int ledIndex)
+	{
+		// TODO Auto-generated method stub return false;
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	public void toggleLEDState(int ledIndex)
+	{
+		boolean newState = !getLEDState(ledIndex);
+		setLEDState(ledIndex, newState);
+	}
 }
