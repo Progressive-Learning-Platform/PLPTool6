@@ -119,7 +119,7 @@ public class LEDDisplay extends BorderPane
 		return isLEDLit(ledIndex);
 	}
 	
-	private boolean isLEDLit(int index)
+	public boolean isLEDLit(int index)
 	{
 		int ledState = (ledStates >> index) & 1;
 		boolean isLit = (ledState != 0);
