@@ -3,7 +3,7 @@ package edu.asu.plp.tool.prototype;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.DeadEvent;
+import com.google.common.eventbus.Subscribe;
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.prototype.model.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -69,9 +74,6 @@ import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
-import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
-import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
@@ -85,6 +87,7 @@ import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
  * 
  * @author Moore, Zachary
  * @author Hawks, Elliott
+ * @author Nesbitt, Morgan
  * 		
  */
 public class Main extends Application implements BusinessLogic
@@ -104,6 +107,9 @@ public class Main extends Application implements BusinessLogic
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
+
+	private ApplicationEventBusEventHandler eventHandler;
+	private ApplicationThemeManager applicationThemeManager;
 	
 	public static void main(String[] args)
 	{
@@ -115,6 +121,12 @@ public class Main extends Application implements BusinessLogic
 	{
 		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
+
+		ApplicationSettings.initialize();
+		ApplicationSettings.loadFromFile("settings/plp-tool.settings");
+
+		eventHandler = new ApplicationEventBusEventHandler();
+		applicationThemeManager = new ApplicationThemeManager();
 
 		this.assemblyDetails = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
@@ -169,16 +181,11 @@ public class Main extends Application implements BusinessLogic
 		int height = DEFAULT_WINDOW_HEIGHT;
 		
 		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
-		try
-		{
-			scene.getStylesheets().add(new File("resources/application/styling/light/app.css").toURI().toURL().toString());
-		}
-		catch (MalformedURLException e)
-		{
-			e.printStackTrace();
-		}
-		
+
 		primaryStage.setScene(scene);
+
+		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent("light"));
+
 		primaryStage.show();
 	}
 	
@@ -1485,5 +1492,41 @@ public class Main extends Application implements BusinessLogic
 	{
 		// TODO Auto-generated method stub 
 		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	public class ApplicationEventBusEventHandler
+	{
+		private ApplicationEventBusEventHandler()
+		{
+			EventRegistry.getGlobalRegistry().register(this);
+		}
+
+		@Subscribe
+		public void applicationThemeRequestCallback(ThemeRequestCallback event)
+		{
+			if(event.requestedTheme().isPresent())
+			{
+				Theme applicationTheme = event.requestedTheme().get();
+				try
+				{
+					stage.getScene().getStylesheets().add(applicationTheme.getPath());
+					return;
+				}
+				catch ( MalformedURLException e )
+				{
+					console.warning("Unable to load application theme " + applicationTheme.getName());
+					return;
+				}
+			}
+
+			console.warning("Unable to load application theme.");
+		}
+
+		@Subscribe
+		public void deadEvent(DeadEvent event)
+		{
+			System.out.println("Dead Event");
+			System.out.println(event.getEvent());
+		}
 	}
 }

@@ -6,6 +6,10 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.google.common.eventbus.Subscribe;
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.prototype.model.Theme;
+import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.scene.layout.BorderPane;
@@ -44,22 +48,15 @@ public class ConsolePane extends BorderPane
 	private Element textPaneElement;
 	private WebEngine webEngine;
 	private Queue<Message> messageQueue;
+
+	private ConsolePaneEventHandler eventHandler;
 	
 	public ConsolePane()
 	{
 		WebView view = new WebView();
 		view.setContextMenuEnabled(false);
 		webEngine = view.getEngine();
-		try
-		{
-			//TODO replace with application theme
-			webEngine.setUserStyleSheetLocation(new File("resources/application/styling/light/app.css").toURI().toURL().toString());
-		}
-		catch (MalformedURLException e)
-		{
-			e.printStackTrace();
-		}
-		
+
 		messageQueue = new LinkedList<>();
 		
 		ObservableValue<State> property = webEngine.getLoadWorker().stateProperty();
@@ -67,6 +64,8 @@ public class ConsolePane extends BorderPane
 		
 		String content = "<html><head></head><body></body></html>";
 		webEngine.loadContent(content);
+
+		eventHandler = new ConsolePaneEventHandler();
 		
 		this.setCenter(view);
 	}
@@ -188,5 +187,29 @@ public class ConsolePane extends BorderPane
 		styleReference.setAttribute("type", "text/css");
 		styleReference.setAttribute("href", path);
 		head.appendChild(styleReference);
+	}
+
+	public class ConsolePaneEventHandler
+	{
+		private ConsolePaneEventHandler()
+		{
+			EventRegistry.getGlobalRegistry().register(this);
+		}
+
+		@Subscribe
+		public void applicationThemeRequestCallback(ThemeRequestCallback event)
+		{
+			if(event.requestedTheme().isPresent())
+			{
+				Theme applicationTheme = event.requestedTheme().get();
+				try
+				{
+					webEngine.setUserStyleSheetLocation(applicationTheme.getPath());
+				}
+				catch ( MalformedURLException e )
+				{
+				}
+			}
+		}
 	}
 }
