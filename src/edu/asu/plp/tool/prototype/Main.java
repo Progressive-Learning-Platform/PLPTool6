@@ -184,7 +184,7 @@ public class Main extends Application implements BusinessLogic
 
 		primaryStage.setScene(scene);
 
-		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent("light"));
+		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent("seti"));
 
 		primaryStage.show();
 	}
@@ -1316,8 +1316,22 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onOpenOptionsMenu(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		OptionsPane optionsPane = new OptionsPane();
+		Scene popupScene = new Scene(optionsPane);
+
+
+		Stage popupWindow = new Stage(StageStyle.DECORATED);
+		popupWindow.setTitle("Settings");
+		popupWindow.initModality(Modality.WINDOW_MODAL);
+		popupWindow.initOwner(stage);
+		popupWindow.setScene(popupScene);
+
+		optionsPane.setOkAction(() -> {popupWindow.close();});
+		optionsPane.setCancelAction(() -> {popupWindow.close();});
+
+		popupWindow.setOnCloseRequest((windowEvent)-> {popupWindow.close();});
+		popupWindow.sizeToScene();
+		popupWindow.show();
 	}
 
 	@Override
