@@ -9,8 +9,26 @@
     "base path" : "resources/languages/",
     "modes path" : "modes",
     "default path" : "plp/"
+  },
+  "Editor" : {
+    "font" : "inconsolata",
+    "font size" : "14",
+    "mode" :"plp",
+    "theme" :"tomorrow"
+  },
+  "Application" : {
+    "theme" : "light"
+  },
+  "Programmer" : {
+    "program in chunks" : "true",
+    "maximum chunk size" : "2048",
+    "timeout milliseconds" : "500",
+    "auto detect serial ports" : "true"
+  },
+  "Simulator" : {
+    "speed" : "100",
+    "allow execution of non instruction memory" : "true",
+    "assume zero on reads from uninitialized memory" : "true"
   }
-
-
 
 }
