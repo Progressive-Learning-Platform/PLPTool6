@@ -45,4 +45,22 @@ public class SettingUtil
 		}
 	}
 
+	/**
+	 * Prepends the save label to provided {@link Setting} parameter.
+	 *
+	 * NOTE: This expect you to not create {@link Setting} for saved variants.
+	 *
+	 * {@link ApplicationSettings} will load saved settings if present in the settings file. Saved settings share the
+	 * same name as their default counterpart, but are prefixed with SAVED_.
+	 * <p>
+	 * e.g EDITOR_FONT vs SAVED_EDITOR_FONT
+	 *
+	 * @param setting
+	 *
+	 * @return
+	 */
+	public static String prependSaveLabel( Setting setting )
+	{
+		return "SAVED_" + setting;
+	}
 }
