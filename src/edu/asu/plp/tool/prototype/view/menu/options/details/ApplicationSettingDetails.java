@@ -11,20 +11,21 @@ public class ApplicationSettingDetails
 {
 	public static final ApplicationSettingDetails DEFAULT = ApplicationSettingDetails.defaultDetails();
 
-	private String fontName;
-	private String fontSize;
 	private String applicationTheme;
 	private String editorTheme;
 
-	public ApplicationSettingDetails()
+	private ApplicationSettingDetails()
 	{
-		this(DEFAULT);
+	}
+
+	public ApplicationSettingDetails(String applicationTheme, String editorTheme)
+	{
+		this.applicationTheme = applicationTheme;
+		this.editorTheme =  editorTheme;
 	}
 
 	public ApplicationSettingDetails( ApplicationSettingDetails details )
 	{
-		this.fontName = details.fontName;
-		this.fontSize = details.fontSize;
 		this.applicationTheme = details.applicationTheme;
 		this.editorTheme = details.editorTheme;
 	}
@@ -33,15 +34,7 @@ public class ApplicationSettingDetails
 	{
 		ApplicationSettingDetails details = new ApplicationSettingDetails();
 
-		ApplicationSetting setting = ApplicationSetting.EDITOR_FONT;
-		details.fontName =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
-
-		setting = ApplicationSetting.EDITOR_FONT_SIZE;
-		details.fontSize =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
-
-		setting = ApplicationSetting.APPLICATION_THEME;
+		ApplicationSetting setting = ApplicationSetting.APPLICATION_THEME;
 		details.applicationTheme =
 				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
 
