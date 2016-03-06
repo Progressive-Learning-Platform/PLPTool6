@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
  */
 public class OptionsPane extends BorderPane
 {
+	//TODO add proper event handling for adding options
 	private OptionsSettingsTree sections;
 	private BorderPane sectionView;
 	private AbstractMap<OptionSection, BorderPane> optionScreenMap;
@@ -79,13 +80,11 @@ public class OptionsPane extends BorderPane
 		PLPOptions editorSection = new PLPOptions("Editor");
 
 		PLPOptions general = new PLPOptions("General");
-		PLPOptions editorTheming = new PLPOptions("Theming");
 
-		editorSection.addAll(Arrays.asList(general, editorTheming));
+		editorSection.addAll(Arrays.asList(general));
 
 		optionScreenMap.put(editorSection, new BorderPane());
 		optionScreenMap.put(general, new BorderPane());
-		optionScreenMap.put(editorTheming, new BorderPane());
 
 		return editorSection;
 	}
