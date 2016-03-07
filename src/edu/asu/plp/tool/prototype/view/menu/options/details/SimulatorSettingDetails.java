@@ -14,16 +14,23 @@ public class SimulatorSettingDetails
 	private String allowExecutionOfNonInstructionMemory;
 	private String assumeZeroOnReadsFromUninitializedMemory;
 
-	public SimulatorSettingDetails()
+	private SimulatorSettingDetails()
 	{
-		this(DEFAULT);
+
 	}
 
-	public SimulatorSettingDetails(SimulatorSettingDetails details)
+	public SimulatorSettingDetails( String simulationSpeedMillisecondsCycle,
+			String allowExecutionOfNonInstructionMemory, String assumeZeroOnReadsFromUninitializedMemory )
 	{
-		this.simulationSpeedMillisecondsCycle = details.simulationSpeedMillisecondsCycle;
-		this.allowExecutionOfNonInstructionMemory = details.allowExecutionOfNonInstructionMemory;
-		this.assumeZeroOnReadsFromUninitializedMemory = details.assumeZeroOnReadsFromUninitializedMemory;
+		this.simulationSpeedMillisecondsCycle = simulationSpeedMillisecondsCycle;
+		this.allowExecutionOfNonInstructionMemory = allowExecutionOfNonInstructionMemory;
+		this.assumeZeroOnReadsFromUninitializedMemory = assumeZeroOnReadsFromUninitializedMemory;
+	}
+
+	public SimulatorSettingDetails( SimulatorSettingDetails details )
+	{
+		this(details.simulationSpeedMillisecondsCycle, details.allowExecutionOfNonInstructionMemory,
+			 details.assumeZeroOnReadsFromUninitializedMemory);
 	}
 
 	private static SimulatorSettingDetails defaultDetails()
@@ -43,5 +50,20 @@ public class SimulatorSettingDetails
 				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
 
 		return details;
+	}
+
+	public String getSimulationSpeedMillisecondsCycle()
+	{
+		return simulationSpeedMillisecondsCycle;
+	}
+
+	public String getAllowExecutionOfNonInstructionMemory()
+	{
+		return allowExecutionOfNonInstructionMemory;
+	}
+
+	public String getAssumeZeroOnReadsFromUninitializedMemory()
+	{
+		return assumeZeroOnReadsFromUninitializedMemory;
 	}
 }
