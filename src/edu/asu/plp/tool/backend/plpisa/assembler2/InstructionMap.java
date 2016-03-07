@@ -6,9 +6,15 @@ public class InstructionMap extends HashMap<String, PLPInstruction>
 {
 	public void addRTypeInstruction(String name, int functCode)
 	{
-		validateKey(name);
 		RTypeInstruction instruction = new RTypeInstruction(functCode);
 		this.put(name, instruction);
+	}
+	
+	@Override
+	public PLPInstruction put(String name, PLPInstruction instruction)
+	{
+		validateKey(name);
+		return super.put(name, instruction);
 	}
 	
 	private void validateKey(String name)
