@@ -1,8 +1,16 @@
+/* Base Settings */
+
+/* Console */
+body
+{
+  color: #000000;
+}
+
 .message
 {
 	white-space: pre-wrap;
 	color: #000000;
-	font-size: 16;
+	font-size: 14;
 	line-height: 100%;
 }
 

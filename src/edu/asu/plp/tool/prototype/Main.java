@@ -3,7 +3,7 @@ package edu.asu.plp.tool.prototype;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -14,8 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.DeadEvent;
+import com.google.common.eventbus.Subscribe;
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.prototype.model.*;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -70,9 +74,6 @@ import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
-import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
-import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
@@ -86,6 +87,7 @@ import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
  * 
  * @author Moore, Zachary
  * @author Hawks, Elliott
+ * @author Nesbitt, Morgan
  * 		
  */
 public class Main extends Application implements BusinessLogic
@@ -105,7 +107,9 @@ public class Main extends Application implements BusinessLogic
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
-	private Map<Tab, CodeEditor> fileEditors;
+
+	private ApplicationEventBusEventHandler eventHandler;
+	private ApplicationThemeManager applicationThemeManager;
 	
 	public static void main(String[] args)
 	{
@@ -118,8 +122,13 @@ public class Main extends Application implements BusinessLogic
 		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
 
+		ApplicationSettings.initialize();
+		ApplicationSettings.loadFromFile("settings/plp-tool.settings");
+
+		eventHandler = new ApplicationEventBusEventHandler();
+		applicationThemeManager = new ApplicationThemeManager();
+
 		this.assemblyDetails = new HashMap<>();
-		this.fileEditors = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
@@ -127,18 +136,16 @@ public class Main extends Application implements BusinessLogic
 		console = createConsole();
 		console.println(">> Console Initialized.");
 		
-		ScrollPane scrollPane = new ScrollPane(projectExplorer);
-		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setFitToHeight(true);
-		scrollPane.setFitToWidth(true);
+		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
+		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollableProjectExplorer.setFitToHeight(true);
+		scrollableProjectExplorer.setFitToWidth(true);
 		
 		// Left side holds the project tree and outline view
 		SplitPane leftSplitPane = new SplitPane();
 		leftSplitPane.orientationProperty().set(Orientation.VERTICAL);
-		leftSplitPane.getItems().addAll(scrollPane,
-				Components.wrap(outlineView));
-		
+		leftSplitPane.getItems().addAll(scrollableProjectExplorer, outlineView);
 		leftSplitPane.setDividerPositions(0.5, 1.0);
 		leftSplitPane.setMinSize(0, 0);
 		
@@ -174,16 +181,11 @@ public class Main extends Application implements BusinessLogic
 		int height = DEFAULT_WINDOW_HEIGHT;
 		
 		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
-		try
-		{
-			scene.getStylesheets().add(new File("resources/application/styling/seti/app.css").toURI().toURL().toString());
-		}
-		catch (MalformedURLException e)
-		{
-			e.printStackTrace();
-		}
-		
+
 		primaryStage.setScene(scene);
+
+		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent("light"));
+
 		primaryStage.show();
 	}
 	
@@ -373,7 +375,6 @@ public class Main extends Application implements BusinessLogic
 			CodeEditor content = createCodeEditor();
 			tab = addTab(openProjectsPanel, fileName, content);
 			openFileTabs.put(file, tab);
-			fileEditors.put(tab, content);
 			
 			// Set content
 			if(file.getContent() != null)
@@ -382,9 +383,8 @@ public class Main extends Application implements BusinessLogic
 				content.setText("");
 			
 			// Bind content
-			ChangeListener<? super String> onChanged;
-			onChanged = (value, old, current) -> content.setText(file.getContent());
-			file.contentProperty().addListener(onChanged);
+			file.contentProperty().bind(content.codeBodyProperty());
+			file.contentProperty().addListener((value, old, current) -> System.out.println(current));
 		}
 		
 		// Activate the specified tab
@@ -524,11 +524,8 @@ public class Main extends Application implements BusinessLogic
 			return Collections.emptyList();
 		else
 		{
-			CodeEditor editor = fileEditors.get(selectedTab);
-			if (editor == null)
-				throw new IllegalStateException();
-
-			String content = editor.getText();
+			ASMFile activeASM = openFileTabs.getKey(selectedTab);
+			String content = activeASM.getContent();
 			return PLPLabel.scrape(content);
 		}
 	}
@@ -1495,5 +1492,41 @@ public class Main extends Application implements BusinessLogic
 	{
 		// TODO Auto-generated method stub 
 		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	public class ApplicationEventBusEventHandler
+	{
+		private ApplicationEventBusEventHandler()
+		{
+			EventRegistry.getGlobalRegistry().register(this);
+		}
+
+		@Subscribe
+		public void applicationThemeRequestCallback(ThemeRequestCallback event)
+		{
+			if(event.requestedTheme().isPresent())
+			{
+				Theme applicationTheme = event.requestedTheme().get();
+				try
+				{
+					stage.getScene().getStylesheets().add(applicationTheme.getPath());
+					return;
+				}
+				catch ( MalformedURLException e )
+				{
+					console.warning("Unable to load application theme " + applicationTheme.getName());
+					return;
+				}
+			}
+
+			console.warning("Unable to load application theme.");
+		}
+
+		@Subscribe
+		public void deadEvent(DeadEvent event)
+		{
+			System.out.println("Dead Event");
+			System.out.println(event.getEvent());
+		}
 	}
 }
