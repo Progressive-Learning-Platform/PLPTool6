@@ -51,4 +51,19 @@ public class EditorSettingDetails
 
 		return details;
 	}
+
+	public String getEditorMode()
+	{
+		return editorMode;
+	}
+
+	public String getFontName()
+	{
+		return fontName;
+	}
+
+	public String getFontSize()
+	{
+		return fontSize;
+	}
 }
