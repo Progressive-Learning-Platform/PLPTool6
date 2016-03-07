@@ -15,17 +15,25 @@ public class ProgrammerSettingDetails
 	private String receiveTimeoutMilliseconds;
 	private String autoDetectSerialPorts;
 
-	public ProgrammerSettingDetails()
+	private ProgrammerSettingDetails()
 	{
-		this(DEFAULT);
+
 	}
 
-	public ProgrammerSettingDetails(ProgrammerSettingDetails details)
+	public ProgrammerSettingDetails( String programInChunks, String maximumChunkSize, String
+			receiveTimeoutMilliseconds,
+			String autoDetectSerialPorts )
 	{
-		this.programInChunks = details.programInChunks;
-		this.maximumChunkSize = details.maximumChunkSize;
-		this.receiveTimeoutMilliseconds = details.receiveTimeoutMilliseconds;
-		this.autoDetectSerialPorts = details.autoDetectSerialPorts;
+		this.programInChunks = programInChunks;
+		this.maximumChunkSize = maximumChunkSize;
+		this.receiveTimeoutMilliseconds = receiveTimeoutMilliseconds;
+		this.autoDetectSerialPorts = autoDetectSerialPorts;
+	}
+
+	public ProgrammerSettingDetails( ProgrammerSettingDetails details )
+	{
+		this(details.programInChunks, details.maximumChunkSize, details.receiveTimeoutMilliseconds,
+			 details.autoDetectSerialPorts);
 	}
 
 	private static ProgrammerSettingDetails defaultDetails()
@@ -49,5 +57,25 @@ public class ProgrammerSettingDetails
 				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
 
 		return details;
+	}
+
+	public String getProgramInChunks()
+	{
+		return programInChunks;
+	}
+
+	public String getMaximumChunkSize()
+	{
+		return maximumChunkSize;
+	}
+
+	public String getReceiveTimeoutMilliseconds()
+	{
+		return receiveTimeoutMilliseconds;
+	}
+
+	public String getAutoDetectSerialPorts()
+	{
+		return autoDetectSerialPorts;
 	}
 }
