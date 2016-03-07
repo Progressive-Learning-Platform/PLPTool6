@@ -12,7 +12,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,6 +70,7 @@ public class EditorSettingsPanel extends BorderPane
 
 		ObservableList<String> fontSizeList = FXCollections.observableArrayList(fontSizes);
 
+		//TODO set filter for numerical values only
 		ComboBox<String> fontSizesComboBox = new ComboBox<>(fontSizeList);
 		fontSizesComboBox.setEditable(true);
 
