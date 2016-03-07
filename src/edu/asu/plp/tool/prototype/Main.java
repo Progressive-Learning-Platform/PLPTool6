@@ -1373,7 +1373,15 @@ public class Main extends Application implements BusinessLogic
 	{
 		PLPOptions editorSection = new PLPOptions("Editor");
 
-		model.put(editorSection, new EditorSettingsPanel());
+		//TODO acquire all usable fonts
+		ObservableList<String> fontNames = FXCollections.observableArrayList();
+		fontNames.addAll("courier", "inconsolata");
+
+		//TODO acquire editor modes
+		ObservableList<String> editorModes = FXCollections.observableArrayList();
+		editorModes.addAll("plp");
+
+		model.put(editorSection, new EditorSettingsPanel(fontNames, editorModes));
 	}
 
 	private void addASimulatorOptionSettings( HashMap<OptionSection, Pane> model )
