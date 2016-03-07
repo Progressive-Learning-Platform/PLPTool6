@@ -2,7 +2,7 @@ package edu.asu.plp.tool.prototype.view.menu.options;
 
 
 import edu.asu.plp.tool.prototype.model.OptionSection;
-import edu.asu.plp.tool.prototype.model.PLPOptions;
+import edu.asu.plp.tool.prototype.view.SwapPane;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,11 +10,11 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import moore.util.Subroutine;
 
 import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 /**
  * @author Nesbitt, Morgan on 2/27/2016.
@@ -23,17 +23,20 @@ public class OptionsPane extends BorderPane
 {
 	//TODO add proper event handling for adding options
 	private OptionsSettingsTree sections;
-	private BorderPane sectionView;
-	private AbstractMap<OptionSection, BorderPane> optionScreenMap;
+	private SwapPane sectionView;
+	private AbstractMap<OptionSection, Pane> optionScreenMap;
 
 	private Subroutine okAction;
 	private Subroutine cancelAction;
 
-	public OptionsPane()
+	public OptionsPane( HashMap<OptionSection, Pane> optionsMenuModel )
 	{
-		retrieveOptionsSections();
-		sections = new OptionsSettingsTree(optionScreenMap.keySet());
-		sectionView = new BorderPane();
+		//TODO use some kind of selection model to default to select first item or last item selected
+		optionScreenMap = optionsMenuModel;
+		sections = new OptionsSettingsTree(optionsMenuModel.keySet());
+		sections.setTreeDoubleClick(this::onTreeDoubleClick);
+
+		sectionView = new SwapPane();
 
 		SplitPane sectionContentSplitPane = new SplitPane();
 		sectionContentSplitPane.setOrientation(Orientation.HORIZONTAL);
@@ -62,65 +65,14 @@ public class OptionsPane extends BorderPane
 		setBottom(buttonBar);
 	}
 
-
-	private AbstractMap<OptionSection, BorderPane> retrieveOptionsSections()
+	private void onTreeDoubleClick( OptionSection selection, OptionSection selectionRoot )
 	{
-		optionScreenMap = new LinkedHashMap<>();
-
-		constructorApplicationSection();
-		constructorEditorSection();
-		constructorSimulatorSection();
-		constructorProgrammerSection();
-
-		return optionScreenMap;
-	}
-
-	private OptionSection constructorEditorSection()
-	{
-		PLPOptions editorSection = new PLPOptions("Editor");
-
-		PLPOptions general = new PLPOptions("General");
-
-		editorSection.addAll(Arrays.asList(general));
-
-		optionScreenMap.put(editorSection, new BorderPane());
-		optionScreenMap.put(general, new BorderPane());
-
-		return editorSection;
-	}
-
-	private OptionSection constructorSimulatorSection()
-	{
-		PLPOptions simulatorSection = new PLPOptions("Simulator");
-
-		optionScreenMap.put(simulatorSection, new BorderPane());
-
-		return simulatorSection;
-	}
-
-	private OptionSection constructorProgrammerSection()
-	{
-		PLPOptions programmerSection = new PLPOptions("Programmer");
-
-		optionScreenMap.put(programmerSection, new BorderPane());
-
-		return programmerSection;
-	}
-
-	private OptionSection constructorApplicationSection()
-	{
-		PLPOptions applicationSection = new PLPOptions("Application");
-
-		PLPOptions appearance = new PLPOptions("Appearance");
-		PLPOptions toolbars = new PLPOptions("Toolbars");
-
-		applicationSection.addAll(Arrays.asList(appearance, toolbars));
-
-		optionScreenMap.put(appearance, new BorderPane());
-		optionScreenMap.put(toolbars, new BorderPane());
-		optionScreenMap.put(applicationSection, new BorderPane());
-
-		return applicationSection;
+		//Note these are separate in the instance that you want to break them up
+		//TODO focus to specifc area (if desired) when not equal
+		if ( optionScreenMap.containsKey(selection) )
+			sectionView.setActivePane(optionScreenMap.get(selection));
+		else
+			sectionView.setActivePane(optionScreenMap.get(selectionRoot));
 	}
 
 	public void setOkAction( Subroutine okAction )

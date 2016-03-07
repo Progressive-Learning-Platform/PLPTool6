@@ -179,4 +179,9 @@ public class ApplicationThemeManager
 				EventRegistry.getGlobalRegistry().post(new ThemeRequestCallback(Optional.empty()));
 		}
 	}
+
+	public Collection<String> getThemeNames()
+	{
+		return themes.keySet();
+	}
 }

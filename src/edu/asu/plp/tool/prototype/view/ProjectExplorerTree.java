@@ -1,7 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
-import java.util.function.Consumer;
-
+import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.prototype.model.Project;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
@@ -10,8 +10,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Pair;
-import edu.asu.plp.tool.backend.isa.ASMFile;
-import edu.asu.plp.tool.prototype.model.Project;
+
+import java.util.function.Consumer;
 
 /**
  * An FX view of a list of known projects and their files displayed as a tree. This class
