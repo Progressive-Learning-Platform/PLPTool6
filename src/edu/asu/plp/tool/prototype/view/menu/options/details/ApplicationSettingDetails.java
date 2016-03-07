@@ -4,7 +4,6 @@ import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.SettingUtil;
 
 /**
- *
  * @author Nesbitt, Morgan on 2/27/2016.
  */
 public class ApplicationSettingDetails
@@ -18,10 +17,10 @@ public class ApplicationSettingDetails
 	{
 	}
 
-	public ApplicationSettingDetails(String applicationTheme, String editorTheme)
+	public ApplicationSettingDetails( String applicationTheme, String editorTheme )
 	{
 		this.applicationTheme = applicationTheme;
-		this.editorTheme =  editorTheme;
+		this.editorTheme = editorTheme;
 	}
 
 	public ApplicationSettingDetails( ApplicationSettingDetails details )
@@ -43,6 +42,16 @@ public class ApplicationSettingDetails
 				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
 
 		return details;
+	}
+
+	public String getApplicationTheme()
+	{
+		return applicationTheme;
+	}
+
+	public String getEditorTheme()
+	{
+		return editorTheme;
 	}
 
 

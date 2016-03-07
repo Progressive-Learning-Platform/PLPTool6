@@ -5,6 +5,6 @@ import javafx.scene.layout.BorderPane;
 /**
  * @author Nesbitt, Morgan on 2/27/2016.
  */
-public class ProgrammerSettingsSection extends BorderPane
+public class ProgrammerSettingsPanel extends BorderPane
 {
 }

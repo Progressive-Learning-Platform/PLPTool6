@@ -16,16 +16,21 @@ public class EditorSettingDetails
 	//TODO Consider new below EditorSettingDetails
 	//Soft wrapping, scroll behavior, show line numbers, print margin length, use soft tabs
 
-	public EditorSettingDetails()
+	private EditorSettingDetails()
 	{
-		this(DEFAULT);
+
+	}
+
+	public EditorSettingDetails( String editorMode, String fontName, String fontSize )
+	{
+		this.editorMode = editorMode;
+		this.fontName = fontName;
+		this.fontSize = fontSize;
 	}
 
 	public EditorSettingDetails( EditorSettingDetails details )
 	{
-		this.editorMode = details.editorMode;
-		this.fontName = details.fontName;
-		this.fontSize = details.fontSize;
+		this(details.editorMode, details.fontName, details.fontSize);
 	}
 
 	private static EditorSettingDetails defaultDetails()
