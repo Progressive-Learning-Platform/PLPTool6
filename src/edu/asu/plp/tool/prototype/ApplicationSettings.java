@@ -142,13 +142,45 @@ public class ApplicationSettings
 		builder.append("{" + newLine);
 		builder.append("\t\"Resources Path\" : \"resources/\"," + newLine);
 		builder.append("\t\"Ace Path\" : \"lib/ace/\"," + newLine);
-		builder.append("\t\"Application Theme Path\" : \"resources/application/styling\"," + newLine);
+		//Application Theme
+		builder.append("\t\"Application Theme\" : {" + newLine);
+		builder.append("\t\t\"base path\" : \"resources/application/styling/\"," + newLine);
+		builder.append("\t\t\"default path\" : \"seti/\"," + newLine);
+		builder.append("\t}," + newLine);
+		//Languages
 		builder.append("\t\"Languages\" : {" + newLine);
 		builder.append("\t\t\"base path\" : \"resources/languages/\"," + newLine);
 		builder.append("\t\t\"modes path\" : \"modes/\"," + newLine);
 		builder.append("\t\t\"default path\" : \"plp/\"" + newLine);
+		builder.append("\t}," + newLine);
+		//Editor
+		builder.append("\t\"Editor\" : {" + newLine);
+		builder.append("\t\t\"font\" : \"inconsolata\"," + newLine);
+		builder.append("\t\t\"font size\" : \"14\"," + newLine);
+		builder.append("\t\t\"mode\" : \"plp\"," + newLine);
+		builder.append("\t\t\"theme\" : \"monokai\"" + newLine);
+		builder.append("\t}," + newLine);
+		//Application
+		builder.append("\t\"Application\" : {" + newLine);
+		builder.append("\t\t\"theme\" : \"seti\"," + newLine);
+		builder.append("\t}," + newLine);
+		//Programmer
+		builder.append("\t\"Programmer\" : {" + newLine);
+		builder.append("\t\t\"program in chunks\" : \"true\"," + newLine);
+		builder.append("\t\t\"maximum chunk size\" : \"2048\"," + newLine);
+		builder.append("\t\t\"timeout in milliseconds\" : \"500\"," + newLine);
+		builder.append("\t\t\"auto detect serial ports\" : \"true\"" + newLine);
+		builder.append("\t}," + newLine);
+		//Simulator
+		builder.append("\t\"Simulator\" : {" + newLine);
+		builder.append("\t\t\"speed\" : \"100\"," + newLine);
+		builder.append("\t\t\"allow execution of non instruction memory\" : \"true\"," + newLine);
+		builder.append("\t\t\"assume zero on reads from uninitialized memory\" : \"true\"" + newLine);
 		builder.append("\t}" + newLine);
+
 		builder.append("}" + newLine);
+
+//		System.out.println(builder.toString());
 
 		return builder.toString();
 	}
