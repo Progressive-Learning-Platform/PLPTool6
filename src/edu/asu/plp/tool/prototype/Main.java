@@ -8,11 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.DeadEvent;
@@ -20,6 +17,10 @@ import com.google.common.eventbus.Subscribe;
 import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.prototype.model.*;
 import edu.asu.plp.tool.prototype.view.menu.options.OptionsPane;
+import edu.asu.plp.tool.prototype.view.menu.options.sections.ApplicationSettingsPanel;
+import edu.asu.plp.tool.prototype.view.menu.options.sections.EditorSettingsPanel;
+import edu.asu.plp.tool.prototype.view.menu.options.sections.ProgrammerSettingsPanel;
+import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPanel;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -50,10 +51,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.*;
@@ -1315,7 +1313,9 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onOpenOptionsMenu(ActionEvent event)
 	{
-		OptionsPane optionsPane = new OptionsPane();
+		HashMap<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel();
+
+		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
 		Scene popupScene = new Scene(optionsPane);
 
 
@@ -1325,12 +1325,69 @@ public class Main extends Application implements BusinessLogic
 		popupWindow.initOwner(stage);
 		popupWindow.setScene(popupScene);
 
-		optionsPane.setOkAction(() -> {popupWindow.close();});
+		optionsPane.setOkAction(() -> {
+			popupWindow.close();
+		});
 		optionsPane.setCancelAction(() -> {popupWindow.close();});
 
 		popupWindow.setOnCloseRequest((windowEvent)-> {popupWindow.close();});
 		popupWindow.sizeToScene();
 		popupWindow.show();
+	}
+
+	private HashMap<OptionSection, Pane> createOptionsMenuModel()
+	{
+		HashMap<OptionSection, Pane> model =  new LinkedHashMap<>();
+
+		addApplicationOptionSettings(model);
+		addEditorOptionSettings(model);
+		addASimulatorOptionSettings(model);
+		addProgrammerOptionSettings(model);
+
+		//TODO Accept new things
+
+		return model;
+	}
+
+	private void addApplicationOptionSettings( HashMap<OptionSection, Pane> model )
+	{
+		PLPOptions applicationSection = new PLPOptions("Application");
+
+		PLPOptions appearance = new PLPOptions("Appearance");
+		PLPOptions toolbars = new PLPOptions("Toolbars");
+
+		applicationSection.addAll(Arrays.asList(appearance, toolbars));
+
+		ObservableList<String> applicationThemeNames = FXCollections.observableArrayList();
+		applicationThemeNames.addAll(applicationThemeManager.getThemeNames());
+
+		//TODO acquire editor theme names
+		//TODO add filters, disabling sounds retarded. Just filter and put non adjacent at bottom
+		ObservableList<String> editorThemeNames = FXCollections.observableArrayList();
+		editorThemeNames.addAll("eclipse", "tomorrow", "xcode", "ambiance", "monokai", "twilight");
+
+		model.put(applicationSection, new ApplicationSettingsPanel(applicationThemeNames, editorThemeNames));
+	}
+
+	private void addEditorOptionSettings( HashMap<OptionSection, Pane> model )
+	{
+		PLPOptions editorSection = new PLPOptions("Editor");
+
+		model.put(editorSection, new EditorSettingsPanel());
+	}
+
+	private void addASimulatorOptionSettings( HashMap<OptionSection, Pane> model )
+	{
+		PLPOptions simulatorSection = new PLPOptions("Simulator");
+
+		model.put(simulatorSection, new SimulatorSettingsPanel());
+	}
+
+	private void addProgrammerOptionSettings( HashMap<OptionSection, Pane> model )
+	{
+		PLPOptions programmerSection = new PLPOptions("Programmer");
+
+		model.put(programmerSection, new ProgrammerSettingsPanel());
 	}
 
 	@Override
