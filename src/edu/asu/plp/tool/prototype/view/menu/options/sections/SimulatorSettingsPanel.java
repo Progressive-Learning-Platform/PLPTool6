@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
+import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.view.menu.options.details.SimulatorSettingDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -14,7 +15,7 @@ import javafx.scene.text.Text;
 /**
  * @author Nesbitt, Morgan on 2/27/2016.
  */
-public class SimulatorSettingsPanel extends BorderPane
+public class SimulatorSettingsPanel extends BorderPane implements Submittable
 {
 	private DoubleProperty simulationSpeedModel;
 	private BooleanProperty allowExecutionOfNonInstructionMemoryModel;
@@ -105,5 +106,11 @@ public class SimulatorSettingsPanel extends BorderPane
 
 		return new SimulatorSettingDetails(simulationSpeedMillisecondsCycle, allowExecutionOfNonInstructionMemory,
 										   assumeZeroOnReadsFromUninitializedMemory);
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		return true;
 	}
 }

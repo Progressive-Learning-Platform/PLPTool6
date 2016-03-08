@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
+import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.view.menu.options.details.ApplicationSettingDetails;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -13,7 +14,7 @@ import javafx.scene.text.Text;
 /**
  * @author Nesbitt, Morgan on 2/27/2016.
  */
-public class ApplicationSettingsPanel extends BorderPane
+public class ApplicationSettingsPanel extends BorderPane implements Submittable
 {
 	SingleSelectionModel<String> applicationThemeSelectionModel;
 	SingleSelectionModel<String> editorThemeSelectionModel;
@@ -83,5 +84,11 @@ public class ApplicationSettingsPanel extends BorderPane
 		String editorTheme = editorThemeSelectionModel.getSelectedItem();
 
 		return new ApplicationSettingDetails(appTheme, editorTheme);
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		return true;
 	}
 }

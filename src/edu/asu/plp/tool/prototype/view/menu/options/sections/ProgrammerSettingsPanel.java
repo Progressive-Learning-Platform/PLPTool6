@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
+import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.view.menu.options.details.ProgrammerSettingDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
@@ -14,7 +15,7 @@ import javafx.scene.text.Text;
 /**
  * @author Nesbitt, Morgan on 2/27/2016.
  */
-public class ProgrammerSettingsPanel extends BorderPane
+public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 {
 	private BooleanProperty programInChunksSelectionModel;
 	private StringProperty maximumChunkSizeSelectionModel;
@@ -109,5 +110,20 @@ public class ProgrammerSettingsPanel extends BorderPane
 		String autodetectSerialPorts = String.valueOf(autodetectSerialPortsSelectionModel.getValue());
 
 		return new ProgrammerSettingDetails(programInChunks, maximumChunkSize, receiveTimeout, autodetectSerialPorts);
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		try
+		{
+			Integer.parseInt(receiveTimeoutSelectionModel.getValue());
+			Integer.parseInt(maximumChunkSizeSelectionModel.getValue());
+			return true;
+		}
+		catch ( NumberFormatException exception )
+		{
+			return false;
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
+import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.view.menu.options.details.EditorSettingDetails;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * @author Nesbitt, Morgan on 2/27/2016.
  */
-public class EditorSettingsPanel extends BorderPane
+public class EditorSettingsPanel extends BorderPane implements Submittable
 {
 	SingleSelectionModel<String> fontSelectionModel;
 	SingleSelectionModel<String> fontSizeSelectionModel;
@@ -70,7 +71,6 @@ public class EditorSettingsPanel extends BorderPane
 
 		ObservableList<String> fontSizeList = FXCollections.observableArrayList(fontSizes);
 
-		//TODO set filter for numerical values only
 		ComboBox<String> fontSizesComboBox = new ComboBox<>(fontSizeList);
 		fontSizesComboBox.setEditable(true);
 
@@ -109,5 +109,19 @@ public class EditorSettingsPanel extends BorderPane
 		String editorMode = editorModeSelectionModel.getSelectedItem();
 
 		return new EditorSettingDetails(fontName, fontSize, editorMode);
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		try
+		{
+			Integer.parseInt(fontSizeSelectionModel.getSelectedItem());
+			return true;
+		}
+		catch ( NumberFormatException exception )
+		{
+			return false;
+		}
 	}
 }
