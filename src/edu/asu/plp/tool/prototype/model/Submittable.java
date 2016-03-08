@@ -6,4 +6,6 @@ package edu.asu.plp.tool.prototype.model;
 public interface Submittable
 {
 	boolean isValid();
+
+	void submit();
 }
