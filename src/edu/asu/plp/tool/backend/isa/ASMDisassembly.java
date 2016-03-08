@@ -4,5 +4,5 @@ public interface ASMDisassembly
 {
 	long getAddresss();
 	
-	long getInstruction();
+	long[] getInstructions();
 }
