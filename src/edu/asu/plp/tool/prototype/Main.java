@@ -181,7 +181,8 @@ public class Main extends Application implements BusinessLogic
 
 		primaryStage.setScene(scene);
 
-		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent("seti"));
+		String themeName = ApplicationSettings.getSetting(ApplicationSetting.APPLICATION_THEME).get();
+		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(themeName));
 
 		primaryStage.show();
 	}
@@ -1325,6 +1326,14 @@ public class Main extends Application implements BusinessLogic
 		popupWindow.initModality(Modality.WINDOW_MODAL);
 		popupWindow.initOwner(stage);
 		popupWindow.setScene(popupScene);
+
+		try
+		{
+			popupScene.getStylesheets().add(applicationThemeManager.getDefaultTheme().getPath());
+		}
+		catch ( MalformedURLException e )
+		{
+		}
 
 		optionsPane.setOkAction(()-> {
 			if(optionsMenuOkSelected(submittables))
