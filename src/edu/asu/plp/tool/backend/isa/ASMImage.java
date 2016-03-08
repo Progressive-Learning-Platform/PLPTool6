@@ -1,7 +1,5 @@
 package edu.asu.plp.tool.backend.isa;
 
-import java.util.List;
-
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 
 /**
@@ -14,6 +12,4 @@ import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
 public interface ASMImage
 {
 	BiDirectionalOneToManyMap<ASMInstruction, ? extends ASMDisassembly> getAssemblyDisassemblyMap();
-	
-	List<ASMFile> getAsmList();
 }
