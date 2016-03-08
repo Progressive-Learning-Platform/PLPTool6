@@ -1313,7 +1313,8 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onOpenOptionsMenu(ActionEvent event)
 	{
-		HashMap<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel();
+		List<Submittable> submittables = new ArrayList<>();
+		HashMap<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
 
 		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
 		Scene popupScene = new Scene(optionsPane);
@@ -1325,8 +1326,12 @@ public class Main extends Application implements BusinessLogic
 		popupWindow.initOwner(stage);
 		popupWindow.setScene(popupScene);
 
-		optionsPane.setOkAction(() -> {
-			popupWindow.close();
+		optionsPane.setOkAction(()-> {
+			if(optionsMenuOkSelected(submittables))
+			{
+				//TODO send everything
+				popupWindow.close();
+			}
 		});
 		optionsPane.setCancelAction(() -> {popupWindow.close();});
 
@@ -1335,21 +1340,31 @@ public class Main extends Application implements BusinessLogic
 		popupWindow.show();
 	}
 
-	private HashMap<OptionSection, Pane> createOptionsMenuModel()
+	private boolean optionsMenuOkSelected(List<Submittable> submittables)
+	{
+		for ( Submittable submittable : submittables )
+		{
+			if(!submittable.isValid())
+				return false;
+		}
+		return true;
+	}
+
+	private HashMap<OptionSection, Pane> createOptionsMenuModel( List<Submittable> submittables )
 	{
 		HashMap<OptionSection, Pane> model =  new LinkedHashMap<>();
 
-		addApplicationOptionSettings(model);
-		addEditorOptionSettings(model);
-		addASimulatorOptionSettings(model);
-		addProgrammerOptionSettings(model);
+		addApplicationOptionSettings(model, submittables);
+		addEditorOptionSettings(model, submittables);
+		addASimulatorOptionSettings(model, submittables);
+		addProgrammerOptionSettings(model, submittables);
 
 		//TODO Accept new things
 
 		return model;
 	}
 
-	private void addApplicationOptionSettings( HashMap<OptionSection, Pane> model )
+	private void addApplicationOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
 	{
 		PLPOptions applicationSection = new PLPOptions("Application");
 
@@ -1366,10 +1381,13 @@ public class Main extends Application implements BusinessLogic
 		ObservableList<String> editorThemeNames = FXCollections.observableArrayList();
 		editorThemeNames.addAll("eclipse", "tomorrow", "xcode", "ambiance", "monokai", "twilight");
 
-		model.put(applicationSection, new ApplicationSettingsPanel(applicationThemeNames, editorThemeNames));
+		ApplicationSettingsPanel applicationPanel = new ApplicationSettingsPanel(applicationThemeNames, editorThemeNames);
+		submittables.add(applicationPanel);
+
+		model.put(applicationSection, applicationPanel);
 	}
 
-	private void addEditorOptionSettings( HashMap<OptionSection, Pane> model )
+	private void addEditorOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
 	{
 		PLPOptions editorSection = new PLPOptions("Editor");
 
@@ -1381,21 +1399,30 @@ public class Main extends Application implements BusinessLogic
 		ObservableList<String> editorModes = FXCollections.observableArrayList();
 		editorModes.addAll("plp");
 
-		model.put(editorSection, new EditorSettingsPanel(fontNames, editorModes));
+		EditorSettingsPanel editorPanel = new EditorSettingsPanel(fontNames, editorModes);
+		submittables.add(editorPanel);
+
+		model.put(editorSection, editorPanel);
 	}
 
-	private void addASimulatorOptionSettings( HashMap<OptionSection, Pane> model )
+	private void addASimulatorOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
 	{
 		PLPOptions simulatorSection = new PLPOptions("Simulator");
 
-		model.put(simulatorSection, new SimulatorSettingsPanel());
+		SimulatorSettingsPanel simulatorPanel = new SimulatorSettingsPanel();
+		submittables.add(simulatorPanel);
+
+		model.put(simulatorSection, simulatorPanel);
 	}
 
-	private void addProgrammerOptionSettings( HashMap<OptionSection, Pane> model )
+	private void addProgrammerOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
 	{
 		PLPOptions programmerSection = new PLPOptions("Programmer");
 
-		model.put(programmerSection, new ProgrammerSettingsPanel());
+		ProgrammerSettingsPanel programmerPanel = new ProgrammerSettingsPanel();
+		submittables.add(programmerPanel);
+
+		model.put(programmerSection, programmerPanel);
 	}
 
 	@Override
