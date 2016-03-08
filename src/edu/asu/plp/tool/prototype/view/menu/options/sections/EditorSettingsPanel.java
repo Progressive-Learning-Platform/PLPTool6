@@ -123,4 +123,10 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 	{
 		return VerifyUtil.simpleIntegerCheck(fontSizeSelectionModel.getSelectedItem());
 	}
+
+	@Override
+	public void submit()
+	{
+
+	}
 }

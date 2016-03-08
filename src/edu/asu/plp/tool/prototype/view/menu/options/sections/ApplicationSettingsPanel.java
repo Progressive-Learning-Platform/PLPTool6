@@ -91,4 +91,10 @@ public class ApplicationSettingsPanel extends BorderPane implements Submittable
 	{
 		return true;
 	}
+
+	@Override
+	public void submit()
+	{
+
+	}
 }

@@ -1338,7 +1338,7 @@ public class Main extends Application implements BusinessLogic
 		optionsPane.setOkAction(()-> {
 			if(optionsMenuOkSelected(submittables))
 			{
-				//TODO send everything
+				submittables.forEach(submittable -> submittable.submit());
 				popupWindow.close();
 			}
 		});

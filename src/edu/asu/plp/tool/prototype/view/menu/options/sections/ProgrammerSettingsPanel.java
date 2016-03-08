@@ -132,4 +132,10 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 
 		return VerifyUtil.simpleIntegerCheck(timeout, maxChunkSize);
 	}
+
+	@Override
+	public void submit()
+	{
+
+	}
 }

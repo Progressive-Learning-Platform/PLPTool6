@@ -113,4 +113,10 @@ public class SimulatorSettingsPanel extends BorderPane implements Submittable
 	{
 		return true;
 	}
+
+	@Override
+	public void submit()
+	{
+
+	}
 }
