@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
 import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.util.UIStyle;
+import edu.asu.plp.tool.prototype.util.VerifyUtil;
 import edu.asu.plp.tool.prototype.view.menu.options.details.EditorSettingDetails;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -73,6 +75,11 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 
 		ComboBox<String> fontSizesComboBox = new ComboBox<>(fontSizeList);
 		fontSizesComboBox.setEditable(true);
+		fontSizesComboBox.editorProperty().getValue().textProperty().addListener(( observable, oldValue, newValue )
+																						 -> {
+			if ( !newValue.isEmpty() )
+				UIStyle.applyError(VerifyUtil.simpleIntegerCheck(newValue), fontSizesComboBox);
+		});
 
 		fontSizesComboBox.getSelectionModel().select(settingDetails.getFontSize());
 		fontSizesComboBox.autosize();
@@ -114,14 +121,6 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 	@Override
 	public boolean isValid()
 	{
-		try
-		{
-			Integer.parseInt(fontSizeSelectionModel.getSelectedItem());
-			return true;
-		}
-		catch ( NumberFormatException exception )
-		{
-			return false;
-		}
+		return VerifyUtil.simpleIntegerCheck(fontSizeSelectionModel.getSelectedItem());
 	}
 }

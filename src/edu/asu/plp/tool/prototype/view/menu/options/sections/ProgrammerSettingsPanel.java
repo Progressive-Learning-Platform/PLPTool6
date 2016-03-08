@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
 import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.util.UIStyle;
+import edu.asu.plp.tool.prototype.util.VerifyUtil;
 import edu.asu.plp.tool.prototype.view.menu.options.details.ProgrammerSettingDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
@@ -65,6 +67,11 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 		TextField maxChunkSizeTextField = new TextField();
 		maxChunkSizeTextField.setText(settingDetails.getMaximumChunkSize());
 
+		maxChunkSizeTextField.textProperty().addListener(( observable, oldValue, newValue ) -> {
+			if ( !newValue.isEmpty() )
+				UIStyle.applyError(VerifyUtil.simpleIntegerCheck(newValue), maxChunkSizeTextField);
+		});
+
 		maximumChunkSizeSelectionModel = maxChunkSizeTextField.textProperty();
 
 		hBox.getChildren().addAll(maxChunkSizeLabel, maxChunkSizeTextField);
@@ -79,6 +86,11 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 		Text receiveTimeoutLabel = new Text("Receive timout (ms) ");
 		TextField receiveTimeoutTextField = new TextField();
 		receiveTimeoutTextField.setText(settingDetails.getReceiveTimeoutMilliseconds());
+
+		receiveTimeoutTextField.textProperty().addListener(( observable, oldValue, newValue ) -> {
+			if ( !newValue.isEmpty() )
+				UIStyle.applyError(VerifyUtil.simpleIntegerCheck(newValue), receiveTimeoutTextField);
+		});
 
 		receiveTimeoutSelectionModel = receiveTimeoutTextField.textProperty();
 
@@ -115,15 +127,9 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 	@Override
 	public boolean isValid()
 	{
-		try
-		{
-			Integer.parseInt(receiveTimeoutSelectionModel.getValue());
-			Integer.parseInt(maximumChunkSizeSelectionModel.getValue());
-			return true;
-		}
-		catch ( NumberFormatException exception )
-		{
-			return false;
-		}
+		String timeout = receiveTimeoutSelectionModel.getValue();
+		String maxChunkSize = maximumChunkSizeSelectionModel.getValue();
+
+		return VerifyUtil.simpleIntegerCheck(timeout, maxChunkSize);
 	}
 }
