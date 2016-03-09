@@ -3,7 +3,7 @@ package edu.asu.plp.tool.prototype;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -14,11 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.common.eventbus.AllowConcurrentEvents;
-import com.google.common.eventbus.DeadEvent;
-import com.google.common.eventbus.Subscribe;
-import edu.asu.plp.tool.backend.EventRegistry;
-import edu.asu.plp.tool.prototype.model.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -67,6 +62,10 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.io.FileUtils;
 
+import com.google.common.eventbus.DeadEvent;
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
@@ -74,6 +73,13 @@ import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
+import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
+import edu.asu.plp.tool.prototype.model.PLPProject;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.Theme;
+import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
+import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
 import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
@@ -88,7 +94,7 @@ import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
  * @author Moore, Zachary
  * @author Hawks, Elliott
  * @author Nesbitt, Morgan
- * 		
+ * 
  */
 public class Main extends Application implements BusinessLogic
 {
@@ -107,8 +113,7 @@ public class Main extends Application implements BusinessLogic
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
-
-	private ApplicationEventBusEventHandler eventHandler;
+	
 	private ApplicationThemeManager applicationThemeManager;
 	
 	public static void main(String[] args)
@@ -121,13 +126,14 @@ public class Main extends Application implements BusinessLogic
 	{
 		this.stage = primaryStage;
 		primaryStage.setTitle(APPLICATION_NAME + " V" + VERSION + "." + REVISION);
-
+		
 		ApplicationSettings.initialize();
 		ApplicationSettings.loadFromFile("settings/plp-tool.settings");
-
-		eventHandler = new ApplicationEventBusEventHandler();
+		
+		EventRegistry.getGlobalRegistry().register(new ApplicationEventBusEventHandler());
+		
 		applicationThemeManager = new ApplicationThemeManager();
-
+		
 		this.assemblyDetails = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
@@ -181,11 +187,11 @@ public class Main extends Application implements BusinessLogic
 		int height = DEFAULT_WINDOW_HEIGHT;
 		
 		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
-
+		
 		primaryStage.setScene(scene);
-
+		
 		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent("light"));
-
+		
 		primaryStage.show();
 	}
 	
@@ -200,7 +206,7 @@ public class Main extends Application implements BusinessLogic
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
 				new ExtensionFilter("All Files", "*.*"));
-				
+		
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -216,7 +222,7 @@ public class Main extends Application implements BusinessLogic
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
 				new ExtensionFilter("All Files", "*.*"));
-				
+		
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -228,7 +234,7 @@ public class Main extends Application implements BusinessLogic
 		fileChooser.getExtensionFilters().addAll(
 				new ExtensionFilter("ASM Files", "*.asm"),
 				new ExtensionFilter("All Files", "*.*"));
-				
+		
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -296,11 +302,12 @@ public class Main extends Application implements BusinessLogic
 				alert.setTitle("Confirmation Dialog");
 				alert.setGraphic(null);
 				alert.setHeaderText(null);
-				alert.setContentText("A project with the name \"" + project.getName()
+				alert.setContentText("A project with the name \""
+						+ project.getName()
 						+ "\" already exists. In order to open this project, you must choose a different name."
 						+ "\n\n"
 						+ "Press OK to choose a new name, or Cancel to close this dialog.");
-						
+				
 				Optional<ButtonType> result = alert.showAndWait();
 				if (result.get() == ButtonType.OK)
 				{
@@ -377,14 +384,15 @@ public class Main extends Application implements BusinessLogic
 			openFileTabs.put(file, tab);
 			
 			// Set content
-			if(file.getContent() != null)
+			if (file.getContent() != null)
 				content.setText(file.getContent());
 			else
 				content.setText("");
 			
 			// Bind content
-			file.contentProperty().bind(content.codeBodyProperty());
-			file.contentProperty().addListener((value, old, current) -> System.out.println(current));
+			file.contentProperty().bind(content);
+			file.contentProperty().addListener(
+					(value, old, current) -> System.out.println(current));
 		}
 		
 		// Activate the specified tab
@@ -422,7 +430,8 @@ public class Main extends Application implements BusinessLogic
 		projTextField.setPrefWidth(200);
 		
 		Label selectedProject = new Label();
-		selectedProject.setText("Save Project: \"" + getActiveProject().getName() + "\" as :");
+		selectedProject.setText("Save Project: \"" + getActiveProject().getName()
+				+ "\" as :");
 		selectedProject.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		Label projectLocation = new Label();
@@ -444,8 +453,8 @@ public class Main extends Application implements BusinessLogic
 				File file = directoryChooser.showDialog(null);
 				if (file != null)
 				{
-					chosenLocation = file.getAbsolutePath()
-							.concat(File.separator + projTextField.getText());
+					chosenLocation = file.getAbsolutePath().concat(
+							File.separator + projTextField.getText());
 					projLocationField.setText(chosenLocation);
 				}
 				
@@ -502,7 +511,7 @@ public class Main extends Application implements BusinessLogic
 		
 		grid.add(projectName, 0, 0);
 		grid.add(projTextField, 1, 0);
-		//grid.add(selectedProject, 0, 1);
+		// grid.add(selectedProject, 0, 1);
 		grid.add(projectLocation, 0, 2);
 		grid.add(projLocationField, 1, 2);
 		grid.add(browseLocation, 2, 2);
@@ -627,7 +636,7 @@ public class Main extends Application implements BusinessLogic
 		{
 			e.printStackTrace();
 		}
-
+		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
 		return projectExplorer;
@@ -682,7 +691,7 @@ public class Main extends Application implements BusinessLogic
 			throw new UnsupportedOperationException("Not yet implemented");
 		}
 	}
-
+	
 	private Parent createMenuBar()
 	{
 		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel(this);
@@ -704,7 +713,7 @@ public class Main extends Application implements BusinessLogic
 			throw new UnsupportedOperationException("Not yet implemented");
 		}
 	}
-
+	
 	private void toggleSimulation()
 	{
 		// TODO: activate simulator?
@@ -724,7 +733,7 @@ public class Main extends Application implements BusinessLogic
 			console.error(exception.getLocalizedMessage());
 		}
 	}
-
+	
 	private ProjectAssemblyDetails getAssemblyDetailsFor(Project activeProject)
 	{
 		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
@@ -737,7 +746,7 @@ public class Main extends Application implements BusinessLogic
 		
 		return details;
 	}
-
+	
 	private Project getActiveProject()
 	{
 		ASMFile activeFile = getActiveFile();
@@ -754,7 +763,7 @@ public class Main extends Application implements BusinessLogic
 	private ASMFile getActiveFileInProjectExplorer()
 	{
 		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
-		if(selection == null)
+		if (selection == null)
 			return null;
 		
 		ASMFile selectedFile = selection.getValue();
@@ -766,7 +775,7 @@ public class Main extends Application implements BusinessLogic
 		ASMFile selectedFile = getActiveFileInTabPane();
 		if (selectedFile == null)
 			return getActiveFileInProjectExplorer();
-		else 
+		else
 			return selectedFile;
 	}
 	
@@ -786,10 +795,11 @@ public class Main extends Application implements BusinessLogic
 		{
 			// XXX: show a confirmation dialogue to confirm removal
 			String message = "Unable to locate file on disk. "
-					+ "The asm \"" + activeFile.getName()
+					+ "The asm \""
+					+ activeFile.getName()
 					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName() + 
-					"\" but it is suggested that you verify the deletion from disk manually.";
+					+ activeFile.getProject().getName()
+					+ "\" but it is suggested that you verify the deletion from disk manually.";
 			Dialogues.showInfoDialogue(message);
 			Project activeProject = activeFile.getProject();
 			activeProject.remove(activeFile);
@@ -800,11 +810,13 @@ public class Main extends Application implements BusinessLogic
 		{
 			// XXX: show a confirmation dialogue to confirm removal
 			String message = "The path specified is a directory, but should be a file."
-					+ "The asm \"" + activeFile.getName()
+					+ "The asm \""
+					+ activeFile.getName()
 					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName() + 
-					"\" but it is suggested that you verify the deletion from disk manually.";
-			Exception exception = new IllegalStateException("The path to the specified ASMFile is a directory, but should be a file.");
+					+ activeFile.getProject().getName()
+					+ "\" but it is suggested that you verify the deletion from disk manually.";
+			Exception exception = new IllegalStateException(
+					"The path to the specified ASMFile is a directory, but should be a file.");
 			Dialogues.showAlertDialogue(exception, message);
 			return;
 		}
@@ -833,12 +845,15 @@ public class Main extends Application implements BusinessLogic
 		{
 			boolean wasRemoved = removalTarget.delete();
 			if (!wasRemoved)
-				throw new Exception("The file \"" 
-						+ removalTarget.getAbsolutePath() + "\" was not deleted.");
+				throw new Exception("The file \"" + removalTarget.getAbsolutePath()
+						+ "\" was not deleted.");
 		}
 		catch (Exception exception)
 		{
-			Dialogues.showAlertDialogue(exception, "Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
+			Dialogues
+					.showAlertDialogue(
+							exception,
+							"Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
 		}
 	}
 	
@@ -856,8 +871,8 @@ public class Main extends Application implements BusinessLogic
 	{
 		if (projects.isEmpty())
 		{
-			Dialogues.showInfoDialogue(
-					"There are not projects open, please create a project first.");
+			Dialogues
+					.showInfoDialogue("There are not projects open, please create a project first.");
 		}
 		else
 		{
@@ -960,75 +975,75 @@ public class Main extends Application implements BusinessLogic
 			Dialogues.showAlertDialogue(exception);
 		}
 	}
-
+	
 	@Override
 	public void onCreateNewProject(ActionEvent event)
 	{
 		createNewProject();
 	}
-
+	
 	@Override
 	public void onOpenProject(ActionEvent event)
 	{
 		console.println("Open Project Clicked");
 		openProjectFromFile();
 	}
-
+	
 	@Override
 	public void onSaveProject(ActionEvent event)
 	{
 		Project activeProject = getActiveProject();
 		tryAndReport(activeProject::save);
 	}
-
+	
 	@Override
 	public void onSaveProjectAs(ActionEvent event)
 	{
 		saveProjectAs();
 	}
-
+	
 	@Override
 	public void onPrint(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onExit(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onToggleToolbar(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onToggleProjectPane(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onToggleOutputPane(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onClearOutputPane(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onAssemble(ActionEvent event)
 	{
@@ -1036,27 +1051,27 @@ public class Main extends Application implements BusinessLogic
 		Project activeProject = getActiveProject();
 		assemble(activeProject);
 	}
-
+	
 	@Override
 	public void onSimulate(ActionEvent event)
 	{
 		toggleSimulation();
 	}
-
+	
 	@Override
 	public void onDownloadToBoard(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onNewASMFile(ActionEvent event)
 	{
 		// TODO: Check this implementation, doesnt look correct
 		createASMFile(null);
 	}
-
+	
 	@Override
 	public void onImportASMFile(ActionEvent event)
 	{
@@ -1078,7 +1093,7 @@ public class Main extends Application implements BusinessLogic
 			Dialogues.showAlertDialogue(exception, "Failed to import asm");
 		}
 	}
-
+	
 	@Override
 	public void onExportASMFile(ActionEvent event)
 	{
@@ -1133,27 +1148,27 @@ public class Main extends Application implements BusinessLogic
 			Dialogues.showAlertDialogue(exception, "Failed to export asm");
 		}
 	}
-
+	
 	@Override
 	public void onRemoveASMFile(ActionEvent event)
 	{
 		removeActiveFile();
 	}
-
+	
 	@Override
 	public void onSetMainASMFile(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenQuickReference(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenOnlineManual(ActionEvent event)
 	{
@@ -1179,209 +1194,209 @@ public class Main extends Application implements BusinessLogic
 			Dialogues.showAlertDialogue(exception, recoveryMessage);
 		}
 	}
-
+	
 	@Override
 	public void onOpenIssueReport(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenIssuesPage(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onAboutPLPToolPanel(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenThirdPartyLicenses(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onSimulationStep(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onResetSimulation(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onRunSimulation(ActionEvent event)
 	{
 		console.println("Run Project Clicked (from menu)");
 		onRunProjectClicked();
 	}
-
+	
 	@Override
 	public void onChangeSimulationSpeed(ActionEvent event, int requestedSpeed)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onClearBreakpoints(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenCPUView(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenWatcherWindow(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayLEDEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplaySwitchesEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplaySevenSegmentEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayUARTEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayVGAEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayPLPIDEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayGPIOEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onStopSimulation(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenOptionsMenu(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenModuleManager(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onLoadModule(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onClearModuleCache(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenSerialTerminal(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenNumberConverter(ActionEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onCreateNewProject(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenProject(MouseEvent event)
 	{
 		console.println("Open Project Clicked");
 		openProjectFromFile();
 	}
-
+	
 	@Override
 	public void onSaveProject(MouseEvent event)
 	{
 		Project activeProject = getActiveProject();
 		tryAndReport(activeProject::save);
 	}
-
+	
 	@Override
 	public void onSaveProjectAs(MouseEvent event)
 	{
 		saveProjectAs();
 	}
-
+	
 	@Override
 	public void onAssemble(MouseEvent event)
 	{
@@ -1389,122 +1404,122 @@ public class Main extends Application implements BusinessLogic
 		Project activeProject = getActiveProject();
 		assemble(activeProject);
 	}
-
+	
 	@Override
 	public void onSimulate(MouseEvent event)
 	{
 		toggleSimulation();
 	}
-
+	
 	@Override
 	public void onNewASMFile(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onSimulationStep(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onSimulationInterrupt(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onResetSimulation(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onRunSimulation(MouseEvent event)
 	{
 		console.println("Run Project Clicked (from button)");
 		onRunProjectClicked();
 	}
-
+	
 	@Override
 	public void onOpenCPUView(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onOpenWatcherWindow(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayLEDEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplaySwitchesEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplaySevenSegmentEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayUARTEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayVGAEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayPLPIDEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void onDisplayGPIOEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	public class ApplicationEventBusEventHandler
 	{
 		private ApplicationEventBusEventHandler()
 		{
-			EventRegistry.getGlobalRegistry().register(this);
+			
 		}
-
+		
 		@Subscribe
 		public void applicationThemeRequestCallback(ThemeRequestCallback event)
 		{
-			if(event.requestedTheme().isPresent())
+			if (event.requestedTheme().isPresent())
 			{
 				Theme applicationTheme = event.requestedTheme().get();
 				try
@@ -1512,16 +1527,17 @@ public class Main extends Application implements BusinessLogic
 					stage.getScene().getStylesheets().add(applicationTheme.getPath());
 					return;
 				}
-				catch ( MalformedURLException e )
+				catch (MalformedURLException e)
 				{
-					console.warning("Unable to load application theme " + applicationTheme.getName());
+					console.warning("Unable to load application theme "
+							+ applicationTheme.getName());
 					return;
 				}
 			}
-
+			
 			console.warning("Unable to load application theme.");
 		}
-
+		
 		@Subscribe
 		public void deadEvent(DeadEvent event)
 		{
