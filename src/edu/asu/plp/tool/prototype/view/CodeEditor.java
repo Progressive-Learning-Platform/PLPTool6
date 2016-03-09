@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -78,11 +80,6 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 	}
 	
-	public StringProperty codeBodyProperty()
-	{
-		return codeBodyProperty;
-	}
-	
 	public void updateTextFromJavascript(String text)
 	{
 		codeBodyProperty.set(text);
@@ -96,6 +93,8 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	
 	public void setText(String text)
 	{
+		// TODO: update StringEscapeUtils and use escapeJavaScript() instead
+		text = StringEscapeUtils.escapeJava(text);
 		codeBodyProperty.set(text);
 		System.out.println("Setting value");
 		webView.getEngine().executeScript(

@@ -129,17 +129,18 @@ public class ApplicationThemeManager
 	private void loadDefaultAndActiveTheme()
 	{
 		Optional<String> optionalDefaultThemePath =
-				ApplicationSettings.getSetting(ApplicationSetting.APPLICATION_THEME_DEFAULT_PATH);
+				ApplicationSettings.getSetting(ApplicationSetting.APPLICATION_THEME);
 		if ( !optionalDefaultThemePath.isPresent() )
 		{
 			throw new MissingResourceException(
-					ApplicationSetting.APPLICATION_THEME_DEFAULT_PATH.toString() + " was not present in settings.",
+					ApplicationSetting.APPLICATION_THEME.toString() + " was not present in settings.",
 					this.getClass().getName(),
-					ApplicationSetting.APPLICATION_THEME_DEFAULT_PATH.toString());
+					ApplicationSetting.APPLICATION_THEME.toString());
 		}
 
 		//TODO Check if just name or ends with / \
-		String defaultThemeDirectoryPath = optionalDefaultThemePath.get();
+		String tempPath = optionalDefaultThemePath.get();
+		String defaultThemeDirectoryPath = (tempPath.endsWith("/|\\")) ? tempPath : tempPath + "/";
 		String defaultThemeName = defaultThemeDirectoryPath.substring(0, defaultThemeDirectoryPath.length() - 1);
 		String defaultThemePath = themeDirectory + defaultThemeDirectoryPath;
 
@@ -168,6 +169,7 @@ public class ApplicationThemeManager
 			EventRegistry.getGlobalRegistry().register(this);
 		}
 
+		//TODO change saved theme to whatever request is
 		@Subscribe
 		public void processThemeRequest( ThemeRequestEvent event )
 		{
@@ -178,5 +180,10 @@ public class ApplicationThemeManager
 			else
 				EventRegistry.getGlobalRegistry().post(new ThemeRequestCallback(Optional.empty()));
 		}
+	}
+
+	public Collection<String> getThemeNames()
+	{
+		return themes.keySet();
 	}
 }
