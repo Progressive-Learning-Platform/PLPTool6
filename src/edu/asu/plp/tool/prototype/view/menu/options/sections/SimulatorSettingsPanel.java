@@ -1,9 +1,11 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
 import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.util.UIConstants;
 import edu.asu.plp.tool.prototype.view.menu.options.details.SimulatorSettingDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
@@ -36,6 +38,9 @@ public class SimulatorSettingsPanel extends BorderPane implements Submittable
 				.add(executionOnNonInstructionMemorySelection(settingDetails));
 		settingsColumn.getChildren().add(zeroOnReadsFromUninitializedMemorySelection(settingDetails));
 
+		settingsColumn.setPadding(new Insets(10));
+		settingsColumn.setSpacing(8);
+
 		setCenter(settingsColumn);
 	}
 
@@ -44,6 +49,7 @@ public class SimulatorSettingsPanel extends BorderPane implements Submittable
 		VBox vBox = new VBox();
 
 		Text simulationSpeedLabel = new Text("Simulation Speed (milliseconds / cycle)");
+		simulationSpeedLabel.setId(UIConstants.TEXT_COLOR);
 
 		//TODO take in settings for slider
 		Slider simulationSpeedSlider = new Slider(0, 1000, 100);
@@ -117,6 +123,6 @@ public class SimulatorSettingsPanel extends BorderPane implements Submittable
 	@Override
 	public void submit()
 	{
-
+		//TODO simulator events
 	}
 }

@@ -1,11 +1,13 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
 import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.util.UIConstants;
 import edu.asu.plp.tool.prototype.util.UIStyle;
 import edu.asu.plp.tool.prototype.util.VerifyUtil;
 import edu.asu.plp.tool.prototype.view.menu.options.details.EditorSettingDetails;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -42,6 +44,9 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 		settingsColumn.getChildren().add(fontSizeSelection(settingDetails));
 		settingsColumn.getChildren().add(editorModeSelection(settingDetails, editorModes));
 
+		settingsColumn.setPadding(new Insets(10));
+		settingsColumn.setSpacing(8);
+
 		setCenter(settingsColumn);
 	}
 
@@ -50,6 +55,7 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 		HBox hBox = new HBox();
 
 		Text fontLabel = new Text("Font: ");
+		fontLabel.setId(UIConstants.TEXT_COLOR);
 
 		ComboBox<String> fonts = new ComboBox<>(fontList);
 		fonts.getSelectionModel().select(settingDetails.getFontName());
@@ -68,6 +74,7 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 		HBox hBox = new HBox();
 
 		Text fontSizeLabel = new Text("Font Size: ");
+		fontSizeLabel.setId(UIConstants.TEXT_COLOR);
 
 		List<String> fontSizes = Arrays.asList("6", "8", "12", "14", "16", "20", "32", "48", "60", "72");
 
@@ -97,6 +104,7 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 		HBox hBox = new HBox();
 
 		Text editorModeLabel = new Text("Editor Mode: ");
+		editorModeLabel.setId(UIConstants.TEXT_COLOR);
 
 		ComboBox<String> editorModeComboBox = new ComboBox<>(editorModes);
 		editorModeComboBox.getSelectionModel().select(settingDetails.getEditorMode());
@@ -127,6 +135,6 @@ public class EditorSettingsPanel extends BorderPane implements Submittable
 	@Override
 	public void submit()
 	{
-
+		//TODO waiting for editor changes to fufill all editor events
 	}
 }

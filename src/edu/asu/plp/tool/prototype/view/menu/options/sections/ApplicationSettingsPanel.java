@@ -1,8 +1,12 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
+import edu.asu.plp.tool.prototype.util.UIConstants;
 import edu.asu.plp.tool.prototype.view.menu.options.details.ApplicationSettingDetails;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SingleSelectionModel;
@@ -34,6 +38,8 @@ public class ApplicationSettingsPanel extends BorderPane implements Submittable
 		settingsColumn.getChildren().add(applicationThemeSelection(settingDetails, applicationThemes));
 		settingsColumn.getChildren().add(editorThemeSelection(settingDetails, editorsThemes));
 
+		settingsColumn.setPadding(new Insets(10));
+		settingsColumn.setSpacing(8);
 
 		setCenter(settingsColumn);
 	}
@@ -44,6 +50,7 @@ public class ApplicationSettingsPanel extends BorderPane implements Submittable
 		HBox hbox = new HBox();
 
 		Text themeLabel = new Text("Application Theme: ");
+		themeLabel.setId(UIConstants.TEXT_COLOR);
 
 		ObservableList<String> list = applicationThemes;
 
@@ -64,6 +71,7 @@ public class ApplicationSettingsPanel extends BorderPane implements Submittable
 		HBox hbox = new HBox();
 
 		Text themeLabel = new Text("Editor Theme: ");
+		themeLabel.setId(UIConstants.TEXT_COLOR);
 
 		ObservableList<String> list = editorsThemes;
 
@@ -95,6 +103,9 @@ public class ApplicationSettingsPanel extends BorderPane implements Submittable
 	@Override
 	public void submit()
 	{
+		ApplicationSettingDetails details = getResults();
+		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(details.getApplicationTheme()));
 
+		//TODO fire editor theme event
 	}
 }

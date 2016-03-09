@@ -1,11 +1,13 @@
 package edu.asu.plp.tool.prototype.view.menu.options.sections;
 
 import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.util.UIConstants;
 import edu.asu.plp.tool.prototype.util.UIStyle;
 import edu.asu.plp.tool.prototype.util.VerifyUtil;
 import edu.asu.plp.tool.prototype.view.menu.options.details.ProgrammerSettingDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
@@ -39,6 +41,9 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 		settingsColumn.getChildren().add(timeoutSelection(settingDetails));
 		settingsColumn.getChildren().add(autodetectSerialPortSelection(settingDetails));
 
+		settingsColumn.setPadding(new Insets(10));
+		settingsColumn.setSpacing(8);
+
 		setCenter(settingsColumn);
 	}
 
@@ -63,7 +68,9 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 		HBox hBox = new HBox();
 
 		//TODO ensure numerical values only
-		Text maxChunkSizeLabel = new Text("Maximum chunk size ");
+		Text maxChunkSizeLabel = new Text("Maximum chunk size: ");
+		maxChunkSizeLabel.setId(UIConstants.TEXT_COLOR);
+
 		TextField maxChunkSizeTextField = new TextField();
 		maxChunkSizeTextField.setText(settingDetails.getMaximumChunkSize());
 
@@ -83,7 +90,9 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 	{
 		HBox hBox = new HBox();
 
-		Text receiveTimeoutLabel = new Text("Receive timout (ms) ");
+		Text receiveTimeoutLabel = new Text("Receive timout (ms): ");
+		receiveTimeoutLabel.setId(UIConstants.TEXT_COLOR);
+
 		TextField receiveTimeoutTextField = new TextField();
 		receiveTimeoutTextField.setText(settingDetails.getReceiveTimeoutMilliseconds());
 
@@ -136,6 +145,6 @@ public class ProgrammerSettingsPanel extends BorderPane implements Submittable
 	@Override
 	public void submit()
 	{
-
+		//TODO programmer events
 	}
 }
