@@ -169,6 +169,7 @@ public class ApplicationThemeManager
 			EventRegistry.getGlobalRegistry().register(this);
 		}
 
+		//TODO change saved theme to whatever request is
 		@Subscribe
 		public void processThemeRequest( ThemeRequestEvent event )
 		{

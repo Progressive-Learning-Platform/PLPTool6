@@ -42,7 +42,7 @@ public class OptionsPane extends BorderPane
 		sectionContentSplitPane.setOrientation(Orientation.HORIZONTAL);
 		sectionContentSplitPane.getItems().addAll(sections, sectionView);
 
-		sectionContentSplitPane.setDividerPositions(0.4, 1);
+		sectionContentSplitPane.setDividerPositions(0.2, 1);
 		setCenter(sectionContentSplitPane);
 
 		okAction = () -> {
