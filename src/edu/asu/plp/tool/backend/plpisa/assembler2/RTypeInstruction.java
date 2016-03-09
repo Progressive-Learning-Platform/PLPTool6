@@ -4,12 +4,14 @@ import java.text.ParseException;
 
 public class RTypeInstruction implements PLPInstruction
 {
-	private static final int MASK_5BIT = 0b011111;
-	private static final int MASK_6BIT = 0b111111;
-	private static final int RS_POSITION = 21;
-	private static final int RT_POSITION = 16;
-	private static final int RD_POSITION = 11;
-	private static final int FUNCT_CODE_POSITION = 0;
+	public static final int MASK_5BIT = 0b011111;
+	public static final int MASK_6BIT = 0b111111;
+	public static final int RS_POSITION = 21;
+	public static final int RT_POSITION = 16;
+	public static final int RD_POSITION = 11;
+	public static final int SHAMT_POSITION = 6;
+	public static final int FUNCT_CODE_POSITION = 0;
+	
 	private int functCode;
 	
 	public RTypeInstruction(int functCode)
