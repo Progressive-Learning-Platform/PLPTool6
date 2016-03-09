@@ -10,6 +10,24 @@ public class InstructionMap extends HashMap<String, PLPInstruction>
 		this.put(name, instruction);
 	}
 	
+	public void addRITypeInstruction(String name, int functCode)
+	{
+		RITypeInstruction instruction = new RITypeInstruction(functCode);
+		this.put(name, instruction);
+	}
+	
+	public void addRJTypeInstruction(String name, int functCode)
+	{
+		RJTypeInstruction instruction = new RJTypeInstruction(functCode);
+		this.put(name, instruction);
+	}
+	
+	public void addITypeInstruction(String name, int opCode)
+	{
+		ITypeInstruction instruction = new ITypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
 	@Override
 	public PLPInstruction put(String name, PLPInstruction instruction)
 	{
