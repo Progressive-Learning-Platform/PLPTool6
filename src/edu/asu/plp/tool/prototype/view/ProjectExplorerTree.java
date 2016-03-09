@@ -185,12 +185,8 @@ public class ProjectExplorerTree extends BorderPane
 					return;
 				
 				ASMFile selectedFile = selection.getValue();
-//				if(selectedFile.getProject() == null)
-				
 				if (selectedFile != null)
-				{
 					onFileDoubleClicked.accept(selectedFile);
-				}
 			}
 		}
 	}
