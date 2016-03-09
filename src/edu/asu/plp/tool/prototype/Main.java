@@ -1320,20 +1320,17 @@ public class Main extends Application implements BusinessLogic
 		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
 		Scene popupScene = new Scene(optionsPane);
 
-
 		Stage popupWindow = new Stage(StageStyle.DECORATED);
 		popupWindow.setTitle("Settings");
 		popupWindow.initModality(Modality.WINDOW_MODAL);
 		popupWindow.initOwner(stage);
 		popupWindow.setScene(popupScene);
 
-		try
-		{
-			popupScene.getStylesheets().add(applicationThemeManager.getDefaultTheme().getPath());
-		}
-		catch ( MalformedURLException e )
-		{
-		}
+		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
+		popupWindow.setMinHeight(stage.getScene().getHeight()  - (stage.getScene().getHeight() / 3));
+
+
+		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
 
 		optionsPane.setOkAction(()-> {
 			if(optionsMenuOkSelected(submittables))
@@ -1345,7 +1342,6 @@ public class Main extends Application implements BusinessLogic
 		optionsPane.setCancelAction(() -> {popupWindow.close();});
 
 		popupWindow.setOnCloseRequest((windowEvent)-> {popupWindow.close();});
-		popupWindow.sizeToScene();
 		popupWindow.show();
 	}
 
@@ -1376,11 +1372,6 @@ public class Main extends Application implements BusinessLogic
 	private void addApplicationOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
 	{
 		PLPOptions applicationSection = new PLPOptions("Application");
-
-		PLPOptions appearance = new PLPOptions("Appearance");
-		PLPOptions toolbars = new PLPOptions("Toolbars");
-
-		applicationSection.addAll(Arrays.asList(appearance, toolbars));
 
 		ObservableList<String> applicationThemeNames = FXCollections.observableArrayList();
 		applicationThemeNames.addAll(applicationThemeManager.getThemeNames());
@@ -1623,6 +1614,7 @@ public class Main extends Application implements BusinessLogic
 				Theme applicationTheme = event.requestedTheme().get();
 				try
 				{
+					stage.getScene().getStylesheets().clear();
 					stage.getScene().getStylesheets().add(applicationTheme.getPath());
 					return;
 				}
