@@ -51,6 +51,19 @@ public class PLPAssembler implements Assembler
 		instructions.addRTypeInstruction("mulhi", 0x11);
 		instructions.addRTypeInstruction("sllv", 0x01);
 		instructions.addRTypeInstruction("slrv", 0x03);
+
+		instructions.addRITypeInstruction("sll", 0x00);
+		instructions.addRITypeInstruction("srl", 0x02);
+		
+		instructions.addRJTypeInstruction("jr", 0x08);
+		instructions.addRJTypeInstruction("jalr", 0x09);
+
+		instructions.addITypeInstruction("addiu", 0x09);
+		instructions.addITypeInstruction("andi", 0x0c);
+		instructions.addITypeInstruction("ori", 0x0d);
+		instructions.addITypeInstruction("slti", 0x0a);
+		instructions.addITypeInstruction("sltiu", 0x0b);
+		instructions.addITypeInstruction("lui", 0x0f);
 		
 		return instructions;
 	}
