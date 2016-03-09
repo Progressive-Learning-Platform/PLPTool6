@@ -3,18 +3,23 @@
 }
 
 /* Base Settings */
+/*
+  Note: You can't style all text nodes via css, you have to use custom css.
+  Please set the id of the text node with UIConstants.TEXT_COLOR and insert
+  #text css into your stylesheets.
+ */
 .root
 {
-  -fx-background-color: #151718 !important;
+  -fx-background-color: #101112 !important;
   -fx-font-size: 12px !important;
   -fx-border-color: rgba(0, 0, 0, 0.5) !important;
   -fx-focus-color: transparent;
   -fx-faint-focus-color: transparent;
 }
 
-.parent, .control, .region, .scroll-pane, .scroll-pane .content, .pane
+.parent, .control, .region, .scroll-pane, .scroll-pane .content, .pane, .border-pane
 {
-  -fx-background-color: #151718;
+  -fx-background-color: #101112 !important;
   -fx-border-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -44,9 +49,58 @@
     -fx-prompt-text-fill: transparent;
 }
 
+/* Menu: Options Menu */
+#text
+{
+  -fx-fill: #FFFFFF;
+}
 
+.button
+{
+    -fx-background-color: #101112;
+    -fx-text-fill: #FFF;
+    -fx-focus-color: #56B5DB;
+}
 
-/* Text, combobox, button nodes */
+.button:hover
+{
+  -fx-background-color: #151718;
+  -fx-text-fill: #56B5DB;
+}
+
+.check-box
+{
+  -fx-text-fill: #FFF;
+}
+
+.check-box .box
+{
+  -fx-background-color: #151718;
+}
+
+.check-box:selected .box
+{
+  -fx-background-color: #56B5DB;
+}
+
+.check-box:selected .mark
+{
+  -fx-background-color: #FFF;
+}
+
+.combo-box, .combo-box .text-input, .combo-box .list-cell
+{
+  -fx-font-weight: bold;
+  -fx-background-color: #151718;
+  -fx-text-fill: #FFF;
+}
+
+.text-input
+{
+  -fx-font-weight: bold;
+  -fx-background-color: #151718;
+  -fx-text-fill: #FFF;
+}
 
 /* Menu Bar */
 .hbox, .vbox, .grid, .flow-tile
@@ -58,7 +112,7 @@
 .split-pane
 {
   -fx-border-color: rgba(0, 0, 0, 0.5);
-  -fx-background-color: #151718;;
+  -fx-background-color: #101112;
 }
 
 .split-pane .split-pane-divider
