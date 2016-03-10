@@ -1,6 +1,10 @@
-package edu.asu.plp.tool.backend.plpisa.assembler2;
+package edu.asu.plp.tool.backend.plpisa.assembler2.instructions;
 
 import java.text.ParseException;
+
+import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.plpisa.assembler2.PLPInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.RegisterArgument;
 
 public class RJTypeInstruction implements PLPInstruction
 {

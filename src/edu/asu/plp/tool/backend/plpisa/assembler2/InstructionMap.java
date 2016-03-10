@@ -2,6 +2,11 @@ package edu.asu.plp.tool.backend.plpisa.assembler2;
 
 import java.util.HashMap;
 
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.ITypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RITypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RJTypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction;
+
 public class InstructionMap extends HashMap<String, PLPInstruction>
 {
 	public void addRTypeInstruction(String name, int functCode)

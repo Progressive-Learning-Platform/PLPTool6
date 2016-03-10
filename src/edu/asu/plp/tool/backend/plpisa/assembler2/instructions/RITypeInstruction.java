@@ -1,8 +1,11 @@
-package edu.asu.plp.tool.backend.plpisa.assembler2;
+package edu.asu.plp.tool.backend.plpisa.assembler2.instructions;
 
-import static edu.asu.plp.tool.backend.plpisa.assembler2.RTypeInstruction.*;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.*;
 
 import java.text.ParseException;
+
+import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.plpisa.assembler2.PLPInstruction;
 
 public class RITypeInstruction implements PLPInstruction
 {
