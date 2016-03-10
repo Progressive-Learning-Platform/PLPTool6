@@ -48,7 +48,7 @@ public class SettingUtil
 	/**
 	 * Prepends the save label to provided {@link Setting} parameter.
 	 *
-	 * NOTE: This expect you to not create {@link Setting} for saved variants.
+	 * NOTE: This expects you to not create {@link Setting} for saved variants.
 	 *
 	 * {@link ApplicationSettings} will load saved settings if present in the settings file. Saved settings share the
 	 * same name as their default counterpart, but are prefixed with SAVED_.
@@ -61,6 +61,12 @@ public class SettingUtil
 	 */
 	public static String prependSaveLabel( Setting setting )
 	{
+		return prependSaveLabel(setting.toString());
+	}
+
+	public static String prependSaveLabel( String setting )
+	{
 		return "SAVED_" + setting;
 	}
+
 }
