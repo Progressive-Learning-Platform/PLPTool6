@@ -56,6 +56,58 @@ public class ApplicationSettings
 		return getSetting(setting.toString());
 	}
 
+	/**
+	 * Stores the value parameter in the map as the save version of key.
+	 * <p>
+	 * The value will not be saved if the key is not a valid key in the map.
+	 * <p>
+	 * NOTE: The key map to a key that has a default in the map, and the map will store it as a saved version.
+	 * <p>
+	 * e.g. APPLICATION_THEME is valid (as it has a default value) while THIS_IS_NEW has no default value.
+	 * <p>
+	 * Naturally, creating THIS_IS_NEW in the settings file would allow you to store it in the map.
+	 * <p>
+	 * NOTE: It is suggested you use {@link ApplicationSettings#writeSetting(Setting, String)}.
+	 *
+	 * @param key
+	 * 		Key that has a default value in the map
+	 * @param value
+	 * 		Value to store as a saved value (Different then default value)
+	 *
+	 * @return True if key is in map, false otherwise.
+	 */
+	public static boolean writeSetting( String key, String value )
+	{
+		if ( !settings.containsKey(key) )
+			return false;
+		else
+			settings.put(SettingUtil.prependSaveLabel(key), value);
+
+		return true;
+	}
+
+	/**
+	 * Stores the value parameter in the map as the save version of key.
+	 * <p>
+	 * The value will not be saved if the key is not a valid key in the map.
+	 * <p>
+	 * NOTE: The key map to a key that has a default in the map, and the map will store it as a saved version.
+	 * <p>
+	 * e.g. APPLICATION_THEME is valid (as it has a default value) while THIS_IS_NEW has no default value.
+	 * <p>
+	 * Naturally, creating THIS_IS_NEW in the settings file would allow you to store it in the map.
+	 *
+	 * @param setting
+	 * 		Setting that has a default value in the map
+	 * @param value
+	 * 		Value to store as a saved value (Different then default value)
+	 *
+	 * @return True if key is in map, false otherwise.
+	 */
+	public static boolean writeSetting( Setting setting, String value )
+	{
+		return writeSetting(setting.toString(), value);
+	}
 	public static ApplicationSettings initialize()
 	{
 		if ( instance == null )
