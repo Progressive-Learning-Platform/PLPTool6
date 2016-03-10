@@ -1,15 +1,10 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2;
 
-public class Value implements Argument
+public class MemoryArgument implements Argument
 {
 	private String rawValue;
 	
-	public Value(int value)
-	{
-		// TODO Auto-generated constructor stub
-	}
-	
-	public Value(String rawValue)
+	public MemoryArgument(String rawValue)
 	{
 		this.rawValue = rawValue;
 	}
@@ -48,4 +43,5 @@ public class Value implements Argument
 		// TODO Auto-generated method stub return null;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
+	
 }

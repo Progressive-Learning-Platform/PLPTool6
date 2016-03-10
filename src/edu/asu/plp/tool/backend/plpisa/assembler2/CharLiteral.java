@@ -1,22 +1,21 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2;
 
-public class Value implements Argument
+public class CharLiteral implements Argument
 {
 	private String rawValue;
 	
-	public Value(int value)
-	{
-		// TODO Auto-generated constructor stub
-	}
-	
-	public Value(String rawValue)
+	public CharLiteral(String rawValue)
 	{
 		this.rawValue = rawValue;
 	}
-	
+
 	@Override
 	public int encode()
 	{
+		// exclude the quotes (first and last character) in value
+		int lastIndex = rawValue.length() - 1;
+		String value = rawValue.substring(1, lastIndex);
+		
 		// TODO Auto-generated method stub return 0;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
