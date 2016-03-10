@@ -39,15 +39,15 @@ public class SimulatorSettingDetails
 
 		ApplicationSetting setting = ApplicationSetting.SIMULATOR_SPEED;
 		details.simulationSpeedMillisecondsCycle =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.SIMULATOR_ALLOW_EXECUTION_OF_NON_INSTRUCTION_MEMORY;
 		details.allowExecutionOfNonInstructionMemory =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.SIMULATOR_ASSUME_ZERO_ON_READS_FROM_UNINITIALIZED_MEMORY;
 		details.assumeZeroOnReadsFromUninitializedMemory =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		return details;
 	}

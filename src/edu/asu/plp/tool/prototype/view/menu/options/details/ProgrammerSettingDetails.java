@@ -42,19 +42,19 @@ public class ProgrammerSettingDetails
 
 		ApplicationSetting setting = ApplicationSetting.PROGRAMMER_PROGRAM_IN_CHUNKS;
 		details.programInChunks =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.PROGRAMMER_MAXIMUM_CHUNK_SIZE;
 		details.maximumChunkSize =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.PROGRAMMER_TIMEOUT_MILLISECONDS;
 		details.receiveTimeoutMilliseconds =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.PROGRAMMER_AUTO_DETECT_SERIAL_PORTS;
 		details.autoDetectSerialPorts =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadSavedSettingDefaultIfNotPresent(setting);
 
 		return details;
 	}
