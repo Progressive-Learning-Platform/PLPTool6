@@ -14,6 +14,9 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPDisassembly;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.RegisterArgument;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.StringLiteral;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.Value;
 
 public class PLPAssembler implements Assembler
 {

@@ -1,8 +1,10 @@
-package edu.asu.plp.tool.backend.plpisa.assembler2;
+package edu.asu.plp.tool.backend.plpisa.assembler2.arguments;
 
 import java.util.function.Function;
 
 import com.faeysoft.preceptor.lexer.RegexCommons.*;
+
+import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
 
 public enum ArgumentType
 {

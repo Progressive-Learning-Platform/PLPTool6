@@ -1,10 +1,12 @@
-package edu.asu.plp.tool.backend.plpisa.assembler2;
+package edu.asu.plp.tool.backend.plpisa.assembler2.arguments;
 
-public class RegisterArgument implements Argument
+import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+
+public class MemoryArgument implements Argument
 {
 	private String rawValue;
 	
-	public RegisterArgument(String rawValue)
+	public MemoryArgument(String rawValue)
 	{
 		this.rawValue = rawValue;
 	}
@@ -15,32 +17,33 @@ public class RegisterArgument implements Argument
 		// TODO Auto-generated method stub return 0;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public boolean isRegister()
 	{
 		// TODO Auto-generated method stub return false;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public boolean isNumberLiteral()
 	{
 		// TODO Auto-generated method stub return false;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public boolean isStringLiteral()
 	{
 		// TODO Auto-generated method stub return false;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public String raw()
 	{
 		// TODO Auto-generated method stub return null;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
+	
 }
