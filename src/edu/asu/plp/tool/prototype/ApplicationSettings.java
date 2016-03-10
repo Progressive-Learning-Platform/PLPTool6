@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.prototype;
 
 import edu.asu.plp.tool.prototype.model.Setting;
+import edu.asu.plp.tool.prototype.model.SettingUtil;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
@@ -10,7 +11,8 @@ import java.util.HashMap;
 import java.util.Optional;
 
 /**
- * Global map that holds settings configurations. Derives from a .settings file (JSON Format). If the file is not loaded
+ * Global map that holds settings configurations. Derives from a .settings file (JSON Format). If the file is not
+ * loaded
  * or cannot be loaded, then the default settings will be used.
  * <p>
  * See {@link edu.asu.plp.tool.prototype.model.ApplicationSetting} for the base required values.
@@ -25,24 +27,67 @@ import java.util.Optional;
  * ApplicationSettings#getSetting(String)} with the respective key and it will return the value wrapped in an Optional
  * if it exists or return an empty Optional otherwise.
  * <p>
- * You may also pass a {@link Setting} to {@link ApplicationSettings#getSetting(Setting)}. Please see {@link Setting}
- * for information on how to use/implement {@link Setting}.
+ * HOWEVER, it is highly suggested that you query for keys using {@link ApplicationSettings#getSetting(Setting)}.
+ * Please
+ * see {@link Setting} for information on how to use/implement {@link Setting}.
+ * <p>
+ * Section of the file might look something like this:
+ * <p>
+ * {
+ * <p>
+ * <p style="padding-left: 4em;">"Application" : {</p>
+ * <p style="padding-left: 8em;">"theme base path" : "resources/application/styling/",</p>
+ * <p style="padding-left: 8em;">"theme" : "light"</p>
+ * <p style="padding-left: 4em;">}</p>
+ * }
+ * <p>
+ * The keys for accessing those two inner values would be stored as:
+ * APPLICATION_THEME_BASE_PATH
+ * and
+ * APPLICATION_THEME
+ * <p>
+ * This representation leads great for how enums are typically written
+ * {@link edu.asu.plp.tool.prototype.model.ApplicationSetting}
  *
  * @author Nesbitt, Morgan Created on 2/23/2016.
  */
 public class ApplicationSettings
 {
+	/**
+	 * Default settings file path.
+	 */
 	public static final String DEFAULT_SETTINGS_FILE = "settings/plp-tool.settings";
 
+	/**
+	 * Global (static) instance, for singleton pattern.
+	 */
 	private static ApplicationSettings instance;
 
+	/**
+	 * Settings map
+	 */
 	private static HashMap<String, String> settings;
 
+	/**
+	 * Private constructor to enforce singleton pattern.
+	 */
 	private ApplicationSettings()
 	{
 		settings = new HashMap<>();
 	}
 
+	/**
+	 * Global accessor for retrieving a setting from the map.
+	 * <p>
+	 * Takes in a string key to retrieve a value from the map.
+	 * <p>
+	 * NOTE: Suggested you use {@link ApplicationSettings#getSetting(Setting)} instead.
+	 *
+	 * @param key
+	 * 		Key query for retrieving a value.
+	 *
+	 * @return Optional with a value if present and empty otherwise.
+	 */
 	public static Optional<String> getSetting( String key )
 	{
 		if ( settings.containsKey(key) )
@@ -51,6 +96,19 @@ public class ApplicationSettings
 		return Optional.empty();
 	}
 
+	/**
+	 * Global accessor for retrieving a setting from the map.
+	 * <p>
+	 * Takes in any variant of the {@link Setting} interface. Uses the {@link Setting#toString()} as the key for
+	 * searching for the setting.
+	 * <p>
+	 * NOTE: This is the suggested way to access values from the {@link ApplicationSettings}.
+	 *
+	 * @param setting
+	 * 		Key query for retrieving a value.
+	 *
+	 * @return Optional with a value if present and empty otherwise.
+	 */
 	public static Optional<String> getSetting( Setting setting )
 	{
 		return getSetting(setting.toString());
@@ -108,6 +166,14 @@ public class ApplicationSettings
 	{
 		return writeSetting(setting.toString(), value);
 	}
+
+	/**
+	 * Initiailizes singleton instance of this class.
+	 * <p>
+	 * NOTE: This MUST be called to utilize this class.
+	 *
+	 * @return Global handler to the {@link ApplicationSettings}.
+	 */
 	public static ApplicationSettings initialize()
 	{
 		if ( instance == null )
@@ -116,16 +182,47 @@ public class ApplicationSettings
 		return instance;
 	}
 
+	/**
+	 * Attempts to load the settings file from the {@link ApplicationSettings#DEFAULT_SETTINGS_FILE}.
+	 * <p>
+	 * Using {@link ApplicationSettings#loadFromFile(String)}.
+	 * <p>
+	 * NOTE: This will load the default settings configuration if it fails to load.
+	 *
+	 * @return True if successfully loaded file, false otherwise.
+	 */
 	public static final boolean loadFromFile()
 	{
 		return loadFromFile(DEFAULT_SETTINGS_FILE);
 	}
 
+	/**
+	 * Attempts to load the settings file from the filePath parameter.
+	 * <p>
+	 * Using {@link ApplicationSettings#loadFromFile(File)}.
+	 * <p>
+	 * NOTE: This will load the default settings configuration if it fails to load.
+	 *
+	 * @param filePath
+	 * 		file path
+	 *
+	 * @return True if successfully loaded file, false otherwise.
+	 */
 	public static final boolean loadFromFile( String filePath )
 	{
 		return loadFromFile(new File(filePath));
 	}
 
+	/**
+	 * Attempts to load the settings file from the file parameter.
+	 * <p>
+	 * NOTE: This will load the default settings configuration if it fails to load.
+	 *
+	 * @param file
+	 * 		settings file
+	 *
+	 * @return True if successfully loaded file, false otherwise.
+	 */
 	public static final boolean loadFromFile( File file )
 	{
 		if ( !file.isFile() )
@@ -155,12 +252,43 @@ public class ApplicationSettings
 		}
 	}
 
+	/**
+	 * Loads internal default settings into settings map.
+	 * <p>
+	 * NOTE: This is expected to only be used when you cannot find the settings file. Or when you want to reset the
+	 * settings file.
+	 */
 	public static final void loadFromDefaultSettings()
 	{
 		JSONObject jsonSettings = new JSONObject(generateDefaultSettings());
+		parseJSONSettings(jsonSettings);
+	}
+
+	/**
+	 * Helper function for {@link ApplicationSettings#parseJSONSettings(JSONObject, String)} that passes a blank base
+	 * path.
+	 *
+	 * @param jsonSettings
+	 * 		JSON Object of settings file
+	 */
+	private static void parseJSONSettings( JSONObject jsonSettings )
+	{
 		parseJSONSettings(jsonSettings, "");
 	}
 
+	/**
+	 * Takes jsonSettings parameter and inserts all Key-Value pairs into the settings map
+	 * <p>
+	 * Recursively passes child json objects into itself with there path as the new base path. Utilizing {@link
+	 * ApplicationSettings#bindPath(String, String)} to link the new paths to the base path.
+	 * <p>
+	 * NOTE: Expects a json object with keys mapping to JSON objects or Strings ONLY. It will fail fast otherwise.
+	 *
+	 * @param jsonSettings
+	 * 		JSON Object of settings file
+	 * @param basePath
+	 * 		Starting path to prefix onto new keys
+	 */
 	private static void parseJSONSettings( JSONObject jsonSettings, String basePath )
 	{
 		for ( String key : JSONObject.getNames(jsonSettings) )
@@ -176,6 +304,18 @@ public class ApplicationSettings
 		}
 	}
 
+	/**
+	 * Turns JSON Objects into searchable (Key Based) representations.
+	 * <p>
+	 * Meant to be used when reading input and mapping Key-Value pairs.
+	 *
+	 * @param basePath
+	 * 		Parent path of currentPath parameter.
+	 * @param currentPath
+	 * 		Key to an object, whether its another json object or a string value.
+	 *
+	 * @return Two paths (Made all uppercase) connected together with underscores.
+	 */
 	private static String bindPath( String basePath, String currentPath )
 	{
 		if ( basePath.isEmpty() )
@@ -185,6 +325,13 @@ public class ApplicationSettings
 		return combinedPath.toUpperCase();
 	}
 
+	/**
+	 * Generates a JSON String with all of the required settings and their default values.
+	 * <p>
+	 * Meant to be used, if a settings file is not located.
+	 *
+	 * @return JSON String representation of the default settings file.
+	 */
 	private static final String generateDefaultSettings()
 	{
 		StringBuilder builder = new StringBuilder();
@@ -194,27 +341,23 @@ public class ApplicationSettings
 		builder.append("{" + newLine);
 		builder.append("\t\"Resources Path\" : \"resources/\"," + newLine);
 		builder.append("\t\"Ace Path\" : \"lib/ace/\"," + newLine);
-		//Application Theme
-		builder.append("\t\"Application Theme\" : {" + newLine);
-		builder.append("\t\t\"base path\" : \"resources/application/styling/\"," + newLine);
-		builder.append("\t\t\"default path\" : \"seti/\"," + newLine);
-		builder.append("\t}," + newLine);
 		//Languages
 		builder.append("\t\"Languages\" : {" + newLine);
 		builder.append("\t\t\"base path\" : \"resources/languages/\"," + newLine);
 		builder.append("\t\t\"modes path\" : \"modes/\"," + newLine);
 		builder.append("\t\t\"default path\" : \"plp/\"" + newLine);
 		builder.append("\t}," + newLine);
+		//Application
+		builder.append("\t\"Application\" : {" + newLine);
+		builder.append("\t\t\"theme base path\" : \"resources/application/styling/\"," + newLine);
+		builder.append("\t\t\"theme\" : \"light\"," + newLine);
+		builder.append("\t}," + newLine);
 		//Editor
 		builder.append("\t\"Editor\" : {" + newLine);
 		builder.append("\t\t\"font\" : \"inconsolata\"," + newLine);
 		builder.append("\t\t\"font size\" : \"14\"," + newLine);
 		builder.append("\t\t\"mode\" : \"plp\"," + newLine);
-		builder.append("\t\t\"theme\" : \"monokai\"" + newLine);
-		builder.append("\t}," + newLine);
-		//Application
-		builder.append("\t\"Application\" : {" + newLine);
-		builder.append("\t\t\"theme\" : \"seti\"," + newLine);
+		builder.append("\t\t\"theme\" : \"tomorrow\"" + newLine);
 		builder.append("\t}," + newLine);
 		//Programmer
 		builder.append("\t\"Programmer\" : {" + newLine);
@@ -232,7 +375,7 @@ public class ApplicationSettings
 
 		builder.append("}" + newLine);
 
-//		System.out.println(builder.toString());
+		//		System.out.println(builder.toString());
 
 		return builder.toString();
 	}
