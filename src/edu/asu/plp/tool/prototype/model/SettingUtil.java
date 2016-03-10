@@ -12,10 +12,11 @@ import java.util.Optional;
 public class SettingUtil
 {
 	/**
-	 * For use in loading only saved settings that are have a default counterpart. Will load the saved setting
-	 * parameter
-	 * if present. If not present it will default to the {@link ApplicationSetting}. If the default setting is not
-	 * present in the settings it will throw an illegal state exception.
+	 * For use in loading only saved settings that are have a default counterpart.
+	 * <p>
+	 * If the saved version of the setting is not present it will default to the {@link ApplicationSetting} parameter.
+	 * <p>
+	 * If the default setting is not present in the settings it will throw an illegal state exception.
 	 * <p>
 	 * NOTE: This is reliant on the fact that any setting in {@link ApplicationSetting} must me present in {@link
 	 * ApplicationSettings}.
@@ -23,14 +24,13 @@ public class SettingUtil
 	 * If the setting you are trying to retrieve is not present in {@link ApplicationSetting}, this is not the method
 	 * you are looking for.
 	 *
-	 * @param saved
 	 * @param setting
 	 *
-	 * @return
+	 * @return Saved setting if present, or default otherwise
 	 */
-	public static String loadSavedSettingDefaultIfNotPresent( String saved, ApplicationSetting setting )
+	public static String loadSavedSettingDefaultIfNotPresent( ApplicationSetting setting )
 	{
-		Optional<String> savedSetting = ApplicationSettings.getSetting(saved);
+		Optional<String> savedSetting = ApplicationSettings.getSetting(SettingUtil.prependSaveLabel(setting));
 		if ( savedSetting.isPresent() )
 			return savedSetting.get();
 		else
@@ -47,9 +47,9 @@ public class SettingUtil
 
 	/**
 	 * Prepends the save label to provided {@link Setting} parameter.
-	 *
+	 * <p>
 	 * NOTE: This expects you to not create {@link Setting} for saved variants.
-	 *
+	 * <p>
 	 * {@link ApplicationSettings} will load saved settings if present in the settings file. Saved settings share the
 	 * same name as their default counterpart, but are prefixed with SAVED_.
 	 * <p>
