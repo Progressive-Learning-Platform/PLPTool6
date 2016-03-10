@@ -1,7 +1,6 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
@@ -51,13 +50,13 @@ public class PLPAssembler implements Assembler
 		instructions.addRTypeInstruction("mulhi", 0x11);
 		instructions.addRTypeInstruction("sllv", 0x01);
 		instructions.addRTypeInstruction("slrv", 0x03);
-
+		
 		instructions.addRITypeInstruction("sll", 0x00);
 		instructions.addRITypeInstruction("srl", 0x02);
 		
 		instructions.addRJTypeInstruction("jr", 0x08);
 		instructions.addRJTypeInstruction("jalr", 0x09);
-
+		
 		instructions.addITypeInstruction("addiu", 0x09);
 		instructions.addITypeInstruction("andi", 0x0c);
 		instructions.addITypeInstruction("ori", 0x0d);
@@ -76,10 +75,12 @@ public class PLPAssembler implements Assembler
 		{
 			for (String line : lines)
 			{
-				String source = normalize(line);
-				String[] split = source.split(",?\\s");
-				String instruction = split[0];
-				String[] argumentStrings = Arrays.copyOfRange(split, 1, split.length);
+				String source = line.trim();
+				String instruction = source.split("\\s+")[0];
+				String remainder = source.substring(instruction.length());
+				remainder = remainder.trim();
+				String[] argumentStrings = remainder.split(",\\s*");
+				
 				Argument[] arguments = parseArguments(argumentStrings);
 				PLPDisassembly disassembly = process(instruction, arguments);
 				ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
@@ -140,14 +141,6 @@ public class PLPAssembler implements Assembler
 		}
 		else if (argumentString.startsWith("\\$"))
 		{
-			boolean valid = argumentString.endsWith("" + argumentString.charAt(0));
-			if (!valid)
-			{
-				throw new ParseException(
-						"String literals must be enclosed in single or double quotes.",
-						lineNumber);
-			}
-			
 			return new RegisterArgument(argumentString);
 		}
 		else if (argumentString.startsWith("0x"))
@@ -188,10 +181,5 @@ public class PLPAssembler implements Assembler
 			throw new ParseException("Expected argument but found '" + argumentString
 					+ "'", lineNumber);
 		}
-	}
-	
-	private String normalize(String instruction)
-	{
-		return instruction.trim().replaceAll("\\s+", " ");
 	}
 }
