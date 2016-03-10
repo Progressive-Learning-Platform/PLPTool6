@@ -23,25 +23,48 @@ public class SettingUtil
 	 * <p>
 	 * If the setting you are trying to retrieve is not present in {@link ApplicationSetting}, this is not the method
 	 * you are looking for.
+	 * <p>
+	 * See {@link SettingUtil#loadSavedSettingDefaultIfNotPresent(Setting)} for settings not natively provided by
+	 * PLPTool
 	 *
 	 * @param setting
 	 *
 	 * @return Saved setting if present, or default otherwise
 	 */
-	public static String loadSavedSettingDefaultIfNotPresent( ApplicationSetting setting )
+	public static String loadRequiredSavedSettingDefaultIfNotPresent( ApplicationSetting setting )
+	{
+		Optional<String> retrievedSetting = loadSavedSettingDefaultIfNotPresent(setting);
+		if(retrievedSetting.isPresent())
+			return retrievedSetting.get();
+		else
+			throw new IllegalStateException(
+					"Default ApplicationSetting was not present. ApplicationSettings must resolve all " +
+							"default application settings if not present in loading.");
+	}
+
+	/**
+	 * For use in loading only saved settings that are have a default counterpart.
+	 * <p>
+	 * If the saved version of the setting is not present it will default to the {@link Setting} parameter.
+	 * <p>
+	 * If the default version is not present it will return an empty optional.
+	 *
+	 * @param setting
+	 *
+	 * @return Saved setting if present, default if saved is not present, empty optional if default is not present.
+	 */
+	public static Optional<String> loadSavedSettingDefaultIfNotPresent( Setting setting )
 	{
 		Optional<String> savedSetting = ApplicationSettings.getSetting(SettingUtil.prependSaveLabel(setting));
 		if ( savedSetting.isPresent() )
-			return savedSetting.get();
+			return savedSetting;
 		else
 		{
 			Optional<String> defaultSetting = ApplicationSettings.getSetting(setting);
 			if ( defaultSetting.isPresent() )
-				return defaultSetting.get();
+				return defaultSetting;
 			else
-				throw new IllegalStateException(
-						"Default ApplicationSetting was not present. ApplicationSettings must resolve all " +
-								"default application settings if not present in loading.");
+				return Optional.empty();
 		}
 	}
 
