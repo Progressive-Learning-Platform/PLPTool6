@@ -5,17 +5,25 @@ import com.google.common.base.Joiner;
 import java.util.*;
 
 /**
- * Created by Morgan on 2/28/2016.
+ * Default implementation of
+ * {@link OptionSection}. Used in {@link edu.asu.plp.tool.prototype.view.menu.options.OptionsPane}.
+ * <p>
+ * Implements basic list functionality so every element acts as a parent which can have children (and those children
+ * can be parents and have their own children etc). Implements entire List interface without extending List.
+ * <p>
+ * Paths are period separated.
+ * <p>
+ * Created by Nesbitt, Morgan on 2/28/2016.
  */
 public class PLPOptions implements OptionSection
 {
+	List<OptionSection> children;
 	private String name;
 	private String fullPath;
-	List<OptionSection> children;
 
-	public PLPOptions(String name)
+	public PLPOptions( String name )
 	{
-		if(name == null)
+		if ( name == null )
 			throw new IllegalArgumentException("PLPOption name cannot be null.");
 
 		this.name = name;
@@ -38,12 +46,12 @@ public class PLPOptions implements OptionSection
 	@Override
 	public void setParent( String parentPath )
 	{
-		if(parentPath != null && !parentPath.isEmpty())
+		if ( parentPath != null && !parentPath.isEmpty() )
 			this.fullPath = Joiner.on(".").join(parentPath, name);
 		else
 			this.fullPath = name;
 
-		if(children.size() > 0)
+		if ( children.size() > 0 )
 			children.forEach(child -> child.setParent(getFullPath()));
 	}
 

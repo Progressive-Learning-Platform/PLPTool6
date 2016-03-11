@@ -14,17 +14,33 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
- * Created by Morgan on 2/28/2016.
+ * Tree for uses in {@link OptionsPane}. Holds Option Panel names for linking names to their respective panels.
+ * <p>
+ * Created by Nesbitt, Morgan on 2/28/2016.
  */
 public class OptionsSettingsTree extends BorderPane
 {
+	/**
+	 * {@link TreeView} for tree structure and display.
+	 */
 	private TreeView<String> sections;
+
+	/**
+	 * Reference for passing back names that were clicked on.
+	 */
 	private Set<OptionSection> optionSet;
+
 	/**
 	 * Returns the item selected, and the root most parent of the item selected
 	 */
 	private BiConsumer<OptionSection, OptionSection> onSectionDoubleClicked;
 
+	/**
+	 * Create tree from sectionsList parameter.
+	 *
+	 * @param sectionsList
+	 * 		Tree structure in form of {@link OptionSection}.
+	 */
 	public OptionsSettingsTree( Set<OptionSection> sectionsList )
 	{
 		optionSet = sectionsList;
@@ -35,11 +51,21 @@ public class OptionsSettingsTree extends BorderPane
 		populateSectionsTree(sectionsList);
 	}
 
+	/**
+	 * Set BiConsumer for tree double click functionality.
+	 *
+	 * @param onSectionDoubleClicked
+	 */
 	public void setTreeDoubleClick( BiConsumer<OptionSection, OptionSection> onSectionDoubleClicked )
 	{
 		this.onSectionDoubleClicked = onSectionDoubleClicked;
 	}
 
+	/**
+	 * Fills sections treeview with passed in sectionsList
+	 *
+	 * @param sectionsList
+	 */
 	private void populateSectionsTree( Set<OptionSection> sectionsList )
 	{
 		for ( OptionSection section : sectionsList )
@@ -56,6 +82,13 @@ public class OptionsSettingsTree extends BorderPane
 		}
 	}
 
+	/**
+	 * Called by {@link OptionsSettingsTree#populateSectionsTree(Set)} for recusive population of tree item children.
+	 *
+	 * @param section
+	 *
+	 * @return
+	 */
 	private List<TreeItem<String>> getSectionChildren( OptionSection section )
 	{
 		List<TreeItem<String>> subSectionList = new ArrayList<>();
@@ -71,6 +104,12 @@ public class OptionsSettingsTree extends BorderPane
 		return subSectionList;
 	}
 
+	/**
+	 * Retrieval of respective tree item {@link OptionSection} and its most root parent.
+	 * Then use of BiConsumer onSectionDoubleClicked.
+	 *
+	 * @param event
+	 */
 	private void onTreeClick( MouseEvent event )
 	{
 		if ( event.getClickCount() == 2 )
@@ -134,11 +173,27 @@ public class OptionsSettingsTree extends BorderPane
 		throw new IllegalStateException("Requested option section name not found in provided collection.");
 	}
 
+	/**
+	 * Helper function of {@link OptionsSettingsTree#findChildFullPath(TreeItem, String)}.
+	 *
+	 * @param selection
+	 *
+	 * @return
+	 */
 	private String findChildFullPath( TreeItem<String> selection )
 	{
 		return findChildFullPath(selection, selection.getValue());
 	}
 
+	/**
+	 * Find path for {@link OptionSection} for use in retrieving correct {@link OptionSection} from {@link
+	 * OptionsSettingsTree#optionSet}.
+	 *
+	 * @param selection
+	 * @param childPath
+	 *
+	 * @return
+	 */
 	private String findChildFullPath( TreeItem<String> selection, String childPath )
 	{
 		TreeItem<String> parent = selection.getParent();
@@ -151,6 +206,16 @@ public class OptionsSettingsTree extends BorderPane
 					"OptionsSettingsTree does not support a null root or a root with a value");
 	}
 
+	/**
+	 * Retrieve selections most root parent in the form of TreeItem so it can later retrieve the root parents {@link
+	 * OptionSection}.
+	 * <p>
+	 * NOTE: The most root parent of the selection could be the selection itself.
+	 *
+	 * @param selection
+	 *
+	 * @return
+	 */
 	private TreeItem<String> findRootParent( TreeItem<String> selection )
 	{
 		TreeItem<String> parent = selection.getParent();
@@ -164,6 +229,10 @@ public class OptionsSettingsTree extends BorderPane
 					"OptionsSettingsTree does not support a null root or a root with a value");
 	}
 
+	/**
+	 * Creates empty tree project in case {@link OptionsSettingsTree#optionSet} is empty.
+	 * @return
+	 */
 	private TreeView<String> createEmptyRootedProjectTree()
 	{
 		TreeItem<String> root = new TreeItem<String>("");
