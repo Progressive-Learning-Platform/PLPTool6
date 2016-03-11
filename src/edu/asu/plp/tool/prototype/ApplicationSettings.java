@@ -69,6 +69,11 @@ public class ApplicationSettings
 	private static HashMap<String, String> settings;
 
 	/**
+	 * Location of settings file loaded. Can be the same as {@link ApplicationSettings#DEFAULT_SETTINGS_FILE}.
+	 */
+	private String settingsSaveLocation;
+
+	/**
 	 * Private constructor to enforce singleton pattern.
 	 */
 	private ApplicationSettings()
@@ -251,6 +256,27 @@ public class ApplicationSettings
 			return false;
 		}
 	}
+
+	public static final boolean saveToFile()
+	{
+		return saveToFile(DEFAULT_SETTINGS_FILE);
+	}
+
+	public static final boolean saveToFile( String filePath )
+	{
+		return saveToFile(new File(filePath));
+	}
+
+	public static final boolean saveToFile( File file )
+	{
+		if ( !file.isFile() )
+			return false;
+
+		//TODO Fix not maintaining structure after inputting into map
+
+		throw new UnsupportedOperationException("saveToFile is not implemented ");
+	}
+
 
 	/**
 	 * Loads internal default settings into settings map.
