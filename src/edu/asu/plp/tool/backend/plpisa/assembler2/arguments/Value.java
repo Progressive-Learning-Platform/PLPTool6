@@ -22,25 +22,11 @@ public class Value implements Argument
 		// TODO Auto-generated method stub return 0;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-	
+
 	@Override
-	public boolean isRegister()
+	public ArgumentType getType()
 	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public boolean isNumberLiteral()
-	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public boolean isStringLiteral()
-	{
-		// TODO Auto-generated method stub return false;
+		// TODO Auto-generated method stub return null;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	

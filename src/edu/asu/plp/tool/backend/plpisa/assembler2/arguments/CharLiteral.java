@@ -23,28 +23,14 @@ public class CharLiteral implements Argument
 	}
 	
 	@Override
-	public boolean isRegister()
-	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public boolean isNumberLiteral()
-	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public boolean isStringLiteral()
-	{
-		// TODO Auto-generated method stub return false;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
 	public String raw()
+	{
+		// TODO Auto-generated method stub return null;
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public ArgumentType getType()
 	{
 		// TODO Auto-generated method stub return null;
 		throw new UnsupportedOperationException("The method is not implemented yet.");
