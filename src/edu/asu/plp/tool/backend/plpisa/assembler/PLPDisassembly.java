@@ -4,13 +4,15 @@ import edu.asu.plp.tool.backend.isa.ASMDisassembly;
 
 public class PLPDisassembly implements ASMDisassembly
 {
-	private long address;
-	private long[] instructions;
+	public static final long MASK_32BIT = 0xFFFFFFFF;
 	
-	public PLPDisassembly(long address, long... instructions)
+	private long address;
+	private long instruction;
+	
+	public PLPDisassembly(long address, long instruction)
 	{
 		this.address = address;
-		this.instructions = instructions;
+		this.instruction = instruction & MASK_32BIT;
 	}
 	
 	@Override
@@ -20,8 +22,8 @@ public class PLPDisassembly implements ASMDisassembly
 	}
 	
 	@Override
-	public long[] getInstructions()
+	public long getInstruction()
 	{
-		return instructions;
+		return instruction;
 	}
 }
