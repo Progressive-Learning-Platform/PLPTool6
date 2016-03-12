@@ -1,25 +1,32 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2.instructions;
 
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.*;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.NUMBER_LITERAL;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.FUNCT_CODE_POSITION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_5BIT;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_6BIT;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RD_POSITION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RT_POSITION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.SHAMT_POSITION;
 
 import java.text.ParseException;
 
 import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.PLPInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 
-public class RITypeInstruction implements PLPInstruction
+public class RITypeInstruction extends AbstractInstruction
 {
 	private int functCode;
 	
 	public RITypeInstruction(int functCode)
 	{
+		super(new ArgumentType[] { REGISTER, REGISTER, NUMBER_LITERAL });
 		this.functCode = functCode;
 	}
 	
 	@Override
-	public int assemble(Argument[] arguments) throws ParseException
+	protected int safeAssemble(Argument[] arguments) throws ParseException
 	{
-		validateArguments(arguments);
 		Argument rdRegisterArgument = arguments[0];
 		Argument rtRegisterArgument = arguments[1];
 		Argument shamtArgument = arguments[2];
@@ -38,26 +45,5 @@ public class RITypeInstruction implements PLPInstruction
 		encodedBitString |= (functCode & MASK_6BIT) << FUNCT_CODE_POSITION;
 		
 		return encodedBitString;
-	}
-	
-	private void validateArguments(Argument[] arguments) throws ParseException
-	{
-		if (arguments.length != 3)
-		{
-			String message = "R-Type Instructions require 3 arguments";
-			message += ", but " + arguments.length + " were found";
-			throw new ParseException(message, 0);
-		}
-		
-		boolean valid = arguments[0].isRegister();
-		valid = valid && arguments[1].isRegister() && arguments[2].isNumberLiteral();
-		if (!valid)
-		{
-			String message = "R-Type Immediate Instructions require 2 register arguments and one immediate argument,";
-			message += ", but instead found: [";
-			for (Argument argument : arguments)
-				message += argument.raw();
-			throw new ParseException(message, 0);
-		}
 	}
 }
