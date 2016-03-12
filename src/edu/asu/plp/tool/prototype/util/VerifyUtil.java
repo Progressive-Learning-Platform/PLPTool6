@@ -1,7 +1,8 @@
 package edu.asu.plp.tool.prototype.util;
 
 /**
- * Utility methods for checking verifying if input is valid. These methods only verify, they never return the input in a
+ * Utility methods for checking verifying if input is valid. These methods only verify, they never return the input in
+ * a
  * different form.
  * <p>
  * e.g. When checking if a string is an integer, it will never return an integer. Only a boolean saying whether or not
@@ -35,9 +36,15 @@ public class VerifyUtil
 	}
 
 	/**
-	 * @param input
+	 * Checks if provided Strings are integers
+	 * <p>
+	 * NOTE: Implemented using Try-Catch. Use this if you don't need the numbers back and it is not getting
+	 * consistently called.
 	 *
-	 * @return
+	 * @param input
+	 * 		Array of Strings
+	 *
+	 * @return True if all strings are integers, false otherwise
 	 */
 	public static boolean simpleIntegerCheck( String... input )
 	{

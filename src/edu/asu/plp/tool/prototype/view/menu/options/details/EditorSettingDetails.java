@@ -39,15 +39,15 @@ public class EditorSettingDetails
 
 		ApplicationSetting setting = ApplicationSetting.EDITOR_MODE;
 		details.editorMode =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadRequiredSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.EDITOR_FONT;
 		details.fontName =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadRequiredSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.EDITOR_FONT_SIZE;
 		details.fontSize =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadRequiredSavedSettingDefaultIfNotPresent(setting);
 
 		return details;
 	}

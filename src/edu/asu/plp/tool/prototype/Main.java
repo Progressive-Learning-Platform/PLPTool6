@@ -1324,7 +1324,7 @@ public class Main extends Application implements BusinessLogic
 	public void onOpenOptionsMenu(ActionEvent event)
 	{
 		List<Submittable> submittables = new ArrayList<>();
-		HashMap<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
+		Map<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
 
 		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
 		Scene popupScene = new Scene(optionsPane);
