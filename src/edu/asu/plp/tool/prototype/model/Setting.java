@@ -14,6 +14,8 @@ package edu.asu.plp.tool.prototype.model;
  * Please see {@link SettingUtil#prependSaveLabel(Setting)} for creating a saved variant of your standard name. It will
  * create a label, in accordance with how {@link edu.asu.plp.tool.prototype.ApplicationSettings} loads/saves settings.
  *
+ * You may also see {@link SettingUtil#loadSavedSettingDefaultIfNotPresent(Setting)}
+ *
  * @author Nesbitt, Morgan Created on 2/23/2016.
  */
 public interface Setting

@@ -2,6 +2,8 @@ package edu.asu.plp.tool.prototype.model;
 
 /**
  * Enumeration for accessing required (default) settings from the application settings file.
+ * <p>
+ * See {@link edu.asu.plp.tool.prototype.ApplicationSettings#getSetting(Setting)} for usage with this enumeration.
  *
  * @author Nesbitt, Morgan Created on 2/23/2016.
  */

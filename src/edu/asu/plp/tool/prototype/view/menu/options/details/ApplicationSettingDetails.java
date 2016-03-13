@@ -35,11 +35,11 @@ public class ApplicationSettingDetails
 
 		ApplicationSetting setting = ApplicationSetting.APPLICATION_THEME;
 		details.applicationTheme =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadRequiredSavedSettingDefaultIfNotPresent(setting);
 
 		setting = ApplicationSetting.EDITOR_THEME;
 		details.editorTheme =
-				SettingUtil.loadSavedSettingDefaultIfNotPresent(SettingUtil.prependSaveLabel(setting), setting);
+				SettingUtil.loadRequiredSavedSettingDefaultIfNotPresent(setting);
 
 		return details;
 	}
