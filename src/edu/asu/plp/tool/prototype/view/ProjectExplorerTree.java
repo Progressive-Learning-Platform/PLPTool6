@@ -151,6 +151,11 @@ public class ProjectExplorerTree extends BorderPane
 		return null;
 	}
 	
+	public int size()
+	{
+		return projects.size();
+	}
+	
 	private int getGlobalIndexOf(TreeItem<String> fileNode)
 	{
 		TreeItem<String> root = projectTreeDisplay.getRoot();
