@@ -596,6 +596,16 @@ public class Main extends Application implements BusinessLogic
 	private void loadOpenProjects()
 	{
 		// TODO: replace with actual content
+		try
+		{
+			PLPProject project;
+			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
+			projects.add(project);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -616,18 +626,6 @@ public class Main extends Application implements BusinessLogic
 	{
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
-		
-		PLPProject project;
-		
-		try
-		{
-			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
-			projects.add(project);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
