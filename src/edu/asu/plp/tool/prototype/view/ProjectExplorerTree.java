@@ -4,6 +4,8 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.prototype.model.Project;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
@@ -27,6 +29,8 @@ import java.util.function.Consumer;
  */
 public class ProjectExplorerTree extends BorderPane
 {
+	public static final String DEFAULT_EMPTY_MESSAGE = "No projects are open!";
+	
 	/**
 	 * The project model displayed by this tree. All projects in this list should be
 	 * displayed by the tree in the same order, with the same file order within projects.
@@ -37,6 +41,12 @@ public class ProjectExplorerTree extends BorderPane
 	
 	/** The view of this explorer */
 	private TreeView<String> projectTreeDisplay;
+	
+	/**
+	 * This Node is displayed when the tree is empty, instead of
+	 * {@link #projectTreeDisplay}
+	 */
+	private Node emptyTreeDisplay;
 	
 	/**
 	 * If a file item (not a project item) is double clicked in
@@ -50,6 +60,7 @@ public class ProjectExplorerTree extends BorderPane
 	public ProjectExplorerTree(ObservableList<? extends Project> projectsModel)
 	{
 		assert projectsModel != null;
+		emptyTreeDisplay = new Label(DEFAULT_EMPTY_MESSAGE);
 		projectTreeDisplay = createEmptyRootedProjectTree();
 		projectTreeDisplay.setOnMouseClicked(this::onTreeClick);
 		setCenter(projectTreeDisplay);
@@ -93,6 +104,8 @@ public class ProjectExplorerTree extends BorderPane
 		this.projectTreeDisplay.getRoot().getChildren().clear();
 		for (Project project : projectsModel)
 			addProjectToTree(project);
+		
+		validateDisplay();
 	}
 	
 	/**
@@ -118,8 +131,8 @@ public class ProjectExplorerTree extends BorderPane
 	{
 		TreeItem<String> selection = projectTreeDisplay.getSelectionModel()
 				.getSelectedItem();
-
-		if(selection != null)
+		
+		if (selection != null)
 		{
 			TreeItem<String> parent = selection.getParent();
 			
@@ -156,6 +169,11 @@ public class ProjectExplorerTree extends BorderPane
 		return projects.size();
 	}
 	
+	public boolean isEmpty()
+	{
+		return projects.size() == 0;
+	}
+	
 	private int getGlobalIndexOf(TreeItem<String> fileNode)
 	{
 		TreeItem<String> root = projectTreeDisplay.getRoot();
@@ -186,7 +204,7 @@ public class ProjectExplorerTree extends BorderPane
 			if (onFileDoubleClicked != null)
 			{
 				Pair<Project, ASMFile> selection = getActiveSelection();
-				if(selection == null)
+				if (selection == null)
 					return;
 				
 				ASMFile selectedFile = selection.getValue();
@@ -267,6 +285,16 @@ public class ProjectExplorerTree extends BorderPane
 	{
 		TreeItem<String> projectNode = getProjectNode(project);
 		projectTreeDisplay.getRoot().getChildren().remove(projectNode);
+		
+		validateDisplay();
+	}
+	
+	private void validateDisplay()
+	{
+		if (this.isEmpty())
+			this.setCenter(emptyTreeDisplay);
+		else
+			this.setCenter(projectTreeDisplay);
 	}
 	
 	private void removeFileFromTree(ASMFile file)
