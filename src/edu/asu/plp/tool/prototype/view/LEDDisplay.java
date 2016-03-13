@@ -22,11 +22,6 @@ public class LEDDisplay extends BorderPane
 	private static class LED extends BorderPane
 	{
 		private boolean isLit;
-		
-		public LED(boolean isLit)
-		{
-			this.isLit = isLit;
-		}
 	}
 	
 	/**
@@ -46,8 +41,7 @@ public class LEDDisplay extends BorderPane
 		ledNodes = new LED[NUMBER_OF_LEDS];
 		for (int index = 0; index < NUMBER_OF_LEDS; index++)
 		{
-			boolean isLit = isLEDLit(index);
-			LED led = createLED(index, isLit);
+			LED led = createLED(index);
 			
 			ledNodes[index] = led;
 			int position = NUMBER_OF_LEDS - index - 1;
@@ -75,7 +69,7 @@ public class LEDDisplay extends BorderPane
 		}
 	}
 	
-	private LED createLED(int number, boolean isLit)
+	private LED createLED(int number)
 	{
 		String labelText = Integer.toString(number);
 		Label ledLabel = new Label(labelText);
@@ -83,7 +77,7 @@ public class LEDDisplay extends BorderPane
 		ledLabel.setTextAlignment(TextAlignment.CENTER);
 		ledLabel.setTextFill(FONT_COLOR);
 		
-		LED led = new LED(isLit);
+		LED led = new LED();
 		led.setPrefHeight(DEFAULT_SIZE);
 		led.setPrefWidth(DEFAULT_SIZE);
 		led.setCenter(ledLabel);
