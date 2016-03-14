@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
-import java.util.List;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -74,6 +73,7 @@ import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPa
 import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
+import edu.asu.plp.tool.prototype.view.OutlineView;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
 
 /**
@@ -100,6 +100,7 @@ public class Main extends Application implements BusinessLogic
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	private BidiMap<ASMFile, Tab> openFileTabs;
+	private ObservableList<PLPLabel> activeNavigationItems;
 	private ObservableList<Project> projects;
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
@@ -354,6 +355,12 @@ public class Main extends Application implements BusinessLogic
 		return null;
 	}
 	
+	private void navigateToLabel(PLPLabel label)
+	{
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+	
 	/**
 	 * Creates a tab for the specified project, or selects the project, if the tab already
 	 * exists.
@@ -583,10 +590,15 @@ public class Main extends Application implements BusinessLogic
 		return console;
 	}
 	
-	private Parent createOutlineView()
+	private OutlineView createOutlineView()
 	{
-		// TODO: replace with relevant outline window
-		return Components.wrap(new TextArea());
+		List<PLPLabel> activeLabels = scrapeLabelsInActiveTab();
+		activeNavigationItems = FXCollections.observableArrayList(activeLabels);
+		
+		OutlineView outlineView = new OutlineView(activeNavigationItems);
+		outlineView.setOnAction(this::navigateToLabel);
+		
+		return outlineView;
 	}
 	
 	/**
