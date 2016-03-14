@@ -245,6 +245,8 @@ public class ProjectExplorerTree extends BorderPane
 			for (Project project : change.getRemoved())
 				removeProjectFromTree(project);
 		}
+		
+		validateDisplay();
 	}
 	
 	private void projectFilesChanged(Change<? extends ASMFile> change)
@@ -257,6 +259,8 @@ public class ProjectExplorerTree extends BorderPane
 			for (ASMFile file : change.getRemoved())
 				removeFileFromTree(file);
 		}
+		
+		validateDisplay();
 	}
 	
 	private void addProjectToTree(Project project)
@@ -285,8 +289,6 @@ public class ProjectExplorerTree extends BorderPane
 	{
 		TreeItem<String> projectNode = getProjectNode(project);
 		projectTreeDisplay.getRoot().getChildren().remove(projectNode);
-		
-		validateDisplay();
 	}
 	
 	private void validateDisplay()
