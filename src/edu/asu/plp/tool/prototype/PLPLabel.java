@@ -34,6 +34,7 @@ public class PLPLabel
 	public static List<PLPLabel> scrape(String content)
 	{
 		TokenTypeSet tokenTypes = new TokenTypeSet();
+		// TODO: replace with reference to PLPValueType or call the assembler interface
 		tokenTypes.add(new TokenType("[a-zA-Z_\\$][a-zA-Z_\\$0-9]*:", "LABEL"));
 		Lexer lexer = new Lexer(tokenTypes);
 		

@@ -19,26 +19,30 @@ public class LEDDisplay extends BorderPane
 	private static final String LIT_COLOR = "green";
 	private static final String UNLIT_COLOR = "black";
 	
+	private static class LED extends BorderPane
+	{
+		private boolean isLit;
+	}
+	
 	/**
-	 * The state of each LED in this panel (on or off) where a bit set to 1 is "on" and a
-	 * bit set to 0 is "off."
+	 * The display (border pane) and state (on or off) of each LED.
 	 * <p>
-	 * Each led corresponds to the bit at {@link #ledStates} >> index, where "index" is
-	 * the index of the desired LED.
+	 * Each led corresponds to index of this array. For instance, ledNodes[0] will return
+	 * the display and state for LED0
 	 * <p>
-	 * Note that LEDs are displayed in reverse order (i.e. LED0 is on the far right)
+	 * Note that LEDs are displayed in reverse order (i.e. LED0 is on the far right of the
+	 * display)
 	 */
-	private int ledStates;
-	private BorderPane[] ledNodes;
+	private LED[] ledNodes;
 	
 	public LEDDisplay()
 	{
 		GridPane grid = new GridPane();
-		ledNodes = new BorderPane[NUMBER_OF_LEDS];
+		ledNodes = new LED[NUMBER_OF_LEDS];
 		for (int index = 0; index < NUMBER_OF_LEDS; index++)
 		{
-			boolean isLit = isLEDLit(index);
-			BorderPane led = createLED(index, isLit);
+			LED led = createLED(index);
+			
 			ledNodes[index] = led;
 			int position = NUMBER_OF_LEDS - index - 1;
 			grid.add(led, position, 0);
@@ -65,7 +69,7 @@ public class LEDDisplay extends BorderPane
 		}
 	}
 	
-	private BorderPane createLED(int number, boolean isLit)
+	private LED createLED(int number)
 	{
 		String labelText = Integer.toString(number);
 		Label ledLabel = new Label(labelText);
@@ -73,37 +77,26 @@ public class LEDDisplay extends BorderPane
 		ledLabel.setTextAlignment(TextAlignment.CENTER);
 		ledLabel.setTextFill(FONT_COLOR);
 		
-		BorderPane led = new BorderPane();
+		LED led = new LED();
 		led.setPrefHeight(DEFAULT_SIZE);
 		led.setPrefWidth(DEFAULT_SIZE);
 		led.setCenter(ledLabel);
-		setLEDStyle(led, isLit);
+		updateLEDStyle(led);
 		
 		return led;
 	}
 	
-	public void setLEDState(int ledIndex, boolean isLit)
+	public void setLEDState(int index, boolean isLit)
 	{
-		int ledBit = 1 << ledIndex;
-		if (isLit)
-		{
-			// Set bit to TRUE
-			ledStates |= ledBit;
-		}
-		else
-		{
-			// Set bit to FALSE
-			ledBit = ~ledBit;
-			ledStates &= ledBit;
-		}
-		
-		setLEDStyle(ledNodes[ledIndex], isLit);
+		LED led = ledNodes[index];
+		led.isLit = isLit;
+		updateLEDStyle(led);
 	}
 	
-	private void setLEDStyle(BorderPane led, boolean isLit)
+	private void updateLEDStyle(LED led)
 	{
 		String style = "-fx-border-color: white; -fx-text-align: center; -fx-background-color:";
-		style += (isLit) ? LIT_COLOR : UNLIT_COLOR;
+		style += (led.isLit) ? LIT_COLOR : UNLIT_COLOR;
 		led.setStyle(style);
 	}
 	
@@ -121,9 +114,8 @@ public class LEDDisplay extends BorderPane
 	
 	public boolean isLEDLit(int index)
 	{
-		int ledState = (ledStates >> index) & 1;
-		boolean isLit = (ledState != 0);
-		return isLit;
+		LED led = ledNodes[index];
+		return led.isLit;
 	}
 	
 	public void toggleLEDState(int ledIndex)

@@ -8,8 +8,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -35,17 +40,24 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.*;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import moore.fx.components.Components;
 import moore.util.ExceptionalSubroutine;
@@ -65,16 +77,27 @@ import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
-import edu.asu.plp.tool.prototype.model.*;
+import edu.asu.plp.tool.prototype.model.ApplicationSetting;
+import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
+import edu.asu.plp.tool.prototype.model.OptionSection;
+import edu.asu.plp.tool.prototype.model.PLPOptions;
+import edu.asu.plp.tool.prototype.model.PLPProject;
+import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.Submittable;
+import edu.asu.plp.tool.prototype.model.Theme;
+import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
+import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
+import edu.asu.plp.tool.prototype.util.Dialogues;
+import edu.asu.plp.tool.prototype.view.CodeEditor;
+import edu.asu.plp.tool.prototype.view.ConsolePane;
+import edu.asu.plp.tool.prototype.view.OutlineView;
+import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
 import edu.asu.plp.tool.prototype.view.menu.options.OptionsPane;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.ApplicationSettingsPanel;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.EditorSettingsPanel;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.ProgrammerSettingsPanel;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPanel;
-import edu.asu.plp.tool.prototype.util.Dialogues;
-import edu.asu.plp.tool.prototype.view.CodeEditor;
-import edu.asu.plp.tool.prototype.view.ConsolePane;
-import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
 
 /**
  * Driver for the PLPTool prototype.
@@ -100,6 +123,7 @@ public class Main extends Application implements BusinessLogic
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	private BidiMap<ASMFile, Tab> openFileTabs;
+	private ObservableList<PLPLabel> activeNavigationItems;
 	private ObservableList<Project> projects;
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
@@ -354,6 +378,12 @@ public class Main extends Application implements BusinessLogic
 		return null;
 	}
 	
+	private void navigateToLabel(PLPLabel label)
+	{
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+	
 	/**
 	 * Creates a tab for the specified project, or selects the project, if the tab already
 	 * exists.
@@ -583,10 +613,15 @@ public class Main extends Application implements BusinessLogic
 		return console;
 	}
 	
-	private Parent createOutlineView()
+	private OutlineView createOutlineView()
 	{
-		// TODO: replace with relevant outline window
-		return Components.wrap(new TextArea());
+		List<PLPLabel> activeLabels = scrapeLabelsInActiveTab();
+		activeNavigationItems = FXCollections.observableArrayList(activeLabels);
+		
+		OutlineView outlineView = new OutlineView(activeNavigationItems);
+		outlineView.setOnAction(this::navigateToLabel);
+		
+		return outlineView;
 	}
 	
 	/**
@@ -596,6 +631,16 @@ public class Main extends Application implements BusinessLogic
 	private void loadOpenProjects()
 	{
 		// TODO: replace with actual content
+		try
+		{
+			PLPProject project;
+			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
+			projects.add(project);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -616,18 +661,6 @@ public class Main extends Application implements BusinessLogic
 	{
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
-		
-		PLPProject project;
-		
-		try
-		{
-			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
-			projects.add(project);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
