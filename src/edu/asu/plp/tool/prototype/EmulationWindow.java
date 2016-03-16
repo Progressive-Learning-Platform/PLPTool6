@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
@@ -15,37 +16,107 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 public class EmulationWindow extends BorderPane
 {
 	
 	public EmulationWindow()
 	{
-		GridPane grid = new GridPane();
+		GridPane demoGrid = createDemo();
 		HBox topBar = createTopBar();
-		
-		Node ledPic = new ImageView("leds_example.png");
-		Node switchesPic = new ImageView("switches_example.png");
-		Node uartPic = new ImageView("uart_example.png");
-		Node sevenSegPic = new ImageView("seven_seg_example.png");
-		
+		VBox optionsBar = createOptions();
+				
 		this.setTop(topBar);
-		this.setCenter(uartPic);
-		this.setLeft(ledPic);
-		this.setRight(switchesPic);
-		this.setBottom(sevenSegPic);
-		
+		this.setCenter(demoGrid);
+		this.setLeft(optionsBar);
 	}
 	
+	private VBox createOptions()
+	{
+	    VBox vbox = new VBox();
+	    vbox.setPadding(new Insets(10));
+	    vbox.setSpacing(8);
+
+	    Text title = new Text("Windows");
+	    title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+	    vbox.getChildren().add(title);
+
+	    CheckBox windows[] = new CheckBox[] {
+	        new CheckBox("7 Segement Display"),
+	        new CheckBox("LEDs"),
+	        new CheckBox("UART"),
+	        new CheckBox("Switches")};
+
+	    for (int i=0; i<4; i++) {
+	        VBox.setMargin(windows[i], new Insets(0, 0, 0, 4));
+	        windows[i].setSelected(true);
+	        vbox.getChildren().add(windows[i]);
+	    }
+
+	    return vbox;
+	}
+
+	private GridPane createDemo()
+	{
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+		
+		DropShadow backgroundColor = new DropShadow();
+		backgroundColor.setColor(Color.BLACK);
+		
+		Node ledPic = new ImageView("leds_example.png");
+		ledPic.setEffect(backgroundColor);
+		Node switchesPic = new ImageView("switches_example.png");
+		switchesPic.setEffect(backgroundColor);
+		Node uartPic = new ImageView("uart_example.png");
+		uartPic.setEffect(backgroundColor);
+		Node sevenSegPic = new ImageView("seven_seg_example.png");
+		sevenSegPic.setEffect(backgroundColor);
+		
+		Label ledLabel = new Label();
+		ledLabel.setText("LEDs: ");
+		ledLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label switchesLabel = new Label();
+		switchesLabel.setText("Switches: ");
+		switchesLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label uartLabel = new Label();
+		uartLabel.setText("UART: ");
+		uartLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label sevenSegLabel = new Label();
+		sevenSegLabel.setText("Seven Segment Display: ");
+		sevenSegLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		grid.add(sevenSegLabel, 0, 0);
+		grid.add(sevenSegPic, 0, 1, 1, 1);
+		
+		grid.add(ledLabel, 0, 2);
+		grid.add(ledPic, 0, 3, 1, 1);
+		
+		grid.add(switchesLabel, 0, 4);
+		grid.add(switchesPic, 0, 5, 1, 1);
+		
+		grid.add(uartLabel, 1, 0);
+		grid.add(uartPic, 1, 1, 1, 4);
+		//grid.setGridLinesVisible(true);
+		
+		return grid;
+	}
+
 	public HBox createTopBar()
 	{
 		HBox hbox = new HBox();
 	    hbox.setPadding(new Insets(15, 15, 15, 15));
 	    hbox.setSpacing(10);
-	    //hbox.setStyle("-fx-background-color: Blue;");
+	    hbox.setStyle("-fx-background-color: Grey;");
 	    ObservableList<Node> buttons = hbox.getChildren();
 	    Set<Node> buttonEffectsSet = new HashSet<>();
 
@@ -91,6 +162,16 @@ public class EmulationWindow extends BorderPane
 		stepLabelCount.setText("0");
 		stepLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		buttons.add(stepLabelCount);
+		
+		Label simModeState = new Label();
+		simModeState.setText("Sim Mode");
+		simModeState.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		buttons.add(simModeState);
+		
+		Node simModeImage = new ImageView("sim_mode_on.png");
+		buttons.add(simModeImage);
+		
+		
 
 	    return hbox;
 			
