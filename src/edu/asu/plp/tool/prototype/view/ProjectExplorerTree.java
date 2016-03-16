@@ -266,9 +266,13 @@ public class ProjectExplorerTree extends BorderPane
 	private void addProjectToTree(Project project)
 	{
 		project.addListener(this::projectFilesChanged);
+		
+		/*
 		String projectTypeString = project.getType();
 		projectTypeString = " (" + projectTypeString.toUpperCase() + ")";
 		TreeItem<String> projectItem = new TreeItem<>(project.getName() + projectTypeString);
+		*/
+		TreeItem<String> projectItem = new TreeItem<>(project.getName());
 		
 		for (ASMFile file : project)
 		{
