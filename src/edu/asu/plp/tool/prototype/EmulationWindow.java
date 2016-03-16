@@ -45,6 +45,25 @@ public class EmulationWindow extends BorderPane
 	    Text title = new Text("Windows");
 	    title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
 	    vbox.getChildren().add(title);
+	    
+	    /*
+	     * Work in progress
+	     */
+	    
+	    /*
+	    CheckBox sevenSegCheckBox = new CheckBox();
+	    sevenSegCheckBox.selectedProperty().addListener(new Change Listener<Boolean>()
+	    		{
+	    			
+	    		}
+	    		);
+	    
+	    CheckBox ledCheckBox = new CheckBox();
+	    
+	    CheckBox uartCheckBox = new CheckBox();
+	    
+	    CheckBox switchesCheckBox = new CheckBox();
+	    */
 
 	    CheckBox windows[] = new CheckBox[] {
 	        new CheckBox("7 Segement Display"),
@@ -64,8 +83,12 @@ public class EmulationWindow extends BorderPane
 	private GridPane createDemo()
 	{
 		GridPane grid = new GridPane();
-		grid.setHgap(10);
+		grid.setHgap(20);
 		grid.setVgap(10);
+		VBox leftSide = new VBox();
+		leftSide.setSpacing(10);
+		VBox rightSide = new VBox();
+		rightSide.setSpacing(10);
 		
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
@@ -95,6 +118,10 @@ public class EmulationWindow extends BorderPane
 		sevenSegLabel.setText("Seven Segment Display: ");
 		sevenSegLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
+		leftSide.getChildren().addAll(sevenSegLabel, sevenSegPic, ledLabel, ledPic, switchesLabel, switchesPic);
+		rightSide.getChildren().addAll(uartLabel, uartPic);
+		
+		/*
 		grid.add(sevenSegLabel, 0, 0);
 		grid.add(sevenSegPic, 0, 1, 1, 1);
 		
@@ -106,8 +133,13 @@ public class EmulationWindow extends BorderPane
 		
 		grid.add(uartLabel, 1, 0);
 		grid.add(uartPic, 1, 1, 1, 4);
-		//grid.setGridLinesVisible(true);
 		
+		 * 
+		 */
+		
+		//grid.setGridLinesVisible(true);
+		grid.add(leftSide, 0, 0);
+		grid.add(rightSide, 1, 0);
 		return grid;
 	}
 
@@ -116,7 +148,7 @@ public class EmulationWindow extends BorderPane
 		HBox hbox = new HBox();
 	    hbox.setPadding(new Insets(15, 15, 15, 15));
 	    hbox.setSpacing(10);
-	    hbox.setStyle("-fx-background-color: Grey;");
+	    hbox.setStyle("-fx-background-color: lightsteelblue;");
 	    ObservableList<Node> buttons = hbox.getChildren();
 	    Set<Node> buttonEffectsSet = new HashSet<>();
 
@@ -160,7 +192,7 @@ public class EmulationWindow extends BorderPane
 		
 		Label stepLabelCount = new Label();
 		stepLabelCount.setText("0");
-		stepLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		stepLabelCount.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		buttons.add(stepLabelCount);
 		
 		Label simModeState = new Label();
