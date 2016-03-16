@@ -1,31 +1,22 @@
 package edu.asu.plp.tool.prototype.view;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
-import javafx.embed.swing.SwingNode;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-
-import javax.swing.CodeEditorPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
-
-import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
+import javafx.scene.web.WebView;
+import netscape.javascript.JSObject;
+import edu.asu.plp.tool.prototype.model.AceEditor;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -42,155 +33,142 @@ import org.json.JSONObject;
  * 
  * @author Moore, Zachary
  * @author Hawks, Elliott
+ * @author Nesbitt, Morgan
  *
  */
 public class CodeEditor extends BorderPane implements ObservableStringValue
-{
-	private static String REGEX_KEY = "regex";
-	private static String COLOR_KEY = "color";
-	
-	private CodeEditorPane textPane;
-	private StringProperty textProperty;
+{	
+	private WebView webView;
+	private AceEditor aceEditor;
+	private StringProperty codeBodyProperty;
+	private StringProperty acePageContentsProperty;
 	
 	public CodeEditor()
 	{
-		textProperty = new SimpleStringProperty();
-		textPane = new CodeEditorPane();
-		textPane.addKeyListener(new UpdateOnKeyPressListener());
+		webView = new WebView();
+		aceEditor = new AceEditor();
 		
-		SwingNode swingNode = new SwingNode();
-		textPane.setText("");
-		updateText();
+		codeBodyProperty = aceEditor.getBodyProperty();
+		acePageContentsProperty = aceEditor.getPage();
 		
-		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
-		swingNode.setContent(paneWithLines);
-		setCenter(swingNode);
+		initializeEngineEvents();
 		
-		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
-		this.textProperty.bindBidirectional(accessibleTextProperty());
-	}
-	
-	public void setSyntaxHighlighting(HashMap<String, Color> regexSyntaxHighlighting)
-	{
-		textPane.setKeywordColor(regexSyntaxHighlighting);
-	}
-	
-	public void setSyntaxHighlighting(JSONObject syntaxSpecification)
-	{
-		HashMap<String, Color> regexSyntaxMap = new HashMap<>();
+		webView.getEngine().loadContent(aceEditor.getPage().get());
 		
-		for (String syntaxName : syntaxSpecification.keySet())
+		// Add interface to access Java model from Javascript
+		JSObject jsObject = (JSObject) webView.getEngine().executeScript("window");
+		jsObject.setMember("javaContentModel", this);
+		
+		acePageContentsProperty.addListener((observable, old, newValue) -> 
 		{
-			JSONObject syntax = syntaxSpecification.getJSONObject(syntaxName);
-			// TODO: account for invalid syn file (e.g. missing regex or color)
-			String regex = syntax.getString(REGEX_KEY);
-			String colorHexString = syntax.getString(COLOR_KEY);
-			
-			int red = Integer.valueOf(colorHexString.substring(1, 3), 16);
-			int green = Integer.valueOf(colorHexString.substring(3, 5), 16);
-			int blue = Integer.valueOf(colorHexString.substring(5, 7), 16);
-			
-			Color color = new Color(red, green, blue);
-			regexSyntaxMap.put(regex, color);
-		}
+			System.out.println("Loaded:\n" + newValue);
+			webView.getEngine().loadContent(newValue);
+		});
 		
-		setSyntaxHighlighting(regexSyntaxMap);
+		codeBodyProperty.addListener(
+				(observable, old, newValue) -> System.out.println("CodeProperty changed"));
+		
+		webView.setContextMenuEnabled(false);
+		//TODO create custom context menu (right click menu)
+		
+		// TODO: move this to a js file
+		aceEditor.addCustomJavascriptRoutine(() -> "editor.on(\"change\", function() {"
+				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
+				+ "});");
+		
+		setCenter(webView);
+		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 	}
 	
-	public void setSyntaxHighlighting(File syntaxSpecificationFile) throws IOException
+	public void updateTextFromJavascript(String text)
 	{
-		String jsonString = FileUtils.readFileToString(syntaxSpecificationFile, "UTF-8");
-		JSONObject syntaxSpecification = new JSONObject(jsonString);
-		setSyntaxHighlighting(syntaxSpecification);
+		codeBodyProperty.set(text);
+		System.out.println("Code updating");
+	}
+	
+	public void println(String string)
+	{
+		System.out.println(string);
 	}
 	
 	public void setText(String text)
 	{
-		textPane.setText(text);
-		updateText();
-	}
-	
-	private void updateText()
-	{
-		String text = textPane.getText();
-		this.textProperty.set(text);
-		adjustLineNumbers();
-	}
-	
-	private void adjustLineNumbers()
-	{
-		// Workaround for a bug in CodeEditorPane.getNumberOfLines
-		int lineCount = textPane.getText().split("\n").length;
-		String lineNumberString = Integer.toString(lineCount);
-		
-		Font font = textPane.getFont();
-		FontMetrics metrics = textPane.getFontMetrics(font);
-		int width = SwingUtilities.computeStringWidth(metrics, lineNumberString);
-		
-		// Workaround for a bug in LineNumbersTextPane
-		JSplitPane paneWithLines = (JSplitPane) textPane.getContainerWithLines();
-		paneWithLines.setDividerLocation(width);
-	}
-	
-	public String getText()
-	{
-		return get();
+		// TODO: update StringEscapeUtils and use escapeJavaScript() instead
+		text = StringEscapeUtils.escapeJava(text);
+		codeBodyProperty.set(text);
+		System.out.println("Setting value");
+		webView.getEngine().executeScript(
+				"window.onload = function() {"
+				+ "editor.on(\"change\", function(){});"
+				+ "editor.setValue(\"" + text + "\","
+						+ text.length() + ");"
+				+ "editor.on(\"change\", function() {"
+				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
+				+ "});"
+				+ "javaContentModel.println(\"Value Set\");"
+				+ "};"
+				);
 	}
 	
 	@Override
 	public String get()
 	{
-		return textProperty.get();
+		return codeBodyProperty.get();
 	}
 	
 	@Override
 	public String getValue()
 	{
-		return textProperty.getValue();
+		return codeBodyProperty.getValue();
 	}
 	
 	@Override
 	public void addListener(ChangeListener<? super String> listener)
 	{
-		textProperty.addListener(listener);
+		codeBodyProperty.addListener(listener);
 	}
 	
 	@Override
 	public void removeListener(ChangeListener<? super String> listener)
 	{
-		textProperty.removeListener(listener);
+		codeBodyProperty.removeListener(listener);
 	}
 	
 	@Override
 	public void addListener(InvalidationListener listener)
 	{
-		textProperty.addListener(listener);
+		codeBodyProperty.addListener(listener);
 	}
 	
 	@Override
 	public void removeListener(InvalidationListener listener)
 	{
-		textProperty.removeListener(listener);
+		codeBodyProperty.removeListener(listener);
 	}
 	
-	private class UpdateOnKeyPressListener implements KeyListener
+	private void initializeEngineEvents()
 	{
-		@Override
-		public void keyTyped(KeyEvent arg0)
-		{
-			updateText();
-		}
+		webView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+			if( e.isShortcutDown() && e.getCode() == KeyCode.V) 
+			{
+				String content = (String) Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT);
+	            if (content != null) 
+	            {
+	            	webView.getEngine().executeScript("editor.onPaste('" + sanitizeForAce(content) + "');");
+	            }
+            }
+		});
+	}
+	
+	private String sanitizeForAce(String content)
+	{
+		String intermediary = content;
 		
-		@Override
-		public void keyReleased(KeyEvent arg0)
-		{
-			updateText();
-		}
+		intermediary = intermediary.replace(System.getProperty("line.separator"), "\\n");
+		intermediary = intermediary.replace("\n", "\\n");
+		intermediary = intermediary.replace("\r", "\\n");
+		intermediary = intermediary.replace("'", "\\'");
 		
-		@Override
-		public void keyPressed(KeyEvent arg0)
-		{
-			updateText();
-		}
+		return intermediary;
 	}
 }

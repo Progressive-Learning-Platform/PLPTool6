@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.prototype.view;
 
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -14,7 +14,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.prototype.model.CSSStyle;
+import edu.asu.plp.tool.prototype.model.Theme;
+import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
 import edu.asu.plp.tool.prototype.util.OnLoadListener;
 
 public class ConsolePane extends BorderPane
@@ -48,6 +53,7 @@ public class ConsolePane extends BorderPane
 		WebView view = new WebView();
 		view.setContextMenuEnabled(false);
 		webEngine = view.getEngine();
+		
 		messageQueue = new LinkedList<>();
 		
 		ObservableValue<State> property = webEngine.getLoadWorker().stateProperty();
@@ -55,6 +61,9 @@ public class ConsolePane extends BorderPane
 		
 		String content = "<html><head></head><body></body></html>";
 		webEngine.loadContent(content);
+		
+		ConsolePaneEventHandler eventHandler = new ConsolePaneEventHandler();
+		EventRegistry.getGlobalRegistry().register(eventHandler);
 		
 		this.setCenter(view);
 	}
@@ -68,10 +77,6 @@ public class ConsolePane extends BorderPane
 		
 		Node body = dom.getElementsByTagName("body").item(0);
 		body.appendChild(textPaneElement);
-		
-		URL cssURL = getClass().getResource("defaultConsoleStyle.css");
-		String cssPath = cssURL.toExternalForm();
-		addStylesheet(cssPath);
 		
 		for (Message message : messageQueue)
 		{
@@ -199,4 +204,31 @@ public class ConsolePane extends BorderPane
     public int getConsoleBottom() {
         return (Integer) webEngine.executeScript("document.body.scrollWidth");
     }
+    
+	public class ConsolePaneEventHandler
+	{
+		/**
+		 * Enforce non-instantiable pattern with private constructor
+		 */
+		private ConsolePaneEventHandler()
+		{
+		}
+		
+		@Subscribe
+		public void applicationThemeRequestCallback(ThemeRequestCallback event)
+		{
+			if (event.requestedTheme().isPresent())
+			{
+				Theme applicationTheme = event.requestedTheme().get();
+				try
+				{
+					webEngine.setUserStyleSheetLocation(applicationTheme.getPath());
+				}
+				catch (MalformedURLException e)
+				{
+				}
+			}
+		}
+	}
+
 }
