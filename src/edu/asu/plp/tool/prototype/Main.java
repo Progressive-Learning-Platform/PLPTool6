@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -130,10 +131,35 @@ public class Main extends Application implements BusinessLogic
 	private ConsolePane console;
 	
 	private ApplicationThemeManager applicationThemeManager;
+	private OutlineView outlineView;
 	
 	public static void main(String[] args)
 	{
 		launch(args);
+	}
+	
+	private void onTabActivation(ObservableValue<? extends Tab> value, Tab old,
+			Tab current)
+	{
+		ASMFile previousASM = openFileTabs.getKey(current);
+		if (previousASM != null)
+			previousASM.contentProperty().removeListener(this::updateOutline);
+		
+		ASMFile asmFile = openFileTabs.getKey(current);
+		if (asmFile != null)
+		{
+			String content = asmFile.getContent();
+			List<PLPLabel> labels = PLPLabel.scrape(content);
+			outlineView.setModel(FXCollections.observableArrayList(labels));
+			asmFile.contentProperty().addListener(this::updateOutline);
+		}
+	}
+	
+	private void updateOutline(ObservableValue<? extends String> value, String old,
+			String current)
+	{
+		List<PLPLabel> labels = PLPLabel.scrape(current);
+		outlineView.setModel(FXCollections.observableArrayList(labels));
 	}
 	
 	@Override
@@ -153,9 +179,12 @@ public class Main extends Application implements BusinessLogic
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
 		this.projectExplorer = createProjectTree();
-		Parent outlineView = createOutlineView();
+		outlineView = createOutlineView();
 		console = createConsole();
 		console.println(">> Console Initialized.");
+		
+		openProjectsPanel.getSelectionModel().selectedItemProperty()
+				.addListener(this::onTabActivation);
 		
 		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
 		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
@@ -204,10 +233,11 @@ public class Main extends Application implements BusinessLogic
 		Scene scene = new Scene(Components.wrap(mainPanel), width, height);
 		
 		primaryStage.setScene(scene);
-
-		String themeName = ApplicationSettings.getSetting(ApplicationSetting.APPLICATION_THEME).get();
+		
+		String themeName = ApplicationSettings.getSetting(
+				ApplicationSetting.APPLICATION_THEME).get();
 		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(themeName));
-
+		
 		primaryStage.show();
 	}
 	
@@ -393,6 +423,7 @@ public class Main extends Application implements BusinessLogic
 	 */
 	private void openFile(ASMFile file)
 	{
+		file.contentProperty().addListener(this::updateOutline);
 		String fileName = file.getName();
 		
 		System.out.println("Opening " + fileName);
@@ -413,8 +444,6 @@ public class Main extends Application implements BusinessLogic
 			
 			// Bind content
 			file.contentProperty().bind(content);
-			file.contentProperty().addListener(
-					(value, old, current) -> System.out.println(current));
 		}
 		
 		// Activate the specified tab
@@ -575,7 +604,11 @@ public class Main extends Application implements BusinessLogic
 			@Override
 			public void handle(Event event)
 			{
-				openFileTabs.removeValue(tab);
+				ASMFile asmFile = openFileTabs.removeValue(tab);
+				if (asmFile != null)
+				{
+					asmFile.contentProperty().removeListener(Main.this::updateOutline);
+				}
 			}
 		});
 		tab.setOnSelectionChanged(new EventHandler<Event>() {
@@ -1358,112 +1391,125 @@ public class Main extends Application implements BusinessLogic
 	{
 		List<Submittable> submittables = new ArrayList<>();
 		Map<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
-
+		
 		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
 		Scene popupScene = new Scene(optionsPane);
-
+		
 		Stage popupWindow = new Stage(StageStyle.DECORATED);
 		popupWindow.setTitle("Settings");
 		popupWindow.initModality(Modality.WINDOW_MODAL);
 		popupWindow.initOwner(stage);
 		popupWindow.setScene(popupScene);
-
+		
 		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
-		popupWindow.setMinHeight(stage.getScene().getHeight()  - (stage.getScene().getHeight() / 3));
-
-
+		popupWindow.setMinHeight(stage.getScene().getHeight()
+				- (stage.getScene().getHeight() / 3));
+		
 		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
-
-		optionsPane.setOkAction(()-> {
-			if(optionsMenuOkSelected(submittables))
+		
+		optionsPane.setOkAction(() -> {
+			if (optionsMenuOkSelected(submittables))
 			{
 				submittables.forEach(submittable -> submittable.submit());
 				popupWindow.close();
 			}
 		});
-		optionsPane.setCancelAction(() -> {popupWindow.close();});
-
-		popupWindow.setOnCloseRequest((windowEvent)-> {popupWindow.close();});
+		optionsPane.setCancelAction(() -> {
+			popupWindow.close();
+		});
+		
+		popupWindow.setOnCloseRequest((windowEvent) -> {
+			popupWindow.close();
+		});
 		popupWindow.show();
 	}
-
+	
 	private boolean optionsMenuOkSelected(List<Submittable> submittables)
 	{
-		for ( Submittable submittable : submittables )
+		for (Submittable submittable : submittables)
 		{
-			if(!submittable.isValid())
+			if (!submittable.isValid())
 				return false;
 		}
 		return true;
 	}
-
-	private HashMap<OptionSection, Pane> createOptionsMenuModel( List<Submittable> submittables )
+	
+	private HashMap<OptionSection, Pane> createOptionsMenuModel(
+			List<Submittable> submittables)
 	{
-		HashMap<OptionSection, Pane> model =  new LinkedHashMap<>();
-
+		HashMap<OptionSection, Pane> model = new LinkedHashMap<>();
+		
 		addApplicationOptionSettings(model, submittables);
 		addEditorOptionSettings(model, submittables);
 		addASimulatorOptionSettings(model, submittables);
 		addProgrammerOptionSettings(model, submittables);
-
-		//TODO Accept new things
-
+		
+		// TODO Accept new things
+		
 		return model;
 	}
-
-	private void addApplicationOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
+	
+	private void addApplicationOptionSettings(HashMap<OptionSection, Pane> model,
+			List<Submittable> submittables)
 	{
 		PLPOptions applicationSection = new PLPOptions("Application");
-
-		ObservableList<String> applicationThemeNames = FXCollections.observableArrayList();
+		
+		ObservableList<String> applicationThemeNames = FXCollections
+				.observableArrayList();
 		applicationThemeNames.addAll(applicationThemeManager.getThemeNames());
-
-		//TODO acquire editor theme names
-		//TODO add filters, disabling sounds retarded. Just filter and put non adjacent at bottom
+		
+		// TODO acquire editor theme names
+		// TODO add filters, disabling sounds retarded. Just filter and put non adjacent
+		// at bottom
 		ObservableList<String> editorThemeNames = FXCollections.observableArrayList();
-		editorThemeNames.addAll("eclipse", "tomorrow", "xcode", "ambiance", "monokai", "twilight");
-
-		ApplicationSettingsPanel applicationPanel = new ApplicationSettingsPanel(applicationThemeNames, editorThemeNames);
+		editorThemeNames.addAll("eclipse", "tomorrow", "xcode", "ambiance", "monokai",
+				"twilight");
+		
+		ApplicationSettingsPanel applicationPanel = new ApplicationSettingsPanel(
+				applicationThemeNames, editorThemeNames);
 		submittables.add(applicationPanel);
-
+		
 		model.put(applicationSection, applicationPanel);
 	}
-
-	private void addEditorOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
+	
+	private void addEditorOptionSettings(HashMap<OptionSection, Pane> model,
+			List<Submittable> submittables)
 	{
 		PLPOptions editorSection = new PLPOptions("Editor");
-
-		//TODO acquire all usable fonts
+		
+		// TODO acquire all usable fonts
 		ObservableList<String> fontNames = FXCollections.observableArrayList();
 		fontNames.addAll("courier", "inconsolata");
-
-		//TODO acquire editor modes
+		
+		// TODO acquire editor modes
 		ObservableList<String> editorModes = FXCollections.observableArrayList();
 		editorModes.addAll("plp");
-
+		
 		EditorSettingsPanel editorPanel = new EditorSettingsPanel(fontNames, editorModes);
 		submittables.add(editorPanel);
-
+		
 		model.put(editorSection, editorPanel);
 	}
-
-	private void addASimulatorOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
+	
+	private void addASimulatorOptionSettings(HashMap<OptionSection, Pane> model,
+			List<Submittable> submittables)
 	{
 		PLPOptions simulatorSection = new PLPOptions("Simulator");
-
+		
 		SimulatorSettingsPanel simulatorPanel = new SimulatorSettingsPanel();
 		submittables.add(simulatorPanel);
-
+		
 		model.put(simulatorSection, simulatorPanel);
 	}
-
-	private void addProgrammerOptionSettings( HashMap<OptionSection, Pane> model, List<Submittable> submittables )
+	
+	private void addProgrammerOptionSettings(HashMap<OptionSection, Pane> model,
+			List<Submittable> submittables)
 	{
 		PLPOptions programmerSection = new PLPOptions("Programmer");
-
+		
 		ProgrammerSettingsPanel programmerPanel = new ProgrammerSettingsPanel();
 		submittables.add(programmerPanel);
-
+		
 		model.put(programmerSection, programmerPanel);
 	}
 	
