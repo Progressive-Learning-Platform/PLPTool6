@@ -413,8 +413,6 @@ public class Main extends Application implements BusinessLogic
 			
 			// Bind content
 			file.contentProperty().bind(content);
-			file.contentProperty().addListener(
-					(value, old, current) -> System.out.println(current));
 		}
 		
 		// Activate the specified tab
