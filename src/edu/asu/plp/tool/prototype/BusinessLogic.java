@@ -150,4 +150,8 @@ public interface BusinessLogic
 	void onOpenSerialTerminal(ActionEvent event);
 	
 	void onOpenNumberConverter(ActionEvent event);
+	
+	void onOpenEmulationWindow(ActionEvent event);
+	
+	void onOpenEmulationWindow(MouseEvent event);
 }

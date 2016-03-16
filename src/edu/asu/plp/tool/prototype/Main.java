@@ -950,6 +950,26 @@ public class Main extends Application implements BusinessLogic
 			tryAndReport(project::save);
 		}
 	}
+	
+	@Override
+	public void onOpenEmulationWindow(ActionEvent even)
+	{
+		openEmulation();
+	}
+
+	private void openEmulation()
+	{
+		Stage createEmulationStage = new Stage();
+		EmulationWindow emulationWindow = new EmulationWindow();
+		//projectCreationPanel.setFinallyOperation(createProjectStage::close);
+		
+		Scene scene = new Scene(emulationWindow, 600, 600);
+		createEmulationStage.setTitle("Emulation Window");
+		createEmulationStage.setScene(scene);
+		//createEmulationStage.setResizable(false);
+		createEmulationStage.show();
+		
+	}
 
 	@Override
 	public void onPrint(ActionEvent event)
@@ -1504,6 +1524,13 @@ public class Main extends Application implements BusinessLogic
 
 	@Override
 	public void onDisplayGPIOEmulator(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+	
+	@Override
+	public void onOpenEmulationWindow(MouseEvent event)
 	{
 		// TODO Auto-generated method stub 
 		throw new UnsupportedOperationException("The method is not implemented yet.");

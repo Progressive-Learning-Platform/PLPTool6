@@ -73,6 +73,9 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemStep.setAccelerator(new KeyCodeCombination(KeyCode.F5));
 		itemStep.setOnAction(businessLogic::onSimulationStep);
 		
+		MenuItem itemEmulationWindow = new MenuItem("Emulation Window");
+		itemEmulationWindow.setOnAction(businessLogic::onOpenEmulationWindow);
+		
 		MenuItem itemReset = new MenuItem("Reset");
 		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
@@ -204,7 +207,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 				itemDisplayBus);
 		ioDevices.getItems().addAll(itemLedArray, itemSwitches, itemSevenSeg, itemUART,
 				itemVGA, itemPLPID, itemGPIO);
-		simulationMenu.getItems().addAll(itemStep, itemReset, new SeparatorMenuItem(),
+		simulationMenu.getItems().addAll(itemEmulationWindow, itemStep, itemReset, new SeparatorMenuItem(),
 				itemRun, cyclesSteps, itemClearBreakpoints, new SeparatorMenuItem(),
 				views, toolsSubMenu, ioDevices, new SeparatorMenuItem(), itemExitSim);
 		

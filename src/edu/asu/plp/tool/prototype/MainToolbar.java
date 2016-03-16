@@ -52,8 +52,7 @@ public class MainToolbar extends BorderPane
 		Node assembleButton = new ImageView("toolbar_assemble.png");
 		assembleButton.setOnMouseClicked((event) -> {
 			//businessLogic.onAssemble(event);
-			simButtons.forEach(MainToolbar::toggleDisabled);
-			
+			simButtons.forEach(MainToolbar::toggleDisabled);	
 		});
 		buttons.add(assembleButton);
 		effectsOfButtons.add(assembleButton);
@@ -65,7 +64,6 @@ public class MainToolbar extends BorderPane
 		simulateButton.setOnMouseClicked((event) -> {
 			businessLogic.onSimulate(event);
 			runButtons.forEach(MainToolbar::toggleDisabled);
-			changeButtonFace(runButtons);
 		});
 		simulateButton.setDisable(true);
 		buttons.add(simulateButton);
@@ -174,5 +172,6 @@ public class MainToolbar extends BorderPane
 		
 		//node.setEffect(isDisabled ? dropShadow : null);
 		node.setDisable(isDisabled);
+		
 	}
 }
