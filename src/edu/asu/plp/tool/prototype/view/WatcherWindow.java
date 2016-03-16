@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
+import static java.nio.ByteOrder.*;
+import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -135,6 +137,7 @@ public class WatcherWindow extends BorderPane
 	public WatcherWindow()
 	{
 		valueDisplayOptions = new LinkedHashMap<>();
+		populateDisplayOptions();
 		memoryAddresses = FXCollections.observableArrayList();
 		registers = FXCollections.observableArrayList();
 		// TODO: remove placeholder
@@ -167,6 +170,24 @@ public class WatcherWindow extends BorderPane
 		center.getRowConstraints().add(rowConstraint);
 		
 		this.setCenter(center);
+	}
+	
+	private void populateDisplayOptions()
+	{
+		valueDisplayOptions.put("Decimal", (value) -> Integer.toString(value));
+		valueDisplayOptions.put("Hex", (value) -> Integer.toString(value, 16));
+		valueDisplayOptions.put("Binary", (value) -> Integer.toString(value, 2));
+		// TODO: move to utility class
+		valueDisplayOptions.put("Packed ASCII",
+				(value) -> {
+					byte[] bytes = ByteBuffer.allocate(4).order(BIG_ENDIAN).putInt(value)
+							.array();
+					StringBuilder builder = new StringBuilder();
+					for (byte element : bytes)
+						builder.append((char) element);
+					
+					return builder.toString();
+				});
 	}
 	
 	private Node createRegisterControlPanel()
@@ -270,7 +291,10 @@ public class WatcherWindow extends BorderPane
 	{
 		ObservableList<String> options = FXCollections.observableArrayList();
 		options.addAll(valueDisplayOptions.keySet());
-		return new ComboBox<>(options);
+		
+		ComboBox<String> dropdown = new ComboBox<>(options);
+		dropdown.getSelectionModel().select(0);
+		return dropdown;
 	}
 	
 	private void watchRegister(String string)
