@@ -203,6 +203,8 @@ public class WatcherWindow extends BorderPane
 		setAlignment(registerNameField, Pos.CENTER);
 		
 		Button watchRegisterButton = new Button("Add");
+		watchRegisterButton.setOnAction((event) -> watchRegister(registerNameField
+				.getText()));
 		registerPanel.setRight(watchRegisterButton);
 		setAlignment(watchRegisterButton, Pos.CENTER);
 		
@@ -230,6 +232,8 @@ public class WatcherWindow extends BorderPane
 		setAlignment(addressField, Pos.CENTER);
 		
 		Button watchAddressButton = new Button("Add");
+		watchAddressButton.setOnAction((event) -> watchMemoryAddress(addressField
+				.getText()));
 		addressPanel.setRight(watchAddressButton);
 		setAlignment(watchAddressButton, Pos.CENTER);
 		
@@ -258,6 +262,8 @@ public class WatcherWindow extends BorderPane
 		setAlignment(inputBox, Pos.CENTER);
 		
 		Button watchRangeButton = new Button("Add");
+		watchRangeButton.setOnAction((event) -> watchMemoryRange(fromField.getText(),
+				toField.getText()));
 		rangePanel.setRight(watchRangeButton);
 		setAlignment(watchRangeButton, Pos.CENTER);
 		
@@ -303,7 +309,13 @@ public class WatcherWindow extends BorderPane
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	
-	private void watchMemoryAddress(int address)
+	private void watchMemoryAddress(String string)
+	{
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+	
+	private void watchMemoryRange(String from, String to)
 	{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
