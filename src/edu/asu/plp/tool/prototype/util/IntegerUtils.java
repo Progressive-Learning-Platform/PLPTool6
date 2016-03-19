@@ -1,5 +1,8 @@
 package edu.asu.plp.tool.prototype.util;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,7 +21,26 @@ public class IntegerUtils
 		Function<String, Integer> conversion = prefixes.get(prefix);
 		if (conversion == null)
 			conversion = (s) -> Integer.parseInt(s);
-			
+		
 		return conversion.apply(string);
+	}
+	
+	public static char[] toAsciiArray(int integer)
+	{
+		String asciiString = toAsciiString(integer);
+		return asciiString.toCharArray();
+	}
+	
+	public static String toAsciiString(int integer)
+	{
+		byte[] bytes = toByteArray(integer);
+		return new String(bytes);
+	}
+	
+	public static byte[] toByteArray(int integer)
+	{
+		ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES).order(BIG_ENDIAN);
+		buffer.putInt(integer);
+		return buffer.array();
 	}
 }
