@@ -1,8 +1,5 @@
 package edu.asu.plp.tool.prototype.view;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
-
-import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -63,7 +60,7 @@ public class UARTPanel extends BorderPane
 		webEngine = view.getEngine();
 		
 		messageQueue = new LinkedList<>();
-
+		
 		valueDisplayOptions = new LinkedHashMap<>();
 		populateDisplayOptions();
 		
@@ -83,29 +80,35 @@ public class UARTPanel extends BorderPane
 	private HBox createControlPane()
 	{
 		HBox hbox = new HBox();
-		Label label = new Label("Send");
-		label.setMinWidth(Label.USE_PREF_SIZE);
-		hbox.getChildren().add(label);
-		ComboBox<String> dropdown = createDisplayOptionsDropdown();
-		dropdown.setMinWidth(ComboBox.USE_PREF_SIZE);
-		hbox.getChildren().add(dropdown);
-		TextField valueField = new TextField();
-		valueField.setPrefWidth(Integer.MAX_VALUE);
-		hbox.getChildren().add(valueField);
-		Button send = new Button("Send");
-		send.setMinWidth(Button.USE_PREF_SIZE);
-		Button clear = new Button("Clear");
-		clear.setMinWidth(Button.USE_PREF_SIZE);
-		clear.setOnAction((event) -> clear());
-		hbox.getChildren().addAll(send, clear);
 		setAlignment(hbox, Pos.CENTER);
 		hbox.setAlignment(Pos.CENTER_LEFT);
 		hbox.setPadding(new Insets(10, 10, 10, 10));
 		hbox.setSpacing(5);
 		
+		Label label = new Label("Send");
+		label.setMinWidth(Label.USE_PREF_SIZE);
+		hbox.getChildren().add(label);
+		
+		ComboBox<String> dropdown = createDisplayOptionsDropdown();
+		dropdown.setMinWidth(ComboBox.USE_PREF_SIZE);
+		hbox.getChildren().add(dropdown);
+		
+		TextField valueField = new TextField();
+		valueField.setPrefWidth(Integer.MAX_VALUE);
+		hbox.getChildren().add(valueField);
+		
+		Button send = new Button("Send");
+		send.setMinWidth(Button.USE_PREF_SIZE);
+		hbox.getChildren().add(send);
+		
+		Button clear = new Button("Clear");
+		clear.setMinWidth(Button.USE_PREF_SIZE);
+		clear.setOnAction((event) -> clear());
+		hbox.getChildren().add(clear);
+		
 		return hbox;
 	}
-
+	
 	private void populateDisplayOptions()
 	{
 		valueDisplayOptions.put("ASCII Values", null);
