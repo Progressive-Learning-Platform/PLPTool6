@@ -5,6 +5,7 @@ import java.util.List;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -73,6 +74,23 @@ public class SevenSegmentPanel extends BorderPane
 			this.setMaxHeight(HBox.USE_PREF_SIZE);
 			this.setSpacing(PIXEL_SIZE);
 			this.setPadding(new Insets(PIXEL_SIZE / 2));
+		}
+		
+		public void setState(int state)
+		{
+			// 0 is on, 1 is off
+			for (int index = 0; index < segments.size(); index++)
+			{
+				int maskedBit = (state >> index) & 1;
+				boolean isOn = (maskedBit == 0);
+
+				String color = isOn ? ON_COLOR : OFF_COLOR;
+				Parent segment = segments.get(index);
+				for (Node section : segment.getChildrenUnmodifiable())
+				{
+					section.setStyle("-fx-background-color: " + color);
+				}
+			}
 		}
 		
 		private Parent horizontalPiece()
