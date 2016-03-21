@@ -25,7 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import edu.asu.plp.tool.prototype.model.CSSStyle;
 import edu.asu.plp.tool.prototype.util.OnLoadListener;
 
 public class UARTPanel extends BorderPane
@@ -34,19 +33,16 @@ public class UARTPanel extends BorderPane
 	{
 		private String tagType;
 		private String message;
-		private CSSStyle style;
 		
-		public Message(String tagType, String message, CSSStyle style)
+		public Message(String tagType, String message)
 		{
 			this.tagType = tagType;
 			this.message = message;
-			this.style = style;
 		}
 	}
 	
 	private static final String TEXT_PANE_ID = "textPane";
 	private static final String TEXT_PANE_CLASS = "scrollPane";
-	private static final String CSS_MESSAGE_CLASS = "message";
 	
 	private Element textPaneElement;
 	private WebEngine webEngine;
@@ -148,26 +144,24 @@ public class UARTPanel extends BorderPane
 		
 		for (Message message : messageQueue)
 		{
-			output(message.tagType, message.message, message.style);
+			output(message.tagType, message.message);
 		}
 		
 		messageQueue = null;
 	}
 	
-	private void output(String tagType, String message, CSSStyle style)
+	private void output(String tagType, String message)
 	{
 		Document dom = webEngine.getDocument();
 		
 		if (dom == null)
 		{
-			Message target = new Message(tagType, message, style);
+			Message target = new Message(tagType, message);
 			messageQueue.add(target);
 		}
 		else
 		{
 			Element tag = dom.createElement(tagType);
-			tag.setAttribute("class", style.compileClassesString());
-			tag.setAttribute("style", style.compileStyleString());
 			
 			Element content = dom.createElement("code");
 			content.setTextContent(message);
@@ -177,17 +171,9 @@ public class UARTPanel extends BorderPane
 		}
 	}
 	
-	private CSSStyle messageStyle()
-	{
-		CSSStyle style = new CSSStyle();
-		style.addStyleClass(CSS_MESSAGE_CLASS);
-		
-		return style;
-	}
-	
 	public void print(String message)
 	{
-		output("span", message, messageStyle());
+		output("span", message);
 	}
 	
 	public void clear()
