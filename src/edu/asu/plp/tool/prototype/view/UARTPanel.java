@@ -1,0 +1,188 @@
+package edu.asu.plp.tool.prototype.view;
+
+import static java.nio.ByteOrder.BIG_ENDIAN;
+
+import java.nio.ByteBuffer;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.function.Function;
+
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Worker.State;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import edu.asu.plp.tool.prototype.model.CSSStyle;
+import edu.asu.plp.tool.prototype.util.OnLoadListener;
+
+public class UARTPanel extends BorderPane
+{
+	private static class Message
+	{
+		private String tagType;
+		private String message;
+		private CSSStyle style;
+		
+		public Message(String tagType, String message, CSSStyle style)
+		{
+			this.tagType = tagType;
+			this.message = message;
+			this.style = style;
+		}
+	}
+	
+	private static final String TEXT_PANE_ID = "textPane";
+	private static final String TEXT_PANE_CLASS = "scrollPane";
+	private static final String CSS_MESSAGE_CLASS = "message";
+	
+	private Element textPaneElement;
+	private WebEngine webEngine;
+	private Queue<Message> messageQueue;
+	private Map<String, Function<String, byte[]>> valueDisplayOptions;
+	
+	public UARTPanel()
+	{
+		WebView view = new WebView();
+		view.setContextMenuEnabled(false);
+		webEngine = view.getEngine();
+		
+		messageQueue = new LinkedList<>();
+		
+		ObservableValue<State> property = webEngine.getLoadWorker().stateProperty();
+		OnLoadListener.register(this::onLoad, property);
+		
+		String content = "<html><head></head><body " + styleString() + "></body></html>";
+		webEngine.loadContent(content);
+		print("test");
+		
+		this.setCenter(view);
+
+		valueDisplayOptions = new LinkedHashMap<>();
+		populateDisplayOptions();
+		HBox hbox = new HBox();
+		Label label = new Label("Send");
+		label.setMinWidth(Label.USE_PREF_SIZE);
+		hbox.getChildren().add(label);
+		ComboBox<String> dropdown = createDisplayOptionsDropdown();
+		dropdown.setMinWidth(ComboBox.USE_PREF_SIZE);
+		hbox.getChildren().add(dropdown);
+		TextField valueField = new TextField();
+		valueField.setPrefWidth(Integer.MAX_VALUE);
+		hbox.getChildren().add(valueField);
+		Button send = new Button("Send");
+		send.setMinWidth(Button.USE_PREF_SIZE);
+		Button clear = new Button("Clear");
+		clear.setMinWidth(Button.USE_PREF_SIZE);
+		clear.setOnAction((event) -> clear());
+		hbox.getChildren().addAll(send, clear);
+		setAlignment(hbox, Pos.CENTER);
+		hbox.setAlignment(Pos.CENTER_LEFT);
+		hbox.setPadding(new Insets(10, 10, 10, 10));
+		hbox.setSpacing(5);
+		
+		this.setBottom(hbox);
+	}
+	
+	private void populateDisplayOptions()
+	{
+		valueDisplayOptions.put("ASCII Values", null);
+		valueDisplayOptions.put("1-Byte Value", null);
+		valueDisplayOptions.put("Packed Int", null);
+		valueDisplayOptions.put("Space-Delimited Bytes", null);
+	}
+	
+	private ComboBox<String> createDisplayOptionsDropdown()
+	{
+		ObservableList<String> options = FXCollections.observableArrayList();
+		options.addAll(valueDisplayOptions.keySet());
+		
+		ComboBox<String> dropdown = new ComboBox<>(options);
+		dropdown.getSelectionModel().select(0);
+		return dropdown;
+	}
+	
+	private String styleString()
+	{
+		String style = "style=\"";
+		style += "background-color: black; ";
+		style += "color: white; ";
+		style += "font-family: Arial, Helvetica, sans-serif;";
+		style += "\"";
+		return style;
+	}
+	
+	private void onLoad()
+	{
+		Document dom = webEngine.getDocument();
+		textPaneElement = dom.createElement("div");
+		textPaneElement.setAttribute("id", TEXT_PANE_ID);
+		textPaneElement.setAttribute("class", TEXT_PANE_CLASS);
+		
+		Node body = dom.getElementsByTagName("body").item(0);
+		body.appendChild(textPaneElement);
+		
+		for (Message message : messageQueue)
+		{
+			output(message.tagType, message.message, message.style);
+		}
+		
+		messageQueue = null;
+	}
+	
+	private void output(String tagType, String message, CSSStyle style)
+	{
+		Document dom = webEngine.getDocument();
+		
+		if (dom == null)
+		{
+			Message target = new Message(tagType, message, style);
+			messageQueue.add(target);
+		}
+		else
+		{
+			Element tag = dom.createElement(tagType);
+			tag.setAttribute("class", style.compileClassesString());
+			tag.setAttribute("style", style.compileStyleString());
+			
+			Element content = dom.createElement("code");
+			content.setTextContent(message);
+			
+			tag.appendChild(content);
+			textPaneElement.appendChild(tag);
+		}
+	}
+	
+	private CSSStyle messageStyle()
+	{
+		CSSStyle style = new CSSStyle();
+		style.addStyleClass(CSS_MESSAGE_CLASS);
+		
+		return style;
+	}
+	
+	public void print(String message)
+	{
+		output("span", message, messageStyle());
+	}
+	
+	public void clear()
+	{
+		textPaneElement.setTextContent("");
+	}
+}
