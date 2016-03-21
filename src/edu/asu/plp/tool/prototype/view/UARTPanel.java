@@ -69,7 +69,6 @@ public class UARTPanel extends BorderPane
 		
 		String content = "<html><head></head><body " + styleString() + "></body></html>";
 		webEngine.loadContent(content);
-		print("test");
 		
 		HBox controlPane = createControlPane();
 		
