@@ -63,6 +63,9 @@ public class UARTPanel extends BorderPane
 		webEngine = view.getEngine();
 		
 		messageQueue = new LinkedList<>();
+
+		valueDisplayOptions = new LinkedHashMap<>();
+		populateDisplayOptions();
 		
 		ObservableValue<State> property = webEngine.getLoadWorker().stateProperty();
 		OnLoadListener.register(this::onLoad, property);
@@ -71,10 +74,14 @@ public class UARTPanel extends BorderPane
 		webEngine.loadContent(content);
 		print("test");
 		
+		HBox controlPane = createControlPane();
+		
 		this.setCenter(view);
-
-		valueDisplayOptions = new LinkedHashMap<>();
-		populateDisplayOptions();
+		this.setBottom(controlPane);
+	}
+	
+	private HBox createControlPane()
+	{
 		HBox hbox = new HBox();
 		Label label = new Label("Send");
 		label.setMinWidth(Label.USE_PREF_SIZE);
@@ -96,9 +103,9 @@ public class UARTPanel extends BorderPane
 		hbox.setPadding(new Insets(10, 10, 10, 10));
 		hbox.setSpacing(5);
 		
-		this.setBottom(hbox);
+		return hbox;
 	}
-	
+
 	private void populateDisplayOptions()
 	{
 		valueDisplayOptions.put("ASCII Values", null);
