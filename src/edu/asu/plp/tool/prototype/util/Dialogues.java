@@ -53,6 +53,21 @@ public class Dialogues
 		
 		alert.showAndWait();
 	}
+
+	public static void showWarningDialogue(String title, String message)
+	{
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle(title);
+		alert.setHeaderText(null);
+		alert.setContentText(message);
+		
+		alert.showAndWait();
+	}
+
+	public static void showActionFailedDialogue(String message)
+	{
+		showWarningDialogue("Action Failed", message);
+	}
 	
 	/**
 	 * Spawns a confirmation dialogue with the specified message, and returns the result

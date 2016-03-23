@@ -26,6 +26,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -1615,8 +1616,23 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void printActiveFile()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		CodeEditor activeEditor = getActiveCodeEditor();
+		if (activeEditor == null)
+			Dialogues.showActionFailedDialogue("No file is open!");
+		
+		PrinterJob printAction = PrinterJob.createPrinterJob();
+		if (printAction == null)
+			Dialogues.showActionFailedDialogue("Unable to access system print utilities");
+		
+		boolean notCancelled = printAction.showPrintDialog(stage);
+		if (notCancelled)
+		{
+			boolean success = printAction.printPage(activeEditor);
+			if (success)
+				printAction.endJob();
+			else
+				Dialogues.showActionFailedDialogue("Print may have failed");
+		}
 	}
 	
 	@Override
