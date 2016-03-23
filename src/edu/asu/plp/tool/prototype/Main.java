@@ -92,7 +92,6 @@ import edu.asu.plp.tool.prototype.model.Theme;
 import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
 import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
 import edu.asu.plp.tool.prototype.util.Dialogues;
-import edu.asu.plp.tool.prototype.view.AboutPLPTool;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.OutlineView;
