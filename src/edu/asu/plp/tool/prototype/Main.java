@@ -720,22 +720,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		return toolbar;
 	}
 	
-	private void onRunProjectClicked()
-	{
-		Project activeProject = getActiveProject();
-		
-		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
-		if (details != null && !details.isDirty())
-		{
-			run(activeProject);
-		}
-		else
-		{
-			// TODO: handle "Project Not Assembled" case
-			throw new UnsupportedOperationException("Not yet implemented");
-		}
-	}
-	
 	private void run(Project project)
 	{
 		Optional<ISAModule> optionalISA = project.getISA();
@@ -1141,134 +1125,115 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenIssueReport(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		reportIssue();
 	}
 	
 	@Override
 	public void onOpenIssuesPage(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showIssuesPage();
 	}
 	
 	@Override
 	public void onAboutPLPToolPanel(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showAboutPLPTool();
 	}
 	
 	@Override
 	public void onOpenThirdPartyLicenses(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showThirdPartyLicenses();
 	}
 	
 	@Override
 	public void onSimulationStep(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		stepSimulation();
 	}
 	
 	@Override
 	public void onResetSimulation(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		resetSimulation();
 	}
 	
 	@Override
 	public void onRunSimulation(ActionEvent event)
 	{
-		console.println("Run Project Clicked (from menu)");
-		onRunProjectClicked();
+		runSimulation();
 	}
 	
 	@Override
 	public void onChangeSimulationSpeed(ActionEvent event, int requestedSpeed)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		changeSimulationSpeed(requestedSpeed);
 	}
 	
 	@Override
 	public void onClearBreakpoints(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		clearAllBreakpoints();
 	}
 	
 	@Override
 	public void onOpenCPUView(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showCPUView();
 	}
 	
 	@Override
 	public void onOpenWatcherWindow(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showWatcherWindow();
 	}
 	
 	@Override
 	public void onDisplayLEDEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showLEDEmulator();
 	}
 	
 	@Override
 	public void onDisplaySwitchesEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showSwitchesEmulator();
 	}
 	
 	@Override
 	public void onDisplaySevenSegmentEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showSevenSegmentEmulator();
 	}
 	
 	@Override
 	public void onDisplayUARTEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showUARTEmulator();
 	}
 	
 	@Override
 	public void onDisplayVGAEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showVGAEmulator();
 	}
 	
 	@Override
 	public void onDisplayPLPIDEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showPLPIDEmulator();
 	}
 	
 	@Override
 	public void onDisplayGPIOEmulator(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showGPIOEmulator();
 	}
 	
 	@Override
 	public void onStopSimulation(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		stopSimulation();
 	}
 	
 	@Override
@@ -1401,43 +1366,37 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenModuleManager(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showModuleManager();
 	}
 	
 	@Override
 	public void onLoadModule(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		loadModule();
 	}
 	
 	@Override
 	public void onClearModuleCache(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		clearModuleCache();
 	}
 	
 	@Override
 	public void onOpenSerialTerminal(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showSerialTerminal();
 	}
 	
 	@Override
 	public void onOpenNumberConverter(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showNumberConverter();
 	}
 	
 	@Override
 	public void onCreateNewProject(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		createNewProject();
 	}
 	
 	@Override
@@ -1477,99 +1436,85 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onNewASMFile(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		createNewASM();
 	}
 	
 	@Override
 	public void onSimulationStep(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		stepSimulation();
 	}
 	
 	@Override
 	public void onSimulationInterrupt(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		triggerSimulationInterrupt();
 	}
 	
 	@Override
 	public void onResetSimulation(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		resetSimulation();
 	}
 	
 	@Override
 	public void onRunSimulation(MouseEvent event)
 	{
-		console.println("Run Project Clicked (from button)");
-		onRunProjectClicked();
+		runSimulation();
 	}
 	
 	@Override
 	public void onOpenCPUView(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showCPUView();
 	}
 	
 	@Override
 	public void onOpenWatcherWindow(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showWatcherWindow();
 	}
 	
 	@Override
 	public void onDisplayLEDEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showLEDEmulator();
 	}
 	
 	@Override
 	public void onDisplaySwitchesEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showSwitchesEmulator();
 	}
 	
 	@Override
 	public void onDisplaySevenSegmentEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showSevenSegmentEmulator();
 	}
 	
 	@Override
 	public void onDisplayUARTEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showUARTEmulator();
 	}
 	
 	@Override
 	public void onDisplayVGAEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showVGAEmulator();
 	}
 	
 	@Override
 	public void onDisplayPLPIDEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showPLPIDEmulator();
 	}
 	
 	@Override
 	public void onDisplayGPIOEmulator(MouseEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showGPIOEmulator();
 	}
 	
 	public class ApplicationEventBusEventHandler
@@ -1831,8 +1776,18 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void runSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Project activeProject = getActiveProject();
+		
+		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
+		if (details != null && !details.isDirty())
+		{
+			run(activeProject);
+		}
+		else
+		{
+			// TODO: handle "Project Not Assembled" case
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
 	}
 	
 	@Override
