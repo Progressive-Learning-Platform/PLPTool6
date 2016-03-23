@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -63,6 +64,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import moore.fx.components.Components;
 import moore.util.ExceptionalSubroutine;
+import moore.util.Subroutine;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -732,22 +734,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		return toolbar;
 	}
 	
-	private void run(Project project)
-	{
-		Optional<ISAModule> optionalISA = project.getISA();
-		if (optionalISA.isPresent())
-		{
-			ISAModule isa = optionalISA.get();
-			Simulator simulator = isa.getSimulator();
-			simulator.run();
-		}
-		else
-		{
-			// TODO: handle "no compatible ISA" case
-			throw new UnsupportedOperationException("Not yet implemented");
-		}
-	}
-	
 	private Parent createMenuBar()
 	{
 		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel(this);
@@ -767,38 +753,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		{
 			// TODO: handle "no compatible ISA" case
 			throw new UnsupportedOperationException("Not yet implemented");
-		}
-	}
-	
-	private void toggleSimulation()
-	{
-		if (activeSimulator == null)
-		{
-			activateSimulatorForActiveProject();
-		}
-		else
-		{
-			// TODO: update any views that depend on simulation mode
-			activeSimulator = null;
-		}
-	}
-	
-	private void activateSimulatorForActiveProject()
-	{
-		Project activeProject = getActiveProject();
-		String projectType = activeProject.getType();
-		Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(projectType);
-		
-		if (module.isPresent())
-		{
-			ISAModule isa = module.get();
-			activeSimulator = isa.getSimulator();
-		}
-		else
-		{
-			String message = "No simulator is available for the project type: ";
-			message += projectType;
-			Dialogues.showAlertDialogue(new IllegalStateException(message));
 		}
 	}
 	
@@ -887,10 +841,10 @@ public class Main extends Application implements BusinessLogic, Controller
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
-		for(Project project : projects)
+		for (Project project : projects)
 		{
-			 String projectName = project.getName();
-			 createASMMenu.addProjectName(projectName);
+			String projectName = project.getName();
+			createASMMenu.addProjectName(projectName);
 		}
 		return createASMMenu;
 	}
@@ -1005,7 +959,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSaveAll(ActionEvent event)
 	{
-		for(Project project : projects)
+		for (Project project : projects)
 		{
 			tryAndReport(project::save);
 		}
@@ -1016,21 +970,21 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		openEmulation();
 	}
-
+	
 	private void openEmulation()
 	{
 		Stage createEmulationStage = new Stage();
 		EmulationWindow emulationWindow = new EmulationWindow();
-		//projectCreationPanel.setFinallyOperation(createProjectStage::close);
+		// projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
 		Scene scene = new Scene(emulationWindow, 1275, 600);
 		createEmulationStage.setTitle("Emulation Window");
 		createEmulationStage.setScene(scene);
-		//createEmulationStage.setResizable(false);
+		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
 		
 	}
-
+	
 	@Override
 	public void onPrint(ActionEvent event)
 	{
@@ -1076,7 +1030,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSimulate(ActionEvent event)
 	{
-		toggleSimulation();
+		simulateActiveProject();
 	}
 	
 	@Override
@@ -1427,12 +1381,12 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSaveAll(MouseEvent event)
 	{
-		for(Project project : projects)
+		for (Project project : projects)
 		{
 			tryAndReport(project::save);
 		}
 	}
-
+	
 	@Override
 	public void onAssemble(MouseEvent event)
 	{
@@ -1444,7 +1398,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSimulate(MouseEvent event)
 	{
-		toggleSimulation();
+		simulateActiveProject();
 	}
 	
 	@Override
@@ -1534,10 +1488,10 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenEmulationWindow(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");	
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	public class ApplicationEventBusEventHandler
 	{
 		private ApplicationEventBusEventHandler()
@@ -1816,8 +1770,8 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void exit()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		stage.close();
+		Platform.exit();
 	}
 	
 	@Override
@@ -1844,8 +1798,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void clearConsole()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.clear();
 	}
 	
 	@Override
@@ -1872,8 +1825,23 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void simulateActiveProject()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Project activeProject = getActiveProject();
+		String projectType = activeProject.getType();
+		Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(projectType);
+		
+		if (module.isPresent())
+		{
+			ISAModule isa = module.get();
+			activeSimulator = isa.getSimulator();
+		}
+		else
+		{
+			String message = "No simulator is available for the project type: ";
+			message += projectType;
+			Dialogues.showAlertDialogue(new IllegalStateException(message));
+		}
+		
+		// TODO: open associated views? emulation window?
 	}
 	
 	@Override
@@ -1886,10 +1854,21 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void stepSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		performIfActive(activeSimulator::step);
 	}
 	
+	private void performIfActive(Subroutine subroutine)
+	{
+		try
+		{
+			subroutine.perform();
+		}
+		catch (Exception exception)
+		{
+			throw new IllegalStateException("No simulator is active!", exception);
+		}
+	}
+
 	@Override
 	public void triggerSimulationInterrupt()
 	{
@@ -1900,8 +1879,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void resetSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		performIfActive(activeSimulator::reset);
 	}
 	
 	@Override
@@ -1912,7 +1890,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
 		if (details != null && !details.isDirty())
 		{
-			run(activeProject);
+			performIfActive(activeSimulator::run);
 		}
 		else
 		{
