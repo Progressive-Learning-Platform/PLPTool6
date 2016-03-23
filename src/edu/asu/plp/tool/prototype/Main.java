@@ -1107,7 +1107,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onRemoveASMFile(ActionEvent event)
 	{
-		removeActiveFile();
+		removeASM();
 	}
 	
 	@Override
