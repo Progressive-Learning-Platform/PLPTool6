@@ -29,6 +29,8 @@ public class MainToolbar extends BorderPane
 		ObservableList<Node> buttons = toolbar.getChildren();
 		
 		Node newProjectButton = new ImageView("toolbar_new.png");
+		newProjectButton.setOnMouseClicked(businessLogic::onCreateNewProject);
+		
 		buttons.add(newProjectButton);
 		effectsOfButtons.add(newProjectButton);
 		

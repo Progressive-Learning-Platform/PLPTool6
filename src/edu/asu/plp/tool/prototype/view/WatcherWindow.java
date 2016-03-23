@@ -1,11 +1,14 @@
 package edu.asu.plp.tool.prototype.view;
 
 import static java.nio.ByteOrder.*;
+
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
+import edu.asu.plp.tool.prototype.util.IntegerUtils;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -37,6 +40,11 @@ public class WatcherWindow extends BorderPane
 		public ValueRow(int value)
 		{
 			this.value = new SimpleIntegerProperty(value);
+		}
+		
+		public ValueRow(IntegerProperty value)
+		{
+			this.value = value;
 		}
 		
 		public String getValue()
@@ -75,6 +83,13 @@ public class WatcherWindow extends BorderPane
 			registerID = new SimpleStringProperty(id);
 		}
 		
+		public RegisterRow(String name, String id, IntegerProperty value)
+		{
+			super(value);
+			registerName = new SimpleStringProperty(name);
+			registerID = new SimpleStringProperty(id);
+		}
+		
 		public String getRegisterName()
 		{
 			return registerName.get();
@@ -99,6 +114,12 @@ public class WatcherWindow extends BorderPane
 	public class MemoryRow extends ValueRow
 	{
 		private IntegerProperty address;
+		
+		public MemoryRow(int address, IntegerProperty value)
+		{
+			super(value);
+			this.address = new SimpleIntegerProperty(address);
+		}
 		
 		public MemoryRow(int address, int value)
 		{
@@ -133,9 +154,43 @@ public class WatcherWindow extends BorderPane
 	private ObservableList<MemoryRow> memoryAddresses;
 	private ObservableList<RegisterRow> registers;
 	private Map<String, Function<Integer, String>> valueDisplayOptions;
+	private MemoryModule32Bit memory;
 	
 	public WatcherWindow()
 	{
+		// TODO: use actual memory module
+		memory = new MemoryModule32Bit() {
+			
+			@Override
+			public boolean hasRegister(String registerName)
+			{
+				return true;
+			}
+			
+			@Override
+			public IntegerProperty getRegisterValueProperty(String registerName)
+			{
+				return new SimpleIntegerProperty();
+			}
+			
+			@Override
+			public String getRegisterID(String registerName)
+			{
+				return registerName;
+			}
+			
+			@Override
+			public IntegerProperty getMemoryValueProperty(int address)
+			{
+				return new SimpleIntegerProperty();
+			}
+			
+			@Override
+			public void validateAddress(int address)
+			{
+				
+			}
+		};
 		valueDisplayOptions = new LinkedHashMap<>();
 		populateDisplayOptions();
 		memoryAddresses = FXCollections.observableArrayList();
@@ -203,6 +258,8 @@ public class WatcherWindow extends BorderPane
 		setAlignment(registerNameField, Pos.CENTER);
 		
 		Button watchRegisterButton = new Button("Add");
+		watchRegisterButton.setOnAction((event) -> watchRegister(registerNameField
+				.getText()));
 		registerPanel.setRight(watchRegisterButton);
 		setAlignment(watchRegisterButton, Pos.CENTER);
 		
@@ -230,6 +287,8 @@ public class WatcherWindow extends BorderPane
 		setAlignment(addressField, Pos.CENTER);
 		
 		Button watchAddressButton = new Button("Add");
+		watchAddressButton.setOnAction((event) -> watchMemoryAddress(addressField
+				.getText()));
 		addressPanel.setRight(watchAddressButton);
 		setAlignment(watchAddressButton, Pos.CENTER);
 		
@@ -258,6 +317,8 @@ public class WatcherWindow extends BorderPane
 		setAlignment(inputBox, Pos.CENTER);
 		
 		Button watchRangeButton = new Button("Add");
+		watchRangeButton.setOnAction((event) -> watchMemoryRange(fromField.getText(),
+				toField.getText()));
 		rangePanel.setRight(watchRangeButton);
 		setAlignment(watchRangeButton, Pos.CENTER);
 		
@@ -297,16 +358,56 @@ public class WatcherWindow extends BorderPane
 		return dropdown;
 	}
 	
-	private void watchRegister(String string)
+	private void watchRegister(String registerName)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		if (registerName.length() == 0)
+			return;
+		if (!memory.hasRegister(registerName))
+			throw new IllegalArgumentException("There isn't a register with the name "
+					+ registerName);
+		
+		String id = memory.getRegisterID(registerName);
+		IntegerProperty register = memory.getRegisterValueProperty(registerName);
+		RegisterRow row = new RegisterRow(registerName, id, register);
+		registers.add(row);
+	}
+	
+	private void watchMemoryAddress(String string)
+	{
+		if (string.length() == 0)
+			return;
+		int address = IntegerUtils.smartParse(string);
+		watchMemoryAddress(address);
 	}
 	
 	private void watchMemoryAddress(int address)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		memory.validateAddress(address);
+		
+		IntegerProperty value = memory.getMemoryValueProperty(address);
+		MemoryRow row = new MemoryRow(address, value);
+		memoryAddresses.add(row);
+	}
+	
+	private void watchMemoryRange(String from, String to)
+	{
+		int fromAddress = IntegerUtils.smartParse(from);
+		int toAddress = IntegerUtils.smartParse(to);
+
+		memory.validateAddress(fromAddress);
+		memory.validateAddress(toAddress);
+		
+		if (toAddress < fromAddress)
+		{
+			int temp = toAddress;
+			toAddress = fromAddress;
+			fromAddress = temp;
+		}
+		
+		for (int address = fromAddress; address <= toAddress; address += 4)
+		{
+			watchMemoryAddress(address);
+		}
 	}
 	
 	private TableView<RegisterRow> createRegisterTable()

@@ -174,6 +174,25 @@ public class ProjectExplorerTree extends BorderPane
 		return projects.size() == 0;
 	}
 	
+	public boolean setExpanded(Project project, boolean isExpanded)
+	{
+		TreeItem<String> node = getProjectNode(project);
+		if (node != null)
+			node.expandedProperty().set(isExpanded);
+		
+		return (node != null);
+	}
+	
+	public boolean collapseProject(Project project)
+	{
+		return setExpanded(project, false);
+	}
+	
+	public boolean expandProject(Project project)
+	{
+		return setExpanded(project, true);
+	}
+	
 	private int getGlobalIndexOf(TreeItem<String> fileNode)
 	{
 		TreeItem<String> root = projectTreeDisplay.getRoot();
