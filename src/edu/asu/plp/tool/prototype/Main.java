@@ -450,7 +450,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		// Activate the specified tab
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
-
+	
 	@Override
 	public void saveActiveProjectAs()
 	{
@@ -927,27 +927,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		return new File(path);
 	}
 	
-	private void createASMFile(MouseEvent event)
-	{
-		if (projects.isEmpty())
-		{
-			Dialogues
-					.showInfoDialogue("There are not projects open, please create a project first.");
-		}
-		else
-		{
-			Stage createASMStage = new Stage();
-			ASMCreationPanel asmCreationMenu = createASMMenu();
-			asmCreationMenu.setFinallyOperation(createASMStage::close);
-			
-			Scene scene = new Scene(asmCreationMenu, 450, 200);
-			createASMStage.setTitle("New ASMFile");
-			createASMStage.setScene(scene);
-			createASMStage.setResizable(false);
-			createASMStage.show();
-		}
-	}
-	
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
@@ -975,7 +954,7 @@ public class Main extends Application implements BusinessLogic, Controller
 			throw new IllegalStateException("Project \"" + projectName + "\" not found");
 		}
 	}
-
+	
 	@Override
 	public void createNewProject()
 	{
@@ -1066,51 +1045,43 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onPrint(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		printActiveFile();
 	}
 	
 	@Override
 	public void onExit(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		exit();
 	}
 	
 	@Override
 	public void onToggleToolbar(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		toggleToolbar();
 	}
 	
 	@Override
 	public void onToggleProjectPane(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		toggleProjectPane();
 	}
 	
 	@Override
 	public void onToggleOutputPane(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		toggleOutputPane();
 	}
 	
 	@Override
 	public void onClearOutputPane(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		clearConsole();
 	}
 	
 	@Override
 	public void onAssemble(ActionEvent event)
 	{
-		console.println("Assemble Menu Item Clicked");
-		Project activeProject = getActiveProject();
-		assemble(activeProject);
+		assembleActiveProject();
 	}
 	
 	@Override
@@ -1122,92 +1093,25 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onDownloadToBoard(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		downloadActiveProjectToBoard();
 	}
 	
 	@Override
 	public void onNewASMFile(ActionEvent event)
 	{
-		// TODO: Check this implementation, doesnt look correct
-		createASMFile(null);
+		createNewASM();
 	}
 	
 	@Override
 	public void onImportASMFile(ActionEvent event)
 	{
-		File importTarget = showImportDialogue();
-		try
-		{
-			String content = FileUtils.readFileToString(importTarget);
-			Project activeProject = getActiveProject();
-			String name = importTarget.getName();
-			
-			// TODO: account for non-PLP source files
-			ASMFile asmFile = new PLPSourceFile(activeProject, name);
-			asmFile.setContent(content);
-			activeProject.add(asmFile);
-			activeProject.save();
-		}
-		catch (Exception exception)
-		{
-			Dialogues.showAlertDialogue(exception, "Failed to import asm");
-		}
+		importASM();
 	}
 	
 	@Override
 	public void onExportASMFile(ActionEvent event)
 	{
-		// XXX: Consider moving this to a component
-		ASMFile activeFile = getActiveFile();
-		if (activeFile == null)
-		{
-			// XXX: possible feature: select file from a list or dropdown
-			String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
-			Dialogues.showInfoDialogue(message);
-		}
-		
-		File exportTarget = showExportDialogue(activeFile);
-		if (exportTarget == null)
-			return;
-		
-		if (exportTarget.isDirectory())
-		{
-			String exportPath = exportTarget.getAbsolutePath()
-					+ activeFile.constructFileName();
-			exportTarget = new File(exportPath);
-			
-			String message = "File will be exported to " + exportPath;
-			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
-			
-			if (result.get() != ButtonType.OK)
-			{
-				// Export was canceled
-				return;
-			}
-		}
-		
-		if (exportTarget.exists())
-		{
-			String message = "The specified file already exists. Press OK to overwrite this file, or cancel to cancel the export.";
-			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
-			
-			if (result.get() != ButtonType.OK)
-			{
-				// Export was canceled
-				return;
-			}
-		}
-		
-		String fileContents = activeFile.getContent();
-		try
-		{
-			FileUtils.write(exportTarget, fileContents);
-		}
-		catch (Exception exception)
-		{
-			Dialogues.showAlertDialogue(exception, "Failed to export asm");
-		}
+		exportASM();
 	}
 	
 	@Override
@@ -1219,41 +1123,19 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSetMainASMFile(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		setMainASMFile();
 	}
 	
 	@Override
 	public void onOpenQuickReference(ActionEvent event)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		showQuickReference();
 	}
 	
 	@Override
 	public void onOpenOnlineManual(ActionEvent event)
 	{
-		// XXX: consider moving to a sub-component
-		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
-		try
-		{
-			if (Desktop.isDesktopSupported())
-			{
-				URI location = new URI(webAddress);
-				Desktop.getDesktop().browse(location);
-			}
-			else
-			{
-				String cause = "This JVM does not support Desktop. Try updating Java to the latest version.";
-				throw new Exception(cause);
-			}
-		}
-		catch (Exception exception)
-		{
-			String recoveryMessage = "There was a problem opening the following webpage:"
-					+ "\n" + webAddress;
-			Dialogues.showAlertDialogue(exception, recoveryMessage);
-		}
+		showOnlineManual();
 	}
 	
 	@Override
@@ -1727,305 +1609,402 @@ public class Main extends Application implements BusinessLogic, Controller
 			System.out.println(event.getEvent());
 		}
 	}
-
+	
 	@Override
 	public void saveActiveProject()
 	{
 		Project activeProject = getActiveProject();
 		tryAndReport(activeProject::save);
 	}
-
+	
 	@Override
 	public void printActiveFile()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void createNewASM()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		if (projects.isEmpty())
+		{
+			Dialogues
+					.showInfoDialogue("There are not projects open, please create a project first.");
+		}
+		else
+		{
+			Stage createASMStage = new Stage();
+			ASMCreationPanel asmCreationMenu = createASMMenu();
+			asmCreationMenu.setFinallyOperation(createASMStage::close);
+			
+			Scene scene = new Scene(asmCreationMenu, 450, 200);
+			createASMStage.setTitle("New ASMFile");
+			createASMStage.setScene(scene);
+			createASMStage.setResizable(false);
+			createASMStage.show();
+		}
 	}
-
+	
 	@Override
 	public void importASM()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		File importTarget = showImportDialogue();
+		try
+		{
+			String content = FileUtils.readFileToString(importTarget);
+			Project activeProject = getActiveProject();
+			String name = importTarget.getName();
+			
+			// TODO: account for non-PLP source files
+			ASMFile asmFile = new PLPSourceFile(activeProject, name);
+			asmFile.setContent(content);
+			activeProject.add(asmFile);
+			activeProject.save();
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception, "Failed to import asm");
+		}
 	}
-
+	
 	@Override
 	public void exportASM()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// XXX: Consider moving this to a component
+		ASMFile activeFile = getActiveFile();
+		if (activeFile == null)
+		{
+			// XXX: possible feature: select file from a list or dropdown
+			String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
+			Dialogues.showInfoDialogue(message);
+		}
+		
+		File exportTarget = showExportDialogue(activeFile);
+		if (exportTarget == null)
+			return;
+		
+		if (exportTarget.isDirectory())
+		{
+			String exportPath = exportTarget.getAbsolutePath()
+					+ activeFile.constructFileName();
+			exportTarget = new File(exportPath);
+			
+			String message = "File will be exported to " + exportPath;
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Export was canceled
+				return;
+			}
+		}
+		
+		if (exportTarget.exists())
+		{
+			String message = "The specified file already exists. Press OK to overwrite this file, or cancel to cancel the export.";
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Export was canceled
+				return;
+			}
+		}
+		
+		String fileContents = activeFile.getContent();
+		try
+		{
+			FileUtils.write(exportTarget, fileContents);
+		}
+		catch (Exception exception)
+		{
+			Dialogues.showAlertDialogue(exception, "Failed to export asm");
+		}
 	}
-
+	
 	@Override
 	public void removeASM()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void setMainASMFile()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void exit()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void toggleToolbar()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void toggleProjectPane()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void toggleOutputPane()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void clearConsole()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void clearAllBreakpoints()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showNumberConverter()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void assembleActiveProject()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Project activeProject = getActiveProject();
+		assemble(activeProject);
 	}
-
+	
 	@Override
 	public void simulateActiveProject()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void downloadActiveProjectToBoard()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void stepSimulation()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void triggerSimulationInterrupt()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void resetSimulation()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void runSimulation()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void changeSimulationSpeed(int requestedSpeed)
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void stopSimulation()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showCPUView()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showWatcherWindow()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showLEDEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showSwitchesEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showSevenSegmentEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showUARTEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showVGAEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showPLPIDEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showGPIOEmulator()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showOptionsMenu()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showModuleManager()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showSerialTerminal()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void loadModule()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void clearModuleCache()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showQuickReference()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showOnlineManual()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		// XXX: consider moving to a sub-component
+		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
+		try
+		{
+			if (Desktop.isDesktopSupported())
+			{
+				URI location = new URI(webAddress);
+				Desktop.getDesktop().browse(location);
+			}
+			else
+			{
+				String cause = "This JVM does not support Desktop. Try updating Java to the latest version.";
+				throw new Exception(cause);
+			}
+		}
+		catch (Exception exception)
+		{
+			String recoveryMessage = "There was a problem opening the following webpage:"
+					+ "\n" + webAddress;
+			Dialogues.showAlertDialogue(exception, recoveryMessage);
+		}
 	}
-
+	
 	@Override
 	public void reportIssue()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showIssuesPage()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showAboutPLPTool()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showThirdPartyLicenses()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 }
