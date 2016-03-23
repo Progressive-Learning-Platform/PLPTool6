@@ -111,7 +111,7 @@ import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPa
  * @author Nesbitt, Morgan
  * 
  */
-public class Main extends Application implements BusinessLogic
+public class Main extends Application implements BusinessLogic, Controller
 {
 	public static final String APPLICATION_NAME = "PLPTool";
 	public static final long VERSION = 0;
@@ -284,7 +284,8 @@ public class Main extends Application implements BusinessLogic
 		return fileChooser.showOpenDialog(stage);
 	}
 	
-	private void openProjectFromFile()
+	@Override
+	public void openProject()
 	{
 		File selectedFile = showOpenDialogue();
 		if (selectedFile != null)
@@ -449,8 +450,9 @@ public class Main extends Application implements BusinessLogic
 		// Activate the specified tab
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
-	
-	private void saveProjectAs()
+
+	@Override
+	public void saveActiveProjectAs()
 	{
 		Stage createProjectStage = new Stage();
 		Parent myPane = saveAsMenu();
@@ -973,8 +975,9 @@ public class Main extends Application implements BusinessLogic
 			throw new IllegalStateException("Project \"" + projectName + "\" not found");
 		}
 	}
-	
-	private void createNewProject()
+
+	@Override
+	public void createNewProject()
 	{
 		Stage createProjectStage = new Stage();
 		ProjectCreationPanel projectCreationPanel = projectCreateMenu();
@@ -1044,7 +1047,7 @@ public class Main extends Application implements BusinessLogic
 	public void onOpenProject(ActionEvent event)
 	{
 		console.println("Open Project Clicked");
-		openProjectFromFile();
+		openProject();
 	}
 	
 	@Override
@@ -1057,7 +1060,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSaveProjectAs(ActionEvent event)
 	{
-		saveProjectAs();
+		saveActiveProjectAs();
 	}
 	
 	@Override
@@ -1559,7 +1562,7 @@ public class Main extends Application implements BusinessLogic
 	public void onOpenProject(MouseEvent event)
 	{
 		console.println("Open Project Clicked");
-		openProjectFromFile();
+		openProject();
 	}
 	
 	@Override
@@ -1572,7 +1575,7 @@ public class Main extends Application implements BusinessLogic
 	@Override
 	public void onSaveProjectAs(MouseEvent event)
 	{
-		saveProjectAs();
+		saveActiveProjectAs();
 	}
 	
 	@Override
@@ -1723,5 +1726,306 @@ public class Main extends Application implements BusinessLogic
 			System.out.println("Dead Event");
 			System.out.println(event.getEvent());
 		}
+	}
+
+	@Override
+	public void saveActiveProject()
+	{
+		Project activeProject = getActiveProject();
+		tryAndReport(activeProject::save);
+	}
+
+	@Override
+	public void printActiveFile()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void createNewASM()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void importASM()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void exportASM()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void removeASM()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void setMainASMFile()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void exit()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void toggleToolbar()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void toggleProjectPane()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void toggleOutputPane()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void clearConsole()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void clearAllBreakpoints()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showNumberConverter()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void assembleActiveProject()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void simulateActiveProject()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void downloadActiveProjectToBoard()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void stepSimulation()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void triggerSimulationInterrupt()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void resetSimulation()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void runSimulation()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void changeSimulationSpeed(int requestedSpeed)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void stopSimulation()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showCPUView()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showWatcherWindow()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showLEDEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showSwitchesEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showSevenSegmentEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showUARTEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showVGAEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showPLPIDEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showGPIOEmulator()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showOptionsMenu()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showModuleManager()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showSerialTerminal()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void loadModule()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void clearModuleCache()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showQuickReference()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showOnlineManual()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void reportIssue()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showIssuesPage()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showAboutPLPTool()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showThirdPartyLicenses()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 }
