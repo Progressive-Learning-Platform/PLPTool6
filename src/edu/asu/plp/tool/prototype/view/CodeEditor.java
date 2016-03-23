@@ -146,6 +146,12 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		codeBodyProperty.removeListener(listener);
 	}
 	
+	public void jumpToLine(int lineNumber)
+	{
+		// TODO: implement
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+	
 	private void initializeEngineEvents()
 	{
 		webView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {

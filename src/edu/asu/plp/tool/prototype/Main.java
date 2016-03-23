@@ -340,7 +340,7 @@ public class Main extends Application implements BusinessLogic, Controller
 			{
 				// Projects are the same
 				showInfoDialogue("This project is already open!");
-				// TODO: expand project in the projectExplorer
+				projectExplorer.expandProject(existingProject);
 			}
 			else
 			{
@@ -411,8 +411,19 @@ public class Main extends Application implements BusinessLogic, Controller
 	
 	private void navigateToLabel(PLPLabel label)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		CodeEditor editor = getActiveCodeEditor();
+		if (editor == null)
+			throw new IllegalStateException("Cannot access active code editor");
+		
+		try
+		{
+			int lineNumber = label.getLineNumber();
+			editor.jumpToLine(lineNumber);
+		}
+		catch (Exception exception)
+		{
+			exception.printStackTrace();
+		}
 	}
 	
 	/**
@@ -601,7 +612,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		Tab tab = new Tab();
 		tab.setText(projectName);
-		tab.setContent(Components.wrap(contentPanel));
+		tab.setContent(contentPanel);
 		tab.setOnClosed(new EventHandler<Event>() {
 			@Override
 			public void handle(Event event)
@@ -828,6 +839,19 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
 		return openFileTabs.getKey(selectedTab);
+	}
+	
+	private CodeEditor getActiveCodeEditor()
+	{
+		Tab activeTab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		if (activeTab == null)
+			return null;
+		
+		Node tabContents = activeTab.getContent();
+		if (tabContents != null)
+			return (CodeEditor) tabContents;
+		else
+			return null;
 	}
 	
 	private ASMFile getActiveFileInProjectExplorer()
