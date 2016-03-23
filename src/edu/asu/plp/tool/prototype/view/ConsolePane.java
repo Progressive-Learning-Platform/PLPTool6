@@ -107,6 +107,9 @@ public class ConsolePane extends BorderPane
 			tag.appendChild(content);
 			textPaneElement.appendChild(tag);
 		}
+		
+		//TODO:Make this a toggle option for top or bottom
+		setConsolePosition();
 	}
 	
 	private CSSStyle messageStyle()
@@ -187,6 +190,21 @@ public class ConsolePane extends BorderPane
 		head.appendChild(styleReference);
 	}
 	
+	//TODO: At the moment this will always scroll to bottom, once the menu for options is working
+	//		make option for "Scroll to top" or "scroll to bottom"
+    public void setConsolePosition() {
+    	boolean scrollBottom = true;
+    	if(scrollBottom){
+    		int consoleBottom = getConsoleBottom();
+    		webEngine.executeScript("window.scrollTo(" + 0 + ", " + consoleBottom + ")");
+    	}else
+        webEngine.executeScript("window.scrollTo(" + 0 + ", " + 0 + ")");
+    }
+    
+    public int getConsoleBottom() {
+        return (Integer) webEngine.executeScript("document.body.scrollWidth");
+    }
+    
 	public class ConsolePaneEventHandler
 	{
 		/**
@@ -212,4 +230,5 @@ public class ConsolePane extends BorderPane
 			}
 		}
 	}
+
 }

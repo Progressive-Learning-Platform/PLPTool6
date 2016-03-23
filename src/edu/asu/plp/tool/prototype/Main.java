@@ -92,6 +92,7 @@ import edu.asu.plp.tool.prototype.model.Theme;
 import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
 import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
 import edu.asu.plp.tool.prototype.util.Dialogues;
+import edu.asu.plp.tool.prototype.view.AboutPLPTool;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.OutlineView;
@@ -887,8 +888,11 @@ public class Main extends Application implements BusinessLogic, Controller
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
-		String projectName = getActiveProject().getName();
-		createASMMenu.setProjectName(projectName);
+		for(Project project : projects)
+		{
+			 String projectName = project.getName();
+			 createASMMenu.addProjectName(projectName);
+		}
 		return createASMMenu;
 	}
 	
@@ -999,6 +1003,35 @@ public class Main extends Application implements BusinessLogic, Controller
 		saveActiveProjectAs();
 	}
 	
+	@Override
+	public void onSaveAll(ActionEvent event)
+	{
+		for(Project project : projects)
+		{
+			tryAndReport(project::save);
+		}
+	}
+	
+	@Override
+	public void onOpenEmulationWindow(ActionEvent even)
+	{
+		openEmulation();
+	}
+
+	private void openEmulation()
+	{
+		Stage createEmulationStage = new Stage();
+		EmulationWindow emulationWindow = new EmulationWindow();
+		//projectCreationPanel.setFinallyOperation(createProjectStage::close);
+		
+		Scene scene = new Scene(emulationWindow, 1275, 600);
+		createEmulationStage.setTitle("Emulation Window");
+		createEmulationStage.setScene(scene);
+		//createEmulationStage.setResizable(false);
+		createEmulationStage.show();
+		
+	}
+
 	@Override
 	public void onPrint(ActionEvent event)
 	{
@@ -1393,6 +1426,15 @@ public class Main extends Application implements BusinessLogic, Controller
 	}
 	
 	@Override
+	public void onSaveAll(MouseEvent event)
+	{
+		for(Project project : projects)
+		{
+			tryAndReport(project::save);
+		}
+	}
+
+	@Override
 	public void onAssemble(MouseEvent event)
 	{
 		console.println("Assemble Button Clicked");
@@ -1490,6 +1532,13 @@ public class Main extends Application implements BusinessLogic, Controller
 		showGPIOEmulator();
 	}
 	
+	@Override
+	public void onOpenEmulationWindow(MouseEvent event)
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");	
+	}
+
 	public class ApplicationEventBusEventHandler
 	{
 		private ApplicationEventBusEventHandler()

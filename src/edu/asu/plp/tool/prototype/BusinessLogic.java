@@ -21,6 +21,10 @@ public interface BusinessLogic
 	
 	void onSaveProjectAs(MouseEvent event);
 	
+	void onSaveAll(ActionEvent event);
+	
+	void onSaveAll(MouseEvent event);
+	
 	void onPrint(ActionEvent event);
 	
 	void onExit(ActionEvent event);
@@ -134,4 +138,8 @@ public interface BusinessLogic
 	void onOpenSerialTerminal(ActionEvent event);
 	
 	void onOpenNumberConverter(ActionEvent event);
+	
+	void onOpenEmulationWindow(ActionEvent event);
+	
+	void onOpenEmulationWindow(MouseEvent event);
 }
