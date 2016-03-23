@@ -41,9 +41,9 @@ public class MainToolbar extends BorderPane
 		
 		// Darken shadow on click
 		newProjectButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (event) -> {
-			businessLogic.onCreateNewProject(event);
 			newProjectButton.setEffect(darkBlueShadow);
 		});
+		newProjectButton.setOnMouseClicked(businessLogic::onCreateNewProject);
 		
 		// Restore hover style on click end
 		newProjectButton.addEventHandler(MouseEvent.MOUSE_RELEASED,
