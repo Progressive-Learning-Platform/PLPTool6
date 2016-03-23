@@ -77,6 +77,7 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
+import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
@@ -118,7 +119,6 @@ public class Main extends Application implements BusinessLogic, Controller
 	public static final long REVISION = 1;
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
-	public boolean simMode = false;
 	
 	private Simulator activeSimulator;
 	private Stage stage;
@@ -760,8 +760,34 @@ public class Main extends Application implements BusinessLogic, Controller
 	
 	private void toggleSimulation()
 	{
-		// TODO: activate simulator?
-		simMode = !simMode;
+		if (activeSimulator == null)
+		{
+			activateSimulatorForActiveProject();
+		}
+		else
+		{
+			// TODO: update any views that depend on simulation mode
+			activeSimulator = null;
+		}
+	}
+	
+	private void activateSimulatorForActiveProject()
+	{
+		Project activeProject = getActiveProject();
+		String projectType = activeProject.getType();
+		Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(projectType);
+		
+		if (module.isPresent())
+		{
+			ISAModule isa = module.get();
+			activeSimulator = isa.getSimulator();
+		}
+		else
+		{
+			String message = "No simulator is available for the project type: ";
+			message += projectType;
+			Dialogues.showAlertDialogue(new IllegalStateException(message));
+		}
 	}
 	
 	private void assemble(Assembler assembler, Project project)
