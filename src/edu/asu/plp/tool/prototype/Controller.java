@@ -26,6 +26,16 @@ public interface Controller
 	// Application Controls
 	void exit();
 	
+	void reportIssue();
+	
+	void showIssuesPage();
+	
+	void showOptionsMenu();
+	
+	void showAboutPLPTool();
+	
+	void showThirdPartyLicenses();
+	
 	// Application Controls :: View Manipulation
 	void toggleToolbar();
 	
@@ -59,46 +69,18 @@ public interface Controller
 	
 	void stopSimulation();
 	
-	// IDE-Specific Emulators
-	void showCPUView();
-	
+	// General ISA Emulation Views
 	void showWatcherWindow();
 	
-	void showLEDEmulator();
-	
-	void showSwitchesEmulator();
-	
-	void showSevenSegmentEmulator();
-	
-	void showUARTEmulator();
-	
-	void showVGAEmulator();
-	
-	void showPLPIDEmulator();
-	
-	void showGPIOEmulator();
-	
-	void showOptionsMenu();
-	
-	void showModuleManager();
-	
-	void showSerialTerminal();
-	
-	// --
+	// Module Management
 	void loadModule();
 	
 	void clearModuleCache();
 	
-	// Meta-User Interactions
+	void showModuleManager();
+	
+	// Language References
 	void showQuickReference();
 	
 	void showOnlineManual();
-	
-	void reportIssue();
-	
-	void showIssuesPage();
-	
-	void showAboutPLPTool();
-	
-	void showThirdPartyLicenses();
 }

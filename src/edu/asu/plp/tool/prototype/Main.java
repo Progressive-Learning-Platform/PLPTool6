@@ -1137,55 +1137,55 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenCPUView(ActionEvent event)
 	{
-		showCPUView();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onOpenWatcherWindow(ActionEvent event)
 	{
-		showWatcherWindow();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayLEDEmulator(ActionEvent event)
 	{
-		showLEDEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplaySwitchesEmulator(ActionEvent event)
 	{
-		showSwitchesEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplaySevenSegmentEmulator(ActionEvent event)
 	{
-		showSevenSegmentEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayUARTEmulator(ActionEvent event)
 	{
-		showUARTEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayVGAEmulator(ActionEvent event)
 	{
-		showVGAEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayPLPIDEmulator(ActionEvent event)
 	{
-		showPLPIDEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayGPIOEmulator(ActionEvent event)
 	{
-		showGPIOEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
@@ -1336,7 +1336,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenModuleManager(ActionEvent event)
 	{
-		showModuleManager();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
@@ -1354,7 +1354,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenSerialTerminal(ActionEvent event)
 	{
-		showSerialTerminal();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
@@ -1445,55 +1445,55 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenCPUView(MouseEvent event)
 	{
-		showCPUView();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onOpenWatcherWindow(MouseEvent event)
 	{
-		showWatcherWindow();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayLEDEmulator(MouseEvent event)
 	{
-		showLEDEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplaySwitchesEmulator(MouseEvent event)
 	{
-		showSwitchesEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplaySevenSegmentEmulator(MouseEvent event)
 	{
-		showSevenSegmentEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayUARTEmulator(MouseEvent event)
 	{
-		showUARTEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayVGAEmulator(MouseEvent event)
 	{
-		showVGAEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayPLPIDEmulator(MouseEvent event)
 	{
-		showPLPIDEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void onDisplayGPIOEmulator(MouseEvent event)
 	{
-		showGPIOEmulator();
+		// TODO Auto-generated method stub
 	}
 	
 	@Override
@@ -1926,90 +1926,6 @@ public class Main extends Application implements BusinessLogic, Controller
 	}
 	
 	@Override
-	public void showCPUView()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showWatcherWindow()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showLEDEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showSwitchesEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showSevenSegmentEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showUARTEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showVGAEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showPLPIDEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showGPIOEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showOptionsMenu()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showModuleManager()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showSerialTerminal()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
 	public void loadModule()
 	{
 		// TODO Auto-generated method stub
@@ -2081,6 +1997,27 @@ public class Main extends Application implements BusinessLogic, Controller
 	public void showThirdPartyLicenses()
 	{
 		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showOptionsMenu()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showWatcherWindow()
+	{
+		// TODO Auto-generated method stub 
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void showModuleManager()
+	{
+		// TODO Auto-generated method stub 
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 }
