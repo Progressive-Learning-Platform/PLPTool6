@@ -4,6 +4,7 @@ import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
 import java.awt.Desktop;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -1283,10 +1284,7 @@ public class Main extends Application implements BusinessLogic, Controller
 			List<Submittable> submittables)
 	{
 		PLPOptions editorSection = new PLPOptions("Editor");
-		
-		// TODO acquire all usable fonts
-		ObservableList<String> fontNames = FXCollections.observableArrayList();
-		fontNames.addAll("courier", "inconsolata");
+		ObservableList<String> fontNames = getAvailableFontNames();
 		
 		// TODO acquire editor modes
 		ObservableList<String> editorModes = FXCollections.observableArrayList();
@@ -1296,6 +1294,21 @@ public class Main extends Application implements BusinessLogic, Controller
 		submittables.add(editorPanel);
 		
 		model.put(editorSection, editorPanel);
+	}
+	
+	private ObservableList<String> getAvailableFontNames()
+	{
+		ObservableList<String> fontNames = FXCollections.observableArrayList();
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
+				.getLocalGraphicsEnvironment();
+		java.awt.Font[] fonts = graphicsEnvironment.getAllFonts();
+		for (java.awt.Font font : fonts)
+		{
+			String fontName = font.getFontName();
+			fontNames.add(fontName);
+		}
+		
+		return fontNames;
 	}
 	
 	private void addASimulatorOptionSettings(HashMap<OptionSection, Pane> model,
