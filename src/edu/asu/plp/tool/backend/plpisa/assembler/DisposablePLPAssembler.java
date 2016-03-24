@@ -32,7 +32,7 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 public class DisposablePLPAssembler
 {
@@ -91,7 +91,7 @@ public class DisposablePLPAssembler
 	{
 		File file = new File(asmFilePath);
 		String fileContent = FileUtils.readFileToString(file);
-		ASMFile asmFile = new PLPSourceFile(null, file.getName());
+		ASMFile asmFile = new SimpleASMFile(null, file.getName());
 		asmFile.setContent(fileContent);
 		return asmFile;
 	}

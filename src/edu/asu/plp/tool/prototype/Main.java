@@ -87,7 +87,7 @@ import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
 import edu.asu.plp.tool.prototype.model.PLPOptions;
 import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.model.Theme;
@@ -856,15 +856,14 @@ public class Main extends Application implements Controller
 		Project project = getProjectByName(projectName);
 		if (project != null)
 		{
-			PLPSourceFile createASM = new PLPSourceFile(project, fileName);
+			SimpleASMFile createASM = new SimpleASMFile(project, fileName);
 			project.add(createASM);
 			openFile(createASM);
 		}
 		else
 		{
-			// TODO: display message "The project {name} was not found"
-			// TODO: ask to use the active project?
-			throw new IllegalStateException("Project \"" + projectName + "\" not found");
+			String message = "The project \"" + projectName + "\" could not be found";
+			throw new IllegalArgumentException(message);
 		}
 	}
 	
@@ -897,7 +896,7 @@ public class Main extends Application implements Controller
 		project.setPath(details.getProjectLocation());
 		
 		String sourceName = details.getMainSourceFileName();
-		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::saveLegacy);
 		projects.add(project);
@@ -910,7 +909,7 @@ public class Main extends Application implements Controller
 		project.setPath(details.getProjectLocation());
 		
 		String sourceName = details.getMainSourceFileName();
-		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::save);
 		projects.add(project);
@@ -1148,8 +1147,7 @@ public class Main extends Application implements Controller
 			Project activeProject = getActiveProject();
 			String name = importTarget.getName();
 			
-			// TODO: account for non-PLP source files
-			ASMFile asmFile = new PLPSourceFile(activeProject, name);
+			ASMFile asmFile = new SimpleASMFile(activeProject, name);
 			asmFile.setContent(content);
 			activeProject.add(asmFile);
 			activeProject.save();
@@ -1313,8 +1311,8 @@ public class Main extends Application implements Controller
 		
 		if (result.get() == ButtonType.OK)
 		{
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException("The method is not implemented yet.");
+			int index = activeProject.indexOf(activeFile);
+			Collections.swap(activeProject, 0, index);
 		}
 	}
 	
@@ -1603,7 +1601,7 @@ public class Main extends Application implements Controller
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void saveAll()
 	{

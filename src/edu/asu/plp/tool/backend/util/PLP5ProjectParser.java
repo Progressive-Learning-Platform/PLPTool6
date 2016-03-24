@@ -10,7 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 public class PLP5ProjectParser
 {
@@ -68,7 +68,7 @@ public class PLP5ProjectParser
 		}
 		if (entry.getName().endsWith(".asm"))
 		{
-			ASMFile asmFile = new PLPSourceFile(project, entry.getName());
+			ASMFile asmFile = new SimpleASMFile(project, entry.getName());
 			asmFile.setContent(new String(content));
 			
 			project.add(asmFile);

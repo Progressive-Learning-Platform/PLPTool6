@@ -11,7 +11,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 public class FileUtil
 {
@@ -74,7 +74,7 @@ public class FileUtil
 		}
 		if (entry.getName().endsWith(".asm"))
 		{
-			ASMFile asmFile = new PLPSourceFile(null, entry.getName());
+			ASMFile asmFile = new SimpleASMFile(null, entry.getName());
 			asmFile.setContent(new String(content));
 			projectFiles.add(asmFile);
 		}

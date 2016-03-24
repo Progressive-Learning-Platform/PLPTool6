@@ -22,7 +22,7 @@ import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 
 /**
  * A {@link PLPProject} represents an ordered, observable collection of
- * {@link PLPSourceFile}s that can be assembled collectively as a single unit.
+ * {@link SimpleASMFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
  * 		
@@ -112,7 +112,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		{
 			String sourceName = file.getName();
 			sourceName = FilenameUtils.removeExtension(sourceName);
-			PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+			SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 			project.add(sourceFile);
 		}
 		
@@ -255,7 +255,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * The files contained by this project will be saved to a subdirectory named "src"
 	 * <p>
 	 * Source files will be exported to a child directory of the project, called "src" and
-	 * each .asm file will be named according to {@link PLPSourceFile#getName()}.
+	 * each .asm file will be named according to {@link SimpleASMFile#getName()}.
 	 * 
 	 * @see
 	 * @throws IllegalStateException
@@ -359,7 +359,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * successful.
 	 * <p>
 	 * Source files will be exported to a child directory of the project, called "src" and
-	 * each .asm file will be named according to {@link PLPSourceFile#getName()}.
+	 * each .asm file will be named according to {@link SimpleASMFile#getName()}.
 	 * <p>
 	 * If the specified file already exists, an exception will be raised, and the file
 	 * <b>will not</b> be overwritten.
