@@ -1585,14 +1585,13 @@ public class Main extends Application implements Controller
 	@Override
 	public void showWatcherWindow()
 	{
-		Stage createASMStage = new Stage();
+		Stage stage = new Stage();
 		WatcherWindow watcherWindow = new WatcherWindow();
 		
-		Scene scene = new Scene(watcherWindow, 450, 200);
-		createASMStage.setTitle("New ASMFile");
-		createASMStage.setScene(scene);
-		createASMStage.setResizable(false);
-		createASMStage.show();
+		Scene scene = new Scene(watcherWindow, 888, 500);
+		stage.setTitle("Watcher Window");
+		stage.setScene(scene);
+		stage.show();
 	}
 	
 	@Override
