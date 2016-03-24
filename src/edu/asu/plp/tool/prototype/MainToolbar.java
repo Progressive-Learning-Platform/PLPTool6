@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
 
 public class MainToolbar extends BorderPane
 {
-	public MainToolbar(BusinessLogic businessLogic)
+	public MainToolbar(Controller controller)
 	{
 		HBox toolbar = new HBox();
 		Set<Node> effectsOfButtons = new HashSet<>();
@@ -29,42 +29,42 @@ public class MainToolbar extends BorderPane
 		ObservableList<Node> buttons = toolbar.getChildren();
 		
 		Node newProjectButton = new ImageView("toolbar_new.png");
-		newProjectButton.setOnMouseClicked(businessLogic::onCreateNewProject);
+		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
 		
 		buttons.add(newProjectButton);
 		effectsOfButtons.add(newProjectButton);
 		
 		Node newFileButton = new ImageView("menu_new.png");
-		newFileButton.setOnMouseClicked(businessLogic::onNewASMFile);
+		newFileButton.setOnMouseClicked((e) -> controller.createNewASM());
 		buttons.add(newFileButton);
 		effectsOfButtons.add(newFileButton);
 		
 		Node openButton = new ImageView("toolbar_open.png");
-		openButton.setOnMouseClicked(businessLogic::onOpenProject);
+		openButton.setOnMouseClicked((e) -> controller.openProject());
 		buttons.add(openButton);
 		effectsOfButtons.add(openButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		Node saveButton = new ImageView("toolbar_save.png");
-		saveButton.setOnMouseClicked(businessLogic::onSaveProject);
+		saveButton.setOnMouseClicked((e) -> controller.saveActiveProject());
 		buttons.add(saveButton);
 		effectsOfButtons.add(saveButton);
 		
 		Node assembleButton = new ImageView("toolbar_assemble.png");
 		assembleButton.setOnMouseClicked((event) -> {
-			//businessLogic.onAssemble(event);
+			controller.assembleActiveProject();
 			simButtons.forEach(MainToolbar::toggleDisabled);	
 		});
 		buttons.add(assembleButton);
 		effectsOfButtons.add(assembleButton);
 		Tooltip assembleTooltip = new Tooltip();
 		assembleTooltip.setText("Once Assembled, the Simulate Project button will become enabled.");
-		assembleTooltip.install(assembleButton, assembleTooltip);
+		Tooltip.install(assembleButton, assembleTooltip);
 		
 		Node simulateButton = new ImageView("toolbar_simulate_grey.png");
 		simulateButton.setOnMouseClicked((event) -> {
-			businessLogic.onSimulate(event);
+			controller.simulateActiveProject();
 			runButtons.forEach(MainToolbar::toggleDisabled);
 		});
 		simulateButton.setDisable(true);
@@ -73,7 +73,7 @@ public class MainToolbar extends BorderPane
 		simButtons.add(simulateButton);
 		Tooltip simTooltip = new Tooltip();
 		simTooltip.setText("Once the Sim button is clicked, the Run and Emulator buttons will enable.");
-		simTooltip.install(simulateButton, simTooltip);
+		Tooltip.install(simulateButton, simTooltip);
 		
 		/*This button is supposed Program the PLP Board
 		 *Not 100% to its use, may need to check with Dr.  Sohoni
@@ -89,19 +89,19 @@ public class MainToolbar extends BorderPane
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		Node stepButton = new ImageView("toolbar_step_grey.png");
-		stepButton.setOnMouseClicked(businessLogic::onSimulationStep);
+		stepButton.setOnMouseClicked((e) -> controller.stepSimulation());
 		buttons.add(stepButton);
 		runButtons.add(stepButton);
 		effectsOfButtons.add(stepButton);
 		
 		Node runButton = new ImageView("toolbar_run_grey.png");
-		runButton.setOnMouseClicked(businessLogic::onRunSimulation);
+		runButton.setOnMouseClicked((e) -> controller.runSimulation());
 		buttons.add(runButton);
 		runButtons.add(runButton);
 		effectsOfButtons.add(runButton);
 		
 		Node resetButton = new ImageView("toolbar_reset_grey.png");
-		resetButton.setOnMouseClicked(businessLogic::onResetSimulation);
+		resetButton.setOnMouseClicked((e) -> controller.resetSimulation());
 		buttons.add(resetButton);
 		runButtons.add(resetButton);
 		effectsOfButtons.add(resetButton);
@@ -131,11 +131,6 @@ public class MainToolbar extends BorderPane
 		effectsOfButtons.forEach(MainToolbar::setButtonEffect);
 	}
 	
-	private static void changeButtonFace(Set<Node> buttons)
-	{
-		
-	}
-	
 	private static void setButtonEffect(Node node)
 	{
 		DropShadow rollOverColor = new DropShadow();
@@ -160,13 +155,6 @@ public class MainToolbar extends BorderPane
 		
 	}
 	
-	private static void disable(Node node)
-	{
-		DropShadow dropShadow = new DropShadow();
-		node.setEffect(dropShadow);
-		node.setDisable(true);
-	}
-	
 	private static void toggleDisabled(Node node)
 	{		
 		// Invert the isDisabled property
@@ -174,6 +162,5 @@ public class MainToolbar extends BorderPane
 		
 		//node.setEffect(isDisabled ? dropShadow : null);
 		node.setDisable(isDisabled);
-		
 	}
 }

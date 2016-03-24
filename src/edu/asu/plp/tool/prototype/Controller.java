@@ -83,4 +83,8 @@ public interface Controller
 	void showQuickReference();
 	
 	void showOnlineManual();
+	
+	void saveAll();
+	
+	void showEmulationWindow();
 }

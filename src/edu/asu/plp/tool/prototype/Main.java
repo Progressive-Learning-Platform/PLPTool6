@@ -48,7 +48,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -117,7 +116,7 @@ import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPa
  * @author Nesbitt, Morgan
  * 
  */
-public class Main extends Application implements BusinessLogic, Controller
+public class Main extends Application implements Controller
 {
 	public static final String APPLICATION_NAME = "PLPTool";
 	public static final long VERSION = 0;
@@ -930,48 +929,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		}
 	}
 	
-	@Override
-	public void onCreateNewProject(ActionEvent event)
-	{
-		createNewProject();
-	}
-	
-	@Override
-	public void onOpenProject(ActionEvent event)
-	{
-		console.println("Open Project Clicked");
-		openProject();
-	}
-	
-	@Override
-	public void onSaveProject(ActionEvent event)
-	{
-		Project activeProject = getActiveProject();
-		tryAndReport(activeProject::save);
-	}
-	
-	@Override
-	public void onSaveProjectAs(ActionEvent event)
-	{
-		saveActiveProjectAs();
-	}
-	
-	@Override
-	public void onSaveAll(ActionEvent event)
-	{
-		for (Project project : projects)
-		{
-			tryAndReport(project::save);
-		}
-	}
-	
-	@Override
-	public void onOpenEmulationWindow(ActionEvent even)
-	{
-		openEmulation();
-	}
-	
-	private void openEmulation()
+	public void showEmulationWindow()
 	{
 		Stage createEmulationStage = new Stage();
 		EmulationWindow emulationWindow = new EmulationWindow();
@@ -982,223 +940,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		createEmulationStage.setScene(scene);
 		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
-		
-	}
-	
-	@Override
-	public void onPrint(ActionEvent event)
-	{
-		printActiveFile();
-	}
-	
-	@Override
-	public void onExit(ActionEvent event)
-	{
-		exit();
-	}
-	
-	@Override
-	public void onToggleToolbar(ActionEvent event)
-	{
-		toggleToolbar();
-	}
-	
-	@Override
-	public void onToggleProjectPane(ActionEvent event)
-	{
-		toggleProjectPane();
-	}
-	
-	@Override
-	public void onToggleOutputPane(ActionEvent event)
-	{
-		toggleOutputPane();
-	}
-	
-	@Override
-	public void onClearOutputPane(ActionEvent event)
-	{
-		clearConsole();
-	}
-	
-	@Override
-	public void onAssemble(ActionEvent event)
-	{
-		assembleActiveProject();
-	}
-	
-	@Override
-	public void onSimulate(ActionEvent event)
-	{
-		simulateActiveProject();
-	}
-	
-	@Override
-	public void onDownloadToBoard(ActionEvent event)
-	{
-		downloadActiveProjectToBoard();
-	}
-	
-	@Override
-	public void onNewASMFile(ActionEvent event)
-	{
-		createNewASM();
-	}
-	
-	@Override
-	public void onImportASMFile(ActionEvent event)
-	{
-		importASM();
-	}
-	
-	@Override
-	public void onExportASMFile(ActionEvent event)
-	{
-		exportASM();
-	}
-	
-	@Override
-	public void onRemoveASMFile(ActionEvent event)
-	{
-		removeASM();
-	}
-	
-	@Override
-	public void onSetMainASMFile(ActionEvent event)
-	{
-		setMainASMFile();
-	}
-	
-	@Override
-	public void onOpenQuickReference(ActionEvent event)
-	{
-		showQuickReference();
-	}
-	
-	@Override
-	public void onOpenOnlineManual(ActionEvent event)
-	{
-		showOnlineManual();
-	}
-	
-	@Override
-	public void onOpenIssueReport(ActionEvent event)
-	{
-		reportIssue();
-	}
-	
-	@Override
-	public void onOpenIssuesPage(ActionEvent event)
-	{
-		showIssuesPage();
-	}
-	
-	@Override
-	public void onAboutPLPToolPanel(ActionEvent event)
-	{
-		showAboutPLPTool();
-	}
-	
-	@Override
-	public void onOpenThirdPartyLicenses(ActionEvent event)
-	{
-		showThirdPartyLicenses();
-	}
-	
-	@Override
-	public void onSimulationStep(ActionEvent event)
-	{
-		stepSimulation();
-	}
-	
-	@Override
-	public void onResetSimulation(ActionEvent event)
-	{
-		resetSimulation();
-	}
-	
-	@Override
-	public void onRunSimulation(ActionEvent event)
-	{
-		runSimulation();
-	}
-	
-	@Override
-	public void onChangeSimulationSpeed(ActionEvent event, int requestedSpeed)
-	{
-		changeSimulationSpeed(requestedSpeed);
-	}
-	
-	@Override
-	public void onClearBreakpoints(ActionEvent event)
-	{
-		clearAllBreakpoints();
-	}
-	
-	@Override
-	public void onOpenCPUView(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onOpenWatcherWindow(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayLEDEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplaySwitchesEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplaySevenSegmentEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayUARTEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayVGAEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayPLPIDEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayGPIOEmulator(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onStopSimulation(ActionEvent event)
-	{
-		stopSimulation();
-	}
-	
-	@Override
-	public void onOpenOptionsMenu(ActionEvent event)
-	{
-		showOptionsMenu();
 	}
 	
 	private boolean optionsMenuOkSelected(List<Submittable> submittables)
@@ -1300,176 +1041,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		submittables.add(programmerPanel);
 		
 		model.put(programmerSection, programmerPanel);
-	}
-	
-	@Override
-	public void onOpenModuleManager(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onLoadModule(ActionEvent event)
-	{
-		loadModule();
-	}
-	
-	@Override
-	public void onClearModuleCache(ActionEvent event)
-	{
-		clearModuleCache();
-	}
-	
-	@Override
-	public void onOpenSerialTerminal(ActionEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onOpenNumberConverter(ActionEvent event)
-	{
-		showNumberConverter();
-	}
-	
-	@Override
-	public void onCreateNewProject(MouseEvent event)
-	{
-		createNewProject();
-	}
-	
-	@Override
-	public void onOpenProject(MouseEvent event)
-	{
-		console.println("Open Project Clicked");
-		openProject();
-	}
-	
-	@Override
-	public void onSaveProject(MouseEvent event)
-	{
-		Project activeProject = getActiveProject();
-		tryAndReport(activeProject::save);
-	}
-	
-	@Override
-	public void onSaveProjectAs(MouseEvent event)
-	{
-		saveActiveProjectAs();
-	}
-	
-	@Override
-	public void onSaveAll(MouseEvent event)
-	{
-		for (Project project : projects)
-		{
-			tryAndReport(project::save);
-		}
-	}
-	
-	@Override
-	public void onAssemble(MouseEvent event)
-	{
-		console.println("Assemble Button Clicked");
-		Project activeProject = getActiveProject();
-		assemble(activeProject);
-	}
-	
-	@Override
-	public void onSimulate(MouseEvent event)
-	{
-		simulateActiveProject();
-	}
-	
-	@Override
-	public void onNewASMFile(MouseEvent event)
-	{
-		createNewASM();
-	}
-	
-	@Override
-	public void onSimulationStep(MouseEvent event)
-	{
-		stepSimulation();
-	}
-	
-	@Override
-	public void onSimulationInterrupt(MouseEvent event)
-	{
-		triggerSimulationInterrupt();
-	}
-	
-	@Override
-	public void onResetSimulation(MouseEvent event)
-	{
-		resetSimulation();
-	}
-	
-	@Override
-	public void onRunSimulation(MouseEvent event)
-	{
-		runSimulation();
-	}
-	
-	@Override
-	public void onOpenCPUView(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onOpenWatcherWindow(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayLEDEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplaySwitchesEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplaySevenSegmentEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayUARTEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayVGAEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayPLPIDEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onDisplayGPIOEmulator(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public void onOpenEmulationWindow(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	
 	public class ApplicationEventBusEventHandler
@@ -2031,5 +1602,14 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+
+	@Override
+	public void saveAll()
+	{
+		for (Project project : projects)
+		{
+			tryAndReport(project::save);
+		}
 	}
 }
