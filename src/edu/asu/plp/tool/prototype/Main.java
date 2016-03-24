@@ -533,10 +533,8 @@ public class Main extends Application implements BusinessLogic, Controller
 			@Override
 			public void handle(ActionEvent e)
 			{
-				String projectName;
-				String projectLocation;
-				projectName = projTextField.getText();
-				projectLocation = projLocationField.getText();
+				String projectName = projTextField.getText();
+				String projectLocation = projLocationField.getText();
 				if (projectName == null || projectName.trim().isEmpty())
 				{
 					Dialogues.showInfoDialogue("You entered an invalid Project Name");
@@ -548,16 +546,14 @@ public class Main extends Application implements BusinessLogic, Controller
 				}
 				else
 				{
-					// TODO: this is either a misnomer (should be path) or an issue
-					projectName = projLocationField.getText();
 					Project activeProject = getActiveProject();
 					try
 					{
-						activeProject.saveAs(projectName);
+						activeProject.saveAs(projectLocation);
 					}
 					catch (IOException ioException)
 					{
-						// TODO report exception to user
+						Dialogues.showAlertDialogue(ioException);
 						ioException.printStackTrace();
 					}
 					Stage stage = (Stage) saveAsButton.getScene().getWindow();
@@ -786,8 +782,10 @@ public class Main extends Application implements BusinessLogic, Controller
 	private Project getActiveProject()
 	{
 		ASMFile activeFile = getActiveFile();
-		// TODO: check activeFile for null-value
-		return activeFile.getProject();
+		if (activeFile == null)
+			return null;
+		else
+			return activeFile.getProject();
 	}
 	
 	private ASMFile getActiveFileInTabPane()
@@ -1868,7 +1866,7 @@ public class Main extends Application implements BusinessLogic, Controller
 			throw new IllegalStateException("No simulator is active!", exception);
 		}
 	}
-
+	
 	@Override
 	public void triggerSimulationInterrupt()
 	{
@@ -1890,6 +1888,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
 		if (details != null && !details.isDirty())
 		{
+			activeSimulator.loadProgram(details.getAssembledImage());
 			performIfActive(activeSimulator::run);
 		}
 		else
