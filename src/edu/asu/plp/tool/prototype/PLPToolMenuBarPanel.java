@@ -227,11 +227,8 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemReportIssue = new MenuItem("Report Issue (Requires Google Account");
 		itemReportIssue.setOnAction(businessLogic::onOpenIssueReport);
 		
-		// FIXME: should be "Open Issues Page"
-		// FIXME: should open a GitHub page (not Google Code)
-		// FIXME: the host provider of the issues page may change in the future
-		MenuItem itemGoogleIssues = new MenuItem("Open Google Code Issues Page");
-		itemGoogleIssues.setOnAction(businessLogic::onOpenIssuesPage);
+		MenuItem itemIssuesPage = new MenuItem("Open Issues Page");
+		itemIssuesPage.setOnAction(businessLogic::onOpenIssuesPage);
 		
 		MenuItem itemAboutPLP = new MenuItem("About PLP Tool...");
 		itemAboutPLP.setOnAction(businessLogic::onAboutPLPToolPanel);
@@ -240,7 +237,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemSWLicense.setOnAction(businessLogic::onOpenThirdPartyLicenses);
 		
 		helpMenu.getItems().addAll(itemQuickRef, itemOnlineManual,
-				new SeparatorMenuItem(), itemReportIssue, itemGoogleIssues,
+				new SeparatorMenuItem(), itemReportIssue, itemIssuesPage,
 				new SeparatorMenuItem(), itemAboutPLP, itemSWLicense);
 		
 		return helpMenu;
@@ -371,8 +368,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 		itemNewASMFile.setGraphic(new ImageView(new Image("menu_new.png")));
 		itemNewASMFile.setOnAction(businessLogic::onNewASMFile);
 		
-		// FIXME: Open PLP Project may be a misnomer; can the project be any ISA?
-		MenuItem itemOpen = new MenuItem("Open PLP Project");
+		MenuItem itemOpen = new MenuItem("Open Project");
 		itemOpen.setGraphic(new ImageView(new Image("toolbar_open.png")));
 		itemOpen.setAccelerator(new KeyCodeCombination(KeyCode.O,
 				KeyCombination.CONTROL_DOWN));
