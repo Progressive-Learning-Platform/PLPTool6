@@ -99,6 +99,7 @@ import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.OutlineView;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
+import edu.asu.plp.tool.prototype.view.WatcherWindow;
 import edu.asu.plp.tool.prototype.view.menu.options.OptionsPane;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.ApplicationSettingsPanel;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.EditorSettingsPanel;
@@ -1197,39 +1198,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenOptionsMenu(ActionEvent event)
 	{
-		List<Submittable> submittables = new ArrayList<>();
-		Map<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
-		
-		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
-		Scene popupScene = new Scene(optionsPane);
-		
-		Stage popupWindow = new Stage(StageStyle.DECORATED);
-		popupWindow.setTitle("Settings");
-		popupWindow.initModality(Modality.WINDOW_MODAL);
-		popupWindow.initOwner(stage);
-		popupWindow.setScene(popupScene);
-		
-		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
-		popupWindow.setMinHeight(stage.getScene().getHeight()
-				- (stage.getScene().getHeight() / 3));
-		
-		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
-		
-		optionsPane.setOkAction(() -> {
-			if (optionsMenuOkSelected(submittables))
-			{
-				submittables.forEach(submittable -> submittable.submit());
-				popupWindow.close();
-			}
-		});
-		optionsPane.setCancelAction(() -> {
-			popupWindow.close();
-		});
-		
-		popupWindow.setOnCloseRequest((windowEvent) -> {
-			popupWindow.close();
-		});
-		popupWindow.show();
+		showOptionsMenu();
 	}
 	
 	private boolean optionsMenuOkSelected(List<Submittable> submittables)
@@ -1898,8 +1867,8 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		Project activeProject = getActiveProject();
 		
-		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
-		if (details != null && !details.isDirty())
+		ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject);
+		if (!details.isDirty())
 		{
 			activeSimulator.loadProgram(details.getAssembledImage());
 			performIfActive(activeSimulator::run);
@@ -1921,8 +1890,10 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void stopSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		performIfActive(activeSimulator::pause);
+		performIfActive(activeSimulator::reset);
+		activeSimulator = null;
+		// TODO: deactivate simulation views (e.g. Emulation Window)
 	}
 	
 	@Override
@@ -1949,8 +1920,12 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void showOnlineManual()
 	{
-		// XXX: consider moving to a sub-component
 		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
+		openWebPage(webAddress);
+	}
+	
+	private void openWebPage(String webAddress)
+	{
 		try
 		{
 			if (Desktop.isDesktopSupported())
@@ -1975,15 +1950,15 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void reportIssue()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		String webAddress = "https://github.com/zcmoore/plpTool-prototype/issues";
+		openWebPage(webAddress);
 	}
 	
 	@Override
 	public void showIssuesPage()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		String webAddress = "https://github.com/zcmoore/plpTool-prototype/issues/new";
+		openWebPage(webAddress);
 	}
 	
 	@Override
@@ -1999,25 +1974,62 @@ public class Main extends Application implements BusinessLogic, Controller
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	@Override
 	public void showOptionsMenu()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		List<Submittable> submittables = new ArrayList<>();
+		Map<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
+		
+		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
+		Scene popupScene = new Scene(optionsPane);
+		
+		Stage popupWindow = new Stage(StageStyle.DECORATED);
+		popupWindow.setTitle("Settings");
+		popupWindow.initModality(Modality.WINDOW_MODAL);
+		popupWindow.initOwner(stage);
+		popupWindow.setScene(popupScene);
+		
+		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
+		popupWindow.setMinHeight(stage.getScene().getHeight()
+				- (stage.getScene().getHeight() / 3));
+		
+		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
+		
+		optionsPane.setOkAction(() -> {
+			if (optionsMenuOkSelected(submittables))
+			{
+				submittables.forEach(submittable -> submittable.submit());
+				popupWindow.close();
+			}
+		});
+		optionsPane.setCancelAction(() -> {
+			popupWindow.close();
+		});
+		
+		popupWindow.setOnCloseRequest((windowEvent) -> {
+			popupWindow.close();
+		});
+		popupWindow.show();
 	}
-
+	
 	@Override
 	public void showWatcherWindow()
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Stage createASMStage = new Stage();
+		WatcherWindow watcherWindow = new WatcherWindow();
+		
+		Scene scene = new Scene(watcherWindow, 450, 200);
+		createASMStage.setTitle("New ASMFile");
+		createASMStage.setScene(scene);
+		createASMStage.setResizable(false);
+		createASMStage.show();
 	}
-
+	
 	@Override
 	public void showModuleManager()
 	{
-		// TODO Auto-generated method stub 
+		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 }
