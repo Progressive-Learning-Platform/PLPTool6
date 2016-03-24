@@ -30,7 +30,6 @@ public class MainToolbar extends BorderPane
 		
 		Node newProjectButton = new ImageView("toolbar_new.png");
 		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
-		
 		buttons.add(newProjectButton);
 		effectsOfButtons.add(newProjectButton);
 		
@@ -75,14 +74,8 @@ public class MainToolbar extends BorderPane
 		simTooltip.setText("Once the Sim button is clicked, the Run and Emulator buttons will enable.");
 		Tooltip.install(simulateButton, simTooltip);
 		
-		/*This button is supposed Program the PLP Board
-		 *Not 100% to its use, may need to check with Dr.  Sohoni
-		 *because I don't ever remember using it.
-		 *
-		 *Probably not included in our scope.
-		 */
 		Node programBoardButton = new ImageView("toolbar_program.png");
-		// TODO: programButton.setOnMouseClicked(); {{what does this button do?}}
+		programBoardButton.setOnMouseClicked((e) -> controller.downloadActiveProjectToBoard());
 		buttons.add(programBoardButton);
 		effectsOfButtons.add(programBoardButton);
 		
@@ -105,20 +98,6 @@ public class MainToolbar extends BorderPane
 		buttons.add(resetButton);
 		runButtons.add(resetButton);
 		effectsOfButtons.add(resetButton);
-		
-		/*This Button opens up a separate window with the "step"
-		 * "run", and "reset" buttons. It also includes a slider that
-		 * can adjust how fast the program is simulated
-		 * 
-		 * Probably not necessary for our scope of the project
-		 * 
-		 */
-		Node remoteButton = new ImageView("toolbar_remote_grey.png");
-		// TODO: listener = (e) -> console.println("Floating Sim Control Window Clicked");
-		// TODO: remoteButton.setOnMouseClicked(); {{what does this do? Is it needed?}}
-		buttons.add(remoteButton);
-		runButtons.add(remoteButton);
-		effectsOfButtons.add(remoteButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
@@ -156,11 +135,8 @@ public class MainToolbar extends BorderPane
 	}
 	
 	private static void toggleDisabled(Node node)
-	{		
-		// Invert the isDisabled property
+	{
 		boolean isDisabled = !node.isDisabled();
-		
-		//node.setEffect(isDisabled ? dropShadow : null);
 		node.setDisable(isDisabled);
 	}
 }
