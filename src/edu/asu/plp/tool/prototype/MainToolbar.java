@@ -3,6 +3,7 @@ package edu.asu.plp.tool.prototype;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.asu.plp.tool.prototype.model.ImageButton;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -122,7 +123,10 @@ public class MainToolbar extends BorderPane
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		Node emulatorButton = new ImageView("toolbar_watcher.png");
+		Node emulatorButton = new ImageButton("toolbar_watcher.png", "toolbar_save.png");
+		emulatorButton.setOnMouseClicked((event) -> {
+			System.out.println("Test");
+		});
 		buttons.add(emulatorButton);
 
 		runButtons.forEach(MainToolbar::toggleDisabled);

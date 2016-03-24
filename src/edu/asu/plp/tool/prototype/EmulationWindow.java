@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
+import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -68,8 +69,8 @@ public class EmulationWindow extends BorderPane
 		Node uartPic = new ImageView("uart_example.png");
 		uartPic.setEffect(backgroundColor);
 		
-		Node sevenSegPic = new ImageView("seven_seg_example.png");
-		sevenSegPic.setEffect(backgroundColor);
+		Node sevenSegDisplay = new SevenSegmentPanel();
+		sevenSegDisplay.setEffect(backgroundColor);
 		
 		Label ledLabel = new Label();
 		ledLabel.setText("LEDs: ");
@@ -87,7 +88,7 @@ public class EmulationWindow extends BorderPane
 		sevenSegLabel.setText("Seven Segment Display: ");
 		sevenSegLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		leftSide.getChildren().addAll(sevenSegLabel, sevenSegPic, ledLabel, ledDisplay,
+		leftSide.getChildren().addAll(sevenSegLabel, sevenSegDisplay, ledLabel, ledDisplay,
 				switchesLabel, switchesDisplay);
 		rightSide.getChildren().addAll(uartLabel, uartPic);
 		
@@ -104,12 +105,12 @@ public class EmulationWindow extends BorderPane
 				if (!sevenSegCheckBox.isSelected())
 				{
 					leftSide.getChildren().remove(sevenSegLabel);
-					leftSide.getChildren().remove(sevenSegPic);
+					leftSide.getChildren().remove(sevenSegDisplay);
 				}
 				else
 				{
 					leftSide.getChildren().add(sevenSegLabel);
-					leftSide.getChildren().add(sevenSegPic);
+					leftSide.getChildren().add(sevenSegDisplay);
 				}
 			}
 		});
