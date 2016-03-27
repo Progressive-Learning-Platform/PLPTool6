@@ -1,24 +1,27 @@
 package edu.asu.plp.tool.prototype.model;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 public class QuickViewEntry
 {
-	private String content;
-	private String description;
+	private StringProperty content;
+	private StringProperty description;
 	
 	public QuickViewEntry(String content, String description)
 	{
 		super();
-		this.content = content;
-		this.description = description;
+		this.content = new SimpleStringProperty(content);
+		this.description = new SimpleStringProperty(description);
 	}
 	
 	public String getContent()
 	{
-		return content;
+		return content.get();
 	}
 	
 	public String getDescription()
 	{
-		return description;
+		return description.get();
 	}
 }
