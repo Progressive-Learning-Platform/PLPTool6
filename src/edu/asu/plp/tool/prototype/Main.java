@@ -87,8 +87,9 @@ import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
 import edu.asu.plp.tool.prototype.model.PLPOptions;
 import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.QuickViewSection;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.model.Theme;
 import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
@@ -98,6 +99,7 @@ import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
 import edu.asu.plp.tool.prototype.view.OutlineView;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
+import edu.asu.plp.tool.prototype.view.QuickViewPanel;
 import edu.asu.plp.tool.prototype.view.WatcherWindow;
 import edu.asu.plp.tool.prototype.view.menu.options.OptionsPane;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.ApplicationSettingsPanel;
@@ -243,6 +245,86 @@ public class Main extends Application implements Controller
 		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(themeName));
 		
 		primaryStage.show();
+	}
+	
+	private Node plpQuickRef()
+	{
+		// TODO: load this from a JSON file
+		List<QuickViewSection> plp = new ArrayList<>();
+		
+		QuickViewSection instructionsRType = new QuickViewSection("R-Type Instructions");
+		instructionsRType.addEntry("addu $rd, $rs, $rt", "rd = rs + rt");
+		instructionsRType.addEntry("subu $rd, $rs, $rt", "rd = rs - rt");
+		instructionsRType.addEntry("and $rd, $rs, $rt", "rd = rs & rt");
+		instructionsRType.addEntry("or $rd, $rs, $rt", "rd = rs | rt");
+		// TODO: add remaining R-Type instructions
+		
+		QuickViewSection instructionsIType = new QuickViewSection("I-Type Instructions");
+		instructionsIType.addEntry("addiu $rt, $rs, imm", "rt = rs + SignExtend(imm)");
+		instructionsIType.addEntry("andi $rt, $rs, imm", "rt = rs & ZeroExtend(imm)");
+		instructionsIType.addEntry("ori $rt, $rs, imm", "rt = rs | ZeroExtend(imm)");
+		// TODO: add remaining I-Type instructions
+		
+		QuickViewSection instructionsJType = new QuickViewSection("J-Type Instructions");
+		instructionsJType.addEntry("j label", "PC = label");
+		instructionsJType.addEntry("jal label", "ra = PC + 4; PC = label");
+		
+		QuickViewSection instructionsPsuedo = new QuickViewSection("Pseudo-Operations");
+		instructionsPsuedo.addEntry("nop", "sll $0, $0, 0");
+		instructionsPsuedo.addEntry("b label", "beq $0, $0, label");
+		instructionsPsuedo.addEntry("move $rd, $rs", "or $rd, $0, $rs");
+		// TODO: add remaining pseudo instructions
+		
+		QuickViewSection directives = new QuickViewSection("Assembler Directives");
+		directives.addEntry(".org address",
+				"Place subsequent statements starting from address");
+		directives.addEntry("label:", "Label current memory location as label");
+		directives.addEntry(".word value", "Write 32-bit value to the current address");
+		directives.addEntry(".ascii \"string\"",
+				"Place string starting from the current address");
+		directives.addEntry(".asciiz \"string\"",
+				"Place null-terminated string starting from the current address");
+		directives.addEntry(".asciiw \"string\"",
+				"Place word-aligned string starting from the current address");
+		directives.addEntry(".space value",
+				"Reserve value words starting from the current address");
+		directives.addEntry(".equ symbol value",
+				"Add a symbol and its associated value to the symbol table (a constant)");
+		
+		QuickViewSection registers = new QuickViewSection("Registers Usage Guide");
+		registers.addEntry("$0, $zero", "The zero register");
+		registers.addEntry("$1, $at", "Assembler temporary");
+		registers.addEntry("$2-$3, $v0-$v1", "Return values");
+		registers.addEntry("$4-$7, $a0-$a3", "Function arguments");
+		registers.addEntry("$8-$17, $t0-$t9", "Temporaries");
+		registers.addEntry("$18-$25, $s0-$s7", "Saved temporaries");
+		registers.addEntry("$26-$27, $i0-$i1", "Interrupt temporaries");
+		registers.addEntry("$28, $iv", "Interrupt vector");
+		registers.addEntry("$29, $sp", "Stack pointer");
+		registers.addEntry("$30, $ir", "Interrupt return address");
+		registers.addEntry("$31, $ra", "Return address");
+		
+		QuickViewSection ioMap = new QuickViewSection("I/O Memory Map");
+		ioMap.addEntry("0x00000000", "Boot ROM");
+		ioMap.addEntry("0x10000000", "RAM");
+		ioMap.addEntry("0xf0000000", "UART");
+		ioMap.addEntry("0xf0100000", "Switches");
+		ioMap.addEntry("0xf0200000", "LEDs");
+		ioMap.addEntry("0xf0300000", "GPIO");
+		ioMap.addEntry("0xf0400000", "VGA");
+		ioMap.addEntry("0xf0500000", "PLPID");
+		ioMap.addEntry("0xf0600000", "Timer");
+		ioMap.addEntry("0xf0a00000", "Seven Segment Display");
+		ioMap.addEntry("0xf0700000", "Interrupt Controller");
+		
+		plp.add(instructionsRType);
+		plp.add(instructionsIType);
+		plp.add(instructionsJType);
+		plp.add(instructionsPsuedo);
+		plp.add(directives);
+		plp.add(registers);
+		plp.add(ioMap);
+		return new QuickViewPanel("PLP 5.2", plp);
 	}
 	
 	private File showOpenDialogue()
