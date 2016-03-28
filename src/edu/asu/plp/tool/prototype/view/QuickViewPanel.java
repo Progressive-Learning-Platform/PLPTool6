@@ -16,7 +16,7 @@ import edu.asu.plp.tool.prototype.model.QuickViewSection;
 
 public class QuickViewPanel extends BorderPane
 {
-	public QuickViewPanel(List<QuickViewSection> sections)
+	public QuickViewPanel(String isaName, List<QuickViewSection> sections)
 	{
 		VBox vbox = new VBox();
 		
@@ -30,37 +30,31 @@ public class QuickViewPanel extends BorderPane
 		this.setCenter(center);
 	}
 	
-	private Node createSectionView(QuickViewSection section)
+	private TableView<QuickViewEntry> createSectionView(QuickViewSection section)
 	{
-		BorderPane view = new BorderPane();
-		Label sectionTitle = new Label(section.getTitle());
-		Node sectionBody = createSectionEntryTable(section);
-		
-		view.setTop(sectionTitle);
-		view.setCenter(sectionBody);
-		
-		return view;
-	}
-
-	private TableView<QuickViewEntry> createSectionEntryTable(QuickViewSection section)
-	{
+		String title = section.getTitle();
 		String contentHeader = section.getContentHeader();
 		String descriptionHeader = section.getDescriptionHeader();
 		
 		TableView<QuickViewEntry> table = new TableView<>();
 		table.setEditable(false);
 		
+		TableColumn<QuickViewEntry, String> headerColumn = new TableColumn<>(
+				contentHeader);
+		headerColumn.setCellValueFactory(cellFactory(title));
+		table.getColumns().add(headerColumn);
+		
 		TableColumn<QuickViewEntry, String> contentColumn = new TableColumn<>(
 				contentHeader);
 		contentColumn.setCellValueFactory(cellFactory("content"));
 		setPercentSize(table, contentColumn, 0.3);
-		table.getColumns().add(contentColumn);
+		headerColumn.getColumns().add(contentColumn);
 		
 		TableColumn<QuickViewEntry, String> descriptionColumn = new TableColumn<>(
 				descriptionHeader);
 		descriptionColumn.setCellValueFactory(cellFactory("description"));
 		setPercentSize(table, descriptionColumn, 0.2);
-		table.getColumns().add(descriptionColumn);
+		headerColumn.getColumns().add(descriptionColumn);
 		
 		ObservableList<QuickViewEntry> entries = FXCollections.observableArrayList();
 		entries.addAll(section.getEntries());
