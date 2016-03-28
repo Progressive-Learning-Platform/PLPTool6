@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuickViewSection
@@ -17,10 +18,26 @@ public class QuickViewSection
 		setHeaders("Content", "Description");
 	}
 	
+	public QuickViewSection(String title)
+	{
+		this(title, new ArrayList<>());
+	}
+	
 	public void setHeaders(String contentHeader, String descriptionHeader)
 	{
 		this.contentHeader = contentHeader;
 		this.descriptionHeader = descriptionHeader;
+	}
+	
+	public void addEntry(QuickViewEntry entry)
+	{
+		entries.add(entry);
+	}
+	
+	public void addEntry(String content, String description)
+	{
+		QuickViewEntry entry = new QuickViewEntry(content, description);
+		entries.add(entry);
 	}
 	
 	public String getTitle()
