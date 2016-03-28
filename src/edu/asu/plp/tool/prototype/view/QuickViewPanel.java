@@ -5,6 +5,8 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -25,7 +27,9 @@ public class QuickViewPanel extends BorderPane
 			vbox.getChildren().add(sectionView);
 		}
 		
-		Node center = vbox;
+		ScrollPane center = new ScrollPane(vbox);
+		center.setFitToWidth(true);
+		center.setHbarPolicy(ScrollBarPolicy.NEVER);
 		this.setCenter(center);
 	}
 	
@@ -40,9 +44,7 @@ public class QuickViewPanel extends BorderPane
 		table.setMouseTransparent(true);
 		table.setFocusTraversable(false);
 		
-		TableColumn<QuickViewEntry, String> headerColumn = new TableColumn<>(
-				contentHeader);
-		headerColumn.setCellValueFactory(cellFactory(title));
+		TableColumn<QuickViewEntry, String> headerColumn = new TableColumn<>(title);
 		table.getColumns().add(headerColumn);
 		
 		TableColumn<QuickViewEntry, String> contentColumn = new TableColumn<>(
@@ -60,6 +62,10 @@ public class QuickViewPanel extends BorderPane
 		ObservableList<QuickViewEntry> entries = FXCollections.observableArrayList();
 		entries.addAll(section.getEntries());
 		table.setItems(entries);
+		
+		int headerHeight = 60;
+		int rows = entries.size();
+		table.setPrefHeight(rows * 24 + headerHeight);
 		return table;
 	}
 	
