@@ -43,6 +43,7 @@ public class QuickViewPanel extends BorderPane
 		table.setEditable(false);
 		table.setMouseTransparent(true);
 		table.setFocusTraversable(false);
+		table.getStylesheets().add("/noScrollTableView.css");
 		
 		TableColumn<QuickViewEntry, String> headerColumn = new TableColumn<>(title);
 		table.getColumns().add(headerColumn);
@@ -63,7 +64,7 @@ public class QuickViewPanel extends BorderPane
 		entries.addAll(section.getEntries());
 		table.setItems(entries);
 		
-		int headerHeight = 60;
+		int headerHeight = 50;
 		int rows = entries.size();
 		table.setPrefHeight(rows * 24 + headerHeight);
 		return table;
