@@ -5,7 +5,6 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -38,6 +37,8 @@ public class QuickViewPanel extends BorderPane
 		
 		TableView<QuickViewEntry> table = new TableView<>();
 		table.setEditable(false);
+		table.setMouseTransparent(true);
+		table.setFocusTraversable(false);
 		
 		TableColumn<QuickViewEntry, String> headerColumn = new TableColumn<>(
 				contentHeader);
@@ -47,13 +48,13 @@ public class QuickViewPanel extends BorderPane
 		TableColumn<QuickViewEntry, String> contentColumn = new TableColumn<>(
 				contentHeader);
 		contentColumn.setCellValueFactory(cellFactory("content"));
-		setPercentSize(table, contentColumn, 0.3);
+		setPercentSize(table, contentColumn, 0.4);
 		headerColumn.getColumns().add(contentColumn);
 		
 		TableColumn<QuickViewEntry, String> descriptionColumn = new TableColumn<>(
 				descriptionHeader);
 		descriptionColumn.setCellValueFactory(cellFactory("description"));
-		setPercentSize(table, descriptionColumn, 0.2);
+		setPercentSize(table, descriptionColumn, 0.6);
 		headerColumn.getColumns().add(descriptionColumn);
 		
 		ObservableList<QuickViewEntry> entries = FXCollections.observableArrayList();
