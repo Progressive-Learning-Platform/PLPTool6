@@ -6,6 +6,9 @@ import java.util.Set;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
+import edu.asu.plp.tool.prototype.view.UARTPanel;
+import edu.asu.plp.tool.prototype.view.WatcherWindow;
+import edu.asu.plp.tool.prototype.view.CpuWindow;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -22,6 +25,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -60,17 +64,30 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
+		HBox frame = new HBox();
+		frame.setPadding(new Insets(50));
+		//frame.setStyle("-fx-background-color: grey;");
+		
 		Node ledDisplay = new LEDDisplay();
 		ledDisplay.setEffect(backgroundColor);
+		frame.getChildren().add(ledDisplay);
 		
 		Node switchesDisplay = new SwitchesDisplay();
 		switchesDisplay.setEffect(backgroundColor);
 		
-		Node uartPic = new ImageView("uart_example.png");
-		uartPic.setEffect(backgroundColor);
+		Node uartDisplay = new UARTPanel();
+		uartDisplay.setEffect(backgroundColor);
+		
+		Node watcherWindowDisplay = new WatcherWindow();
+		watcherWindowDisplay.setEffect(backgroundColor);
 		
 		Node sevenSegDisplay = new SevenSegmentPanel();
 		sevenSegDisplay.setEffect(backgroundColor);
+		
+		Node cpuWindowDisplay = new CpuWindow();
+		cpuWindowDisplay.setEffect(backgroundColor);
+		
+		
 		
 		Label ledLabel = new Label();
 		ledLabel.setText("LEDs: ");
@@ -88,9 +105,17 @@ public class EmulationWindow extends BorderPane
 		sevenSegLabel.setText("Seven Segment Display: ");
 		sevenSegLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
+		Label watcherWindowLabel = new Label();
+		watcherWindowLabel.setText("Watcher Window ");
+		watcherWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
+		Label cpuWindowLabel = new Label();
+		cpuWindowLabel.setText("CPU Window");
+		cpuWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		
 		leftSide.getChildren().addAll(sevenSegLabel, sevenSegDisplay, ledLabel, ledDisplay,
-				switchesLabel, switchesDisplay);
-		rightSide.getChildren().addAll(uartLabel, uartPic);
+				switchesLabel, switchesDisplay, cpuWindowLabel, cpuWindowDisplay);
+		rightSide.getChildren().addAll(uartLabel, uartDisplay, watcherWindowLabel, watcherWindowDisplay);
 		
 		Text title = new Text("Windows");
 		title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
@@ -142,12 +167,12 @@ public class EmulationWindow extends BorderPane
 				if (!uartCheckBox.isSelected())
 				{
 					rightSide.getChildren().remove(uartLabel);
-					rightSide.getChildren().remove(uartPic);
+					rightSide.getChildren().remove(uartDisplay);
 				}
 				else
 				{
 					rightSide.getChildren().add(uartLabel);
-					rightSide.getChildren().add(uartPic);
+					rightSide.getChildren().add(uartDisplay);
 				}
 			}
 		});
@@ -215,22 +240,22 @@ public class EmulationWindow extends BorderPane
 		
 		Label cycleLabel = new Label();
 		cycleLabel.setText("Cycle: ");
-		cycleLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		cycleLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
 		buttons.add(cycleLabel);
 		
 		Label cycleLabelCount = new Label();
 		cycleLabelCount.setText("0");
-		cycleLabelCount.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		cycleLabelCount.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
 		buttons.add(cycleLabelCount);
 		
 		Label stepLabel = new Label();
 		stepLabel.setText("Step: ");
-		stepLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		stepLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
 		buttons.add(stepLabel);
 		
 		Label stepLabelCount = new Label();
 		stepLabelCount.setText("0");
-		stepLabelCount.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		stepLabelCount.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
 		buttons.add(stepLabelCount);
 		
 		Label simModeState = new Label();
@@ -245,30 +270,6 @@ public class EmulationWindow extends BorderPane
 		
 	}
 	
-	private void createWatcherWindow()
-	{
-		// TODO: Implement this
-	}
-	
-	private void createSwitches()
-	{
-		// TODO: Implement this
-	}
-	
-	private void createLED()
-	{
-		// TODO: Implement this
-	}
-	
-	private void createSevenSegment()
-	{
-		// TODO: Implement this
-	}
-	
-	private void createUART()
-	{
-		// TODO: Implement this
-	}
 	
 	private static void toggleDisabled(Node node)
 	{

@@ -1101,7 +1101,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		EmulationWindow emulationWindow = new EmulationWindow();
 		//projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
-		Scene scene = new Scene(emulationWindow, 1275, 600);
+		Scene scene = new Scene(emulationWindow, 1750, 900);
 		createEmulationStage.setTitle("Emulation Window");
 		createEmulationStage.setScene(scene);
 		//createEmulationStage.setResizable(false);

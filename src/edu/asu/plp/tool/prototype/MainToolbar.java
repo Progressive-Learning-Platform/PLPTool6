@@ -123,11 +123,13 @@ public class MainToolbar extends BorderPane
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
+		/*
 		Node emulatorButton = new ImageButton("toolbar_watcher.png", "toolbar_save.png");
 		emulatorButton.setOnMouseClicked((event) -> {
 			System.out.println("Test");
 		});
 		buttons.add(emulatorButton);
+		*/
 
 		runButtons.forEach(MainToolbar::toggleDisabled);
 		this.setCenter(toolbar);
