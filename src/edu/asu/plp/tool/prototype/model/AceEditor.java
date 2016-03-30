@@ -112,29 +112,29 @@ public class AceEditor
 		StringBuilder builder = new StringBuilder();
 		builder.append("<script>");
 		builder.append("var editor = ace.edit(\"editor\");");
-		builder.append("editor.on(\"guttermousedown\", function(e){ \n" +
-							   "    var target = e.domEvent.target; \n" +
-							   "    if (target.className.indexOf(\"ace_gutter-cell\") == -1) \n" +
-							   "        return; \n" +
-							   "    if (!editor.isFocused()) \n" +
-							   "        return; \n" +
-							   "    if (e.clientX > 25 + target.getBoundingClientRect().left) \n" +
-							   "        return; \n" +
-							   "\n" +
-							   "    var row = e.getDocumentPosition().row \n" +
-							   "	var session = e.editor.session \n" +
-							   "	var breakPointArray = session.getBreakpoints(); \n" +
-							   "	if(breakPointArray[row] != null) \n" +
-							   "	{ \n" +
-							   "		session.clearBreakpoint(row); \n" +
-							   "		return; \n" +
-							   "	}" +
-							   "	else \n" +
-							   "	{" +
-							   "		session.setBreakpoint(row); \n" +
-							   "	}" +
-							   "    e.stop() \n" +
-							   "}) \n");
+		builder.append("editor.on(\"guttermousedown\", function(e){ \n");
+		builder.append("    var target = e.domEvent.target; \n");
+		builder.append("    if (target.className.indexOf(\"ace_gutter-cell\") == -1) \n");
+		builder.append("        return; \n");
+		builder.append("    if (!editor.isFocused()) \n");
+		builder.append("        return; \n");
+		builder.append("    if (e.clientX > 25 + target.getBoundingClientRect().left) \n");
+		builder.append("        return; \n");
+		builder.append("\n");
+		builder.append("    var row = e.getDocumentPosition().row \n");
+		builder.append("	var session = e.editor.session \n");
+		builder.append("	var breakPointArray = session.getBreakpoints(); \n");
+		builder.append("	if(breakPointArray[row] != null) \n");
+		builder.append("	{ \n");
+		builder.append("		session.clearBreakpoint(row); \n");
+		builder.append("		return; \n");
+		builder.append("	}");
+		builder.append("	else \n");
+		builder.append("	{");
+		builder.append("		session.setBreakpoint(row); \n");
+		builder.append("	}");
+		builder.append("    e.stop() \n");
+		builder.append("}) \n");
 
 		builder.append("editor.setTheme(\"ace/theme/" + currentTheme + "\");");
 		builder.append("editor.getSession().setMode(\"ace/mode/" + currentSessionMode
