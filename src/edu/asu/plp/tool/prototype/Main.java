@@ -112,7 +112,7 @@ import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPa
  * @author Moore, Zachary
  * @author Hawks, Elliott
  * @author Nesbitt, Morgan
- * 
+ * 		
  */
 public class Main extends Application implements BusinessLogic, Controller
 {
@@ -146,7 +146,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		ASMFile previousASM = openFileTabs.getKey(current);
 		if (previousASM != null)
 			previousASM.contentProperty().removeListener(this::updateOutline);
-		
+			
 		ASMFile asmFile = openFileTabs.getKey(current);
 		if (asmFile != null)
 		{
@@ -187,7 +187,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		
 		openProjectsPanel.getSelectionModel().selectedItemProperty()
 				.addListener(this::onTabActivation);
-		
+				
 		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
 		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
@@ -236,8 +236,8 @@ public class Main extends Application implements BusinessLogic, Controller
 		
 		primaryStage.setScene(scene);
 		
-		String themeName = ApplicationSettings.getSetting(
-				ApplicationSetting.APPLICATION_THEME).get();
+		String themeName = ApplicationSettings
+				.getSetting(ApplicationSetting.APPLICATION_THEME).get();
 		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(themeName));
 		
 		primaryStage.show();
@@ -254,7 +254,7 @@ public class Main extends Application implements BusinessLogic, Controller
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
 				new ExtensionFilter("All Files", "*.*"));
-		
+				
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -270,7 +270,7 @@ public class Main extends Application implements BusinessLogic, Controller
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
 				new ExtensionFilter("All Files", "*.*"));
-		
+				
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -282,7 +282,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		fileChooser.getExtensionFilters().addAll(
 				new ExtensionFilter("ASM Files", "*.asm"),
 				new ExtensionFilter("All Files", "*.*"));
-		
+				
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -351,12 +351,11 @@ public class Main extends Application implements BusinessLogic, Controller
 				alert.setTitle("Confirmation Dialog");
 				alert.setGraphic(null);
 				alert.setHeaderText(null);
-				alert.setContentText("A project with the name \""
-						+ project.getName()
+				alert.setContentText("A project with the name \"" + project.getName()
 						+ "\" already exists. In order to open this project, you must choose a different name."
 						+ "\n\n"
 						+ "Press OK to choose a new name, or Cancel to close this dialog.");
-				
+						
 				Optional<ButtonType> result = alert.showAndWait();
 				if (result.get() == ButtonType.OK)
 				{
@@ -416,7 +415,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		CodeEditor editor = getActiveCodeEditor();
 		if (editor == null)
 			throw new IllegalStateException("Cannot access active code editor");
-		
+			
 		try
 		{
 			int lineNumber = label.getLineNumber();
@@ -455,7 +454,7 @@ public class Main extends Application implements BusinessLogic, Controller
 				content.setText(file.getContent());
 			else
 				content.setText("");
-			
+				
 			// Bind content
 			file.contentProperty().bind(content);
 		}
@@ -496,8 +495,8 @@ public class Main extends Application implements BusinessLogic, Controller
 		projTextField.setPrefWidth(200);
 		
 		Label selectedProject = new Label();
-		selectedProject.setText("Save Project: \"" + getActiveProject().getName()
-				+ "\" as :");
+		selectedProject
+				.setText("Save Project: \"" + getActiveProject().getName() + "\" as :");
 		selectedProject.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		Label projectLocation = new Label();
@@ -519,8 +518,8 @@ public class Main extends Application implements BusinessLogic, Controller
 				File file = directoryChooser.showDialog(null);
 				if (file != null)
 				{
-					chosenLocation = file.getAbsolutePath().concat(
-							File.separator + projTextField.getText());
+					chosenLocation = file.getAbsolutePath()
+							.concat(File.separator + projTextField.getText());
 					projLocationField.setText(chosenLocation);
 				}
 				
@@ -848,7 +847,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		Tab activeTab = openProjectsPanel.getSelectionModel().getSelectedItem();
 		if (activeTab == null)
 			return null;
-		
+			
 		Node tabContents = activeTab.getContent();
 		if (tabContents != null)
 			return (CodeEditor) tabContents;
@@ -861,7 +860,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
 		if (selection == null)
 			return null;
-		
+			
 		ASMFile selectedFile = selection.getValue();
 		return selectedFile;
 	}
@@ -890,10 +889,8 @@ public class Main extends Application implements BusinessLogic, Controller
 		if (removalTarget == null)
 		{
 			// XXX: show a confirmation dialogue to confirm removal
-			String message = "Unable to locate file on disk. "
-					+ "The asm \""
-					+ activeFile.getName()
-					+ "\" will be removed from the project \""
+			String message = "Unable to locate file on disk. " + "The asm \""
+					+ activeFile.getName() + "\" will be removed from the project \""
 					+ activeFile.getProject().getName()
 					+ "\" but it is suggested that you verify the deletion from disk manually.";
 			Dialogues.showInfoDialogue(message);
@@ -906,8 +903,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		{
 			// XXX: show a confirmation dialogue to confirm removal
 			String message = "The path specified is a directory, but should be a file."
-					+ "The asm \""
-					+ activeFile.getName()
+					+ "The asm \"" + activeFile.getName()
 					+ "\" will be removed from the project \""
 					+ activeFile.getProject().getName()
 					+ "\" but it is suggested that you verify the deletion from disk manually.";
@@ -946,10 +942,8 @@ public class Main extends Application implements BusinessLogic, Controller
 		}
 		catch (Exception exception)
 		{
-			Dialogues
-					.showAlertDialogue(
-							exception,
-							"Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
+			Dialogues.showAlertDialogue(exception,
+					"Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
 		}
 	}
 	
@@ -959,17 +953,17 @@ public class Main extends Application implements BusinessLogic, Controller
 		String path = project.getPathFor(activeFile);
 		if (path == null)
 			return null;
-		
+			
 		return new File(path);
 	}
 	
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
-		for(Project project : projects)
+		for (Project project : projects)
 		{
-			 String projectName = project.getName();
-			 createASMMenu.addProjectName(projectName);
+			String projectName = project.getName();
+			createASMMenu.addProjectName(projectName);
 		}
 		return createASMMenu;
 	}
@@ -1084,7 +1078,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSaveAll(ActionEvent event)
 	{
-		for(Project project : projects)
+		for (Project project : projects)
 		{
 			tryAndReport(project::save);
 		}
@@ -1095,17 +1089,17 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		openEmulation();
 	}
-
+	
 	private void openEmulation()
 	{
 		Stage createEmulationStage = new Stage();
 		EmulationWindow emulationWindow = new EmulationWindow();
-		//projectCreationPanel.setFinallyOperation(createProjectStage::close);
+		// projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
 		Scene scene = new Scene(emulationWindow, 1400, 750);
 		createEmulationStage.setTitle("I/O Device Simulator");
 		createEmulationStage.setScene(scene);
-		//createEmulationStage.setResizable(false);
+		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
 		
 	}
@@ -1121,7 +1115,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		createCpuStage.setScene(scene);
 		createCpuStage.show();
 	}
-
+	
 	@Override
 	public void onPrint(ActionEvent event)
 	{
@@ -1348,9 +1342,9 @@ public class Main extends Application implements BusinessLogic, Controller
 		popupWindow.setScene(popupScene);
 		
 		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
-		popupWindow.setMinHeight(stage.getScene().getHeight()
-				- (stage.getScene().getHeight() / 3));
-		
+		popupWindow.setMinHeight(
+				stage.getScene().getHeight() - (stage.getScene().getHeight() / 3));
+				
 		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
 		
 		optionsPane.setOkAction(() -> {
@@ -1410,7 +1404,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		ObservableList<String> editorThemeNames = FXCollections.observableArrayList();
 		editorThemeNames.addAll("eclipse", "tomorrow", "xcode", "ambiance", "monokai",
 				"twilight");
-		
+				
 		ApplicationSettingsPanel applicationPanel = new ApplicationSettingsPanel(
 				applicationThemeNames, editorThemeNames);
 		submittables.add(applicationPanel);
@@ -1518,12 +1512,12 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onSaveAll(MouseEvent event)
 	{
-		for(Project project : projects)
+		for (Project project : projects)
 		{
 			tryAndReport(project::save);
 		}
 	}
-
+	
 	@Override
 	public void onAssemble(MouseEvent event)
 	{
@@ -1625,15 +1619,15 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void onOpenEmulationWindow(MouseEvent event)
 	{
-		// TODO Auto-generated method stub 
-		throw new UnsupportedOperationException("The method is not implemented yet.");	
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-
+	
 	public class ApplicationEventBusEventHandler
 	{
 		private ApplicationEventBusEventHandler()
 		{
-			
+		
 		}
 		
 		@Subscribe
@@ -1686,8 +1680,8 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		if (projects.isEmpty())
 		{
-			Dialogues
-					.showInfoDialogue("There are not projects open, please create a project first.");
+			Dialogues.showInfoDialogue(
+					"There are not projects open, please create a project first.");
 		}
 		else
 		{
@@ -1740,7 +1734,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		File exportTarget = showExportDialogue(activeFile);
 		if (exportTarget == null)
 			return;
-		
+			
 		if (exportTarget.isDirectory())
 		{
 			String exportPath = exportTarget.getAbsolutePath()
