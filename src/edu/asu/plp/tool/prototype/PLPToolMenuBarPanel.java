@@ -69,7 +69,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 	{
 		Menu simulationMenu = new Menu("Simulation");
 		
-		MenuItem itemEmulationWindow = new MenuItem("Emulation Window");
+		MenuItem itemEmulationWindow = new MenuItem("I/O Device Simulator");
 		itemEmulationWindow.setOnAction(businessLogic::onOpenEmulationWindow);
 		
 		MenuItem itemCpuViewWindow = new MenuItem("CPU View");

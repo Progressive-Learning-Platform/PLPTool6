@@ -8,31 +8,39 @@ import javafx.scene.paint.Color;
 
 public class ImageButton extends ImageView
 {
-	String enabledImage, disabledImage;
-	
-	public ImageButton()
-	{
-		
-	}
+	String enabledImageString, disabledImageString;
+	Image enabledImage, disabledImage;
 	
 	public ImageButton(String image)
 	{
-		enabledImage = image;
-		disabledImage = image;
+		enabledImageString = image;
+		disabledImageString = image;
+		
+		enabledImage = new Image(enabledImageString);
+		this.setImage(enabledImage);
+		
+		disabledImage = new Image(disabledImageString);
+		this.setImage(disabledImage);
+		
+		update(this);
 	}
 	
 	public ImageButton(String enabled, String disabled)
 	{
-		enabledImage = new Image(enabled);
-		disabledImage = new Image(disabled);
+		enabledImageString = enabled;
+		disabledImageString = disabled;
+		
+		enabledImage = new Image(enabledImageString);
 		this.setImage(enabledImage);
+		
+		disabledImage = new Image(disabledImageString);
+		
 		update(this);
 	}
 	
-	public void toggleDisabled()
+	public void toggleImage()
 	{
 		boolean isDisabled = !this.isDisabled();
-		this.setDisable(isDisabled);
 		if(isDisabled)
 		{
 			this.setImage(disabledImage);

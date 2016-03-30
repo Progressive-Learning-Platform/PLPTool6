@@ -1102,8 +1102,8 @@ public class Main extends Application implements BusinessLogic, Controller
 		EmulationWindow emulationWindow = new EmulationWindow();
 		//projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
-		Scene scene = new Scene(emulationWindow, 1750, 900);
-		createEmulationStage.setTitle("Emulation Window");
+		Scene scene = new Scene(emulationWindow, 1400, 750);
+		createEmulationStage.setTitle("I/O Device Simulator");
 		createEmulationStage.setScene(scene);
 		//createEmulationStage.setResizable(false);
 		createEmulationStage.show();
@@ -1117,7 +1117,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		CpuWindow cpuWindowView = new CpuWindow();
 		
 		Scene scene = new Scene(cpuWindowView, 1200, 700);
-		createCpuStage.setTitle("Emulation Window");
+		createCpuStage.setTitle("PLP CPU Core Simulation");
 		createCpuStage.setScene(scene);
 		createCpuStage.show();
 	}

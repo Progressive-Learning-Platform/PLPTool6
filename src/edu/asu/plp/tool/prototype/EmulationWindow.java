@@ -3,6 +3,8 @@ package edu.asu.plp.tool.prototype;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JSplitPane;
+
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
@@ -16,6 +18,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -52,9 +55,9 @@ public class EmulationWindow extends BorderPane
 		column1.setMinWidth(150);
 		grid.getColumnConstraints().add(column1);
 		
-		VBox leftSide = new VBox();
+		VBox leftSide = new VBox(25);
 		leftSide.setSpacing(10);
-		VBox rightSide = new VBox();
+		VBox rightSide = new VBox(25);
 		rightSide.setSpacing(10);
 		VBox checkOptions = new VBox();
 		checkOptions.setPadding(new Insets(10));
@@ -63,27 +66,40 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		HBox frame = new HBox();
-		frame.setPadding(new Insets(50));
-		//frame.setStyle("-fx-background-color: grey;");
-		
 		Node ledDisplay = new LEDDisplay();
 		ledDisplay.setEffect(backgroundColor);
-		frame.getChildren().add(ledDisplay);
+		HBox ledFrame = new HBox();
+		ledFrame.setPadding(new Insets(10));
+		ledFrame.setStyle("-fx-background-color: grey;");
+		//frame.setEffect(backgroundColor);
+		ledFrame.getChildren().add(ledDisplay);
 		
 		Node switchesDisplay = new SwitchesDisplay();
-		switchesDisplay.setEffect(backgroundColor);
+		//switchesDisplay.setEffect(backgroundColor);
+		HBox switchesFrame = new HBox();
+		switchesFrame.setPadding(new Insets(10));
+		switchesFrame.setStyle("-fx-background-color: grey;");
+		switchesFrame.getChildren().add(switchesDisplay);
 		
 		Node uartDisplay = new UARTPanel();
-		uartDisplay.setEffect(backgroundColor);
+		//uartDisplay.setEffect(backgroundColor);
+		HBox uartFrame = new HBox();
+		uartFrame.setPadding(new Insets(10));
+		uartFrame.setStyle("-fx-background-color: grey;");
+		uartFrame.getChildren().add(uartDisplay);
 		
 		Node watcherWindowDisplay = new WatcherWindow();
-		watcherWindowDisplay.setEffect(backgroundColor);
+		//watcherWindowDisplay.setEffect(backgroundColor);
+		HBox watcherFrame = new HBox();
+		watcherFrame.setPadding(new Insets(10));
+		watcherFrame.setStyle("-fx-background-color: grey;");
+		watcherFrame.getChildren().add(watcherWindowDisplay);
 		
 		Node sevenSegDisplay = new SevenSegmentPanel();
-		sevenSegDisplay.setEffect(backgroundColor);
-		
-		
+		//sevenSegDisplay.setEffect(backgroundColor);
+		HBox sevenSegFrame = new HBox();
+		sevenSegFrame.setStyle("-fx-background-color: grey;");
+		sevenSegFrame.getChildren().add(sevenSegDisplay);
 		
 		Label ledLabel = new Label();
 		ledLabel.setText("LEDs: ");
@@ -105,10 +121,11 @@ public class EmulationWindow extends BorderPane
 		watcherWindowLabel.setText("Watcher Window ");
 		watcherWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		leftSide.getChildren().addAll(sevenSegLabel, sevenSegDisplay, ledLabel, ledDisplay,
-				switchesLabel, switchesDisplay);
-		rightSide.getChildren().addAll(uartLabel, uartDisplay, watcherWindowLabel, watcherWindowDisplay);
-		
+		leftSide.getChildren().addAll(watcherWindowLabel, watcherFrame, ledLabel,
+				ledFrame, switchesLabel, switchesFrame);
+		rightSide.getChildren().addAll(uartLabel, uartFrame, sevenSegLabel,
+				sevenSegFrame);
+				
 		Text title = new Text("Windows");
 		title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
 		checkOptions.getChildren().add(title);
@@ -121,13 +138,13 @@ public class EmulationWindow extends BorderPane
 			{
 				if (!sevenSegCheckBox.isSelected())
 				{
-					leftSide.getChildren().remove(sevenSegLabel);
-					leftSide.getChildren().remove(sevenSegDisplay);
+					rightSide.getChildren().remove(sevenSegLabel);
+					rightSide.getChildren().remove(sevenSegFrame);
 				}
 				else
 				{
-					leftSide.getChildren().add(sevenSegLabel);
-					leftSide.getChildren().add(sevenSegDisplay);
+					rightSide.getChildren().add(sevenSegLabel);
+					rightSide.getChildren().add(sevenSegFrame);
 				}
 			}
 		});
@@ -140,12 +157,12 @@ public class EmulationWindow extends BorderPane
 				if (!ledCheckBox.isSelected())
 				{
 					leftSide.getChildren().remove(ledLabel);
-					leftSide.getChildren().remove(ledDisplay);
+					leftSide.getChildren().remove(ledFrame);
 				}
 				else
 				{
 					leftSide.getChildren().add(ledLabel);
-					leftSide.getChildren().add(ledDisplay);
+					leftSide.getChildren().add(ledFrame);
 				}
 			}
 		});
@@ -159,12 +176,12 @@ public class EmulationWindow extends BorderPane
 				if (!uartCheckBox.isSelected())
 				{
 					rightSide.getChildren().remove(uartLabel);
-					rightSide.getChildren().remove(uartDisplay);
+					rightSide.getChildren().remove(uartFrame);
 				}
 				else
 				{
 					rightSide.getChildren().add(uartLabel);
-					rightSide.getChildren().add(uartDisplay);
+					rightSide.getChildren().add(uartFrame);
 				}
 			}
 		});
@@ -178,23 +195,52 @@ public class EmulationWindow extends BorderPane
 				if (!switchesCheckBox.isSelected())
 				{
 					leftSide.getChildren().remove(switchesLabel);
-					leftSide.getChildren().remove(switchesDisplay);
+					leftSide.getChildren().remove(switchesFrame);
 				}
 				else
 				{
 					leftSide.getChildren().add(switchesLabel);
-					leftSide.getChildren().add(switchesDisplay);
+					leftSide.getChildren().add(switchesFrame);
 				}
 			}
 		});
 		
+		CheckBox watcherWindowCheckBox = new CheckBox("Watcher Window");
+		watcherWindowCheckBox.setSelected(true);
+		watcherWindowCheckBox.selectedProperty()
+				.addListener(new ChangeListener<Boolean>() {
+					public void changed(ObservableValue<? extends Boolean> ov,
+							Boolean old_val, Boolean new_val)
+					{
+						if (!watcherWindowCheckBox.isSelected())
+						{
+							leftSide.getChildren().remove(watcherWindowLabel);
+							leftSide.getChildren().remove(watcherFrame);
+						}
+						else
+						{
+							leftSide.getChildren().add(watcherWindowLabel);
+							leftSide.getChildren().add(watcherFrame);
+						}
+					}
+				});
+				
 		checkOptions.getChildren().addAll(sevenSegCheckBox, ledCheckBox, uartCheckBox,
-				switchesCheckBox);
-		
+				switchesCheckBox, watcherWindowCheckBox);
+				
+		SplitPane splitPane = new SplitPane();
+		splitPane.setStyle("-fx-box-border: transparent;");
+		splitPane.setStyle("-fx-padding: 4 10 10 10;");
+	    Node divider = splitPane.lookup(".split-pane-divider");
+	    if(divider!=null){
+	        divider.setStyle("-fx-background-color: transparent;");
+	    }
+		splitPane.getItems().addAll(leftSide, rightSide);
 		
 		grid.add(checkOptions, 0, 0);
-		grid.add(leftSide, 1, 0);
-		grid.add(rightSide, 2, 0);
+		grid.add(splitPane, 1, 0);
+		// grid.add(rightSide, 2, 0);
+		
 		return grid;
 	}
 	
@@ -261,7 +307,6 @@ public class EmulationWindow extends BorderPane
 		return hbox;
 		
 	}
-	
 	
 	private static void toggleDisabled(Node node)
 	{
