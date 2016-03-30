@@ -128,8 +128,11 @@ public class AceEditor
 							   "	{ \n" +
 							   "		session.clearBreakpoint(row); \n" +
 							   "		return; \n" +
-							   "	} \n" +
-							   "	session.setBreakpoint(row); \n" +
+							   "	}" +
+							   "	else \n" +
+							   "	{" +
+							   "		session.setBreakpoint(row); \n" +
+							   "	}" +
 							   "    e.stop() \n" +
 							   "}) \n");
 
