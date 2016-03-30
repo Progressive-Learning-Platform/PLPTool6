@@ -61,7 +61,7 @@ public class MainToolbar extends BorderPane
 		effectsOfButtons.add(assembleButton);
 		Tooltip assembleTooltip = new Tooltip();
 		assembleTooltip.setText("Once Assembled, the Simulate Project button will become enabled.");
-		assembleTooltip.install(assembleButton, assembleTooltip);
+		Tooltip.install(assembleButton, assembleTooltip);
 		
 		Node simulateButton = new ImageView("toolbar_simulate_grey.png");
 		simulateButton.setOnMouseClicked((event) -> {
@@ -74,7 +74,7 @@ public class MainToolbar extends BorderPane
 		simButtons.add(simulateButton);
 		Tooltip simTooltip = new Tooltip();
 		simTooltip.setText("Once the Sim button is clicked, the Run and Emulator buttons will enable.");
-		simTooltip.install(simulateButton, simTooltip);
+		Tooltip.install(simulateButton, simTooltip);
 		
 		/*This button is supposed Program the PLP Board
 		 *Not 100% to its use, may need to check with Dr.  Sohoni

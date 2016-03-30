@@ -68,14 +68,18 @@ public class PLPToolMenuBarPanel extends BorderPane
 	private Menu createSimulationMenu()
 	{
 		Menu simulationMenu = new Menu("Simulation");
-		MenuItem itemStep = new MenuItem("Step");
-		itemStep.setGraphic(new ImageView(new Image("toolbar_step.png")));
-		itemStep.setAccelerator(new KeyCodeCombination(KeyCode.F5));
-		itemStep.setOnAction(businessLogic::onSimulationStep);
 		
 		MenuItem itemEmulationWindow = new MenuItem("Emulation Window");
 		itemEmulationWindow.setOnAction(businessLogic::onOpenEmulationWindow);
 		
+		MenuItem itemCpuViewWindow = new MenuItem("CPU View");
+		itemCpuViewWindow.setOnAction(businessLogic::onOpenCpuViewWindow);
+		
+		MenuItem itemStep = new MenuItem("Step");
+		itemStep.setGraphic(new ImageView(new Image("toolbar_step.png")));
+		itemStep.setAccelerator(new KeyCodeCombination(KeyCode.F5));
+		itemStep.setOnAction(businessLogic::onSimulationStep);
+			
 		MenuItem itemReset = new MenuItem("Reset");
 		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
@@ -207,7 +211,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 				itemDisplayBus);
 		ioDevices.getItems().addAll(itemLedArray, itemSwitches, itemSevenSeg, itemUART,
 				itemVGA, itemPLPID, itemGPIO);
-		simulationMenu.getItems().addAll(itemEmulationWindow, itemStep, itemReset, new SeparatorMenuItem(),
+		simulationMenu.getItems().addAll(itemEmulationWindow, itemCpuViewWindow, itemStep, itemReset, new SeparatorMenuItem(),
 				itemRun, cyclesSteps, itemClearBreakpoints, new SeparatorMenuItem(),
 				views, toolsSubMenu, ioDevices, new SeparatorMenuItem(), itemExitSim);
 		

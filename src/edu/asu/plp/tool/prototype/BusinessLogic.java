@@ -142,4 +142,6 @@ public interface BusinessLogic
 	void onOpenEmulationWindow(ActionEvent event);
 	
 	void onOpenEmulationWindow(MouseEvent event);
+	
+	void onOpenCpuViewWindow(ActionEvent event);
 }

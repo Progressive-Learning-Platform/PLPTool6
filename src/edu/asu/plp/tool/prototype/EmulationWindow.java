@@ -8,7 +8,6 @@ import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
 import edu.asu.plp.tool.prototype.view.UARTPanel;
 import edu.asu.plp.tool.prototype.view.WatcherWindow;
-import edu.asu.plp.tool.prototype.view.CpuWindow;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -84,9 +83,6 @@ public class EmulationWindow extends BorderPane
 		Node sevenSegDisplay = new SevenSegmentPanel();
 		sevenSegDisplay.setEffect(backgroundColor);
 		
-		Node cpuWindowDisplay = new CpuWindow();
-		cpuWindowDisplay.setEffect(backgroundColor);
-		
 		
 		
 		Label ledLabel = new Label();
@@ -109,12 +105,8 @@ public class EmulationWindow extends BorderPane
 		watcherWindowLabel.setText("Watcher Window ");
 		watcherWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		Label cpuWindowLabel = new Label();
-		cpuWindowLabel.setText("CPU Window");
-		cpuWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
 		leftSide.getChildren().addAll(sevenSegLabel, sevenSegDisplay, ledLabel, ledDisplay,
-				switchesLabel, switchesDisplay, cpuWindowLabel, cpuWindowDisplay);
+				switchesLabel, switchesDisplay);
 		rightSide.getChildren().addAll(uartLabel, uartDisplay, watcherWindowLabel, watcherWindowDisplay);
 		
 		Text title = new Text("Windows");

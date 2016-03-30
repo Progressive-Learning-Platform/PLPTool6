@@ -94,6 +94,7 @@ import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.AboutPLPTool;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
+import edu.asu.plp.tool.prototype.view.CpuWindow;
 import edu.asu.plp.tool.prototype.view.OutlineView;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
 import edu.asu.plp.tool.prototype.view.menu.options.OptionsPane;
@@ -1090,7 +1091,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	}
 	
 	@Override
-	public void onOpenEmulationWindow(ActionEvent even)
+	public void onOpenEmulationWindow(ActionEvent event)
 	{
 		openEmulation();
 	}
@@ -1107,6 +1108,18 @@ public class Main extends Application implements BusinessLogic, Controller
 		//createEmulationStage.setResizable(false);
 		createEmulationStage.show();
 		
+	}
+	
+	@Override
+	public void onOpenCpuViewWindow(ActionEvent event)
+	{
+		Stage createCpuStage = new Stage();
+		CpuWindow cpuWindowView = new CpuWindow();
+		
+		Scene scene = new Scene(cpuWindowView, 1200, 700);
+		createCpuStage.setTitle("Emulation Window");
+		createCpuStage.setScene(scene);
+		createCpuStage.show();
 	}
 
 	@Override
