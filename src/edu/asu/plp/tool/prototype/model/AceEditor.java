@@ -140,7 +140,34 @@ public class AceEditor
 		builder.append("editor.getSession().setMode(\"ace/mode/" + currentSessionMode
 							   + "\");");
 		builder.append(getJavascriptRoutines());
+		builder.append(getHelperFunctions());
+		//Ace editor stores breakpoints as text instead of line numbers. And not just any ordinary text
+		//It stores lines with no breakpoint as an empty string. So you are guaranteed an array that is equal in length
+		//to the line count of the document
+		builder.append("function getBreakPoints() \n");
+		builder.append("{ \n");
+		builder.append("	var breakPoints = editor.session.getBreakpoints(); \n");
+		builder.append("	return prepareBreakPoints(breakPoints); \n");
+		builder.append("} \n");
+
 		builder.append("</script>");
+
+		return builder.toString();
+	}
+
+	private String getHelperFunctions()
+	{
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("function prepareBreakPoints(actual) {\n");
+		builder.append("  var newArray = new Array();\n");
+		builder.append("  for (var i = 0; i < actual.length; i++) {\n");
+		builder.append("    if (actual[i]) {\n");
+		builder.append("      newArray.push(i + 1);\n");
+		builder.append("    }\n");
+		builder.append("  }\n");
+		builder.append("  return newArray;\n");
+		builder.append("} \n");
 
 		return builder.toString();
 	}
