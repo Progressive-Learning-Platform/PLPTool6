@@ -87,4 +87,6 @@ public interface Controller
 	void saveAll();
 	
 	void showEmulationWindow();
+	
+	void openCpuViewWindow();
 }

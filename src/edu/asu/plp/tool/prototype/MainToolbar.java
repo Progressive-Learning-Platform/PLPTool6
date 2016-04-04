@@ -10,12 +10,9 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
+
 
 public class MainToolbar extends BorderPane
 {
