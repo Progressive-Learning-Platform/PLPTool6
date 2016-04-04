@@ -100,7 +100,7 @@ public class MainToolbar extends BorderPane
 		buttons.add(emulatorButton);
 		
 		ImageButton cpuViewButton = new ImageButton("toolbar_cpu.png");
-		cpuViewButton.setOnMouseClicked((e) -> new Console(controller));
+		cpuViewButton.setOnMouseClicked((e) -> controller.openCpuViewWindow());
 		buttons.add(cpuViewButton);
 
 		simButtons.forEach(MainToolbar::toggleDisabled);

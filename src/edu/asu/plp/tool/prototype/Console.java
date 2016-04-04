@@ -16,7 +16,7 @@ public class Console
 		
 		plpCommands.get("list commands").execute();
 		
-		boolean running = true;
+		boolean running = false;
 		while (running)
 		{
 			String cmd = getInput();
