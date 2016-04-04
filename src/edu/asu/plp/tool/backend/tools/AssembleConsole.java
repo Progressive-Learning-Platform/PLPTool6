@@ -25,7 +25,7 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.util.FileUtil;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 //@formatter:off
 /**
@@ -211,7 +211,7 @@ public class AssembleConsole
 			try
 			{
 				String fileContent = FileUtils.readFileToString(assembleFile);
-				ASMFile asmFile = new PLPSourceFile(null, assembleFile.getName());
+				ASMFile asmFile = new SimpleASMFile(null, assembleFile.getName());
 				asmFile.setContent(fileContent);
 				projectFiles = Arrays.asList(asmFile);
 			}

@@ -47,11 +47,9 @@ public class ASMCreationPanel extends BorderPane
 {
 	/** Field to enter the name of the new ASMFile */
 	private TextField nameText;
-	private ComboBox<String> projectListDropdown;
 	
 	/** Field to enter the name of the project to which the new file will belong */
-	// TODO: replace this text field with a dropdown of valid project names
-	private TextField projectText;
+	private ComboBox<String> projectListDropdown;
 	
 	/** Routine to be performed after {@link #onCreateASM} (usually to close the panel) */
 	private Subroutine finallyOperation;

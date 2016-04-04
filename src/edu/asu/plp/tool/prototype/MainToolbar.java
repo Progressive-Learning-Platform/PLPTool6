@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 
 public class MainToolbar extends BorderPane
 {
-	public MainToolbar(BusinessLogic businessLogic)
+	public MainToolbar(Controller controller)
 	{
 		HBox toolbar = new HBox();
 		Set<ImageButton> runButtons = new HashSet<>();
@@ -28,30 +28,28 @@ public class MainToolbar extends BorderPane
 		toolbar.setSpacing(5);
 		ObservableList<Node> buttons = toolbar.getChildren();
 		
-		boolean inSimMode = false;
-		
 		ImageButton newProjectButton = new ImageButton("toolbar_new.png");
-		newProjectButton.setOnMouseClicked(businessLogic::onCreateNewProject);
+		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
 		buttons.add(newProjectButton);
 		
 		ImageButton newFileButton = new ImageButton("menu_new.png");
-		newFileButton.setOnMouseClicked(businessLogic::onNewASMFile);
+		newFileButton.setOnMouseClicked((e) -> controller.createNewASM());
 		buttons.add(newFileButton);
-		
+
 		ImageButton openButton = new ImageButton("toolbar_open.png");
-		openButton.setOnMouseClicked(businessLogic::onOpenProject);
+		openButton.setOnMouseClicked((e) -> controller.openProject());
 		buttons.add(openButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
 		ImageButton saveButton = new ImageButton("toolbar_save.png");
-		saveButton.setOnMouseClicked(businessLogic::onSaveProject);
+		saveButton.setOnMouseClicked((e) -> controller.saveActiveProject());
 		buttons.add(saveButton);
 		
 		ImageButton assembleButton = new ImageButton("toolbar_assemble.png");
 		assembleButton.setOnMouseClicked((event) -> {
-			businessLogic.onAssemble(event);
 			simButtons.forEach(MainToolbar::toggleDisabled);
+			controller.assembleActiveProject();
 		});
 		buttons.add(assembleButton);
 		Tooltip assembleTooltip = new Tooltip();
@@ -60,7 +58,7 @@ public class MainToolbar extends BorderPane
 		
 		ImageButton simulateButton = new ImageButton("toolbar_simulate.png", "toolbar_simulate_grey.png");
 		simulateButton.setOnMouseClicked((event) -> {
-			//businessLogic.onSimulate(event);
+			controller.simulateActiveProject();
 			runButtons.forEach(MainToolbar::toggleDisabled);
 		});
 		buttons.add(simulateButton);
@@ -75,40 +73,26 @@ public class MainToolbar extends BorderPane
 		 *
 		 *Probably not included in our scope.
 		 */
-		// ImageButton programBoardButton = new ImageButton("toolbar_program.png");
-		// TODO: programButton.setOnMouseClicked(); {{what does this button do?}}
-		// buttons.add(programBoardButton);
-		// effectsOfButtons.add(programBoardButton);
+		ImageButton programBoardButton = new ImageButton("toolbar_program.png");
+		programBoardButton.setOnMouseClicked((e) -> controller.downloadActiveProjectToBoard());
+		buttons.add(programBoardButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		ImageButton stepButton = new ImageButton("toolbar_step.png", "toolbar_step_grey.png");
-		stepButton.setOnMouseClicked(businessLogic::onSimulationStep);
+		ImageButton stepButton = new ImageButton("toolbar_step.png", "toolbar_step_grey.png");		
+		stepButton.setOnMouseClicked((e) -> controller.stepSimulation());
 		buttons.add(stepButton);
 		runButtons.add(stepButton);
 		
 		ImageButton runButton = new ImageButton("toolbar_run.png", "toolbar_run_grey.png");
-		runButton.setOnMouseClicked(businessLogic::onRunSimulation);
+		runButton.setOnMouseClicked((e) -> controller.runSimulation());
 		buttons.add(runButton);
 		runButtons.add(runButton);
 		
 		ImageButton resetButton = new ImageButton("toolbar_reset.png", "toolbar_reset_grey.png");
-		resetButton.setOnMouseClicked(businessLogic::onResetSimulation);
+		resetButton.setOnMouseClicked((e) -> controller.resetSimulation());
 		buttons.add(resetButton);
 		runButtons.add(resetButton);
-		
-		/*This Button opens up a separate window with the "step"
-		 * "run", and "reset" buttons. It also includes a slider that
-		 * can adjust how fast the program is simulated
-		 * 
-		 * Probably not necessary for our scope of the project
-		 * 
-		 */
-		ImageButton remoteButton = new ImageButton("toolbar_remote.png", "toolbar_remote_grey.png");
-		// TODO: listener = (e) -> console.println("Floating Sim Control Window Clicked");
-		// TODO: remoteButton.setOnMouseClicked(); {{what does this do? Is it needed?}}
-		buttons.add(remoteButton);
-		runButtons.add(remoteButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		

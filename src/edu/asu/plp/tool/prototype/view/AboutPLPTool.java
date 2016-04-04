@@ -23,8 +23,10 @@ public class AboutPLPTool extends BorderPane
 {
 	TabPane tabPane = new TabPane();
 	
+	// TODO: this isn't the right version
 	public static final int[] version = { 5, 2 };
 	public static final String versionString = version[0] + "." + version[1];
+	// TODO: the file string doesn't match the version string above...
 	public static final String projectFileVersionString = "PLP-5.0";
 	public static final String gnuWeb = "http://www.gnu.org/licenses/gpl.html";
 	public static final String copyrightString = "PLP Software Tool (PLPTool) version "
@@ -33,11 +35,13 @@ public class AboutPLPTool extends BorderPane
 			+ "This is free software, and you are welcome to redistribute it under certain\n"
 			+ "conditions; run with '--about' for details.";
 			
+	// TODO: bug reporting should be done via GitHub
 	public static final String contactString = "Developer contact e-mail: wira.d.mulia@gmail.com\n"
 			+ "PLP mailing list: progressive-learning-platform@googlegroups.com\n"
 			+ "Report bugs to the development website:\n"
 			+ "    http://code.google.com/p/progressive-learning-platform/";
 			
+	// TODO: This is licensed under MIT, not GPL
 	public static final String licenseBanner = "This program is free software: you can redistribute it and/or modify\n"
 			+ "it under the terms of the GNU General Public License as published by\n"
 			+ "the Free Software Foundation, either version 3 of the License, or\n"
@@ -48,6 +52,7 @@ public class AboutPLPTool extends BorderPane
 			+ "GNU General Public License for more details.\n" + "\n"
 			+ "Run with '--gpl' for a copy of the license.";
 			
+	// TODO: we also use Guava, JSON, and ACE
 	public static final String thirdPartyCopyrightString = "This software uses the following third party software:\n\n"
 			+ "Apache Commons Compress\n"
 			+ "Copyright 2002-2010 The Apache Software Foundation\n"
@@ -63,6 +68,7 @@ public class AboutPLPTool extends BorderPane
 	
 	public static final String goodiesURI = "http://plp.okstate.edu/goodies";
 	
+	// TODO: This is licensed under MIT, not GPL (the old tool was GPL)
 	public static final String GPL = ""
 			+ "                    GNU GENERAL PUBLIC LICENSE\n"
 			+ "                       Version 3, 29 June 2007\n" + "\n"

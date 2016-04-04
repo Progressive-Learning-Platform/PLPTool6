@@ -4,6 +4,7 @@ import static edu.asu.plp.tool.prototype.util.Dialogues.showAlertDialogue;
 import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 
 import java.awt.Desktop;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -45,7 +48,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -62,6 +64,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import moore.fx.components.Components;
 import moore.util.ExceptionalSubroutine;
+import moore.util.Subroutine;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -84,19 +87,20 @@ import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
 import edu.asu.plp.tool.prototype.model.PLPOptions;
 import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
 import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.QuickViewSection;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 import edu.asu.plp.tool.prototype.model.Submittable;
 import edu.asu.plp.tool.prototype.model.Theme;
 import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
 import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
 import edu.asu.plp.tool.prototype.util.Dialogues;
-import edu.asu.plp.tool.prototype.view.AboutPLPTool;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
-import edu.asu.plp.tool.prototype.view.CpuWindow;
 import edu.asu.plp.tool.prototype.view.OutlineView;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
+import edu.asu.plp.tool.prototype.view.QuickViewPanel;
+import edu.asu.plp.tool.prototype.view.WatcherWindow;
 import edu.asu.plp.tool.prototype.view.menu.options.OptionsPane;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.ApplicationSettingsPanel;
 import edu.asu.plp.tool.prototype.view.menu.options.sections.EditorSettingsPanel;
@@ -112,9 +116,9 @@ import edu.asu.plp.tool.prototype.view.menu.options.sections.SimulatorSettingsPa
  * @author Moore, Zachary
  * @author Hawks, Elliott
  * @author Nesbitt, Morgan
- * 		
+ * 
  */
-public class Main extends Application implements BusinessLogic, Controller
+public class Main extends Application implements Controller
 {
 	public static final String APPLICATION_NAME = "PLPTool";
 	public static final long VERSION = 0;
@@ -146,7 +150,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		ASMFile previousASM = openFileTabs.getKey(current);
 		if (previousASM != null)
 			previousASM.contentProperty().removeListener(this::updateOutline);
-			
+		
 		ASMFile asmFile = openFileTabs.getKey(current);
 		if (asmFile != null)
 		{
@@ -187,7 +191,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		
 		openProjectsPanel.getSelectionModel().selectedItemProperty()
 				.addListener(this::onTabActivation);
-				
+		
 		ScrollPane scrollableProjectExplorer = new ScrollPane(projectExplorer);
 		scrollableProjectExplorer.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollableProjectExplorer.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
@@ -236,11 +240,91 @@ public class Main extends Application implements BusinessLogic, Controller
 		
 		primaryStage.setScene(scene);
 		
-		String themeName = ApplicationSettings
-				.getSetting(ApplicationSetting.APPLICATION_THEME).get();
+		String themeName = ApplicationSettings.getSetting(
+				ApplicationSetting.APPLICATION_THEME).get();
 		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(themeName));
 		
 		primaryStage.show();
+	}
+	
+	private Node plpQuickRef()
+	{
+		// TODO: load this from a JSON file
+		List<QuickViewSection> plp = new ArrayList<>();
+		
+		QuickViewSection instructionsRType = new QuickViewSection("R-Type Instructions");
+		instructionsRType.addEntry("addu $rd, $rs, $rt", "rd = rs + rt");
+		instructionsRType.addEntry("subu $rd, $rs, $rt", "rd = rs - rt");
+		instructionsRType.addEntry("and $rd, $rs, $rt", "rd = rs & rt");
+		instructionsRType.addEntry("or $rd, $rs, $rt", "rd = rs | rt");
+		// TODO: add remaining R-Type instructions
+		
+		QuickViewSection instructionsIType = new QuickViewSection("I-Type Instructions");
+		instructionsIType.addEntry("addiu $rt, $rs, imm", "rt = rs + SignExtend(imm)");
+		instructionsIType.addEntry("andi $rt, $rs, imm", "rt = rs & ZeroExtend(imm)");
+		instructionsIType.addEntry("ori $rt, $rs, imm", "rt = rs | ZeroExtend(imm)");
+		// TODO: add remaining I-Type instructions
+		
+		QuickViewSection instructionsJType = new QuickViewSection("J-Type Instructions");
+		instructionsJType.addEntry("j label", "PC = label");
+		instructionsJType.addEntry("jal label", "ra = PC + 4; PC = label");
+		
+		QuickViewSection instructionsPsuedo = new QuickViewSection("Pseudo-Operations");
+		instructionsPsuedo.addEntry("nop", "sll $0, $0, 0");
+		instructionsPsuedo.addEntry("b label", "beq $0, $0, label");
+		instructionsPsuedo.addEntry("move $rd, $rs", "or $rd, $0, $rs");
+		// TODO: add remaining pseudo instructions
+		
+		QuickViewSection directives = new QuickViewSection("Assembler Directives");
+		directives.addEntry(".org address",
+				"Place subsequent statements starting from address");
+		directives.addEntry("label:", "Label current memory location as label");
+		directives.addEntry(".word value", "Write 32-bit value to the current address");
+		directives.addEntry(".ascii \"string\"",
+				"Place string starting from the current address");
+		directives.addEntry(".asciiz \"string\"",
+				"Place null-terminated string starting from the current address");
+		directives.addEntry(".asciiw \"string\"",
+				"Place word-aligned string starting from the current address");
+		directives.addEntry(".space value",
+				"Reserve value words starting from the current address");
+		directives.addEntry(".equ symbol value",
+				"Add a symbol and its associated value to the symbol table (a constant)");
+		
+		QuickViewSection registers = new QuickViewSection("Registers Usage Guide");
+		registers.addEntry("$0, $zero", "The zero register");
+		registers.addEntry("$1, $at", "Assembler temporary");
+		registers.addEntry("$2-$3, $v0-$v1", "Return values");
+		registers.addEntry("$4-$7, $a0-$a3", "Function arguments");
+		registers.addEntry("$8-$17, $t0-$t9", "Temporaries");
+		registers.addEntry("$18-$25, $s0-$s7", "Saved temporaries");
+		registers.addEntry("$26-$27, $i0-$i1", "Interrupt temporaries");
+		registers.addEntry("$28, $iv", "Interrupt vector");
+		registers.addEntry("$29, $sp", "Stack pointer");
+		registers.addEntry("$30, $ir", "Interrupt return address");
+		registers.addEntry("$31, $ra", "Return address");
+		
+		QuickViewSection ioMap = new QuickViewSection("I/O Memory Map");
+		ioMap.addEntry("0x00000000", "Boot ROM");
+		ioMap.addEntry("0x10000000", "RAM");
+		ioMap.addEntry("0xf0000000", "UART");
+		ioMap.addEntry("0xf0100000", "Switches");
+		ioMap.addEntry("0xf0200000", "LEDs");
+		ioMap.addEntry("0xf0300000", "GPIO");
+		ioMap.addEntry("0xf0400000", "VGA");
+		ioMap.addEntry("0xf0500000", "PLPID");
+		ioMap.addEntry("0xf0600000", "Timer");
+		ioMap.addEntry("0xf0a00000", "Seven Segment Display");
+		ioMap.addEntry("0xf0700000", "Interrupt Controller");
+		
+		plp.add(instructionsRType);
+		plp.add(instructionsIType);
+		plp.add(instructionsJType);
+		plp.add(instructionsPsuedo);
+		plp.add(directives);
+		plp.add(registers);
+		plp.add(ioMap);
+		return new QuickViewPanel("PLP 5.2", plp);
 	}
 	
 	private File showOpenDialogue()
@@ -254,7 +338,7 @@ public class Main extends Application implements BusinessLogic, Controller
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
 				new ExtensionFilter("All Files", "*.*"));
-				
+		
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -270,7 +354,7 @@ public class Main extends Application implements BusinessLogic, Controller
 				new ExtensionFilter("Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
 				new ExtensionFilter("All Files", "*.*"));
-				
+		
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -282,7 +366,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		fileChooser.getExtensionFilters().addAll(
 				new ExtensionFilter("ASM Files", "*.asm"),
 				new ExtensionFilter("All Files", "*.*"));
-				
+		
 		return fileChooser.showOpenDialog(stage);
 	}
 	
@@ -351,11 +435,12 @@ public class Main extends Application implements BusinessLogic, Controller
 				alert.setTitle("Confirmation Dialog");
 				alert.setGraphic(null);
 				alert.setHeaderText(null);
-				alert.setContentText("A project with the name \"" + project.getName()
+				alert.setContentText("A project with the name \""
+						+ project.getName()
 						+ "\" already exists. In order to open this project, you must choose a different name."
 						+ "\n\n"
 						+ "Press OK to choose a new name, or Cancel to close this dialog.");
-						
+				
 				Optional<ButtonType> result = alert.showAndWait();
 				if (result.get() == ButtonType.OK)
 				{
@@ -415,7 +500,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		CodeEditor editor = getActiveCodeEditor();
 		if (editor == null)
 			throw new IllegalStateException("Cannot access active code editor");
-			
+		
 		try
 		{
 			int lineNumber = label.getLineNumber();
@@ -454,7 +539,7 @@ public class Main extends Application implements BusinessLogic, Controller
 				content.setText(file.getContent());
 			else
 				content.setText("");
-				
+			
 			// Bind content
 			file.contentProperty().bind(content);
 		}
@@ -495,8 +580,8 @@ public class Main extends Application implements BusinessLogic, Controller
 		projTextField.setPrefWidth(200);
 		
 		Label selectedProject = new Label();
-		selectedProject
-				.setText("Save Project: \"" + getActiveProject().getName() + "\" as :");
+		selectedProject.setText("Save Project: \"" + getActiveProject().getName()
+				+ "\" as :");
 		selectedProject.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
 		Label projectLocation = new Label();
@@ -518,8 +603,8 @@ public class Main extends Application implements BusinessLogic, Controller
 				File file = directoryChooser.showDialog(null);
 				if (file != null)
 				{
-					chosenLocation = file.getAbsolutePath()
-							.concat(File.separator + projTextField.getText());
+					chosenLocation = file.getAbsolutePath().concat(
+							File.separator + projTextField.getText());
 					projLocationField.setText(chosenLocation);
 				}
 				
@@ -531,10 +616,8 @@ public class Main extends Application implements BusinessLogic, Controller
 			@Override
 			public void handle(ActionEvent e)
 			{
-				String projectName;
-				String projectLocation;
-				projectName = projTextField.getText();
-				projectLocation = projLocationField.getText();
+				String projectName = projTextField.getText();
+				String projectLocation = projLocationField.getText();
 				if (projectName == null || projectName.trim().isEmpty())
 				{
 					Dialogues.showInfoDialogue("You entered an invalid Project Name");
@@ -546,16 +629,14 @@ public class Main extends Application implements BusinessLogic, Controller
 				}
 				else
 				{
-					// TODO: this is either a misnomer (should be path) or an issue
-					projectName = projLocationField.getText();
 					Project activeProject = getActiveProject();
 					try
 					{
-						activeProject.saveAs(projectName);
+						activeProject.saveAs(projectLocation);
 					}
 					catch (IOException ioException)
 					{
-						// TODO report exception to user
+						Dialogues.showAlertDialogue(ioException);
 						ioException.printStackTrace();
 					}
 					Stage stage = (Stage) saveAsButton.getScene().getWindow();
@@ -732,22 +813,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		return toolbar;
 	}
 	
-	private void run(Project project)
-	{
-		Optional<ISAModule> optionalISA = project.getISA();
-		if (optionalISA.isPresent())
-		{
-			ISAModule isa = optionalISA.get();
-			Simulator simulator = isa.getSimulator();
-			simulator.run();
-		}
-		else
-		{
-			// TODO: handle "no compatible ISA" case
-			throw new UnsupportedOperationException("Not yet implemented");
-		}
-	}
-	
 	private Parent createMenuBar()
 	{
 		PLPToolMenuBarPanel menuBar = new PLPToolMenuBarPanel(this);
@@ -767,38 +832,6 @@ public class Main extends Application implements BusinessLogic, Controller
 		{
 			// TODO: handle "no compatible ISA" case
 			throw new UnsupportedOperationException("Not yet implemented");
-		}
-	}
-	
-	private void toggleSimulation()
-	{
-		if (activeSimulator == null)
-		{
-			activateSimulatorForActiveProject();
-		}
-		else
-		{
-			// TODO: update any views that depend on simulation mode
-			activeSimulator = null;
-		}
-	}
-	
-	private void activateSimulatorForActiveProject()
-	{
-		Project activeProject = getActiveProject();
-		String projectType = activeProject.getType();
-		Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(projectType);
-		
-		if (module.isPresent())
-		{
-			ISAModule isa = module.get();
-			activeSimulator = isa.getSimulator();
-		}
-		else
-		{
-			String message = "No simulator is available for the project type: ";
-			message += projectType;
-			Dialogues.showAlertDialogue(new IllegalStateException(message));
 		}
 	}
 	
@@ -832,8 +865,10 @@ public class Main extends Application implements BusinessLogic, Controller
 	private Project getActiveProject()
 	{
 		ASMFile activeFile = getActiveFile();
-		// TODO: check activeFile for null-value
-		return activeFile.getProject();
+		if (activeFile == null)
+			return null;
+		else
+			return activeFile.getProject();
 	}
 	
 	private ASMFile getActiveFileInTabPane()
@@ -847,7 +882,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		Tab activeTab = openProjectsPanel.getSelectionModel().getSelectedItem();
 		if (activeTab == null)
 			return null;
-			
+		
 		Node tabContents = activeTab.getContent();
 		if (tabContents != null)
 			return (CodeEditor) tabContents;
@@ -860,7 +895,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
 		if (selection == null)
 			return null;
-			
+		
 		ASMFile selectedFile = selection.getValue();
 		return selectedFile;
 	}
@@ -874,86 +909,13 @@ public class Main extends Application implements BusinessLogic, Controller
 			return selectedFile;
 	}
 	
-	private void removeActiveFile()
-	{
-		ASMFile activeFile = getActiveFile();
-		if (activeFile == null)
-		{
-			// XXX: possible feature: select file from a list or dropdown
-			String message = "No file is selected! Select the file you wish to remove in the ProjectExplorer, then click remove.";
-			Dialogues.showInfoDialogue(message);
-			return;
-		}
-		
-		File removalTarget = findDiskObjectForASM(activeFile);
-		if (removalTarget == null)
-		{
-			// XXX: show a confirmation dialogue to confirm removal
-			String message = "Unable to locate file on disk. " + "The asm \""
-					+ activeFile.getName() + "\" will be removed from the project \""
-					+ activeFile.getProject().getName()
-					+ "\" but it is suggested that you verify the deletion from disk manually.";
-			Dialogues.showInfoDialogue(message);
-			Project activeProject = activeFile.getProject();
-			activeProject.remove(activeFile);
-			return;
-		}
-		
-		if (removalTarget.isDirectory())
-		{
-			// XXX: show a confirmation dialogue to confirm removal
-			String message = "The path specified is a directory, but should be a file."
-					+ "The asm \"" + activeFile.getName()
-					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName()
-					+ "\" but it is suggested that you verify the deletion from disk manually.";
-			Exception exception = new IllegalStateException(
-					"The path to the specified ASMFile is a directory, but should be a file.");
-			Dialogues.showAlertDialogue(exception, message);
-			return;
-		}
-		else
-		{
-			String message = "The asm \"" + activeFile.getName()
-					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName() + "\" and the file at \""
-					+ removalTarget.getAbsolutePath() + "\" will be deleted.";
-			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
-			
-			if (result.get() != ButtonType.OK)
-			{
-				// Removal was canceled
-				return;
-			}
-		}
-		
-		if (!removalTarget.exists())
-		{
-			String message = "Unable to locate file on disk. The file will be removed from the project, but it is suggested that you verify the deletion from disk manually.";
-			Dialogues.showInfoDialogue(message);
-		}
-		
-		try
-		{
-			boolean wasRemoved = removalTarget.delete();
-			if (!wasRemoved)
-				throw new Exception("The file \"" + removalTarget.getAbsolutePath()
-						+ "\" was not deleted.");
-		}
-		catch (Exception exception)
-		{
-			Dialogues.showAlertDialogue(exception,
-					"Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
-		}
-	}
-	
 	private File findDiskObjectForASM(ASMFile activeFile)
 	{
 		Project project = activeFile.getProject();
 		String path = project.getPathFor(activeFile);
 		if (path == null)
 			return null;
-			
+		
 		return new File(path);
 	}
 	
@@ -976,15 +938,14 @@ public class Main extends Application implements BusinessLogic, Controller
 		Project project = getProjectByName(projectName);
 		if (project != null)
 		{
-			PLPSourceFile createASM = new PLPSourceFile(project, fileName);
+			SimpleASMFile createASM = new SimpleASMFile(project, fileName);
 			project.add(createASM);
 			openFile(createASM);
 		}
 		else
 		{
-			// TODO: display message "The project {name} was not found"
-			// TODO: ask to use the active project?
-			throw new IllegalStateException("Project \"" + projectName + "\" not found");
+			String message = "The project \"" + projectName + "\" could not be found";
+			throw new IllegalArgumentException(message);
 		}
 	}
 	
@@ -1017,7 +978,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		project.setPath(details.getProjectLocation());
 		
 		String sourceName = details.getMainSourceFileName();
-		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::saveLegacy);
 		projects.add(project);
@@ -1030,7 +991,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		project.setPath(details.getProjectLocation());
 		
 		String sourceName = details.getMainSourceFileName();
-		PLPSourceFile sourceFile = new PLPSourceFile(project, sourceName);
+		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::save);
 		projects.add(project);
@@ -1049,319 +1010,17 @@ public class Main extends Application implements BusinessLogic, Controller
 		}
 	}
 	
-	@Override
-	public void onCreateNewProject(ActionEvent event)
-	{
-		createNewProject();
-	}
-	
-	@Override
-	public void onOpenProject(ActionEvent event)
-	{
-		console.println("Open Project Clicked");
-		openProject();
-	}
-	
-	@Override
-	public void onSaveProject(ActionEvent event)
-	{
-		Project activeProject = getActiveProject();
-		tryAndReport(activeProject::save);
-	}
-	
-	@Override
-	public void onSaveProjectAs(ActionEvent event)
-	{
-		saveActiveProjectAs();
-	}
-	
-	@Override
-	public void onSaveAll(ActionEvent event)
-	{
-		for (Project project : projects)
-		{
-			tryAndReport(project::save);
-		}
-	}
-	
-	@Override
-	public void onOpenEmulationWindow(ActionEvent event)
-	{
-		openEmulation();
-	}
-	
-	private void openEmulation()
+	public void showEmulationWindow()
 	{
 		Stage createEmulationStage = new Stage();
 		EmulationWindow emulationWindow = new EmulationWindow();
 		// projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
-		Scene scene = new Scene(emulationWindow, 1400, 750);
-		createEmulationStage.setTitle("I/O Device Simulator");
+		Scene scene = new Scene(emulationWindow, 1275, 600);
+		createEmulationStage.setTitle("Emulation Window");
 		createEmulationStage.setScene(scene);
 		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
-		
-	}
-	
-	@Override
-	public void onOpenCpuViewWindow(ActionEvent event)
-	{
-		Stage createCpuStage = new Stage();
-		CpuWindow cpuWindowView = new CpuWindow();
-		
-		Scene scene = new Scene(cpuWindowView, 1200, 700);
-		createCpuStage.setTitle("PLP CPU Core Simulation");
-		createCpuStage.setScene(scene);
-		createCpuStage.show();
-	}
-	
-	@Override
-	public void onPrint(ActionEvent event)
-	{
-		printActiveFile();
-	}
-	
-	@Override
-	public void onExit(ActionEvent event)
-	{
-		exit();
-	}
-	
-	@Override
-	public void onToggleToolbar(ActionEvent event)
-	{
-		toggleToolbar();
-	}
-	
-	@Override
-	public void onToggleProjectPane(ActionEvent event)
-	{
-		toggleProjectPane();
-	}
-	
-	@Override
-	public void onToggleOutputPane(ActionEvent event)
-	{
-		toggleOutputPane();
-	}
-	
-	@Override
-	public void onClearOutputPane(ActionEvent event)
-	{
-		clearConsole();
-	}
-	
-	@Override
-	public void onAssemble(ActionEvent event)
-	{
-		assembleActiveProject();
-	}
-	
-	@Override
-	public void onSimulate(ActionEvent event)
-	{
-		toggleSimulation();
-	}
-	
-	@Override
-	public void onDownloadToBoard(ActionEvent event)
-	{
-		downloadActiveProjectToBoard();
-	}
-	
-	@Override
-	public void onNewASMFile(ActionEvent event)
-	{
-		createNewASM();
-	}
-	
-	@Override
-	public void onImportASMFile(ActionEvent event)
-	{
-		importASM();
-	}
-	
-	@Override
-	public void onExportASMFile(ActionEvent event)
-	{
-		exportASM();
-	}
-	
-	@Override
-	public void onRemoveASMFile(ActionEvent event)
-	{
-		removeActiveFile();
-	}
-	
-	@Override
-	public void onSetMainASMFile(ActionEvent event)
-	{
-		setMainASMFile();
-	}
-	
-	@Override
-	public void onOpenQuickReference(ActionEvent event)
-	{
-		showQuickReference();
-	}
-	
-	@Override
-	public void onOpenOnlineManual(ActionEvent event)
-	{
-		showOnlineManual();
-	}
-	
-	@Override
-	public void onOpenIssueReport(ActionEvent event)
-	{
-		reportIssue();
-	}
-	
-	@Override
-	public void onOpenIssuesPage(ActionEvent event)
-	{
-		showIssuesPage();
-	}
-	
-	@Override
-	public void onAboutPLPToolPanel(ActionEvent event)
-	{
-		showAboutPLPTool();
-	}
-	
-	@Override
-	public void onOpenThirdPartyLicenses(ActionEvent event)
-	{
-		showThirdPartyLicenses();
-	}
-	
-	@Override
-	public void onSimulationStep(ActionEvent event)
-	{
-		stepSimulation();
-	}
-	
-	@Override
-	public void onResetSimulation(ActionEvent event)
-	{
-		resetSimulation();
-	}
-	
-	@Override
-	public void onRunSimulation(ActionEvent event)
-	{
-		runSimulation();
-	}
-	
-	@Override
-	public void onChangeSimulationSpeed(ActionEvent event, int requestedSpeed)
-	{
-		changeSimulationSpeed(requestedSpeed);
-	}
-	
-	@Override
-	public void onClearBreakpoints(ActionEvent event)
-	{
-		clearAllBreakpoints();
-	}
-	
-	@Override
-	public void onOpenCPUView(ActionEvent event)
-	{
-		showCPUView();
-	}
-	
-	@Override
-	public void onOpenWatcherWindow(ActionEvent event)
-	{
-		showWatcherWindow();
-	}
-	
-	@Override
-	public void onDisplayLEDEmulator(ActionEvent event)
-	{
-		showLEDEmulator();
-	}
-	
-	@Override
-	public void onDisplaySwitchesEmulator(ActionEvent event)
-	{
-		showSwitchesEmulator();
-	}
-	
-	@Override
-	public void onDisplaySevenSegmentEmulator(ActionEvent event)
-	{
-		showSevenSegmentEmulator();
-	}
-	
-	@Override
-	public void onDisplayUARTEmulator(ActionEvent event)
-	{
-		showUARTEmulator();
-	}
-	
-	@Override
-	public void onDisplayVGAEmulator(ActionEvent event)
-	{
-		showVGAEmulator();
-	}
-	
-	@Override
-	public void onDisplayPLPIDEmulator(ActionEvent event)
-	{
-		showPLPIDEmulator();
-	}
-	
-	@Override
-	public void onDisplayGPIOEmulator(ActionEvent event)
-	{
-		showGPIOEmulator();
-	}
-	
-	@Override
-	public void onStopSimulation(ActionEvent event)
-	{
-		stopSimulation();
-	}
-	
-	@Override
-	public void onOpenOptionsMenu(ActionEvent event)
-	{
-		List<Submittable> submittables = new ArrayList<>();
-		Map<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
-		
-		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
-		Scene popupScene = new Scene(optionsPane);
-		
-		Stage popupWindow = new Stage(StageStyle.DECORATED);
-		popupWindow.setTitle("Settings");
-		popupWindow.initModality(Modality.WINDOW_MODAL);
-		popupWindow.initOwner(stage);
-		popupWindow.setScene(popupScene);
-		
-		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
-		popupWindow.setMinHeight(
-				stage.getScene().getHeight() - (stage.getScene().getHeight() / 3));
-				
-		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
-		
-		optionsPane.setOkAction(() -> {
-			if (optionsMenuOkSelected(submittables))
-			{
-				submittables.forEach(submittable -> submittable.submit());
-				popupWindow.close();
-			}
-		});
-		optionsPane.setCancelAction(() -> {
-			popupWindow.close();
-		});
-		
-		popupWindow.setOnCloseRequest((windowEvent) -> {
-			popupWindow.close();
-		});
-		popupWindow.show();
 	}
 	
 	private boolean optionsMenuOkSelected(List<Submittable> submittables)
@@ -1404,7 +1063,7 @@ public class Main extends Application implements BusinessLogic, Controller
 		ObservableList<String> editorThemeNames = FXCollections.observableArrayList();
 		editorThemeNames.addAll("eclipse", "tomorrow", "xcode", "ambiance", "monokai",
 				"twilight");
-				
+		
 		ApplicationSettingsPanel applicationPanel = new ApplicationSettingsPanel(
 				applicationThemeNames, editorThemeNames);
 		submittables.add(applicationPanel);
@@ -1416,10 +1075,7 @@ public class Main extends Application implements BusinessLogic, Controller
 			List<Submittable> submittables)
 	{
 		PLPOptions editorSection = new PLPOptions("Editor");
-		
-		// TODO acquire all usable fonts
-		ObservableList<String> fontNames = FXCollections.observableArrayList();
-		fontNames.addAll("courier", "inconsolata");
+		ObservableList<String> fontNames = getAvailableFontNames();
 		
 		// TODO acquire editor modes
 		ObservableList<String> editorModes = FXCollections.observableArrayList();
@@ -1429,6 +1085,21 @@ public class Main extends Application implements BusinessLogic, Controller
 		submittables.add(editorPanel);
 		
 		model.put(editorSection, editorPanel);
+	}
+	
+	private ObservableList<String> getAvailableFontNames()
+	{
+		ObservableList<String> fontNames = FXCollections.observableArrayList();
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
+				.getLocalGraphicsEnvironment();
+		java.awt.Font[] fonts = graphicsEnvironment.getAllFonts();
+		for (java.awt.Font font : fonts)
+		{
+			String fontName = font.getFontName();
+			fontNames.add(fontName);
+		}
+		
+		return fontNames;
 	}
 	
 	private void addASimulatorOptionSettings(HashMap<OptionSection, Pane> model,
@@ -1453,181 +1124,11 @@ public class Main extends Application implements BusinessLogic, Controller
 		model.put(programmerSection, programmerPanel);
 	}
 	
-	@Override
-	public void onOpenModuleManager(ActionEvent event)
-	{
-		showModuleManager();
-	}
-	
-	@Override
-	public void onLoadModule(ActionEvent event)
-	{
-		loadModule();
-	}
-	
-	@Override
-	public void onClearModuleCache(ActionEvent event)
-	{
-		clearModuleCache();
-	}
-	
-	@Override
-	public void onOpenSerialTerminal(ActionEvent event)
-	{
-		showSerialTerminal();
-	}
-	
-	@Override
-	public void onOpenNumberConverter(ActionEvent event)
-	{
-		showNumberConverter();
-	}
-	
-	@Override
-	public void onCreateNewProject(MouseEvent event)
-	{
-		createNewProject();
-	}
-	
-	@Override
-	public void onOpenProject(MouseEvent event)
-	{
-		console.println("Open Project Clicked");
-		openProject();
-	}
-	
-	@Override
-	public void onSaveProject(MouseEvent event)
-	{
-		Project activeProject = getActiveProject();
-		tryAndReport(activeProject::save);
-	}
-	
-	@Override
-	public void onSaveProjectAs(MouseEvent event)
-	{
-		saveActiveProjectAs();
-	}
-	
-	@Override
-	public void onSaveAll(MouseEvent event)
-	{
-		for (Project project : projects)
-		{
-			tryAndReport(project::save);
-		}
-	}
-	
-	@Override
-	public void onAssemble(MouseEvent event)
-	{
-		console.println("Assemble Button Clicked");
-		Project activeProject = getActiveProject();
-		assemble(activeProject);
-	}
-	
-	@Override
-	public void onSimulate(MouseEvent event)
-	{
-		toggleSimulation();
-	}
-	
-	@Override
-	public void onNewASMFile(MouseEvent event)
-	{
-		createNewASM();
-	}
-	
-	@Override
-	public void onSimulationStep(MouseEvent event)
-	{
-		stepSimulation();
-	}
-	
-	@Override
-	public void onSimulationInterrupt(MouseEvent event)
-	{
-		triggerSimulationInterrupt();
-	}
-	
-	@Override
-	public void onResetSimulation(MouseEvent event)
-	{
-		resetSimulation();
-	}
-	
-	@Override
-	public void onRunSimulation(MouseEvent event)
-	{
-		runSimulation();
-	}
-	
-	@Override
-	public void onOpenCPUView(MouseEvent event)
-	{
-		showCPUView();
-	}
-	
-	@Override
-	public void onOpenWatcherWindow(MouseEvent event)
-	{
-		showWatcherWindow();
-	}
-	
-	@Override
-	public void onDisplayLEDEmulator(MouseEvent event)
-	{
-		showLEDEmulator();
-	}
-	
-	@Override
-	public void onDisplaySwitchesEmulator(MouseEvent event)
-	{
-		showSwitchesEmulator();
-	}
-	
-	@Override
-	public void onDisplaySevenSegmentEmulator(MouseEvent event)
-	{
-		showSevenSegmentEmulator();
-	}
-	
-	@Override
-	public void onDisplayUARTEmulator(MouseEvent event)
-	{
-		showUARTEmulator();
-	}
-	
-	@Override
-	public void onDisplayVGAEmulator(MouseEvent event)
-	{
-		showVGAEmulator();
-	}
-	
-	@Override
-	public void onDisplayPLPIDEmulator(MouseEvent event)
-	{
-		showPLPIDEmulator();
-	}
-	
-	@Override
-	public void onDisplayGPIOEmulator(MouseEvent event)
-	{
-		showGPIOEmulator();
-	}
-	
-	@Override
-	public void onOpenEmulationWindow(MouseEvent event)
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
 	public class ApplicationEventBusEventHandler
 	{
 		private ApplicationEventBusEventHandler()
 		{
-		
+			
 		}
 		
 		@Subscribe
@@ -1671,8 +1172,29 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void printActiveFile()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		CodeEditor activeEditor = getActiveCodeEditor();
+		if (activeEditor == null)
+		{
+			Dialogues.showActionFailedDialogue("No file is open!");
+			return;
+		}
+		
+		PrinterJob printAction = PrinterJob.createPrinterJob();
+		if (printAction == null)
+		{
+			Dialogues.showActionFailedDialogue("Unable to access system print utilities");
+			return;
+		}
+		
+		boolean notCancelled = printAction.showPrintDialog(stage);
+		if (notCancelled)
+		{
+			boolean success = printAction.printPage(activeEditor);
+			if (success)
+				printAction.endJob();
+			else
+				Dialogues.showActionFailedDialogue("Print may have failed");
+		}
 	}
 	
 	@Override
@@ -1680,8 +1202,8 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		if (projects.isEmpty())
 		{
-			Dialogues.showInfoDialogue(
-					"There are not projects open, please create a project first.");
+			Dialogues
+					.showInfoDialogue("There are not projects open, please create a project first.");
 		}
 		else
 		{
@@ -1707,8 +1229,7 @@ public class Main extends Application implements BusinessLogic, Controller
 			Project activeProject = getActiveProject();
 			String name = importTarget.getName();
 			
-			// TODO: account for non-PLP source files
-			ASMFile asmFile = new PLPSourceFile(activeProject, name);
+			ASMFile asmFile = new SimpleASMFile(activeProject, name);
 			asmFile.setContent(content);
 			activeProject.add(asmFile);
 			activeProject.save();
@@ -1729,12 +1250,13 @@ public class Main extends Application implements BusinessLogic, Controller
 			// XXX: possible feature: select file from a list or dropdown
 			String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
 			Dialogues.showInfoDialogue(message);
+			return;
 		}
 		
 		File exportTarget = showExportDialogue(activeFile);
 		if (exportTarget == null)
 			return;
-			
+		
 		if (exportTarget.isDirectory())
 		{
 			String exportPath = exportTarget.getAbsolutePath()
@@ -1777,22 +1299,110 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void removeASM()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		ASMFile activeFile = getActiveFile();
+		if (activeFile == null)
+		{
+			// XXX: possible feature: select file from a list or dropdown
+			String message = "No file is selected! Select the file you wish to remove in the ProjectExplorer, then click remove.";
+			Dialogues.showInfoDialogue(message);
+			return;
+		}
+		
+		File removalTarget = findDiskObjectForASM(activeFile);
+		if (removalTarget == null)
+		{
+			// XXX: show a confirmation dialogue to confirm removal
+			String message = "Unable to locate file on disk. "
+					+ "The asm \""
+					+ activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName()
+					+ "\" but it is suggested that you verify the deletion from disk manually.";
+			Dialogues.showInfoDialogue(message);
+			Project activeProject = activeFile.getProject();
+			activeProject.remove(activeFile);
+			return;
+		}
+		
+		if (removalTarget.isDirectory())
+		{
+			// XXX: show a confirmation dialogue to confirm removal
+			String message = "The path specified is a directory, but should be a file."
+					+ "The asm \""
+					+ activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName()
+					+ "\" but it is suggested that you verify the deletion from disk manually.";
+			Exception exception = new IllegalStateException(
+					"The path to the specified ASMFile is a directory, but should be a file.");
+			Dialogues.showAlertDialogue(exception, message);
+			return;
+		}
+		else
+		{
+			String message = "The asm \"" + activeFile.getName()
+					+ "\" will be removed from the project \""
+					+ activeFile.getProject().getName() + "\" and the file at \""
+					+ removalTarget.getAbsolutePath() + "\" will be deleted.";
+			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+			
+			if (result.get() != ButtonType.OK)
+			{
+				// Removal was canceled
+				return;
+			}
+		}
+		
+		if (!removalTarget.exists())
+		{
+			String message = "Unable to locate file on disk. The file will be removed from the project, but it is suggested that you verify the deletion from disk manually.";
+			Dialogues.showInfoDialogue(message);
+		}
+		
+		try
+		{
+			boolean wasRemoved = removalTarget.delete();
+			if (!wasRemoved)
+				throw new Exception("The file \"" + removalTarget.getAbsolutePath()
+						+ "\" was not deleted.");
+		}
+		catch (Exception exception)
+		{
+			Dialogues
+					.showAlertDialogue(
+							exception,
+							"Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
+		}
 	}
 	
 	@Override
 	public void setMainASMFile()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		ASMFile activeFile = getActiveFile();
+		if (activeFile == null)
+		{
+			Dialogues.showActionFailedDialogue("No file is selected!");
+			return;
+		}
+		
+		Project activeProject = activeFile.getProject();
+		String message = "The file \"" + activeFile.getName()
+				+ "\" will be used as the main file for the project \""
+				+ activeProject.getName() + "\"";
+		Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
+		
+		if (result.get() == ButtonType.OK)
+		{
+			int index = activeProject.indexOf(activeFile);
+			Collections.swap(activeProject, 0, index);
+		}
 	}
 	
 	@Override
 	public void exit()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		stage.close();
+		Platform.exit();
 	}
 	
 	@Override
@@ -1819,8 +1429,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void clearConsole()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		console.clear();
 	}
 	
 	@Override
@@ -1847,8 +1456,23 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void simulateActiveProject()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Project activeProject = getActiveProject();
+		String projectType = activeProject.getType();
+		Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(projectType);
+		
+		if (module.isPresent())
+		{
+			ISAModule isa = module.get();
+			activeSimulator = isa.getSimulator();
+		}
+		else
+		{
+			String message = "No simulator is available for the project type: ";
+			message += projectType;
+			Dialogues.showAlertDialogue(new IllegalStateException(message));
+		}
+		
+		// TODO: open associated views? emulation window?
 	}
 	
 	@Override
@@ -1861,8 +1485,19 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void stepSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		performIfActive(activeSimulator::step);
+	}
+	
+	private void performIfActive(Subroutine subroutine)
+	{
+		try
+		{
+			subroutine.perform();
+		}
+		catch (Exception exception)
+		{
+			throw new IllegalStateException("No simulator is active!", exception);
+		}
 	}
 	
 	@Override
@@ -1875,8 +1510,7 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void resetSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		performIfActive(activeSimulator::reset);
 	}
 	
 	@Override
@@ -1884,10 +1518,11 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		Project activeProject = getActiveProject();
 		
-		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
-		if (details != null && !details.isDirty())
+		ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject);
+		if (!details.isDirty())
 		{
-			run(activeProject);
+			activeSimulator.loadProgram(details.getAssembledImage());
+			performIfActive(activeSimulator::run);
 		}
 		else
 		{
@@ -1906,92 +1541,10 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void stopSimulation()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showCPUView()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showWatcherWindow()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showLEDEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showSwitchesEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showSevenSegmentEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showUARTEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showVGAEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showPLPIDEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showGPIOEmulator()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showOptionsMenu()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showModuleManager()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void showSerialTerminal()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		performIfActive(activeSimulator::pause);
+		performIfActive(activeSimulator::reset);
+		activeSimulator = null;
+		// TODO: deactivate simulation views (e.g. Emulation Window)
 	}
 	
 	@Override
@@ -2018,8 +1571,12 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void showOnlineManual()
 	{
-		// XXX: consider moving to a sub-component
 		String webAddress = "https://code.google.com/p/progressive-learning-platform/wiki/UserManual";
+		openWebPage(webAddress);
+	}
+	
+	private void openWebPage(String webAddress)
+	{
 		try
 		{
 			if (Desktop.isDesktopSupported())
@@ -2044,15 +1601,15 @@ public class Main extends Application implements BusinessLogic, Controller
 	@Override
 	public void reportIssue()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		String webAddress = "https://github.com/zcmoore/plpTool-prototype/issues";
+		openWebPage(webAddress);
 	}
 	
 	@Override
 	public void showIssuesPage()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		String webAddress = "https://github.com/zcmoore/plpTool-prototype/issues/new";
+		openWebPage(webAddress);
 	}
 	
 	@Override
@@ -2067,5 +1624,71 @@ public class Main extends Application implements BusinessLogic, Controller
 	{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+	
+	@Override
+	public void showOptionsMenu()
+	{
+		List<Submittable> submittables = new ArrayList<>();
+		Map<OptionSection, Pane> optionsMenuModel = createOptionsMenuModel(submittables);
+		
+		OptionsPane optionsPane = new OptionsPane(optionsMenuModel);
+		Scene popupScene = new Scene(optionsPane);
+		
+		Stage popupWindow = new Stage(StageStyle.DECORATED);
+		popupWindow.setTitle("Settings");
+		popupWindow.initModality(Modality.WINDOW_MODAL);
+		popupWindow.initOwner(stage);
+		popupWindow.setScene(popupScene);
+		
+		popupWindow.setMinWidth(stage.getScene().getWidth() / 2);
+		popupWindow.setMinHeight(stage.getScene().getHeight()
+				- (stage.getScene().getHeight() / 3));
+		
+		popupScene.getStylesheets().addAll(stage.getScene().getStylesheets());
+		
+		optionsPane.setOkAction(() -> {
+			if (optionsMenuOkSelected(submittables))
+			{
+				submittables.forEach(submittable -> submittable.submit());
+				popupWindow.close();
+			}
+		});
+		optionsPane.setCancelAction(() -> {
+			popupWindow.close();
+		});
+		
+		popupWindow.setOnCloseRequest((windowEvent) -> {
+			popupWindow.close();
+		});
+		popupWindow.show();
+	}
+	
+	@Override
+	public void showWatcherWindow()
+	{
+		Stage stage = new Stage();
+		WatcherWindow watcherWindow = new WatcherWindow();
+		
+		Scene scene = new Scene(watcherWindow, 888, 500);
+		stage.setTitle("Watcher Window");
+		stage.setScene(scene);
+		stage.show();
+	}
+	
+	@Override
+	public void showModuleManager()
+	{
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("The method is not implemented yet.");
+	}
+	
+	@Override
+	public void saveAll()
+	{
+		for (Project project : projects)
+		{
+			tryAndReport(project::save);
+		}
 	}
 }
