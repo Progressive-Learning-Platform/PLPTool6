@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
+import edu.asu.plp.tool.prototype.util.JavascriptConversionUtil;
+import javafx.collections.FXCollections;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import javafx.beans.InvalidationListener;
@@ -17,6 +19,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import edu.asu.plp.tool.prototype.model.AceEditor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Accessible CodeEditor panel supporting syntax highlighting and data binding.
@@ -75,11 +80,16 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		aceEditor.addCustomJavascriptRoutine(() -> "editor.on(\"change\", function() {"
 				+ "javaContentModel.updateTextFromJavascript(editor.getValue());"
 				+ "});");
-		
+
+		setOnKeyReleased(event -> {
+			System.out.println("key released");
+			getBreakPoints();
+		});
+
 		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
 	}
-	
+
 	public void updateTextFromJavascript(String text)
 	{
 		codeBodyProperty.set(text);
@@ -108,6 +118,18 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 				+ "javaContentModel.println(\"Value Set\");"
 				+ "};"
 				);
+	}
+
+	public List<Integer> getBreakPoints()
+	{
+		List<Integer> breakpoints = null;
+
+		JSObject  breakPointNumberArray = (JSObject) webView.getEngine().executeScript("getBreakPoints()");
+
+		List<?> convertedArray = JavascriptConversionUtil.jsArrayToList(breakPointNumberArray);
+		breakpoints = (List<Integer>) convertedArray;
+
+		return breakpoints;
 	}
 	
 	@Override
