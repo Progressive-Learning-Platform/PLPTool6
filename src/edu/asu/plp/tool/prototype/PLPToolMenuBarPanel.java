@@ -76,6 +76,9 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemEmulationWindow = new MenuItem("Emulation Window");
 		itemEmulationWindow.setOnAction((e) -> controller.showEmulationWindow());
 		
+		MenuItem cpuViewWindow = new MenuItem("CPU View");
+		cpuViewWindow.setOnAction((e) -> controller.openCpuViewWindow());
+		
 		MenuItem itemReset = new MenuItem("Reset");
 		itemReset.setGraphic(new ImageView(new Image("toolbar_reset.png")));
 		itemReset.setAccelerator(new KeyCodeCombination(KeyCode.F9));
@@ -160,7 +163,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 		toolsSubMenu.getItems().addAll(itemioRegistry, itemASMView,
 				new SeparatorMenuItem(), itemCreateMemVis, itemRemoveMemVis,
 				itemDisplayBus);
-		simulationMenu.getItems().addAll(itemEmulationWindow, itemStep, itemReset, new SeparatorMenuItem(),
+		simulationMenu.getItems().addAll(itemEmulationWindow, cpuViewWindow, itemStep, itemReset, new SeparatorMenuItem(),
 				itemRun, cyclesSteps, itemClearBreakpoints, new SeparatorMenuItem(),
 				views, toolsSubMenu, new SeparatorMenuItem(), itemExitSim);
 		

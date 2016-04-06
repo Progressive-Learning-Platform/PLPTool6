@@ -97,6 +97,7 @@ import edu.asu.plp.tool.prototype.model.ThemeRequestEvent;
 import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.CodeEditor;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
+import edu.asu.plp.tool.prototype.view.CpuWindow;
 import edu.asu.plp.tool.prototype.view.OutlineView;
 import edu.asu.plp.tool.prototype.view.ProjectExplorerTree;
 import edu.asu.plp.tool.prototype.view.QuickViewPanel;
@@ -1014,13 +1015,23 @@ public class Main extends Application implements Controller
 	{
 		Stage createEmulationStage = new Stage();
 		EmulationWindow emulationWindow = new EmulationWindow();
-		// projectCreationPanel.setFinallyOperation(createProjectStage::close);
 		
-		Scene scene = new Scene(emulationWindow, 1275, 600);
+		Scene scene = new Scene(emulationWindow, 1275, 700);
 		createEmulationStage.setTitle("Emulation Window");
 		createEmulationStage.setScene(scene);
 		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
+	}
+	
+	public void openCpuViewWindow()
+	{
+		Stage createCpuStage = new Stage();
+		CpuWindow cpuWindowView = new CpuWindow();
+		
+		Scene scene = new Scene(cpuWindowView, 1200, 700);
+		createCpuStage.setTitle("PLP CPU Core Simulation");
+		createCpuStage.setScene(scene);
+		createCpuStage.show();
 	}
 	
 	private boolean optionsMenuOkSelected(List<Submittable> submittables)

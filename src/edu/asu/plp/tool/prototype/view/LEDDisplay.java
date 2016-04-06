@@ -44,7 +44,8 @@ public class LEDDisplay extends BorderPane
 			LED led = createLED(index);
 			
 			ledNodes[index] = led;
-			int position = NUMBER_OF_LEDS - index - 1;
+			//int position = NUMBER_OF_LEDS - index - 1;
+			int position = index;
 			grid.add(led, position, 0);
 		}
 		

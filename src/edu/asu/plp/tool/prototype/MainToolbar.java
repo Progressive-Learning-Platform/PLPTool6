@@ -3,140 +3,117 @@ package edu.asu.plp.tool.prototype;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.asu.plp.tool.prototype.model.ImageButton;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
+
 
 public class MainToolbar extends BorderPane
 {
 	public MainToolbar(Controller controller)
 	{
 		HBox toolbar = new HBox();
-		Set<Node> effectsOfButtons = new HashSet<>();
-		Set<Node> runButtons = new HashSet<>();
-		Set<Node> simButtons = new HashSet<>();
+		Set<ImageButton> runButtons = new HashSet<>();
+		Set<ImageButton> simButtons = new HashSet<>();
 		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
 		toolbar.setSpacing(5);
 		ObservableList<Node> buttons = toolbar.getChildren();
 		
-		Node newProjectButton = new ImageView("toolbar_new.png");
+		ImageButton newProjectButton = new ImageButton("toolbar_new.png");
 		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
 		buttons.add(newProjectButton);
-		effectsOfButtons.add(newProjectButton);
 		
-		Node newFileButton = new ImageView("menu_new.png");
+		ImageButton newFileButton = new ImageButton("menu_new.png");
 		newFileButton.setOnMouseClicked((e) -> controller.createNewASM());
 		buttons.add(newFileButton);
-		effectsOfButtons.add(newFileButton);
-		
-		Node openButton = new ImageView("toolbar_open.png");
+
+		ImageButton openButton = new ImageButton("toolbar_open.png");
 		openButton.setOnMouseClicked((e) -> controller.openProject());
 		buttons.add(openButton);
-		effectsOfButtons.add(openButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		Node saveButton = new ImageView("toolbar_save.png");
+		ImageButton saveButton = new ImageButton("toolbar_save.png");
 		saveButton.setOnMouseClicked((e) -> controller.saveActiveProject());
 		buttons.add(saveButton);
-		effectsOfButtons.add(saveButton);
 		
-		Node assembleButton = new ImageView("toolbar_assemble.png");
+		ImageButton assembleButton = new ImageButton("toolbar_assemble.png");
 		assembleButton.setOnMouseClicked((event) -> {
+			simButtons.forEach(MainToolbar::toggleDisabled);
 			controller.assembleActiveProject();
-			simButtons.forEach(MainToolbar::toggleDisabled);	
 		});
 		buttons.add(assembleButton);
-		effectsOfButtons.add(assembleButton);
 		Tooltip assembleTooltip = new Tooltip();
 		assembleTooltip.setText("Once Assembled, the Simulate Project button will become enabled.");
 		Tooltip.install(assembleButton, assembleTooltip);
 		
-		Node simulateButton = new ImageView("toolbar_simulate_grey.png");
+		ImageButton simulateButton = new ImageButton("toolbar_simulate.png", "toolbar_simulate_grey.png");
 		simulateButton.setOnMouseClicked((event) -> {
 			controller.simulateActiveProject();
 			runButtons.forEach(MainToolbar::toggleDisabled);
 		});
-		simulateButton.setDisable(true);
 		buttons.add(simulateButton);
-		effectsOfButtons.add(simulateButton);
 		simButtons.add(simulateButton);
 		Tooltip simTooltip = new Tooltip();
 		simTooltip.setText("Once the Sim button is clicked, the Run and Emulator buttons will enable.");
 		Tooltip.install(simulateButton, simTooltip);
 		
-		Node programBoardButton = new ImageView("toolbar_program.png");
+		/*This button is supposed Program the PLP Board
+		 *Not 100% to its use, may need to check with Dr.  Sohoni
+		 *because I don't ever remember using it.
+		 *
+		 *Probably not included in our scope.
+		 */
+		ImageButton programBoardButton = new ImageButton("toolbar_program.png");
 		programBoardButton.setOnMouseClicked((e) -> controller.downloadActiveProjectToBoard());
 		buttons.add(programBoardButton);
-		effectsOfButtons.add(programBoardButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		Node stepButton = new ImageView("toolbar_step_grey.png");
+		ImageButton stepButton = new ImageButton("toolbar_step.png", "toolbar_step_grey.png");		
 		stepButton.setOnMouseClicked((e) -> controller.stepSimulation());
 		buttons.add(stepButton);
 		runButtons.add(stepButton);
-		effectsOfButtons.add(stepButton);
 		
-		Node runButton = new ImageView("toolbar_run_grey.png");
+		ImageButton runButton = new ImageButton("toolbar_run.png", "toolbar_run_grey.png");
 		runButton.setOnMouseClicked((e) -> controller.runSimulation());
 		buttons.add(runButton);
 		runButtons.add(runButton);
-		effectsOfButtons.add(runButton);
 		
-		Node resetButton = new ImageView("toolbar_reset_grey.png");
+		ImageButton resetButton = new ImageButton("toolbar_reset.png", "toolbar_reset_grey.png");
 		resetButton.setOnMouseClicked((e) -> controller.resetSimulation());
 		buttons.add(resetButton);
 		runButtons.add(resetButton);
-		effectsOfButtons.add(resetButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		Node emulatorButton = new ImageView("toolbar_watcher.png");
+		ImageButton emulatorButton = new ImageButton("toolbar_watcher.png");
+		emulatorButton.setOnMouseClicked((event) -> {
+			//TODO: Attach to I/O Sim Window
+		});
 		buttons.add(emulatorButton);
+		
+		ImageButton cpuViewButton = new ImageButton("toolbar_cpu.png");
+		cpuViewButton.setOnMouseClicked((e) -> controller.openCpuViewWindow());
+		buttons.add(cpuViewButton);
 
+		simButtons.forEach(MainToolbar::toggleDisabled);
 		runButtons.forEach(MainToolbar::toggleDisabled);
 		this.setCenter(toolbar);
 		
-		effectsOfButtons.forEach(MainToolbar::setButtonEffect);
 	}
 	
-	private static void setButtonEffect(Node node)
-	{
-		DropShadow rollOverColor = new DropShadow();
-		rollOverColor.setColor(Color.ORANGERED);
-		DropShadow clickColor = new DropShadow();
-		clickColor.setColor(Color.DARKBLUE);
+	private static void toggleDisabled(ImageButton button)
+	{		
+		button.toggleImage();
 		
-		node.addEventHandler(MouseEvent.MOUSE_ENTERED,
-				(event) -> node.setEffect(rollOverColor));
-		
-		// Removing the shadow when the mouse cursor is off
-		node.addEventHandler(MouseEvent.MOUSE_EXITED,
-				(event) -> node.setEffect(null));
-		
-		// Darken shadow on click
-		node.addEventHandler(MouseEvent.MOUSE_PRESSED, 
-				(event) -> node.setEffect(clickColor));
-		
-		// Restore hover style on click end
-		node.addEventHandler(MouseEvent.MOUSE_RELEASED,
-				(event) -> node.setEffect(rollOverColor));
-		
-	}
-	
-	private static void toggleDisabled(Node node)
-	{
-		boolean isDisabled = !node.isDisabled();
-		node.setDisable(isDisabled);
+		boolean isDisabled = !button.isDisabled();
+		button.setDisable(isDisabled);
 	}
 }
