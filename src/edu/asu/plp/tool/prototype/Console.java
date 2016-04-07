@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+//This whole Console.java will be updated
+
 public class Console
 {
 	private Controller controller;
