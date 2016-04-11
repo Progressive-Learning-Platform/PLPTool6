@@ -170,8 +170,8 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	
 	public void jumpToLine(int lineNumber)
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not yet implemented");
+		String script = "editor.gotoLine(" + lineNumber + ", 0, true);";
+		webView.getEngine().executeScript(script);
 	}
 	
 	private void initializeEngineEvents()
