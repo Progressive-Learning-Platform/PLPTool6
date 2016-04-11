@@ -2,13 +2,17 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
 
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
+
 public class ExecuteStage implements Stage
 {
 	private EventBus bus;
+	private ExecuteEventHandler eventHandler;
 	
 	public ExecuteStage(EventBus simulatorBus)
 	{
 		this.bus = simulatorBus;
+		this.eventHandler =  new ExecuteEventHandler(); 
 	}
 	
 	@Override
@@ -51,6 +55,19 @@ public class ExecuteStage implements Stage
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public class ExecuteEventHandler
+	{
+		private ExecuteEventHandler()
+		{
+			
+		}
+		
+		public void instructionDecodeCompletionEvent(InstructionDecodeCompletion event)
+		{
+			
+		}
 	}
 	
 }

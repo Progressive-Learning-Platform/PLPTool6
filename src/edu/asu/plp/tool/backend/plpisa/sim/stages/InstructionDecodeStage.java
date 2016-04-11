@@ -150,4 +150,12 @@ public class InstructionDecodeStage implements Stage
 		nextCt1Pcplus4 = -1;
 	}
 	
+	public class InstructionDecodeEventHandler
+	{
+		private InstructionDecodeEventHandler()
+		{
+	
+		}
+	}
+	
 }

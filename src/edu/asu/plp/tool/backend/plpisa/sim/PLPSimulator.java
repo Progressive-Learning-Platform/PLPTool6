@@ -166,12 +166,6 @@ public class PLPSimulator implements Simulator
 		memoryStage = new MemoryStage(simulatorBus);
 		writeBackStage = new WriteBackStage(simulatorBus);
 
-		simulatorBus.register(this);
-		simulatorBus.register(instructionDecodeStage);
-		simulatorBus.register(executeStage);
-		simulatorBus.register(memoryStage);
-		simulatorBus.register(writeBackStage);
-		
 		// FIXME new MemModule(0,32,false);
 		regFile = null;
 		programCounter = new ProgramCounter(0);
