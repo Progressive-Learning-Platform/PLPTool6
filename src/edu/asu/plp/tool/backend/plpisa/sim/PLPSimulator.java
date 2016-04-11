@@ -2,9 +2,16 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 
 import java.util.List;
 
+import com.google.common.eventbus.EventBus;
+
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.ExecuteStage;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
 
 /**
  * Port of old PLP-Tool simulator with minor improvements
@@ -13,6 +20,12 @@ import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
  */
 public class PLPSimulator implements Simulator
 {
+	/**
+	 * Used to prevent unknown messages to simulator only events.
+	 * Used for internal stage communication.
+	 */
+	private EventBus simulatorBus;
+	
 	private PLPASMImage assembledImage;
 	
 	private MemoryModule32Bit regFile;
@@ -64,6 +77,10 @@ public class PLPSimulator implements Simulator
 	@Override
 	public boolean step()
 	{
+		statusManager.advanceFlags();
+		
+		instructionsIssued++;
+		
 		return false;
 	}
 	
@@ -81,6 +98,8 @@ public class PLPSimulator implements Simulator
 		statusManager.isExecuteContinuing = false;
 		statusManager.isExecuteStalled = false;
 		statusManager.isInstructionDecodeStalled = false;
+		
+		// TODO Potentially print from console
 	}
 	
 	@Override
@@ -122,7 +141,9 @@ public class PLPSimulator implements Simulator
 		
 		flushPipeline();
 		
-		//TODO Maybe print simulator reset to console
+		// TODO Maybe print simulator reset to console
+		
+		// TODO Load program to bus?
 		
 		statusManager.reset();
 	}
@@ -131,17 +152,25 @@ public class PLPSimulator implements Simulator
 	{
 		// TODO flushPipeline
 	}
-
+	
 	private void initialize()
 	{
+		simulatorBus = new EventBus();
+		
 		assembledImage = null;
 		
 		statusManager = new SimulatorStatusManager();
 		
-		instructionDecodeStage = new InstructionDecodeStage();
-		executeStage = new ExecuteStage();
-		memoryStage = new MemoryStage();
-		writeBackStage = new WriteBackStage();
+		instructionDecodeStage = new InstructionDecodeStage(simulatorBus);
+		executeStage = new ExecuteStage(simulatorBus);
+		memoryStage = new MemoryStage(simulatorBus);
+		writeBackStage = new WriteBackStage(simulatorBus);
+
+		simulatorBus.register(this);
+		simulatorBus.register(instructionDecodeStage);
+		simulatorBus.register(executeStage);
+		simulatorBus.register(memoryStage);
+		simulatorBus.register(writeBackStage);
 		
 		// FIXME new MemModule(0,32,false);
 		regFile = null;
