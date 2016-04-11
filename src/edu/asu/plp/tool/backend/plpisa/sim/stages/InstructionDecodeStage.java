@@ -3,11 +3,12 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeSendOff;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
 
 public class InstructionDecodeStage implements Stage
 {
 	private EventBus bus;
+	private InstructionDecodeEventHandler eventHandler;
 	
 	private int ifCount;
 	private int idCount;
@@ -30,13 +31,23 @@ public class InstructionDecodeStage implements Stage
 	public InstructionDecodeStage(EventBus simulatorBus)
 	{
 		this.bus = simulatorBus;
+		this.eventHandler = new InstructionDecodeEventHandler();
 		reset();
 	}
 	
 	@Override
 	public void evaluate()
 	{
-		InstructionDecodeSendOff executePackage = new InstructionDecodeSendOff();
+		InstructionDecodeCompletion executePackage = new InstructionDecodeCompletion();
+		
+		//bus.post(new ExecuteStageStateRequest());
+		//bus.post(new MemoryStageStateRequest());
+		
+		byte opCode = (byte) InstructionExtractor.opcode(currentInstruction);
+		byte funct = (byte) InstructionExtractor.funct(currentInstruction);
+		
+		long addressRt = InstructionExtractor.rt(currentInstruction);
+		long addressRs = InstructionExtractor.rs(currentInstruction);
 		
 		//Stuff to pass to execute stage 
 		//bubble, currentInstruction, currInstructionAddress
@@ -53,11 +64,7 @@ public class InstructionDecodeStage implements Stage
 		if(!bubble)
 			idCount++;
 		
-		byte opCode = (byte) InstructionExtractor.opcode(currentInstruction);
-		byte funct = (byte) InstructionExtractor.funct(currentInstruction);
 		
-		long addressRt = InstructionExtractor.rt(currentInstruction);
-		long addressRs = InstructionExtractor.rs(currentInstruction);
 		
 		//Load-use hazard detection logic
 		
