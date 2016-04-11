@@ -3,8 +3,6 @@ package edu.asu.plp.tool.prototype;
 import java.util.HashSet;
 import java.util.Set;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -126,98 +124,23 @@ public class EmulationWindow extends BorderPane
 		
 		CheckBox sevenSegCheckBox = new CheckBox("7 Segment Display");
 		sevenSegCheckBox.setSelected(true);
-		sevenSegCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!sevenSegCheckBox.isSelected())
-				{
-					rightSide.getChildren().remove(sevenSegLabel);
-					rightSide.getChildren().remove(sevenSegFrame);
-				}
-				else
-				{
-					rightSide.getChildren().add(sevenSegLabel);
-					rightSide.getChildren().add(sevenSegFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(sevenSegCheckBox, sevenSegLabel, sevenSegFrame);
+		
 		CheckBox ledCheckBox = new CheckBox("LED's");
 		ledCheckBox.setSelected(true);
-		ledCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!ledCheckBox.isSelected())
-				{
-					leftSide.getChildren().remove(ledLabel);
-					leftSide.getChildren().remove(ledFrame);
-				}
-				else
-				{
-					leftSide.getChildren().add(ledLabel);
-					leftSide.getChildren().add(ledFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(ledCheckBox, ledLabel, ledFrame);
 		
 		CheckBox uartCheckBox = new CheckBox("UART");
 		uartCheckBox.setSelected(true);
-		uartCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!uartCheckBox.isSelected())
-				{
-					rightSide.getChildren().remove(uartLabel);
-					rightSide.getChildren().remove(uartFrame);
-				}
-				else
-				{
-					rightSide.getChildren().add(uartLabel);
-					rightSide.getChildren().add(uartFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(uartCheckBox, uartLabel, uartFrame);
 		
 		CheckBox switchesCheckBox = new CheckBox("Switches");
 		switchesCheckBox.setSelected(true);
-		switchesCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!switchesCheckBox.isSelected())
-				{
-					leftSide.getChildren().remove(switchesLabel);
-					leftSide.getChildren().remove(switchesFrame);
-				}
-				else
-				{
-					leftSide.getChildren().add(switchesLabel);
-					leftSide.getChildren().add(switchesFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(switchesCheckBox, switchesLabel, switchesFrame);
 		
 		CheckBox watcherWindowCheckBox = new CheckBox("Watcher Window");
 		watcherWindowCheckBox.setSelected(true);
-		watcherWindowCheckBox.selectedProperty().addListener(
-				new ChangeListener<Boolean>() {
-					public void changed(ObservableValue<? extends Boolean> ov,
-							Boolean old_val, Boolean new_val)
-					{
-						if (!watcherWindowCheckBox.isSelected())
-						{
-							leftSide.getChildren().remove(watcherWindowLabel);
-							leftSide.getChildren().remove(watcherFrame);
-						}
-						else
-						{
-							leftSide.getChildren().add(watcherWindowLabel);
-							leftSide.getChildren().add(watcherFrame);
-						}
-					}
-				});
+		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcherFrame);
 		
 		checkOptions.getChildren().addAll(sevenSegCheckBox, ledCheckBox, uartCheckBox,
 				switchesCheckBox, watcherWindowCheckBox);
@@ -303,14 +226,13 @@ public class EmulationWindow extends BorderPane
 		
 	}
 	
-	private static void toggleDisabled(Node node)
+	private void bindDisplaysToCheckBox(CheckBox checkBox, Node... nodes)
 	{
-		// Invert the isDisabled property
-		boolean isDisabled = !node.isDisabled();
-		
-		// node.setEffect(isDisabled ? dropShadow : null);
-		node.setDisable(isDisabled);
-		
+		for (Node node : nodes)
+		{
+			node.visibleProperty().bind(checkBox.selectedProperty());
+			node.managedProperty().bind(checkBox.selectedProperty());
+		}
 	}
 	
 	private static void setButtonEffect(Node node)
