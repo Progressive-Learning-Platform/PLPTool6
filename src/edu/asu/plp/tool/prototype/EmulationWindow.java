@@ -93,25 +93,11 @@ public class EmulationWindow extends BorderPane
 		sevenSegFrame.setStyle("-fx-background-color: grey;");
 		sevenSegFrame.getChildren().add(sevenSegDisplay);
 		
-		Label ledLabel = new Label();
-		ledLabel.setText("LEDs: ");
-		ledLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label switchesLabel = new Label();
-		switchesLabel.setText("Switches: ");
-		switchesLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label uartLabel = new Label();
-		uartLabel.setText("UART: ");
-		uartLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label sevenSegLabel = new Label();
-		sevenSegLabel.setText("Seven Segment Display: ");
-		sevenSegLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label watcherWindowLabel = new Label();
-		watcherWindowLabel.setText("Watcher Window ");
-		watcherWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		Label ledLabel = label("LEDs");
+		Label switchesLabel = label("Switches");
+		Label uartLabel = label("UART");
+		Label sevenSegLabel = label("Seven Segment Display");
+		Label watcherWindowLabel = label("Watcher Window");
 		
 		leftSide.getChildren().addAll(watcherWindowLabel, watcherFrame, ledLabel,
 				ledFrame, switchesLabel, switchesFrame);
@@ -162,6 +148,13 @@ public class EmulationWindow extends BorderPane
 		return grid;
 	}
 	
+	private Label label(String name)
+	{
+		Label label = new Label(name + ": ");
+		label.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		return label;
+	}
+
 	public HBox createTopBar()
 	{
 		HBox hbox = new HBox();
@@ -255,6 +248,5 @@ public class EmulationWindow extends BorderPane
 		// Restore hover style on click end
 		node.addEventHandler(MouseEvent.MOUSE_RELEASED,
 				(event) -> node.setEffect(rollOverColor));
-		
 	}
 }
