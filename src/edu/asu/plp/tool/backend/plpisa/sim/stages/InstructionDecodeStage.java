@@ -3,7 +3,15 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
+import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.ExecuteStageState;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.MemoryStageState;
 
 public class InstructionDecodeStage implements Stage
 {
@@ -28,6 +36,10 @@ public class InstructionDecodeStage implements Stage
 	private long currentCt1Pcplus4;
 	private long nextCt1Pcplus4;
 	
+	// Get state from other stages thats required (Hard Porting)
+	private ExecuteStageState currentExecuteStageState;
+	private MemoryStageState currentMemoryStageState;
+	
 	public InstructionDecodeStage(EventBus simulatorBus)
 	{
 		this.bus = simulatorBus;
@@ -39,9 +51,21 @@ public class InstructionDecodeStage implements Stage
 	public void evaluate()
 	{
 		InstructionDecodeCompletion executePackage = new InstructionDecodeCompletion();
+		ExecuteStageState postExecuteStageState = new ExecuteStageState();
 		
-		//bus.post(new ExecuteStageStateRequest());
-		//bus.post(new MemoryStageStateRequest());
+		executePackage.setPostExecuteStageState(postExecuteStageState);
+		
+		bus.post(new ExecuteStageStateRequest());
+		bus.post(new MemoryStageStateRequest());
+		
+		if (currentExecuteStageState == null)
+			throw new IllegalStateException("Could not retrieve execute stage state.");
+			
+		if (currentMemoryStageState == null)
+			throw new IllegalStateException("Could not retrieve memory stage state.");
+			
+		// TODO get from wherever the flag is
+		boolean mem_ex_lw = false;
 		
 		byte opCode = (byte) InstructionExtractor.opcode(currentInstruction);
 		byte funct = (byte) InstructionExtractor.funct(currentInstruction);
@@ -49,29 +73,145 @@ public class InstructionDecodeStage implements Stage
 		long addressRt = InstructionExtractor.rt(currentInstruction);
 		long addressRs = InstructionExtractor.rs(currentInstruction);
 		
-		//Stuff to pass to execute stage 
-		//bubble, currentInstruction, currInstructionAddress
+		long executeStageCurrentInstruction = currentExecuteStageState.currentInstruction;
 		
-		//Stuff to get from execute stage
-		long executeStageInstruction = -1;
-		
-		if(hot)
+		if (hot)
 		{
 			hot = false;
-			//set execute hot to true
+			executePackage.setHot(true);
 		}
 		
-		if(!bubble)
+		if (!bubble)
 			idCount++;
+			
+		postExecuteStageState.nextBubble = bubble;
+		postExecuteStageState.nextInstruction = currentInstruction;
+		postExecuteStageState.nextInstructionAddress = currentInstructionAddress;
 		
+		// Load-use hazard detection logic
 		
+		// The register being written to by load word
+		long executeRt = InstructionExtractor.rt(executeStageCurrentInstruction);
 		
-		//Load-use hazard detection logic
+		if (currentMemoryStageState.isHot() && mem_ex_lw)
+		{
+			boolean executeEqualsAddressRt = executeRt == addressRt;
+			boolean executeForwardCt1Memread = currentExecuteStageState.forwardCt1Memread == 1;
+			boolean isCurrentInstructionNotStoreWord = InstructionExtractor.opcode(
+					currentInstruction) != PLPInstruction.STORE_WORD.getByteCode();
+					
+			if (executeEqualsAddressRt && (addressRt != 0) && executeForwardCt1Memread)
+			{
+				if (isCurrentInstructionNotStoreWord)
+				{
+					// TODO set execute stall to true
+					// TODO add sim flag SimulatorFlag.PLP_SIM_FWD_MEM_EX_LW_RT
+				}
+				
+				// TODO set execute stall to true
+				// TODO add sim flag SimulatorFlag.PLP_SIM_FWD_MEM_EX_LW_RS
+			}
+			
+		}
 		
-		//The register being written to by load word
-		long executeRt = InstructionExtractor.rt(executeStageInstruction);
+		// long rt = (addressRt == 0) ? 0 : (Long) memoryModule.read(addressRt);
+		// executePackage.setNextDataRt(rt);
 		
-		//Get if mem stage is hot. Get mem if mem-ex-lw fowarding flag is true
+		// long rs = (addressRs == 0) ? 0 : (Long) memoryModule.read(addressRs);
+		// executePackage.setNextDataRs(rs);
+		
+		long immediateField = InstructionExtractor.imm(currentInstruction);
+		
+		boolean isNotAndImmediate = opCode != PLPInstruction.AND_IMMEDIATE.getByteCode();
+		boolean isNotOrImmediate = opCode != PLPInstruction.OR_IMMEDIATE.getByteCode();
+		
+		if (isNotAndImmediate && isNotOrImmediate)
+		{
+			long value = (short) immediateField & ((long) 0xfffffff << 4 | 0xf);
+			postExecuteStageState.nextDataImmediateSignExtended = value;
+		}
+		else
+		{
+			postExecuteStageState.nextDataImmediateSignExtended = immediateField;
+		}
+		
+		postExecuteStageState.nextCt1RdAddress = InstructionExtractor
+				.rd(currentInstruction); // rd
+		postExecuteStageState.nextCt1RtAddress = addressRt;
+		
+		postExecuteStageState.nextCt1AluOp = currentInstruction;
+		
+		postExecuteStageState.nextForwardCt1LinkAddress = currentCt1Pcplus4 + 4;
+		
+		executePackage.clearLogic();
+		
+		if (opCode != PLPInstruction.SHIFT_LEFT_LOGICAL.getByteCode())
+		{
+			switch (InstructionExtractor.instructionType(currentInstruction))
+			{
+				case 3: // beq and bne
+					postExecuteStageState.nextCt1Branch = 1;
+					break;
+				case 4: // i-types
+				case 5: // lui
+					postExecuteStageState.nextCt1AluSrc = 1;
+					postExecuteStageState.nextForwardCt1Regwrite = 1;
+					break;
+				case 6: // lw and se
+					if (opCode == PLPInstruction.LOAD_WORD.getByteCode())
+					{
+						postExecuteStageState.nextForwardCt1Memtoreg = 1;
+						postExecuteStageState.nextForwardCt1Regwrite = 1;
+						postExecuteStageState.nextForwardCt1Memread = 1;
+					}
+					else if (opCode == PLPInstruction.STORE_WORD.getByteCode())
+					{
+						postExecuteStageState.nextForwardCt1Memwrite = 1;
+					}
+					postExecuteStageState.nextCt1AluSrc = 1;
+					break;
+				case 7: // j and jal
+					postExecuteStageState.nextCt1Jump = 1;
+					if (InstructionExtractor.mnemonic(currentInstruction)
+							.equals(PLPInstruction.JUMP_AND_LINK.getMnemonic()))
+					{
+						postExecuteStageState.nextCt1Regdest = 1;
+						postExecuteStageState.nextCt1RdAddress = 1;
+						postExecuteStageState.nextForwardCt1Regwrite = 1;
+						postExecuteStageState.nextForwardCt1Jal = 1;
+					}
+					break;
+				default:
+					throw new IllegalStateException("Unhandled instruction type.");
+			}
+		}
+		else
+		{
+			switch (InstructionExtractor.instructionType(currentInstruction))
+			{
+				case 0:
+				case 1:
+				case 8:
+					postExecuteStageState.nextCt1Regdest = 1;
+					postExecuteStageState.nextForwardCt1Regwrite = 1;
+					break;
+				case 2:
+					postExecuteStageState.nextCt1Jump = 1;
+					break;
+				case 9:
+					postExecuteStageState.nextCt1Jump = 1;
+					postExecuteStageState.nextCt1Regdest = 1;
+					postExecuteStageState.nextForwardCt1Regwrite = 1;
+					postExecuteStageState.nextForwardCt1Jal = 1;
+					break;
+				default:
+					throw new IllegalStateException("Unhandled instruction type.");
+			}
+		}
+		
+		long nextCt1BranchTarget = currentCt1Pcplus4
+				+ ((short) postExecuteStageState.nextDataImmediateSignExtended << 2);
+		postExecuteStageState.nextCt1BranchTarget = nextCt1BranchTarget;
 		
 		bus.post(executePackage);
 	}
@@ -83,6 +223,9 @@ public class InstructionDecodeStage implements Stage
 		currentCt1Pcplus4 = nextCt1Pcplus4;
 		currentInstruction = nextInstruction;
 		currentInstructionAddress = nextInstructionAddress;
+		
+		currentExecuteStageState = null;
+		currentMemoryStageState = null;
 	}
 	
 	@Override
@@ -149,19 +292,31 @@ public class InstructionDecodeStage implements Stage
 		currentInstruction = -1;
 		currentInstructionAddress = -1;
 		
-		
 		nextInstruction = -1;
 		nextInstructionAddress = -1;
 		
 		currentCt1Pcplus4 = -1;
 		nextCt1Pcplus4 = -1;
+		
+		currentExecuteStageState = null;
+		currentMemoryStageState = null;
 	}
 	
 	public class InstructionDecodeEventHandler
 	{
 		private InstructionDecodeEventHandler()
 		{
-	
+		
+		}
+		
+		public void executeStageStateResponse(ExecuteStageStateResponse event)
+		{
+			currentExecuteStageState = event.getExecuteStageState();
+		}
+		
+		public void memoryStageStateResponse(MemoryStageStateResponse event)
+		{
+			currentMemoryStageState = event.getMemoryStageState();
 		}
 	}
 	
