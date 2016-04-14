@@ -83,10 +83,10 @@ public class EmulationWindow extends BorderPane
 		Label sevenSegLabel = label("Seven Segment Display");
 		Label watcherWindowLabel = label("Watcher Window");
 		
-		leftSide.getChildren().addAll(watcherWindowLabel, watcherWindowDisplay, uartLabel, uartDisplay);
+		leftSide.getChildren().addAll(watcherWindowLabel, watcherWindowDisplay);
 		rightSide.getChildren()
 				.addAll(sevenSegLabel, sevenSegDisplay, ledLabel,
-						ledDisplay, switchesLabel, switchesDisplay);
+						ledDisplay, switchesLabel, switchesDisplay, uartLabel, uartDisplay);
 		
 		Text title = new Text("Windows");
 		title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
