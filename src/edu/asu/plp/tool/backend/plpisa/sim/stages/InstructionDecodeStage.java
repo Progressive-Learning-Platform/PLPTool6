@@ -46,6 +46,9 @@ public class InstructionDecodeStage implements Stage
 	{
 		this.bus = simulatorBus;
 		this.eventHandler = new InstructionDecodeEventHandler();
+		
+		this.bus.register(eventHandler);
+		
 		reset();
 	}
 	
