@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+import static edu.asu.plp.tool.prototype.util.IntegerUtils.smartParse;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
@@ -87,6 +88,7 @@ public class WatcherWindow extends BorderPane
 		populateDisplayOptions();
 		memoryAddresses = FXCollections.observableArrayList();
 		registers = FXCollections.observableArrayList();
+		
 		// TODO: remove placeholder
 		memoryAddresses.add(new MemoryRow(10025, 100000));
 		registers.add(new RegisterRow("$t0", "$8", 100000));
@@ -425,7 +427,7 @@ public class WatcherWindow extends BorderPane
 			int oldValue = this.value.get();
 			try
 			{
-				setValue(Integer.parseInt(value));
+				setValue(smartParse(value));
 			}
 			catch (Exception e)
 			{
@@ -505,7 +507,7 @@ public class WatcherWindow extends BorderPane
 			int oldAddress = this.address.get();
 			try
 			{
-				setAddress(Integer.parseInt(address));
+				setAddress(smartParse(address));
 			}
 			catch (Exception e)
 			{
