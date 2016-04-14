@@ -33,123 +33,7 @@ import javafx.scene.layout.VBox;
 
 public class WatcherWindow extends BorderPane
 {
-	public class ValueRow
-	{
-		private IntegerProperty value;
-		
-		public ValueRow(int value)
-		{
-			this.value = new SimpleIntegerProperty(value);
-		}
-		
-		public ValueRow(IntegerProperty value)
-		{
-			this.value = value;
-		}
-		
-		public String getValue()
-		{
-			return "0x" + Integer.toString(value.get(), 16).toUpperCase();
-		}
-		
-		public void setValue(int value)
-		{
-			this.value.set(value);
-		}
-		
-		public void setValue(String value)
-		{
-			int oldValue = this.value.get();
-			try
-			{
-				setValue(Integer.parseInt(value));
-			}
-			catch (Exception e)
-			{
-				setValue(oldValue);
-			}
-		}
-	}
 	
-	public class RegisterRow extends ValueRow
-	{
-		private StringProperty registerName;
-		private StringProperty registerID;
-		
-		public RegisterRow(String name, String id, int value)
-		{
-			super(value);
-			registerName = new SimpleStringProperty(name);
-			registerID = new SimpleStringProperty(id);
-		}
-		
-		public RegisterRow(String name, String id, IntegerProperty value)
-		{
-			super(value);
-			registerName = new SimpleStringProperty(name);
-			registerID = new SimpleStringProperty(id);
-		}
-		
-		public String getRegisterName()
-		{
-			return registerName.get();
-		}
-		
-		public void setRegisterName(String name)
-		{
-			registerName.set(name);
-		}
-		
-		public String getRegisterID()
-		{
-			return registerID.get();
-		}
-		
-		public void setRegisterID(String id)
-		{
-			registerID.set(id);
-		}
-	}
-	
-	public class MemoryRow extends ValueRow
-	{
-		private IntegerProperty address;
-		
-		public MemoryRow(int address, IntegerProperty value)
-		{
-			super(value);
-			this.address = new SimpleIntegerProperty(address);
-		}
-		
-		public MemoryRow(int address, int value)
-		{
-			super(value);
-			this.address = new SimpleIntegerProperty(address);
-		}
-		
-		public String getAddress()
-		{
-			return Integer.toString(address.get());
-		}
-		
-		public void setAddress(int value)
-		{
-			this.address.set(value);
-		}
-		
-		public void setAddress(String address)
-		{
-			int oldAddress = this.address.get();
-			try
-			{
-				setAddress(Integer.parseInt(address));
-			}
-			catch (Exception e)
-			{
-				setAddress(oldAddress);
-			}
-		}
-	}
 	
 	private ObservableList<MemoryRow> memoryAddresses;
 	private ObservableList<RegisterRow> registers;
@@ -362,6 +246,7 @@ public class WatcherWindow extends BorderPane
 	{
 		if (registerName.length() == 0)
 			return;
+		// The memory module is responsible for equating the names "0" "$0" and "$zero"
 		if (!memory.hasRegister(registerName))
 			throw new IllegalArgumentException("There isn't a register with the name "
 					+ registerName);
@@ -469,5 +354,123 @@ public class WatcherWindow extends BorderPane
 	private static PropertyValueFactory<MemoryRow, String> memoryFactory(String attribute)
 	{
 		return new PropertyValueFactory<MemoryRow, String>(attribute);
+	}
+	
+	public class ValueRow
+	{
+		private IntegerProperty value;
+		
+		public ValueRow(int value)
+		{
+			this.value = new SimpleIntegerProperty(value);
+		}
+		
+		public ValueRow(IntegerProperty value)
+		{
+			this.value = value;
+		}
+		
+		public String getValue()
+		{
+			return "0x" + Integer.toString(value.get(), 16).toUpperCase();
+		}
+		
+		public void setValue(int value)
+		{
+			this.value.set(value);
+		}
+		
+		public void setValue(String value)
+		{
+			int oldValue = this.value.get();
+			try
+			{
+				setValue(Integer.parseInt(value));
+			}
+			catch (Exception e)
+			{
+				setValue(oldValue);
+			}
+		}
+	}
+	
+	public class RegisterRow extends ValueRow
+	{
+		private StringProperty registerName;
+		private StringProperty registerID;
+		
+		public RegisterRow(String name, String id, int value)
+		{
+			super(value);
+			registerName = new SimpleStringProperty(name);
+			registerID = new SimpleStringProperty(id);
+		}
+		
+		public RegisterRow(String name, String id, IntegerProperty value)
+		{
+			super(value);
+			registerName = new SimpleStringProperty(name);
+			registerID = new SimpleStringProperty(id);
+		}
+		
+		public String getRegisterName()
+		{
+			return registerName.get();
+		}
+		
+		public void setRegisterName(String name)
+		{
+			registerName.set(name);
+		}
+		
+		public String getRegisterID()
+		{
+			return registerID.get();
+		}
+		
+		public void setRegisterID(String id)
+		{
+			registerID.set(id);
+		}
+	}
+	
+	public class MemoryRow extends ValueRow
+	{
+		private IntegerProperty address;
+		
+		public MemoryRow(int address, IntegerProperty value)
+		{
+			super(value);
+			this.address = new SimpleIntegerProperty(address);
+		}
+		
+		public MemoryRow(int address, int value)
+		{
+			super(value);
+			this.address = new SimpleIntegerProperty(address);
+		}
+		
+		public String getAddress()
+		{
+			return Integer.toString(address.get());
+		}
+		
+		public void setAddress(int value)
+		{
+			this.address.set(value);
+		}
+		
+		public void setAddress(String address)
+		{
+			int oldAddress = this.address.get();
+			try
+			{
+				setAddress(Integer.parseInt(address));
+			}
+			catch (Exception e)
+			{
+				setAddress(oldAddress);
+			}
+		}
 	}
 }
