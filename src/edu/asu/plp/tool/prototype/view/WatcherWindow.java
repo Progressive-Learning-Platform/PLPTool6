@@ -10,7 +10,9 @@ import java.util.function.Function;
 import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
 import edu.asu.plp.tool.prototype.util.IntegerUtils;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -30,14 +32,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 
 public class WatcherWindow extends BorderPane
 {
-	
-	
 	private ObservableList<MemoryRow> memoryAddresses;
 	private ObservableList<RegisterRow> registers;
 	private Map<String, Function<Integer, String>> valueDisplayOptions;
+	private ObjectProperty<Function<Integer, String>> registerDisplayFunction;
+	private ObjectProperty<Function<Integer, String>> memoryDisplayFunction;
 	private MemoryModule32Bit memory;
 	
 	public WatcherWindow()
@@ -75,6 +78,8 @@ public class WatcherWindow extends BorderPane
 				
 			}
 		};
+		
+		registerDisplayFunction = new SimpleObjectProperty<>((value) -> Integer.toString(value));
 		valueDisplayOptions = new LinkedHashMap<>();
 		populateDisplayOptions();
 		memoryAddresses = FXCollections.observableArrayList();
@@ -147,7 +152,14 @@ public class WatcherWindow extends BorderPane
 		registerPanel.setRight(watchRegisterButton);
 		setAlignment(watchRegisterButton, Pos.CENTER);
 		
-		Node displayOptions = createDisplayOptionsRow();
+		Pair<Node, ComboBox<String>> optionsRowPair = createDisplayOptionsRow();
+		Node displayOptions = optionsRowPair.getKey();
+		ComboBox<String> displayDropdown = optionsRowPair.getValue();
+		displayDropdown.setOnAction((event) -> {
+			String selection = displayDropdown.getSelectionModel().getSelectedItem();
+			Function<Integer, String> function = valueDisplayOptions.get(selection);
+			registerDisplayFunction.set(function);
+		});
 		
 		VBox controlPanel = new VBox();
 		controlPanel.getChildren().add(registerPanel);
@@ -206,7 +218,14 @@ public class WatcherWindow extends BorderPane
 		rangePanel.setRight(watchRangeButton);
 		setAlignment(watchRangeButton, Pos.CENTER);
 		
-		Node displayOptions = createDisplayOptionsRow();
+		Pair<Node, ComboBox<String>> optionsRowPair = createDisplayOptionsRow();
+		Node displayOptions = optionsRowPair.getKey();
+		ComboBox<String> displayDropdown = optionsRowPair.getValue();
+		displayDropdown.setOnAction((event) -> {
+			String selection = displayDropdown.getSelectionModel().getSelectedItem();
+			Function<Integer, String> function = valueDisplayOptions.get(selection);
+			memoryDisplayFunction.set(function);
+		});
 		
 		VBox controlPanel = new VBox();
 		controlPanel.getChildren().add(addressPanel);
@@ -218,18 +237,18 @@ public class WatcherWindow extends BorderPane
 		return controlPanel;
 	}
 	
-	private Node createDisplayOptionsRow()
+	private Pair<Node, ComboBox<String>> createDisplayOptionsRow()
 	{
-		BorderPane displayOptions = new BorderPane();
+		BorderPane rowDisplay = new BorderPane();
 		
 		Label label = new Label("Display values as: ");
-		displayOptions.setLeft(label);
+		rowDisplay.setLeft(label);
 		
 		ComboBox<String> dropdown = createDisplayOptionsDropdown();
 		dropdown.setPrefWidth(Integer.MAX_VALUE);
-		displayOptions.setCenter(dropdown);
+		rowDisplay.setCenter(dropdown);
 		
-		return displayOptions;
+		return new Pair<>(rowDisplay, dropdown);
 	}
 	
 	private ComboBox<String> createDisplayOptionsDropdown()
