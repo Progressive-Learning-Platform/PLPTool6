@@ -18,6 +18,8 @@ public class InstructionDecodeStage implements Stage
 	private EventBus bus;
 	private InstructionDecodeEventHandler eventHandler;
 	
+	//TODO move to a state class?
+	
 	private int ifCount;
 	private int idCount;
 	
@@ -74,11 +76,14 @@ public class InstructionDecodeStage implements Stage
 		long addressRs = InstructionExtractor.rs(currentInstruction);
 		
 		long executeStageCurrentInstruction = currentExecuteStageState.currentInstruction;
+
+		// The register being written to by load word
+		long executeRt = InstructionExtractor.rt(executeStageCurrentInstruction);
 		
 		if (hot)
 		{
 			hot = false;
-			executePackage.setHot(true);
+			postExecuteStageState.hot = true;
 		}
 		
 		if (!bubble)
@@ -87,11 +92,6 @@ public class InstructionDecodeStage implements Stage
 		postExecuteStageState.nextBubble = bubble;
 		postExecuteStageState.nextInstruction = currentInstruction;
 		postExecuteStageState.nextInstructionAddress = currentInstructionAddress;
-		
-		// Load-use hazard detection logic
-		
-		// The register being written to by load word
-		long executeRt = InstructionExtractor.rt(executeStageCurrentInstruction);
 		
 		if (currentMemoryStageState.isHot() && mem_ex_lw)
 		{
@@ -157,7 +157,7 @@ public class InstructionDecodeStage implements Stage
 					postExecuteStageState.nextCt1AluSrc = 1;
 					postExecuteStageState.nextForwardCt1Regwrite = 1;
 					break;
-				case 6: // lw and se
+				case 6: // lw and sw
 					if (opCode == PLPInstruction.LOAD_WORD.getByteCode())
 					{
 						postExecuteStageState.nextForwardCt1Memtoreg = 1;
@@ -176,7 +176,7 @@ public class InstructionDecodeStage implements Stage
 							.equals(PLPInstruction.JUMP_AND_LINK.getMnemonic()))
 					{
 						postExecuteStageState.nextCt1Regdest = 1;
-						postExecuteStageState.nextCt1RdAddress = 1;
+						postExecuteStageState.nextCt1RdAddress = 31;
 						postExecuteStageState.nextForwardCt1Regwrite = 1;
 						postExecuteStageState.nextForwardCt1Jal = 1;
 					}
@@ -189,16 +189,16 @@ public class InstructionDecodeStage implements Stage
 		{
 			switch (InstructionExtractor.instructionType(currentInstruction))
 			{
-				case 0:
-				case 1:
-				case 8:
+				case 0: // r-types
+				case 1: // shifts
+				case 8: // multiply
 					postExecuteStageState.nextCt1Regdest = 1;
 					postExecuteStageState.nextForwardCt1Regwrite = 1;
 					break;
-				case 2:
+				case 2: // jr
 					postExecuteStageState.nextCt1Jump = 1;
 					break;
-				case 9:
+				case 9: // jalr
 					postExecuteStageState.nextCt1Jump = 1;
 					postExecuteStageState.nextCt1Regdest = 1;
 					postExecuteStageState.nextForwardCt1Regwrite = 1;
@@ -288,15 +288,6 @@ public class InstructionDecodeStage implements Stage
 		
 		bubble = false;
 		nextBubble = false;
-		
-		currentInstruction = -1;
-		currentInstructionAddress = -1;
-		
-		nextInstruction = -1;
-		nextInstructionAddress = -1;
-		
-		currentCt1Pcplus4 = -1;
-		nextCt1Pcplus4 = -1;
 		
 		currentExecuteStageState = null;
 		currentMemoryStageState = null;
