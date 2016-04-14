@@ -1,9 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
 import static edu.asu.plp.tool.prototype.util.IntegerUtils.smartParse;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -139,17 +137,7 @@ public class WatcherWindow extends BorderPane
 		valueDisplayOptions.put("Decimal", (value) -> Integer.toString(value));
 		valueDisplayOptions.put("Hex", (value) -> "0x" + Integer.toString(value, 16));
 		valueDisplayOptions.put("Binary", (value) -> "0b" + Integer.toString(value, 2));
-		// TODO: move to utility class
-		valueDisplayOptions.put("Packed ASCII",
-				(value) -> {
-					byte[] bytes = ByteBuffer.allocate(4).order(BIG_ENDIAN).putInt(value)
-							.array();
-					StringBuilder builder = new StringBuilder();
-					for (byte element : bytes)
-						builder.append((char) element);
-					
-					return builder.toString();
-				});
+		valueDisplayOptions.put("Packed ASCII", IntegerUtils::toAsciiString);
 	}
 	
 	private Node createRegisterControlPanel()
