@@ -5,7 +5,7 @@ public class ExecuteStageState implements Cloneable
 	public int count;
 	
 	public long currentInstruction;
-	public long currentAddress;
+	public long currentInstructionAddress;
 	
 	public long forwardCt1Memtoreg;
 	public long forwardCt1Regwrite;
