@@ -856,7 +856,7 @@ public class Main extends Application implements Controller
 		
 		if (details == null)
 		{
-			details = new ProjectAssemblyDetails();
+			details = new ProjectAssemblyDetails(activeProject);
 			assemblyDetails.put(activeProject, details);
 		}
 		
