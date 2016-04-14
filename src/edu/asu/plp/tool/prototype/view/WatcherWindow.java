@@ -15,6 +15,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -36,6 +37,9 @@ import edu.asu.plp.tool.prototype.util.IntegerUtils;
 
 public class WatcherWindow extends BorderPane
 {
+	private static final double CP_PADDING = 5;
+	private static final double CP_SPACING = 5;
+	
 	private ObservableList<MemoryRow> memoryAddresses;
 	private ObservableList<RegisterRow> registers;
 	private Map<String, Function<Integer, String>> valueDisplayOptions;
@@ -172,6 +176,8 @@ public class WatcherWindow extends BorderPane
 		controlPanel.getChildren().add(displayOptions);
 		controlPanel.setAlignment(Pos.CENTER);
 		setAlignment(controlPanel, Pos.CENTER);
+		controlPanel.setPadding(new Insets(CP_PADDING));
+		controlPanel.setSpacing(CP_SPACING);
 		
 		return controlPanel;
 	}
@@ -239,6 +245,8 @@ public class WatcherWindow extends BorderPane
 		controlPanel.getChildren().add(displayOptions);
 		controlPanel.setAlignment(Pos.CENTER);
 		setAlignment(controlPanel, Pos.CENTER);
+		controlPanel.setPadding(new Insets(CP_PADDING));
+		controlPanel.setSpacing(CP_SPACING);
 		
 		return controlPanel;
 	}
@@ -341,6 +349,7 @@ public class WatcherWindow extends BorderPane
 		table.getColumns().add(valueColumn);
 		
 		table.setItems(registers);
+		table.setMinHeight(80);
 		return table;
 	}
 	
@@ -360,6 +369,7 @@ public class WatcherWindow extends BorderPane
 		table.getColumns().add(valueColumn);
 		
 		table.setItems(memoryAddresses);
+		table.setMinHeight(80);
 		return table;
 	}
 	
