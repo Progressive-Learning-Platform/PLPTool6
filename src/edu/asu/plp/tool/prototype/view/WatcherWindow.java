@@ -78,8 +78,10 @@ public class WatcherWindow extends BorderPane
 				
 			}
 		};
-		
-		registerDisplayFunction = new SimpleObjectProperty<>((value) -> Integer.toString(value));
+
+		Function<Integer, String> defaultDisplay = (value) -> Integer.toString(value);
+		registerDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
+		memoryDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
 		valueDisplayOptions = new LinkedHashMap<>();
 		populateDisplayOptions();
 		memoryAddresses = FXCollections.observableArrayList();
@@ -119,8 +121,8 @@ public class WatcherWindow extends BorderPane
 	private void populateDisplayOptions()
 	{
 		valueDisplayOptions.put("Decimal", (value) -> Integer.toString(value));
-		valueDisplayOptions.put("Hex", (value) -> Integer.toString(value, 16));
-		valueDisplayOptions.put("Binary", (value) -> Integer.toString(value, 2));
+		valueDisplayOptions.put("Hex", (value) -> "0x" + Integer.toString(value, 16));
+		valueDisplayOptions.put("Binary", (value) -> "0b" + Integer.toString(value, 2));
 		// TODO: move to utility class
 		valueDisplayOptions.put("Packed ASCII",
 				(value) -> {
@@ -378,20 +380,25 @@ public class WatcherWindow extends BorderPane
 	public class ValueRow
 	{
 		private IntegerProperty value;
+		ObjectProperty<Function<Integer, String>> displayFunctionProperty;
 		
-		public ValueRow(int value)
+		public ValueRow(int value, ObjectProperty<Function<Integer, String>> function)
 		{
 			this.value = new SimpleIntegerProperty(value);
+			this.displayFunctionProperty = function;
 		}
 		
-		public ValueRow(IntegerProperty value)
+		public ValueRow(IntegerProperty value, ObjectProperty<Function<Integer, String>> function)
 		{
 			this.value = value;
+			this.displayFunctionProperty = function;
 		}
 		
 		public String getValue()
 		{
-			return "0x" + Integer.toString(value.get(), 16).toUpperCase();
+			Function<Integer, String> displayFunction = displayFunctionProperty.get();
+			int intValue = value.get();
+			return displayFunction.apply(intValue);
 		}
 		
 		public void setValue(int value)
@@ -420,14 +427,14 @@ public class WatcherWindow extends BorderPane
 		
 		public RegisterRow(String name, String id, int value)
 		{
-			super(value);
+			super(value, WatcherWindow.this.registerDisplayFunction);
 			registerName = new SimpleStringProperty(name);
 			registerID = new SimpleStringProperty(id);
 		}
 		
 		public RegisterRow(String name, String id, IntegerProperty value)
 		{
-			super(value);
+			super(value, WatcherWindow.this.registerDisplayFunction);
 			registerName = new SimpleStringProperty(name);
 			registerID = new SimpleStringProperty(id);
 		}
@@ -459,13 +466,13 @@ public class WatcherWindow extends BorderPane
 		
 		public MemoryRow(int address, IntegerProperty value)
 		{
-			super(value);
+			super(value, WatcherWindow.this.memoryDisplayFunction);
 			this.address = new SimpleIntegerProperty(address);
 		}
 		
 		public MemoryRow(int address, int value)
 		{
-			super(value);
+			super(value, WatcherWindow.this.memoryDisplayFunction);
 			this.address = new SimpleIntegerProperty(address);
 		}
 		
