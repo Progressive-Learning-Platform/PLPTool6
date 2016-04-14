@@ -1,20 +1,19 @@
 package edu.asu.plp.tool.prototype.view;
 
-import static java.nio.ByteOrder.*;
+import static java.nio.ByteOrder.BIG_ENDIAN;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
-import edu.asu.plp.tool.prototype.util.IntegerUtils;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -33,6 +32,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
+import edu.asu.plp.tool.prototype.util.IntegerUtils;
 
 public class WatcherWindow extends BorderPane
 {
@@ -94,6 +95,9 @@ public class WatcherWindow extends BorderPane
 		TableView<MemoryRow> watchedAddresses = createMemoryTable();
 		Node registerControlPanel = createRegisterControlPanel();
 		Node memoryControlPanel = createMemoryControlPanel();
+
+		registerDisplayFunction.addListener(updateOnChangeEvent(registers));
+		memoryDisplayFunction.addListener(updateOnChangeEvent(memoryAddresses));
 		
 		GridPane center = new GridPane();
 		center.add(watchedRegisters, 0, 0);
@@ -116,6 +120,16 @@ public class WatcherWindow extends BorderPane
 		center.getRowConstraints().add(rowConstraint);
 		
 		this.setCenter(center);
+	}
+	
+	private <T, G> ChangeListener<G> updateOnChangeEvent(ObservableList<T> model)
+	{
+		return (value, current, old) -> {
+			ObservableList<T> temp = FXCollections.observableArrayList();
+			temp.addAll(model);
+			model.removeAll(model);
+			model.addAll(temp);
+		};
 	}
 	
 	private void populateDisplayOptions()
