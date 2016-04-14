@@ -66,7 +66,25 @@ public class ExecuteStage implements Stage
 		
 		public void instructionDecodeCompletionEvent(InstructionDecodeCompletion event)
 		{
+			ExecuteStageState postState = event.getPostState();
 			
+			if(event.willClearLogic())
+			{
+				postState.nextForwardCt1Memtoreg = 0;
+				postState.nextForwardCt1Regwrite = 0;
+				postState.nextForwardCt1Memwrite = 0;
+				postState.nextForwardCt1Memread = 0;
+				postState.nextForwardCt1Jal = 0;
+				postState.nextCt1AluSrc = 0;
+				postState.nextCt1Regdest = 0;
+				postState.nextCt1Jump = 0;
+				postState.nextCt1Branch = 0;
+			}
+		}
+		
+		public void stateRequested(ExecuteStageStateRequest event)
+		{
+			bus.post(new ExecuteStageStateResponse(state.clone()));
 		}
 	}
 	
