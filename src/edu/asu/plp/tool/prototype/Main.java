@@ -145,6 +145,16 @@ public class Main extends Application implements Controller
 		launch(args);
 	}
 	
+	public static File findDiskObjectForASM(ASMFile activeFile)
+	{
+		Project project = activeFile.getProject();
+		String path = project.getPathFor(activeFile);
+		if (path == null)
+			return null;
+		
+		return new File(path);
+	}
+	
 	private void onTabActivation(ObservableValue<? extends Tab> value, Tab old,
 			Tab current)
 	{
@@ -910,16 +920,6 @@ public class Main extends Application implements Controller
 			return selectedFile;
 	}
 	
-	private File findDiskObjectForASM(ASMFile activeFile)
-	{
-		Project project = activeFile.getProject();
-		String path = project.getPathFor(activeFile);
-		if (path == null)
-			return null;
-		
-		return new File(path);
-	}
-	
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
@@ -1338,7 +1338,7 @@ public class Main extends Application implements Controller
 		if (removalTarget.isDirectory())
 		{
 			// XXX: show a confirmation dialogue to confirm removal
-			String message = "The path specified is a directory, but should be a file."
+			String message = "The path specified is a directory, but should be a file. "
 					+ "The asm \""
 					+ activeFile.getName()
 					+ "\" will be removed from the project \""
@@ -1414,27 +1414,6 @@ public class Main extends Application implements Controller
 	{
 		stage.close();
 		Platform.exit();
-	}
-	
-	@Override
-	public void toggleToolbar()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void toggleProjectPane()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void toggleOutputPane()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	
 	@Override

@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.prototype;
 
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -249,32 +248,13 @@ public class PLPToolMenuBarPanel extends BorderPane
 	private Menu createViewMenu()
 	{
 		Menu viewMenu = new Menu("View");
-		CheckMenuItem cItemToolbar = new CheckMenuItem("Toolbar");
-		cItemToolbar.setAccelerator(new KeyCodeCombination(KeyCode.T,
-				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
-		cItemToolbar.setOnAction((e) -> controller.toggleToolbar());
-		
-		CheckMenuItem cItemProjectPane = new CheckMenuItem("Project Pane");
-		cItemProjectPane.setAccelerator(new KeyCodeCombination(KeyCode.P,
-				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
-		cItemProjectPane.setOnAction((e) -> controller.toggleProjectPane());
-		
-		CheckMenuItem cItemOutputPane = new CheckMenuItem("Output Pane");
-		cItemOutputPane.setAccelerator(new KeyCodeCombination(KeyCode.O,
-				KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
-		cItemOutputPane.setOnAction((e) -> controller.toggleOutputPane());
 		
 		MenuItem itemClearOutput = new MenuItem("Clear Output Pane");
 		itemClearOutput.setAccelerator(new KeyCodeCombination(KeyCode.D,
 				KeyCombination.CONTROL_DOWN));
 		itemClearOutput.setOnAction((e) -> controller.clearConsole());
 		
-		viewMenu.getItems().addAll(cItemToolbar, cItemProjectPane, cItemOutputPane,
-				itemClearOutput);
-		cItemToolbar.setSelected(true);
-		cItemProjectPane.setSelected(true);
-		cItemOutputPane.setSelected(true);
-		
+		viewMenu.getItems().addAll(itemClearOutput);
 		return viewMenu;
 	}
 	

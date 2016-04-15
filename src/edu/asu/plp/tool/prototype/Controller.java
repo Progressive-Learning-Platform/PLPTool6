@@ -37,12 +37,6 @@ public interface Controller
 	void showThirdPartyLicenses();
 	
 	// Application Controls :: View Manipulation
-	void toggleToolbar();
-	
-	void toggleProjectPane();
-	
-	void toggleOutputPane();
-	
 	void clearConsole();
 	
 	void clearAllBreakpoints();
