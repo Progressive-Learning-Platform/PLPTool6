@@ -34,8 +34,28 @@ public class ExecuteStage implements Stage
 	@Override
 	public void evaluate()
 	{
-		// TODO Auto-generated method stub
+		ExecuteCompletion memoryPackage = new ExecuteCompletion();
+		CpuState postMemoryStageState = new CpuState();
 		
+		memoryPackage.setPostMemoryStageState(postMemoryStageState);
+		
+		bus.post(new MemoryStageStateRequest());
+		
+		if(currentMemoryStageState == null)
+			throw new IllegalStateException("Could not retrieve memory stage state.");
+		
+		postMemoryStageState.nextBubble = state.bubble;
+		postMemoryStageState.nextInstruction = state.currentInstruction;
+		postMemoryStageState.nextInstructionAddress = state.currentInstructionAddress;
+		
+		if(state.hot)
+		{
+			state.hot = false;
+			postMemoryStageState.hot = true;
+		}
+		
+		if(!state.bubble)
+			state.count++;
 	}
 	
 	@Override
