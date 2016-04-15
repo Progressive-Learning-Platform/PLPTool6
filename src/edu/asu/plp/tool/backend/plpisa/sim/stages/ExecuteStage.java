@@ -9,6 +9,8 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRespon
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class ExecuteStage implements Stage
@@ -18,6 +20,7 @@ public class ExecuteStage implements Stage
 	
 	private CpuState state;
 	private CpuState currentMemoryStageState;
+	private CpuState currentWriteBackStageState;
 	
 	public ExecuteStage(EventBus simulatorBus)
 	{
@@ -40,13 +43,18 @@ public class ExecuteStage implements Stage
 		memoryPackage.setPostMemoryStageState(postMemoryStageState);
 		
 		bus.post(new MemoryStageStateRequest());
+		bus.post(new WriteBackStageStateRequest());
 		
 		if(currentMemoryStageState == null)
 			throw new IllegalStateException("Could not retrieve memory stage state.");
+		if(currentWriteBackStageState == null)
+			throw new IllegalStateException("Could not retrieve write back stage state.");
 		
-		postMemoryStageState.nextBubble = state.bubble;
-		postMemoryStageState.nextInstruction = state.currentInstruction;
-		postMemoryStageState.nextInstructionAddress = state.currentInstructionAddress;
+		boolean writeBackCt1Regwrite = (currentWriteBackStageState.ct1Regwrite == 1);
+        boolean memCt1Regwrite = (currentMemoryStageState.forwardCt1Regwrite == 1);
+        
+        long executeRs = InstructionExtractor.rs(state.currentInstruction);
+        long executeRt = InstructionExtractor.rt(state.currentInstruction);
 		
 		if(state.hot)
 		{
@@ -56,6 +64,10 @@ public class ExecuteStage implements Stage
 		
 		if(!state.bubble)
 			state.count++;
+		
+		postMemoryStageState.nextBubble = state.bubble;
+		postMemoryStageState.nextInstruction = state.currentInstruction;
+		postMemoryStageState.nextInstructionAddress = state.currentInstructionAddress;
 	}
 	
 	@Override
@@ -286,6 +298,11 @@ public class ExecuteStage implements Stage
 		public void memoryStageStateResponse(MemoryStageStateResponse event)
 		{
 			currentMemoryStageState = event.getMemoryStageState();
+		}
+		
+		public void writeBackStageStateResponse(WriteBackStageStateResponse event)
+		{
+			currentWriteBackStageState = event.getMemoryStageState();
 		}
 	}
 	
