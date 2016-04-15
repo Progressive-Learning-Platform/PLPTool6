@@ -1,16 +1,12 @@
 package edu.asu.plp.tool.exceptions;
 
-public class DiskOperationFailedException extends Exception
+import java.io.IOException;
+
+public class DiskOperationFailedException extends IOException
 {
 	public DiskOperationFailedException()
 	{
 		super();
-	}
-
-	public DiskOperationFailedException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace)
-	{
-		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 	public DiskOperationFailedException(String message, Throwable cause)

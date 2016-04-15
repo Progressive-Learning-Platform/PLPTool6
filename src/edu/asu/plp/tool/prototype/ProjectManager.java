@@ -4,6 +4,9 @@ import static edu.asu.plp.tool.prototype.Main.findDiskObjectForASM;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -12,12 +15,15 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.exceptions.DiskOperationFailedException;
 import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
+import edu.asu.plp.tool.exceptions.UnsupportedProjectTypeException;
 import edu.asu.plp.tool.prototype.model.Project;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 public class ProjectManager
 {
@@ -175,38 +181,61 @@ public class ProjectManager
 		if (!file.exists())
 			throw new FileNotFoundException();
 		
+		ProjectType type = getType(file);
+		Project project = type.loadFunction().load(file);
+		this.addProject(project);
+	}
+	
+	public void saveActiveProject() throws UnsupportedProjectTypeException
+	{
+		Project activeProject = getActiveProject();
+		String filePath = activeProject.getPath();
+		String projectType = activeProject.getType();
+		
+		saveActiveProjectAs(filePath, projectType);
+	}
+	
+	public void saveActiveProjectAs(String filePath)
+			throws UnsupportedProjectTypeException
+	{
+		Project activeProject = getActiveProject();
+		String projectType = activeProject.getType();
+		
+		saveActiveProjectAs(filePath, projectType);
+	}
+	
+	public void saveActiveProjectAs(String filePath, String projectType)
+			throws UnsupportedProjectTypeException
+	{
+		Project activeProject = getActiveProject();
+		ProjectType type = getType(activeProject);
+		// TODO
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+	
+	private ProjectType getType(Project activeProject)
+			throws UnsupportedProjectTypeException
+	{
+		String typeName = activeProject.getType();
+		Predicate<ProjectType> filter = (type) -> typeName.equals(type.getExtension());
+		ObservableList<ProjectType> validTypes = supportedProjectTypes.filtered(filter);
+		
+		if (validTypes.isEmpty())
+			throw new UnsupportedProjectTypeException(typeName);
+		else
+			return supportedProjectTypes.get(0);
+	}
+	
+	private ProjectType getType(File file) throws UnsupportedFileExtensionException
+	{
 		String extension = FilenameUtils.getExtension(file.getAbsolutePath());
 		Predicate<ProjectType> filter = (type) -> extension.equals(type.getExtension());
 		ObservableList<ProjectType> validTypes = supportedProjectTypes.filtered(filter);
 		
 		if (validTypes.isEmpty())
-		{
 			throw new UnsupportedFileExtensionException(extension);
-		}
 		else
-		{
-			ProjectType type = supportedProjectTypes.get(0);
-			Project project = type.loadFunction().load(file);
-			this.addProject(project);
-		}
-	}
-	
-	public void saveActiveProject()
-	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-	
-	public void saveActiveProjectAs(String filePath)
-	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-	
-	public void saveActiveProjectAs(String filePath, String projectType)
-	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+			return supportedProjectTypes.get(0);
 	}
 	
 	public void createNewASM(String name, String type)
@@ -215,16 +244,61 @@ public class ProjectManager
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
-	public void importASM(String filePath)
+	public void importASM(String filePath) throws IOException
 	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		File importTarget = new File(filePath);
+		
+		String content = FileUtils.readFileToString(importTarget);
+		Project activeProject = getActiveProject();
+		String name = importTarget.getName();
+		
+		ASMFile asmFile = new SimpleASMFile(activeProject, name);
+		asmFile.setContent(content);
+		activeProject.add(asmFile);
+		activeProject.save();
 	}
 	
-	public void exportASM(String asmName)
+	public void exportASM(String asmName, String filePath, boolean overwrite)
+			throws FileAlreadyExistsException, DiskOperationFailedException
 	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		if (asmName == null || filePath == null)
+			throw new IllegalArgumentException("No file was specified");
+		else
+			exportASM(asmName, new File(filePath), overwrite);
+	}
+	
+	private void exportASM(String asmName, File destination, boolean overwriteAllowed)
+			throws FileAlreadyExistsException, DiskOperationFailedException
+	{
+		if (destination == null)
+			throw new IllegalStateException("Failed to create file object");
+		else if (destination.exists() && !overwriteAllowed)
+			throw new FileAlreadyExistsException(destination.getAbsolutePath());
+		
+		ASMFile asmFile = getASMByName(asmName);
+		ensureExists(destination);
+		
+		try (PrintWriter writer = new PrintWriter(destination))
+		{
+			writer.print(asmFile.getContent());
+		}
+		catch (IOException exception)
+		{
+			throw new DiskOperationFailedException(exception);
+		}
+	}
+	
+	private void ensureExists(File destination) throws DiskOperationFailedException
+	{
+		try
+		{
+			if (!destination.exists())
+				destination.createNewFile();
+		}
+		catch (IOException exception)
+		{
+			throw new DiskOperationFailedException(exception);
+		}
 	}
 	
 	public void removeASM(String asmName) throws FileNotFoundException,
