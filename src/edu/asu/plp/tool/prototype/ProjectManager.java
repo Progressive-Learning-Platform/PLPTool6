@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype;
 
+import static edu.asu.plp.tool.prototype.Main.findDiskObjectForASM;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collections;
@@ -13,6 +15,8 @@ import javafx.collections.ObservableList;
 import org.apache.commons.io.FilenameUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.exceptions.DiskOperationFailedException;
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.Project;
 
 public class ProjectManager
@@ -223,13 +227,50 @@ public class ProjectManager
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
-	public void removeASM(String asmName)
+	public void removeASM(String asmName) throws FileNotFoundException,
+			UnexpectedFileTypeException, DiskOperationFailedException
 	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		if (asmName == null)
+			throw new IllegalArgumentException("No file was specified");
+		
+		ASMFile activeFile = getASMByName(asmName);
+		File removalTarget = findDiskObjectForASM(activeFile);
+		
+		Project activeProject = activeFile.getProject();
+		activeProject.remove(activeFile);
+		
+		String failMessage = "The asm \""
+				+ activeFile.getName()
+				+ "\" will be removed from the project \""
+				+ activeFile.getProject().getName()
+				+ "\" but it is suggested that you verify the deletion from disk manually.";
+		
+		if (removalTarget == null || !removalTarget.exists())
+		{
+			failMessage = "Unable to locate file on disk. " + failMessage;
+			throw new FileNotFoundException(failMessage);
+		}
+		else if (removalTarget.isDirectory())
+		{
+			failMessage = "The path specified is a directory, but should be a file. "
+					+ failMessage;
+			throw new UnexpectedFileTypeException(failMessage);
+		}
+		
+		try
+		{
+			boolean wasRemoved = removalTarget.delete();
+			if (!wasRemoved)
+				throw new Exception("Operation failed. Received: " + wasRemoved);
+		}
+		catch (Exception exception)
+		{
+			throw new DiskOperationFailedException(
+					"Failed to delete asm from disk. It is suggested that you verify the deletion from disk manually.");
+		}
 	}
 	
-	public void setMainASMFile(String asmName)
+	private ASMFile getASMByName(String asmName)
 	{
 		Project activeProject = getActiveProject();
 		Predicate<ASMFile> filter = (asm) -> asm.getName().equals(asmName);
@@ -243,13 +284,19 @@ public class ProjectManager
 		}
 		else if (list.size() == 1)
 		{
-			setMainASMFile(list.get(0));
+			return list.get(0);
 		}
 		else
 		{
 			throw new IllegalStateException("Project {" + activeProject.getName()
 					+ "} contains duplicate file names.");
 		}
+	}
+	
+	public void setMainASMFile(String asmName)
+	{
+		ASMFile targetASM = getASMByName(asmName);
+		setMainASMFile(targetASM);
 	}
 	
 	public void setMainASMFile(ASMFile asmFile)
