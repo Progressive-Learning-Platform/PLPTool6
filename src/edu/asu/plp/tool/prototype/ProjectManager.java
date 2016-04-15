@@ -237,7 +237,7 @@ public class ProjectManager
 		
 		if (list.isEmpty())
 		{
-			throw new IllegalArgumentException("Active poject {"
+			throw new IllegalArgumentException("Active project {"
 					+ activeProject.getName() + "} does not contain the given file {"
 					+ asmName + "}");
 		}
@@ -259,7 +259,7 @@ public class ProjectManager
 		
 		if (index < 0)
 		{
-			throw new IllegalArgumentException("Active poject {"
+			throw new IllegalArgumentException("Active project {"
 					+ activeProject.getName() + "} does not contain the given file {"
 					+ asmFile.getName() + "}");
 		}
