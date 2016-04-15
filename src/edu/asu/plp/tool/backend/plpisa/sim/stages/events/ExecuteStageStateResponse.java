@@ -1,17 +1,17 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages.events;
 
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.ExecuteStageState;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class ExecuteStageStateResponse
 {
-	private ExecuteStageState state;
+	private CpuState state;
 	
-	public ExecuteStageStateResponse(ExecuteStageState state)
+	public ExecuteStageStateResponse(CpuState state)
 	{
 		this.state = state;
 	}
 
-	public ExecuteStageState getExecuteStageState()
+	public CpuState getExecuteStageState()
 	{
 		return state;
 	}

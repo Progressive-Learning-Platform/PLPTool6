@@ -1,13 +1,19 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages.events;
 
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.MemoryStageState;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class MemoryStageStateResponse
 {
-
-	public MemoryStageState getMemoryStageState()
+	private CpuState state;
+	
+	public MemoryStageStateResponse(CpuState state)
 	{
-		return null;
+		this.state = state;
+	}
+
+	public CpuState getMemoryStageState()
+	{
+		return state;
 	}
 
 }

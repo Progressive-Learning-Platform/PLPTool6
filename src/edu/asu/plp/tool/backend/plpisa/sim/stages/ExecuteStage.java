@@ -3,19 +3,21 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.ExecuteStageState;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.MemoryStageState;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class ExecuteStage implements Stage
 {
 	private EventBus bus;
 	private ExecuteEventHandler eventHandler;
 	
-	private ExecuteStageState state;
-	private MemoryStageState currentMemoryStageState;
+	private CpuState state;
+	private CpuState currentMemoryStageState;
 	
 	public ExecuteStage(EventBus simulatorBus)
 	{
@@ -24,7 +26,7 @@ public class ExecuteStage implements Stage
 		
 		this.bus.register(eventHandler);
 		
-		this.state = new ExecuteStageState();
+		this.state = new CpuState();
 		
 		reset();
 	}
@@ -238,7 +240,7 @@ public class ExecuteStage implements Stage
 		
 		public void instructionDecodeCompletionEvent(InstructionDecodeCompletion event)
 		{
-			ExecuteStageState postState = event.getPostState();
+			CpuState postState = event.getPostState();
 			
 			if (event.willClearLogic())
 			{
@@ -252,11 +254,18 @@ public class ExecuteStage implements Stage
 				postState.nextCt1Jump = 0;
 				postState.nextCt1Branch = 0;
 			}
+			
+			//TODO transfer state
 		}
 		
 		public void stateRequested(ExecuteStageStateRequest event)
 		{
 			bus.post(new ExecuteStageStateResponse(state.clone()));
+		}
+		
+		public void memoryStageStateResponse(MemoryStageStateResponse event)
+		{
+			currentMemoryStageState = event.getMemoryStageState();
 		}
 	}
 	

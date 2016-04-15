@@ -1,11 +1,11 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages.events;
 
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.ExecuteStageState;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class InstructionDecodeCompletion
 {
 	private boolean willClearLogic;
-	private ExecuteStageState postExecuteStageState;
+	private CpuState postExecuteStageState;
 	
 	public InstructionDecodeCompletion()
 	{
@@ -18,7 +18,7 @@ public class InstructionDecodeCompletion
 		willClearLogic = true;
 	}
 
-	public void setPostExecuteStageState(ExecuteStageState postExecuteStageState)
+	public void setPostExecuteStageState(CpuState postExecuteStageState)
 	{
 		this.postExecuteStageState = postExecuteStageState;
 	}
@@ -28,7 +28,7 @@ public class InstructionDecodeCompletion
 		return willClearLogic;
 	}
 	
-	public ExecuteStageState getPostState()
+	public CpuState getPostState()
 	{
 		return postExecuteStageState;
 	}
