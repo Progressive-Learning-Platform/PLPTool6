@@ -20,69 +20,16 @@ import org.apache.commons.io.FilenameUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.exceptions.DiskOperationFailedException;
+import edu.asu.plp.tool.exceptions.ProjectAlreadyOpenException;
+import edu.asu.plp.tool.exceptions.ProjectNameConflictException;
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
+import edu.asu.plp.tool.exceptions.UnsupportedFileExtensionException;
 import edu.asu.plp.tool.exceptions.UnsupportedProjectTypeException;
 import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 public class ProjectManager
 {
-	public static class UnsupportedFileExtensionException extends Exception
-	{
-		public UnsupportedFileExtensionException()
-		{
-			super();
-		}
-		
-		public UnsupportedFileExtensionException(String message)
-		{
-			super(message);
-		}
-	}
-	
-	public static class ProjectAlreadyOpenException extends Exception
-	{
-		private Project existingProject;
-		
-		public ProjectAlreadyOpenException(Project existingProject)
-		{
-			super();
-			this.existingProject = existingProject;
-		}
-		
-		public ProjectAlreadyOpenException(Project existingProject, String message)
-		{
-			super(message);
-			this.existingProject = existingProject;
-		}
-		
-		public Project getExistingProject()
-		{
-			return existingProject;
-		}
-	}
-	
-	public static class NameConflictException extends Exception
-	{
-		private Project conflictingProject;
-		
-		public NameConflictException(Project conflictingProject)
-		{
-			super();
-			this.conflictingProject = conflictingProject;
-		}
-		
-		public NameConflictException(Project conflictingProject, String message)
-		{
-			super(message);
-			this.conflictingProject = conflictingProject;
-		}
-		
-		public Project getConflictingProject()
-		{
-			return conflictingProject;
-		}
-	}
-	
 	@FunctionalInterface
 	public static interface SaveFunction
 	{
@@ -144,7 +91,7 @@ public class ProjectManager
 	}
 	
 	public void addProject(Project project) throws ProjectAlreadyOpenException,
-			NameConflictException
+			ProjectNameConflictException
 	{
 		Project existingProject = getProjectByName(project.getName());
 		if (existingProject != null)
@@ -152,7 +99,7 @@ public class ProjectManager
 			if (existingProject.getPath().equals(project.getPath()))
 				throw new ProjectAlreadyOpenException(existingProject);
 			else
-				throw new NameConflictException(existingProject);
+				throw new ProjectNameConflictException(existingProject);
 		}
 		else
 		{
@@ -174,7 +121,7 @@ public class ProjectManager
 	}
 	
 	public void openProjectFromFile(File file) throws ProjectAlreadyOpenException,
-			NameConflictException, FileNotFoundException,
+			ProjectNameConflictException, FileNotFoundException,
 			UnsupportedFileExtensionException
 	{
 		if (!file.exists())
@@ -309,7 +256,7 @@ public class ProjectManager
 	}
 	
 	public void removeASM(String asmName) throws FileNotFoundException,
-			UnsupportedFileExtensionException, DiskOperationFailedException
+			UnexpectedFileTypeException, DiskOperationFailedException
 	{
 		if (asmName == null)
 			throw new IllegalArgumentException("No file was specified");
@@ -335,7 +282,7 @@ public class ProjectManager
 		{
 			failMessage = "The path specified is a directory, but should be a file. "
 					+ failMessage;
-			throw new UnsupportedFileExtensionException(failMessage);
+			throw new UnexpectedFileTypeException(failMessage);
 		}
 		
 		try
