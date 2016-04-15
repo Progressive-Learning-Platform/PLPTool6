@@ -39,8 +39,34 @@ public class ExecuteStage implements Stage
 	@Override
 	public void clock()
 	{
-		// TODO Auto-generated method stub
+		state.bubble = state.nextBubble;
 		
+		state.currentInstruction = state.nextInstruction;
+		state.currentInstructionAddress = state.nextInstructionAddress;
+		
+		state.ct1Branch = state.nextCt1Branch;
+		state.ct1Jump = state.nextCt1Jump;
+		state.ct1Branchtarget = state.nextCt1BranchTarget;
+		
+		state.forwardCt1Memtoreg = state.nextForwardCt1Memtoreg;
+		state.forwardCt1Regwrite = state.nextForwardCt1Regwrite;
+		
+		state.forwardCt1Memwrite = state.nextForwardCt1Memwrite;
+		state.forwardCt1Memread = state.nextForwardCt1Memread;
+		
+		state.forwardCt1Jal = state.nextForwardCt1Jal;
+		state.forwardCt1Linkaddress = state.nextForwardCt1LinkAddress;
+		
+		state.ct1Alusrc = state.nextCt1AluSrc;
+		state.ct1Aluop = state.nextCt1AluOp;
+		state.ct1Regdest = state.nextCt1Regdest;
+		
+		state.dataRs = state.nextDataRs;
+		state.dataRt = state.nextDataRt;
+		
+		state.dataImmediateSignextended = state.nextDataImmediateSignExtended;
+		state.ct1RtAddress = state.nextCt1RtAddress;
+		state.ct1RdAddress = state.nextCt1RdAddress;
 	}
 	
 	@Override
