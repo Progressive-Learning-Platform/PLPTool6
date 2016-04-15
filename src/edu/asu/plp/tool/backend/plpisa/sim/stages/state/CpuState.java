@@ -1,8 +1,10 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages.state;
 
-public class ExecuteStageState implements Cloneable
+public class CpuState implements Cloneable
 {
 	public int count;
+	public int ifCount;
+	public int idCount;
 	
 	public long currentInstruction;
 	public long currentInstructionAddress;
@@ -14,6 +16,12 @@ public class ExecuteStageState implements Cloneable
 	public long forwardCt1Memread;
 	public long forwardCt1Jal;
 	public long forwardCt1Linkaddress;
+	
+	public long forwardCt1DestRegAddress;
+
+	public long forwardDataAluResult;
+	
+	public long ct1Pcplus4;
 	
 	public long ct1Alusrc;
 	public long ct1Aluop;
@@ -28,12 +36,30 @@ public class ExecuteStageState implements Cloneable
 	public long ct1Forwardx;
 	public long ct1Forwardy;
 	
+	public long ct1Memwrite;
+	public long ct1Memread;
+	public long ct1ForwardMemMem;
+	
+	public long ct1Memtoreg;
+	public long ct1Regwrite;
+	public long ct1DestRegAddress;
+	public long ct1Linkaddress;
+	public long ct1Jal;
+	
 	public long dataRs;
 	public long dataRt;
 	
 	public long dataX;
 	public long dataEffY;
 	public long dataY;
+	
+	public long dataMemwritedata;
+	public Long dataMemLoad;
+	public long dataMemStore;
+	
+	public long dataMemreaddata;
+	public long dataAluResult;
+	public long dataRegwrite;
 	
 	public long dataImmediateSignextended;
 	public long ct1RtAddress;
@@ -49,6 +75,12 @@ public class ExecuteStageState implements Cloneable
 	public long nextForwardCt1Memread;
 	public long nextForwardCt1Memwrite;
 	
+	public long nextForwardCt1DestRegAddress;
+	
+	public long nextForwardDataAluResult;
+	
+	public long nextCt1Pcplus4;
+	
 	public long nextCt1RdAddress;
 	public long nextCt1RtAddress;
 	public long nextCt1AluOp;
@@ -57,9 +89,23 @@ public class ExecuteStageState implements Cloneable
 	public long nextCt1Branch;
 	public long nextCt1Jump;
 	public long nextCt1Regdest;
+	
+	public long nextCt1Memwrite;
+	public long nextCt1Memread;
+	
+	public long nextCt1Memtoreg;
+	public long nextCt1Regwrite;
+	public long nextCt1DestRegAddress;
+	public long nextCt1Linkaddress;
+	public long nextCt1Jal;
+	
+	public long nextDataMemwritedata;
 
 	public long nextDataRs;
 	public long nextDataRt;
+	
+	public long nextDataMemreaddata;
+	public long nextDataAluResult;
 	
 	public long nextDataImmediateSignExtended;
 	
@@ -69,43 +115,25 @@ public class ExecuteStageState implements Cloneable
 	public boolean bubble;
 	public boolean nextBubble;
 	
-	public ExecuteStageState()
+	public boolean instructionRetired;
+	
+	public CpuState()
 	{
 		count = 0;
+		ifCount = 0;
+		idCount = 0;
 		
 		hot = false;
 		bubble = false;
 		nextBubble = false;
+		instructionRetired = false;
 	}
 	
-	
-	public ExecuteStageState clone()
+	public CpuState clone()
 	{
-		ExecuteStageState copy = new ExecuteStageState();
-
-		copy.count = count;
-		copy.currentInstruction = currentInstruction;
-		copy.nextInstruction = nextInstruction;
-		copy.nextInstructionAddress = nextInstructionAddress;
-		copy.nextCt1RdAddress = nextCt1RdAddress;
-		copy.nextCt1RtAddress = nextCt1RtAddress;
-		copy.nextCt1AluOp = nextCt1AluOp;
-		copy.nextCt1AluSrc = nextCt1AluSrc;
-		copy.nextCt1BranchTarget = nextCt1BranchTarget;
-		copy.nextCt1Branch = nextCt1Branch;
-		copy.nextCt1Jump = nextCt1Jump;
-		copy.nextCt1Regdest = nextCt1Regdest;
-		copy.nextForwardCt1Jal = nextForwardCt1Jal;
-		copy.nextForwardCt1LinkAddress = nextForwardCt1LinkAddress;
-		copy.nextForwardCt1Regwrite = nextForwardCt1Regwrite;
-		copy.nextForwardCt1Memtoreg = nextForwardCt1Memtoreg;
-		copy.nextForwardCt1Memread = nextForwardCt1Memread;
-		copy.nextForwardCt1Memwrite = nextForwardCt1Memwrite;
-		copy.nextDataImmediateSignExtended = nextDataImmediateSignExtended;
-		copy.forwardCt1Memread = forwardCt1Memread;
-		copy.hot = hot;
-		copy.bubble = bubble;
-		copy.nextBubble = nextBubble;
+		CpuState copy = new CpuState();
+		
+		
 		
 		return copy;
 	}
