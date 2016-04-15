@@ -20,7 +20,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.exceptions.DiskOperationFailedException;
-import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.exceptions.UnsupportedProjectTypeException;
 import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.SimpleASMFile;
@@ -310,7 +309,7 @@ public class ProjectManager
 	}
 	
 	public void removeASM(String asmName) throws FileNotFoundException,
-			UnexpectedFileTypeException, DiskOperationFailedException
+			UnsupportedFileExtensionException, DiskOperationFailedException
 	{
 		if (asmName == null)
 			throw new IllegalArgumentException("No file was specified");
@@ -336,7 +335,7 @@ public class ProjectManager
 		{
 			failMessage = "The path specified is a directory, but should be a file. "
 					+ failMessage;
-			throw new UnexpectedFileTypeException(failMessage);
+			throw new UnsupportedFileExtensionException(failMessage);
 		}
 		
 		try

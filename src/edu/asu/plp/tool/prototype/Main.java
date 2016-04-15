@@ -81,7 +81,6 @@ import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
-import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -413,10 +412,6 @@ public class Main extends Application implements Controller
 		{
 			Project project = PLPProject.load(file);
 			addProject(project);
-		}
-		catch (UnexpectedFileTypeException e)
-		{
-			showAlertDialogue(e, "The selected file could not be loaded");
 		}
 		catch (IOException e)
 		{
