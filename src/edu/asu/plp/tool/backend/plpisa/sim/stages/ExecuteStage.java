@@ -55,7 +55,7 @@ public class ExecuteStage implements Stage
 		 * String rs_forwarded = (sim_flags & (PLP_SIM_FWD_EX_EX_RS |
 		 * PLP_SIM_FWD_MEM_EX_RS)) == 0 ? "" : " (forwarded)";
 		 */
-		int spaceSize = -30;
+		int spaceSize = -35;
 		
 		System.out.println("EX vars");
 		System.out.println(String.format("%" + spaceSize + "s %08x %s", "\tInstruction",
@@ -64,8 +64,7 @@ public class ExecuteStage implements Stage
 				
 		String formattedInstructionAddress = ((state.currentInstructionAddress == -1
 				|| state.bubble) ? "--------"
-						: String.format("%" + spaceSize + "x",
-								state.currentInstructionAddress));
+						: String.format("%08x", state.currentInstructionAddress));
 		System.out.println(String.format("%" + spaceSize + "s %s", "\tInstructionAddress",
 				formattedInstructionAddress));
 				
@@ -130,8 +129,56 @@ public class ExecuteStage implements Stage
 	@Override
 	public void printNextVariables()
 	{
-		// TODO Auto-generated method stub
+		int spaceSize = -35;
 		
+		System.out.println("EX next vars");
+		System.out.println(String.format("%" + spaceSize + "s %08x %s", "\tInstruction",
+				state.nextInstruction,
+				InstructionExtractor.format(state.nextInstruction)));
+				
+		String formattedInstructionAddress = ((state.currentInstructionAddress == -1)
+				? "--------" : String.format("%08x", state.nextInstructionAddress));
+		System.out.println(String.format("%" + spaceSize + "s %s", "\tInstructionAddress",
+				formattedInstructionAddress));
+				
+		System.out.println(String.format("%" + spaceSize + "s %x",
+				"\tNextForwardCt1MemToReg", state.nextForwardCt1Memtoreg));
+		System.out.println(String.format("%" + spaceSize + "s %x",
+				"\tNextForwardCt1Regwrite", state.nextForwardCt1Regwrite));
+		System.out.println(String.format("%" + spaceSize + "s %x",
+				"\tNextForwardCt1Memwrite", state.nextForwardCt1Memwrite));
+		System.out.println(String.format("%" + spaceSize + "s %x",
+				"\tNextForwardCt1Memread", state.nextForwardCt1Memread));
+		System.out.println(String.format("%" + spaceSize + "s %08x",
+				"\tForwardCt1LinkAddress", state.nextForwardCt1LinkAddress));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tNextForwardCt1Jal",
+				state.nextForwardCt1Jal));
+				
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tnextCt1AluSrc",
+				state.nextCt1AluSrc));
+		System.out.println(String.format("%" + spaceSize + "s %08x", "\tnextCt1AluOp",
+				state.nextCt1AluOp));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tnextCt1RegDst",
+				state.nextCt1Regdest));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tnextCt1AddressRt",
+				state.nextCt1RtAddress));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tnextCt1AddressRd",
+				state.nextCt1RdAddress));
+				
+		System.out.println(String.format("%" + spaceSize + "s %08x",
+				"\tnextCt1Branchtarget", state.nextCt1BranchTarget));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tnextCt1Jump",
+				state.nextCt1Jump));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tnextCt1Branch",
+				state.nextCt1Branch));
+				
+		System.out.println(String.format("%" + spaceSize + "s %08x",
+				"\nextDataImmediateSignExtended", state.nextDataImmediateSignExtended));
+		System.out.println(String.format("%" + spaceSize + "s %08x", "\nextDataRs",
+				state.nextDataRs));
+		System.out.println(String.format("%" + spaceSize + "s %08x", "\nextDataRt",
+				state.nextDataRt));
+		System.out.println();
 	}
 	
 	@Override
