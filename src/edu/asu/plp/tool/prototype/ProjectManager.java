@@ -209,8 +209,9 @@ public class ProjectManager
 	{
 		Project activeProject = getActiveProject();
 		ProjectType type = getType(activeProject);
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		
+		File file = new File(filePath);
+		type.saveFunction().save(activeProject, file);
 	}
 	
 	private ProjectType getType(Project activeProject)
@@ -238,10 +239,17 @@ public class ProjectManager
 			return supportedProjectTypes.get(0);
 	}
 	
-	public void createNewASM(String name, String type)
+	public void createNewASM(String name, String defaultContent)
 	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		Project activeProject = getActiveProject();
+		ASMFile asm = new SimpleASMFile(activeProject, name);
+		asm.setContent(defaultContent);
+		
+		if (activeProject.filtered((e) -> e.getName().equals(name)).isEmpty())
+			activeProject.add(asm);
+		else
+			throw new IllegalStateException("Project {" + activeProject.getName()
+					+ "} already contains a file with the name {" + name + "}");
 	}
 	
 	public void importASM(String filePath) throws IOException
