@@ -1,7 +1,6 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 
 public class ALU
 {
