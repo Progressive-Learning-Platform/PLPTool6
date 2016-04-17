@@ -39,6 +39,9 @@ public class InstructionDecodeStage implements Stage
 		CpuState postExecuteStageState = new CpuState();
 		
 		executePackage.setPostExecuteStageState(postExecuteStageState);
+
+		currentExecuteStageState = null;
+		currentMemoryStageState = null;
 		
 		bus.post(new ExecuteStageStateRequest());
 		bus.post(new MemoryStageStateRequest());
@@ -264,8 +267,6 @@ public class InstructionDecodeStage implements Stage
 	@Override
 	public void reset()
 	{
-		currentExecuteStageState = null;
-		currentMemoryStageState = null;
 	}
 	
 	public class InstructionDecodeEventHandler

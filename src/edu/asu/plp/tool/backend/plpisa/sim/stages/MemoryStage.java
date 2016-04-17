@@ -2,6 +2,7 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
 
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
@@ -16,6 +17,13 @@ public class MemoryStage implements Stage
 	public MemoryStage(EventBus simulatorBus)
 	{
 		this.bus = simulatorBus;
+		this.eventHandler = new MemoryEventHandler();
+		
+		this.bus.register(eventHandler);
+		
+		this.state = new CpuState();
+		
+		reset();
 	}
 	
 	@Override
@@ -65,6 +73,11 @@ public class MemoryStage implements Stage
 		private MemoryEventHandler()
 		{
 			
+		}
+		
+		public void executeCompletionEvent(ExecuteCompletion event)
+		{
+			CpuState postState = event.getPostMemoryState();
 		}
 
 		public void stateRequested(MemoryStageStateRequest event)
