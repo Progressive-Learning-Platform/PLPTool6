@@ -153,6 +153,8 @@ public class ExecuteStage implements Stage
 			//if_stall = true;
 			//simFlags.add(SimulatorFlag.PLP_SIM_IF_STALL_SET);
 		}
+		
+		bus.post(memoryPackage);
 		//@formatter:on
 	}
 	
