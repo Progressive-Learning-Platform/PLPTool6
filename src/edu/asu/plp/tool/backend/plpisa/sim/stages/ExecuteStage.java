@@ -3,6 +3,8 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.plpisa.sim.ALU;
+import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateResponse;
@@ -22,6 +24,8 @@ public class ExecuteStage implements Stage
 	private CpuState currentMemoryStageState;
 	private CpuState currentWriteBackStageState;
 	
+	private ALU alu;
+	
 	public ExecuteStage(EventBus simulatorBus)
 	{
 		this.bus = simulatorBus;
@@ -31,16 +35,22 @@ public class ExecuteStage implements Stage
 		
 		this.state = new CpuState();
 		
+		alu = new ALU();
+		
 		reset();
 	}
 	
 	@Override
 	public void evaluate()
 	{
+		//@formatter:off
 		ExecuteCompletion memoryPackage = new ExecuteCompletion();
 		CpuState postMemoryStageState = new CpuState();
 		
 		memoryPackage.setPostMemoryStageState(postMemoryStageState);
+		
+		currentMemoryStageState = null;
+		currentWriteBackStageState = null;
 		
 		bus.post(new MemoryStageStateRequest());
 		bus.post(new WriteBackStageStateRequest());
@@ -68,6 +78,82 @@ public class ExecuteStage implements Stage
 		postMemoryStageState.nextBubble = state.bubble;
 		postMemoryStageState.nextInstruction = state.currentInstruction;
 		postMemoryStageState.nextInstructionAddress = state.currentInstructionAddress;
+		
+		//TODO Simulation flag stuff
+		//Forward logic for rs source, 1 for EX->EX, 2 for MEM->EX
+		boolean exEx = false; //ex_ex && memCt1Regwrite && currentMemoryStageState.forwardCt1DestRegAddress == executeRs && executeRs != 0
+		boolean memEx = false; //mem_ex && writeBackCt1Regwrite && currentWriteBackStageState.ct1DestRegAddress == executeRs && executeRs != 0
+		
+		state.ct1Forwardx = exEx ? 1 : memEx ? 2 : 0;
+		
+		if(state.ct1Forwardx == 1)
+		{
+			//simFlags.add(SimulatorFlag.PLP_SIM_FWD_EX_EX_RS);
+		}
+		else if(state.ct1Forwardx == 2)
+		{
+			//simFlags.add(SimulatorFlag.PLP_SIM_FWD_MEM_EX_RS);
+		}
+		
+		//Foward logic for rt source, 1 for EX->EX, 2 for MEM->EX
+		exEx = false; //ex_ex && memCt1Regwrite && currentMemoryStageState.forwardCt1DestRegAddress == executeRt && executeRt != 0
+		memEx = false; //mem_ex && writeBackCt1Regwrite && currentWriteBackStageState.ct1DestRegAddress == executeRt && executeRt != 0
+		
+		state.ct1Forwardy = exEx ? 1 : memEx ? 2 : 0;
+		
+		if(state.ct1Forwardy == 1)
+		{
+			//simFlags.add(SimulatorFlag.PLP_SIM_FWD_EX_EX_RT);
+		}
+		else if(state.ct1Forwardy == 2)
+		{
+			//simFlags.add(SimulatorFlag.PLP_SIM_FWD_MEM_EX_RT);
+		}
+		
+		//Cant switch on longs. 
+		state.dataX = (state.ct1Forwardx == 0) ? state.dataRs :
+            (state.ct1Forwardx == 1) ? currentMemoryStageState.forwardDataAluResult :
+            (state.ct1Forwardx == 2) ? currentWriteBackStageState.dataRegwrite : 0;
+		
+		state.dataEffY = (state.ct1Forwardy == 0) ? state.dataRt :
+            (state.ct1Forwardy == 1) ? currentMemoryStageState.forwardDataAluResult :
+            (state.ct1Forwardy == 2) ? currentWriteBackStageState.dataRegwrite : 0;
+		
+		state.dataY = (state.ct1Alusrc == 1) ? state.dataImmediateSignextended : state.dataEffY;
+		
+		state.internalAluOut = alu.evaluate(state.dataX, state.dataY, state.ct1Aluop) & (((long) 0xfffffff << 4) | 0xf);
+		
+		postMemoryStageState.nextForwardDataAluResult = state.internalAluOut;
+		
+		postMemoryStageState.nextForwardCt1Memtoreg = state.forwardCt1Memtoreg;
+		postMemoryStageState.nextForwardCt1Regwrite = state.forwardCt1Regwrite;
+		postMemoryStageState.nextForwardCt1DestRegAddress = (state.ct1Regdest == 1) ? state.ct1RdAddress : state.ct1RtAddress;
+		
+		postMemoryStageState.nextCt1Memwrite = state.forwardCt1Memwrite;
+		postMemoryStageState.nextCt1Memread = state.forwardCt1Memread;
+		postMemoryStageState.nextForwardCt1LinkAddress = state.forwardCt1Linkaddress;
+		
+		postMemoryStageState.nextForwardCt1Jal = state.forwardCt1Jal;
+		
+		postMemoryStageState.nextDataMemwritedata = state.dataEffY;
+		
+		postMemoryStageState.ct1Pcsrc = (state.internalAluOut == 1) ? 1 : 0;
+		postMemoryStageState.ct1Pcsrc &= state.ct1Branch;
+		
+		int jtype = InstructionExtractor.instructionType(state.currentInstruction);
+		
+		state.ct1JumpTarget = (jtype == 7) ? (state.currentInstructionAddress & 0xF0000000) |
+				(InstructionExtractor.jaddr(state.currentInstruction) << 2) 
+				: state.dataRs;
+				
+		//TODO get ex_stall
+		//Jump/branch taken, clear next IF stage / create a bubble
+		if(state.ct1Jump == 1 | state.ct1Pcsrc == 1) //&& !ex_stall
+		{
+			//if_stall = true;
+			//simFlags.add(SimulatorFlag.PLP_SIM_IF_STALL_SET);
+		}
+		//@formatter:on
 	}
 	
 	@Override
@@ -287,7 +373,7 @@ public class ExecuteStage implements Stage
 				postState.nextCt1Branch = 0;
 			}
 			
-			//TODO transfer state
+			// TODO transfer state
 		}
 		
 		public void stateRequested(ExecuteStageStateRequest event)
