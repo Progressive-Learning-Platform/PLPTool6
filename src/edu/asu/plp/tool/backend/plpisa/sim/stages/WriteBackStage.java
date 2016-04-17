@@ -2,6 +2,7 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
 
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
@@ -72,6 +73,11 @@ public class WriteBackStage implements Stage
 		private WriteBackEventHandler()
 		{
 		
+		}
+		
+		public void memoryCompletionEvent(MemoryCompletion event)
+		{
+			CpuState postState = event.getPostMemoryState();
 		}
 		
 		public void stateRequested(WriteBackStageStateRequest event)

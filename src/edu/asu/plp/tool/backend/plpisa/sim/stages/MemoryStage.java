@@ -3,10 +3,12 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class MemoryStage implements Stage
@@ -15,6 +17,7 @@ public class MemoryStage implements Stage
 	private MemoryEventHandler eventHandler;
 	
 	private CpuState state;
+	private CpuState currentWriteBackStageState;
 	
 	public MemoryStage(EventBus simulatorBus)
 	{
@@ -31,8 +34,65 @@ public class MemoryStage implements Stage
 	@Override
 	public void evaluate()
 	{
-		// TODO Auto-generated method stub
+		//@formatter:off
+		MemoryCompletion writeBackPackage = new MemoryCompletion();
+		CpuState postWriteBackStageState = new CpuState();
 		
+		writeBackPackage.setPostState(postWriteBackStageState);
+		
+		currentWriteBackStageState = null;
+		
+		bus.post(new WriteBackStageStateRequest());
+		
+		if(currentWriteBackStageState == null)
+			throw new IllegalStateException("Could not retrieve write back stage state.");
+		
+		postWriteBackStageState.nextBubble = state.bubble;
+		postWriteBackStageState.nextInstruction = state.currentInstruction;
+		postWriteBackStageState.nextInstructionAddress = state.currentInstructionAddress;
+		
+		if(state.hot)
+		{
+			state.hot = false;
+			postWriteBackStageState.hot = true;
+		}
+		
+		if(!state.bubble)
+			state.count++;
+		
+		boolean ct1MemtoRegOne = currentWriteBackStageState.ct1Memtoreg == 1;
+		boolean memWriteOne = state.ct1Memwrite == 1;
+		boolean destRegAddress = currentWriteBackStageState.ct1DestRegAddress == InstructionExtractor.rt(state.currentInstruction);
+		boolean rtInstruction = InstructionExtractor.rt(state.currentInstruction) != 0;
+		
+		state.ct1ForwardMemMem = (ct1MemtoRegOne && memWriteOne && destRegAddress && rtInstruction) ? 1: 0;// && mem_mem 
+		//sim_flags |= (state.ct1ForwardMemMem == 1 ? SimulatorFlag.PLP_SIM_FWD_MEM_MEM : 0);
+		state.dataMemStore = state.ct1ForwardMemMem == 1 ? postWriteBackStageState.dataRegwrite : state.dataMemwritedata;
+		
+		postWriteBackStageState.nextInstruction = state.currentInstruction;
+		postWriteBackStageState.nextInstructionAddress = state.currentInstructionAddress;
+		
+		postWriteBackStageState.nextCt1Memtoreg = state.forwardCt1Memtoreg;
+		postWriteBackStageState.nextCt1Regwrite = state.forwardCt1Regwrite;
+		postWriteBackStageState.nextCt1DestRegAddress = state.forwardCt1DestRegAddress;
+		postWriteBackStageState.nextCt1Jal = state.forwardCt1Jal;
+		postWriteBackStageState.nextCt1Linkaddress = state.forwardCt1Linkaddress;
+		
+		postWriteBackStageState.nextDataAluResult = state.forwardDataAluResult;
+		
+		//state.dataMemLoad = (state.ct1Memread == 1) ? (Long) simBus.read(state.forwardDataAluResult) : 0;
+		if(state.dataMemLoad == null)
+			throw new IllegalArgumentException("Bus returned no data. Sim Bus Error: Memory Stage");
+		
+		postWriteBackStageState.nextDataMemreaddata = state.dataMemLoad;
+		
+		if(state.ct1Memwrite == 1)
+		{
+			//simBus.write(state.forwardDataAluResult, state.dataMemStore, false);
+		}
+		
+		bus.post(writeBackPackage);
+		//@formatter:on
 	}
 	
 	@Override
@@ -174,6 +234,11 @@ public class MemoryStage implements Stage
 		public void stateRequested(MemoryStageStateRequest event)
 		{
 			bus.post(new MemoryStageStateResponse(state.clone()));
+		}
+		
+		public void writeBackStageStateResponse(WriteBackStageStateResponse event)
+		{
+			currentWriteBackStageState = event.getMemoryStageState();
 		}
 	}
 	
