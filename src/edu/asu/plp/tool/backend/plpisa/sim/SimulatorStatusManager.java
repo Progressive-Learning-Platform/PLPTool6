@@ -28,8 +28,10 @@ public class SimulatorStatusManager
 	boolean isSimEnabled;
 	
 	// Flag holders
-	private List<SimulatorFlag> currentFlags;
-	private List<SimulatorFlag> previousFlags;
+	long currentFlags;
+	long previousFlags;
+	
+	boolean isFunctional;
 	
 	SimulatorStatusManager()
 	{
@@ -42,8 +44,14 @@ public class SimulatorStatusManager
 		hasSimulationStarted = false;
 		isSimEnabled = false;
 		
-		currentFlags = new ArrayList<>();
-		previousFlags = new ArrayList<>();
+		clearFlags();
+		
+		mem_mem = true;
+		mem_ex = true;
+		mem_ex_lw = true;
+		ex_ex = true;
+		
+		isFunctional = false;
 	}
 	
 	public boolean toggleSimMode()
@@ -64,8 +72,8 @@ public class SimulatorStatusManager
 	
 	public void clearFlags()
 	{
-		currentFlags.clear();
-		previousFlags.clear();
+		currentFlags = (long) 0;
+		previousFlags = (long) 0;
 	}
 	
 	public boolean isSimEnabled()
@@ -81,10 +89,15 @@ public class SimulatorStatusManager
 		
 		clearFlags();
 	}
-
+	
 	public void advanceFlags()
 	{
 		previousFlags = currentFlags;
-		currentFlags = new ArrayList<>();
+		currentFlags = (long) 0;
+	}
+	
+	public boolean isFunctional()
+	{
+		return isFunctional;
 	}
 }
