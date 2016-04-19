@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
+import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
+
 public interface Stage
 {
 	void evaluate();
@@ -13,4 +15,8 @@ public interface Stage
 	String printInstruction();
 	
 	void reset();
+	
+	boolean isHot();
+	
+	CpuState getState();
 }

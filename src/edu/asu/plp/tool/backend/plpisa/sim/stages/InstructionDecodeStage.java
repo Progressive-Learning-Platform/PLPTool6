@@ -39,7 +39,7 @@ public class InstructionDecodeStage implements Stage
 		CpuState postExecuteStageState = new CpuState();
 		
 		executePackage.setPostExecuteStageState(postExecuteStageState);
-
+		
 		currentExecuteStageState = null;
 		currentMemoryStageState = null;
 		
@@ -62,7 +62,7 @@ public class InstructionDecodeStage implements Stage
 		long addressRs = InstructionExtractor.rs(state.currentInstruction);
 		
 		long executeStageCurrentInstruction = currentExecuteStageState.currentInstruction;
-
+		
 		// The register being written to by load word
 		long executeRt = InstructionExtractor.rt(executeStageCurrentInstruction);
 		
@@ -231,9 +231,10 @@ public class InstructionDecodeStage implements Stage
 	@Override
 	public String printInstruction()
 	{
-		String formattedInstructionAddress = (state.currentInstructionAddress == -1 || state.bubble)
-				? "--------" : String.format("08x", state.currentInstructionAddress);
-				
+		String formattedInstructionAddress = (state.currentInstructionAddress == -1
+				|| state.bubble) ? "--------"
+						: String.format("08x", state.currentInstructionAddress);
+						
 		// TODO add MIPSInstr format like ability
 		String instruction = String.format("%s %s %s %08x", "Instruction Decode:",
 				formattedInstructionAddress, "Instruction:", state.currentInstruction);
@@ -250,8 +251,8 @@ public class InstructionDecodeStage implements Stage
 		String instructionFormatted = String.format("%-25s %08x %s", "\tinstruction",
 				instruction);
 				
-		String instructionAddressTemp = (state.currentInstructionAddress == -1) ? "--------"
-				: String.format("%08x", instructionAddress);
+		String instructionAddressTemp = (state.currentInstructionAddress == -1)
+				? "--------" : String.format("%08x", instructionAddress);
 		String instructionAddressFormatted = String.format("%-25s %s",
 				"\tinstruction address", instructionAddressTemp);
 				
@@ -267,6 +268,20 @@ public class InstructionDecodeStage implements Stage
 	@Override
 	public void reset()
 	{
+		state.ifCount = 0;
+		state.idCount = 0;
+	}
+	
+	@Override
+	public boolean isHot()
+	{
+		return state.hot;
+	}
+	
+	@Override
+	public CpuState getState()
+	{
+		return state;
 	}
 	
 	public class InstructionDecodeEventHandler

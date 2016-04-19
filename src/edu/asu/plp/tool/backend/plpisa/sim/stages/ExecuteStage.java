@@ -268,7 +268,7 @@ public class ExecuteStage implements Stage
 																							// rt_forwarded
 		System.out.println(String.format("%" + spaceSize + "s %08x", "\tDataY (ALU1)*",
 				state.dataY));
-		
+				
 		System.out.println(String.format("%" + spaceSize + "s %08x", "\tInternalAluOut",
 				state.internalAluOut));
 		System.out.println();
@@ -347,8 +347,19 @@ public class ExecuteStage implements Stage
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-		
+		state.count = 0;
+	}
+	
+	@Override
+	public boolean isHot()
+	{
+		return state.hot;
+	}
+	
+	@Override
+	public CpuState getState()
+	{
+		return state;
 	}
 	
 	public class ExecuteEventHandler

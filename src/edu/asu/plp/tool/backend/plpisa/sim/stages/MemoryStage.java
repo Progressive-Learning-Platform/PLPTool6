@@ -117,23 +117,24 @@ public class MemoryStage implements Stage
 	@Override
 	public void printVariables()
 	{
-		 String writeDataForwarded = ""; //(simFlags & SimulatorFlag.PLP_SIM_FWD_MEM_MEM) == 0 ? "" : " (forwarded)";
+		String writeDataForwarded = ""; // (simFlags & SimulatorFlag.PLP_SIM_FWD_MEM_MEM)
+										// == 0 ? "" : " (forwarded)";
 		int spaceSize = -35;
 		
 		System.out.println("MEM vars");
-		System.out.println(String.format("%" + spaceSize + "s %08x %s",
-				"\tInstruction", state.nextInstruction,
+		System.out.println(String.format("%" + spaceSize + "s %08x %s", "\tInstruction",
+				state.nextInstruction,
 				InstructionExtractor.format(state.currentInstruction)));
 				
 		String formattedInstructionAddress = ((state.currentInstructionAddress == -1)
 				? "--------" : String.format("%08x", state.currentInstructionAddress));
-		System.out.println(String.format("%" + spaceSize + "s %s",
-				"\tInstructionAddress", formattedInstructionAddress));
+		System.out.println(String.format("%" + spaceSize + "s %s", "\tInstructionAddress",
+				formattedInstructionAddress));
 				
-		System.out.println(String.format("%" + spaceSize + "s %x",
-				"\tForwardCt1MemToReg", state.forwardCt1Memtoreg));
-		System.out.println(String.format("%" + spaceSize + "s %x",
-				"\tForwardCt1Regwrite", state.forwardCt1Regwrite));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tForwardCt1MemToReg",
+				state.forwardCt1Memtoreg));
+		System.out.println(String.format("%" + spaceSize + "s %x", "\tForwardCt1Regwrite",
+				state.forwardCt1Regwrite));
 		System.out.println(String.format("%" + spaceSize + "s %x",
 				"\tForwardCt1DestRegAddress", state.forwardCt1DestRegAddress));
 		System.out.println(String.format("%" + spaceSize + "s %08x",
@@ -150,12 +151,12 @@ public class MemoryStage implements Stage
 		System.out.println(String.format("%" + spaceSize + "s %x", "\tct1ForwardMemMem",
 				state.ct1ForwardMemMem));
 				
-		System.out.println(String.format("%" + spaceSize + "s %08x",
-				"\tDataMemwritedata", state.dataMemwritedata));
-		System.out.println(String.format("%" + spaceSize + "s %08x",
-				"\tdataMemLoad*", state.dataMemLoad));
-		System.out.println(String.format("%" + spaceSize + "s %08x %s",
-				"\tdataMemStore*", state.dataMemStore, writeDataForwarded));
+		System.out.println(String.format("%" + spaceSize + "s %08x", "\tDataMemwritedata",
+				state.dataMemwritedata));
+		System.out.println(String.format("%" + spaceSize + "s %08x", "\tdataMemLoad*",
+				state.dataMemLoad));
+		System.out.println(String.format("%" + spaceSize + "s %08x %s", "\tdataMemStore*",
+				state.dataMemStore, writeDataForwarded));
 		System.out.println();
 	}
 	
@@ -215,8 +216,19 @@ public class MemoryStage implements Stage
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-		
+		state.count = 0;
+	}
+	
+	@Override
+	public boolean isHot()
+	{
+		return state.hot;
+	}
+	
+	@Override
+	public CpuState getState()
+	{
+		return state;
 	}
 	
 	public class MemoryEventHandler
