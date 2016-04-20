@@ -34,6 +34,11 @@ import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
+/**
+ * Port (Relatively Cleaner) of old PLP-Tool Assembler.
+ *
+ * @author Morgan Nesbitt, Zach Moore
+ */
 public class DisposablePLPAssembler
 {
 	private static final Logger LOG = Logger.getLogger(PLPAssembler.class.getName());
@@ -259,8 +264,8 @@ public class DisposablePLPAssembler
 			int objectCodeIndex = asmLineIndex - assemblerDirectiveSkips;
 			switch (instructionType)
 			{
-			// Three register Operation
-			// R-type (includes multiply)
+				// Three register Operation
+				// R-type (includes multiply)
 				case 0:
 				case 8:
 					objectCode[objectCodeIndex] |= ((Byte) registerMap.get(asmTokens[2])) << 21;

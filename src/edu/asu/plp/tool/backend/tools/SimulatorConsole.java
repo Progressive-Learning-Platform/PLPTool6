@@ -49,6 +49,8 @@ public class SimulatorConsole
 			System.exit(-1);
 		}
 		
+		simulator.step();
+		
 		long endTime = System.nanoTime();
 		
 		System.out.println(String.format(

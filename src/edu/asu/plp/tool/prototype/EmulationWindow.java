@@ -58,40 +58,24 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		Node ledDisplay = new LEDDisplay();
-		ledDisplay.setEffect(backgroundColor);
-		HBox ledFrame = new HBox();
-		ledFrame.setPadding(new Insets(10));
-		ledFrame.setStyle("-fx-background-color: grey;");
-		// frame.setEffect(backgroundColor);
-		ledFrame.getChildren().add(ledDisplay);
+		LEDDisplay ledDisplay = new LEDDisplay();
+		ledDisplay.setPadding(new Insets(10));
+		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node switchesDisplay = new SwitchesDisplay();
-		// switchesDisplay.setEffect(backgroundColor);
-		HBox switchesFrame = new HBox();
-		switchesFrame.setPadding(new Insets(10));
-		switchesFrame.setStyle("-fx-background-color: grey;");
-		switchesFrame.getChildren().add(switchesDisplay);
+		SwitchesDisplay switchesDisplay = new SwitchesDisplay();
+		switchesDisplay.setPadding(new Insets(10));
+		switchesDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node uartDisplay = new UARTPanel();
-		// uartDisplay.setEffect(backgroundColor);
-		HBox uartFrame = new HBox();
-		uartFrame.setPadding(new Insets(10));
-		uartFrame.setStyle("-fx-background-color: grey;");
-		uartFrame.getChildren().add(uartDisplay);
+		UARTPanel uartDisplay = new UARTPanel();
+		uartDisplay.setPadding(new Insets(10));
+		uartDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node watcherWindowDisplay = new WatcherWindow();
-		// watcherWindowDisplay.setEffect(backgroundColor);
-		HBox watcherFrame = new HBox();
-		watcherFrame.setPadding(new Insets(10));
-		watcherFrame.setStyle("-fx-background-color: grey;");
-		watcherFrame.getChildren().add(watcherWindowDisplay);
+		WatcherWindow watcherWindowDisplay = new WatcherWindow();
+		watcherWindowDisplay.setPadding(new Insets(10));
+		watcherWindowDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node sevenSegDisplay = new SevenSegmentPanel();
-		// sevenSegDisplay.setEffect(backgroundColor);
-		HBox sevenSegFrame = new HBox();
-		sevenSegFrame.setStyle("-fx-background-color: grey;");
-		sevenSegFrame.getChildren().add(sevenSegDisplay);
+		SevenSegmentPanel sevenSegDisplay = new SevenSegmentPanel();
+		sevenSegDisplay.setStyle("-fx-background-color: grey;");
 		
 		Label ledLabel = label("LEDs");
 		Label switchesLabel = label("Switches");
@@ -99,10 +83,10 @@ public class EmulationWindow extends BorderPane
 		Label sevenSegLabel = label("Seven Segment Display");
 		Label watcherWindowLabel = label("Watcher Window");
 		
-		leftSide.getChildren().addAll(watcherWindowLabel, watcherFrame, ledLabel,
-				ledFrame, switchesLabel, switchesFrame);
+		leftSide.getChildren().addAll(watcherWindowLabel, watcherWindowDisplay);
 		rightSide.getChildren()
-				.addAll(uartLabel, uartFrame, sevenSegLabel, sevenSegFrame);
+				.addAll(sevenSegLabel, sevenSegDisplay, ledLabel,
+						ledDisplay, switchesLabel, switchesDisplay, uartLabel, uartDisplay);
 		
 		Text title = new Text("Windows");
 		title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
@@ -110,23 +94,23 @@ public class EmulationWindow extends BorderPane
 		
 		CheckBox sevenSegCheckBox = new CheckBox("7 Segment Display");
 		sevenSegCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(sevenSegCheckBox, sevenSegLabel, sevenSegFrame);
+		bindDisplaysToCheckBox(sevenSegCheckBox, sevenSegLabel, sevenSegDisplay);
 		
 		CheckBox ledCheckBox = new CheckBox("LED's");
 		ledCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(ledCheckBox, ledLabel, ledFrame);
+		bindDisplaysToCheckBox(ledCheckBox, ledLabel, ledDisplay);
 		
 		CheckBox uartCheckBox = new CheckBox("UART");
 		uartCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(uartCheckBox, uartLabel, uartFrame);
+		bindDisplaysToCheckBox(uartCheckBox, uartLabel, uartDisplay);
 		
 		CheckBox switchesCheckBox = new CheckBox("Switches");
 		switchesCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(switchesCheckBox, switchesLabel, switchesFrame);
+		bindDisplaysToCheckBox(switchesCheckBox, switchesLabel, switchesDisplay);
 		
 		CheckBox watcherWindowCheckBox = new CheckBox("Watcher Window");
 		watcherWindowCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcherFrame);
+		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcherWindowDisplay);
 		
 		checkOptions.getChildren().addAll(sevenSegCheckBox, ledCheckBox, uartCheckBox,
 				switchesCheckBox, watcherWindowCheckBox);

@@ -1,4 +1,4 @@
-package edu.asu.plp.tool.backend.plpisa.sim;
+package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 public interface Stage
 {
@@ -11,4 +11,6 @@ public interface Stage
 	void printNextVariables();
 	
 	String printInstruction();
+	
+	void reset();
 }

@@ -81,7 +81,6 @@ import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
-import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -143,6 +142,16 @@ public class Main extends Application implements Controller
 	public static void main(String[] args)
 	{
 		launch(args);
+	}
+	
+	public static File findDiskObjectForASM(ASMFile activeFile)
+	{
+		Project project = activeFile.getProject();
+		String path = project.getPathFor(activeFile);
+		if (path == null)
+			return null;
+		
+		return new File(path);
 	}
 	
 	private void onTabActivation(ObservableValue<? extends Tab> value, Tab old,
@@ -403,10 +412,6 @@ public class Main extends Application implements Controller
 		{
 			Project project = PLPProject.load(file);
 			addProject(project);
-		}
-		catch (UnexpectedFileTypeException e)
-		{
-			showAlertDialogue(e, "The selected file could not be loaded");
 		}
 		catch (IOException e)
 		{
@@ -856,7 +861,7 @@ public class Main extends Application implements Controller
 		
 		if (details == null)
 		{
-			details = new ProjectAssemblyDetails();
+			details = new ProjectAssemblyDetails(activeProject);
 			assemblyDetails.put(activeProject, details);
 		}
 		
@@ -908,16 +913,6 @@ public class Main extends Application implements Controller
 			return getActiveFileInProjectExplorer();
 		else
 			return selectedFile;
-	}
-	
-	private File findDiskObjectForASM(ASMFile activeFile)
-	{
-		Project project = activeFile.getProject();
-		String path = project.getPathFor(activeFile);
-		if (path == null)
-			return null;
-		
-		return new File(path);
 	}
 	
 	private ASMCreationPanel createASMMenu()
@@ -1338,7 +1333,7 @@ public class Main extends Application implements Controller
 		if (removalTarget.isDirectory())
 		{
 			// XXX: show a confirmation dialogue to confirm removal
-			String message = "The path specified is a directory, but should be a file."
+			String message = "The path specified is a directory, but should be a file. "
 					+ "The asm \""
 					+ activeFile.getName()
 					+ "\" will be removed from the project \""
@@ -1414,27 +1409,6 @@ public class Main extends Application implements Controller
 	{
 		stage.close();
 		Platform.exit();
-	}
-	
-	@Override
-	public void toggleToolbar()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void toggleProjectPane()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
-	}
-	
-	@Override
-	public void toggleOutputPane()
-	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	
 	@Override
