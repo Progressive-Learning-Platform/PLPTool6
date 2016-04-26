@@ -32,6 +32,8 @@ public class SimulatorStatusManager
 	long previousFlags;
 	
 	boolean isFunctional;
+	boolean willSimDumpTraceOnFailedEvaluation;
+	boolean willSimAllowExecutionOfArbitaryMem;
 	
 	SimulatorStatusManager()
 	{
@@ -52,6 +54,8 @@ public class SimulatorStatusManager
 		ex_ex = true;
 		
 		isFunctional = false;
+		willSimDumpTraceOnFailedEvaluation = false;
+		willSimAllowExecutionOfArbitaryMem = false;
 	}
 	
 	public boolean toggleSimMode()

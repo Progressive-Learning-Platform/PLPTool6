@@ -8,6 +8,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.ExecuteStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
@@ -62,6 +63,8 @@ public class PLPSimulator implements Simulator
 	
 	private boolean isBranched;
 	private long branchDestination;
+	
+	private ALU alu;
 	
 	// A sim bus?
 	// breakpoint array?
@@ -226,38 +229,310 @@ public class PLPSimulator implements Simulator
 			
 			return fetch();
 		}
-		else if(interruptRequestStateMachine == 2)
+		else if (interruptRequestStateMachine == 2)
 		{
+			System.out.println("IRQ service, int_inject 2->1");
+			instructionDecodeStage.getState().nextInstruction = 0x0380f009L; // jalr $ir,
+																				// $iv
+			instructionDecodeStage.getState().nextInstructionAddress = 0;
+			instructionDecodeStage.getState().nextCt1Pcplus4 = interrutReturnAddress - 4;
+			instructionDecodeStage.getState().hot = true;
 			
+			interruptRequestStateMachine--;
+			return true;
 		}
-		else if(interruptRequestStateMachine == 1)
+		else if (interruptRequestStateMachine == 1)
 		{
+			System.out.println("IRQ service, int_inject 1->0");
+			instructionDecodeStage.getState().nextInstruction = 0;
+			instructionDecodeStage.getState().nextInstructionAddress = -1;
+			instructionDecodeStage.getState().hot = true;
 			
+			interruptRequestStateMachine--;
+			interruptAcknowledge = 0;
+			return true;
 		}
-		else if(interruptRequestStateMachine == 3)
+		else if (interruptRequestStateMachine == 3)
 		{
+			System.out.println("IRQ Triggered.");
+			long diff = programCounter.input()
+					- executeStage.getState().nextInstructionAddress;
+			System.out.println("InstructionAddress diff: " + diff);
+			statusManager.currentFlags |= SimulatorFlag.PLP_SIM_IRQ.getFlag();
 			
+			if (diff == 8)
+			{
+				statusManager.currentFlags |= SimulatorFlag.PLP_SIM_IRQ_SERVICED
+						.getFlag();
+				interrutReturnAddress = memoryStage.getState().nextInstructionAddress;
+				interruptRequestStateMachine--;
+				interruptAcknowledge = 1;
+				System.out.println(String.format("%s 0x%02x",
+						"IRQ service started, int_inject = 2, irq_ret = ",
+						interrutReturnAddress));
+						
+				instructionDecodeStage.getState().nextInstruction = 0;
+				instructionDecodeStage.getState().nextInstructionAddress = -1;
+				
+				executeStage.getState().nextInstruction = 0;
+				executeStage.getState().nextForwardCt1Regwrite = 0;
+				executeStage.getState().nextForwardCt1Memwrite = 0;
+				executeStage.getState().nextCt1Branch = 0;
+				executeStage.getState().nextCt1Jump = 0;
+				executeStage.getState().nextInstructionAddress = -1;
+				
+				memoryStage.getState().nextInstruction = 0;
+				memoryStage.getState().nextForwardCt1Regwrite = 0;
+				memoryStage.getState().nextCt1Memwrite = 0;
+				memoryStage.getState().nextInstructionAddress = -1;
+				
+				instructionDecodeStage.getState().hot = true;
+				executeStage.getState().hot = true;
+				memoryStage.getState().hot = true;
+				
+				return true;
+			}
+			else
+				return fetch();
 		}
 		else
 			return fetch();
-		
-		return true;
 	}
 	
 	private boolean stepFunctional()
 	{
-		return false;
+		programCounter.clock();
+		fetch(); // get the instruction
+		
+		long instruction = instructionDecodeStage.getState().nextInstruction;
+		
+		//fill a nop for our interrupts jalr branch delay slot
+		if(interruptRequestStateMachine == 1)
+		{
+			instruction = 0;
+			interruptRequestStateMachine = 0;
+			interruptAcknowledge = 0; // we are ready to handle interrupt requests again
+		}
+		
+		long pcplus4 = programCounter.evaluate() + 4;
+		
+		//pcplus4, default execution
+		if(!isBranched && interruptRequestStateMachine != 3)
+			programCounter.write(pcplus4);
+		else if(!isBranched && interruptRequestStateMachine == 3)
+		{
+			//System.out.println("INT REQ - ret_addr(pcplus4 - 4) = " + );
+			statusManager.currentFlags |= SimulatorFlag.PLP_SIM_IRQ.getFlag();
+
+            // rewrite instruction to jalr $iv, $ir
+			instruction = 0x0380f009L;
+			instructionDecodeStage.getState().nextInstructionAddress = 0;
+			pcplus4 -= 8; // replay the discarded instruction after return from IRQ (jalr adds 4)
+			interruptRequestStateMachine = 1;
+		}
+		else
+		{
+			//System.out.println("Delay slot - branching to = ");
+			programCounter.write(branchDestination);
+			isBranched = false;
+		}
+		
+		//decode instruction
+		int opcode = InstructionExtractor.opcode(instruction);
+		byte rs = InstructionExtractor.rs(instruction);
+		byte rd = InstructionExtractor.rd(instruction);
+		byte rt = InstructionExtractor.rt(instruction);
+		byte funct = InstructionExtractor.funct(instruction);
+		long imm = InstructionExtractor.imm(instruction);
+		long jaddr = InstructionExtractor.jaddr(instruction);
+		
+		//TODO memory read
+		long s = 0; //regFile.read(rs)
+		long t = 0; //regFile.read(rt)
+		long s_imm = (short) imm & 0xffffffffL;
+		long alu_result;
+		
+		//execute
+		if(opcode == 0)
+		{
+			if(funct == 0x08 || funct == 0x09) //JR
+			{
+				isBranched = true;
+				branchDestination = s;
+				
+				if(funct  == 0x09) //jalr
+				{
+					//TODO memory write
+					//regFile.write(rd, pcplus4 + 4, false);
+				}
+			}
+			else
+			{
+				alu_result = alu.evaluate(s, t, instruction);
+				alu_result &= 0xffffffffL;
+				
+				//TODO memory write
+				//regFile.write(rd, alu_result, false);
+			}
+		}
+		else if(opcode == 0x04) //beq
+		{
+			if(s == t)
+			{
+				isBranched = true;
+				branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+			}
+		}
+		else if(opcode == 0x05) //bne
+		{
+			if(s != t)
+			{
+				isBranched = true;
+				branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+			}
+		}
+		else if(opcode == 0x23) //lw
+		{
+			//TODO bus read
+			Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
+			if(data == null)
+			{
+				System.out.println("Bus read error");
+				return false;
+			}
+			
+			//TODO memory write
+			//regFile.write(rt, data, false);
+		}
+		else if(opcode == 0x2B) //sw
+		{
+			//TODO bus write
+			//int ret = bus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
+			int ret = 0;
+			if(ret > 0)
+			{
+				System.out.println("Bus write error");
+				return false;
+			}
+		}
+		else if(opcode == 0x02 || opcode == 0x03) // j
+		{
+			isBranched = true;
+			branchDestination = jaddr << 2 | (pcplus4 & 0xf0000000L);
+			
+			if(opcode == 0x03) //jal
+			{
+				//TODO memory write
+				//regFile.write(31, pcplus4 + 4, false);
+			}
+		}
+		else if(opcode == 0x0C || opcode == 0x0D) //ori, andi
+		{
+			alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
+			//TODO memory write
+			//regFile.write(rt, alu_result, false);
+		}
+		else
+		{
+			alu_result = alu.evaluate(s, s_imm, instruction);
+			
+			if(alu_result == -1)
+			{
+				System.out.println("Unhandled instruction: invalid op-code");
+				return false;
+			}
+			
+			alu_result &= 0xffffffffL;
+			//TODO memory write
+			//regFile.write(rt, alu_result, false);
+		}
+		
+		//TODO Bus actions
+		//bus.eval();
+		
+		//Evaluate interrupt controller again to see if anything raised an irq
+		//(PLP sim bus evaluates modules from index 0 upwards)
+		//bus.eval(0);
+		
+		//We have an irq waiting, set ack so the controller wont set another
+		//request while we process this one
+		if(interruptRequestStateMachine == 3)
+		{
+			interruptAcknowledge = 1;
+		}
+		
+		return true;
 	}
 	
+	/**
+	 * Perform an instruction fetch and warm up the decode stage. This function represents
+	 * the instruction fetch phase of the PLP CPU core. The only memory element in this
+	 * stage is the program counter (and the instruction memory, but that is external).
+	 *
+	 * @return Returns true for success, false otherwise.
+	 */
 	private boolean fetch()
 	{
-		return false;
+		long address = programCounter.evaluate();
+		
+		// fetch instruction / frontend stage
+		if (address < 0) // bus.isMapped(address) ||
+		{
+			if (statusManager.willSimDumpTraceOnFailedEvaluation)
+			{
+				registersDump();
+				System.out.println(String.format("%s 0x%08x",
+						"fetch(): PC points to unmapped address. Halt. pc=", address));
+				return false;
+			}
+		}
+		
+		Long ret = (Long) 0L; // (Long) bus.read(address);
+		
+		if (ret == null)
+		{
+			if (statusManager.willSimDumpTraceOnFailedEvaluation)
+			{
+				registersDump();
+				System.out.println(String.format("%s 0x%08x",
+						"fetch(): Unable to fetch next instruction from the bus. pc=",
+						address));
+				return false;
+			}
+		}
+		
+		if (!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
+		{
+			System.out.println(String.format("%s %08x",
+					"fetch(): Attempted to fetch non-executable memory: pc=", address));
+			return false;
+		}
+		
+		instructionDecodeStage.getState().nextInstruction = ret;
+		instructionDecodeStage.getState().nextInstructionAddress = address;
+		instructionDecodeStage.getState().nextCt1Pcplus4 = address + 4;
+		
+		instructionDecodeStage.getState().hot = true;
+		instructionDecodeStage.getState().nextBubble = false;
+		instructionDecodeStage.getState().ifCount++;
+		
+		asmInstructionAddress = address;
+		
+		System.out.println(String.format("%s 0x%08x %s 0x%08x", "fetch(): PC input side:",
+				programCounter.input(), "- PC output side:", programCounter.evaluate()));
+				
+		return true;
 	}
 	
 	@Override
 	public void reset()
 	{
 		loadProgram(assembledImage);
+	}
+	
+	private boolean registersDump()
+	{
+		return false;
 	}
 	
 	public void softReset()
@@ -320,7 +595,24 @@ public class PLPSimulator implements Simulator
 	
 	private void flushPipeline()
 	{
-		// TODO flushPipeline
+		//zero out everything
+		
+		instructionDecodeStage.getState().nextInstruction = 0;
+		instructionDecodeStage.getState().nextInstructionAddress = -1;
+		
+		instructionDecodeStage.clock();
+		instructionDecodeStage.evaluate();
+		
+		executeStage.clock();
+		executeStage.evaluate();
+		
+		memoryStage.clock();
+		memoryStage.evaluate();
+		
+		writeBackStage.clock();
+		writeBackStage.evaluate();
+		
+		writeBackStage.getState().instructionRetired = false;
 	}
 	
 	private void initialize()
@@ -342,6 +634,8 @@ public class PLPSimulator implements Simulator
 		// FIXME new MemModule(0,32,false);
 		regFile = null;
 		programCounter = new ProgramCounter(0);
+		
+		alu = new ALU();
 	}
 	
 	@Override
