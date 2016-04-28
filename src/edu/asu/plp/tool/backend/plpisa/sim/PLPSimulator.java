@@ -623,10 +623,10 @@ public class PLPSimulator implements Simulator
 		
 		statusManager = new SimulatorStatusManager();
 		
-		instructionDecodeStage = new InstructionDecodeStage(simulatorBus);
-		executeStage = new ExecuteStage(simulatorBus);
-		memoryStage = new MemoryStage(simulatorBus);
-		writeBackStage = new WriteBackStage(simulatorBus);
+		instructionDecodeStage = new InstructionDecodeStage(simulatorBus, statusManager);
+		executeStage = new ExecuteStage(simulatorBus, statusManager);
+		memoryStage = new MemoryStage(simulatorBus, statusManager);
+		writeBackStage = new WriteBackStage(simulatorBus, statusManager);
 		
 		stages = Arrays.asList(instructionDecodeStage, executeStage, memoryStage,
 				writeBackStage);

@@ -4,6 +4,8 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
+import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
+import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateResponse;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
@@ -15,6 +17,7 @@ public class InstructionDecodeStage implements Stage
 {
 	private EventBus bus;
 	private InstructionDecodeEventHandler eventHandler;
+	private SimulatorStatusManager statusManager;
 	
 	private CpuState state;
 	
@@ -22,12 +25,15 @@ public class InstructionDecodeStage implements Stage
 	private CpuState currentExecuteStageState;
 	private CpuState currentMemoryStageState;
 	
-	public InstructionDecodeStage(EventBus simulatorBus)
+	public InstructionDecodeStage(EventBus simulatorBus, SimulatorStatusManager statusManager)
 	{
 		this.bus = simulatorBus;
 		this.eventHandler = new InstructionDecodeEventHandler();
+		this.statusManager = statusManager;
 		
 		this.bus.register(eventHandler);
+
+		this.state = new CpuState();
 		
 		reset();
 	}
