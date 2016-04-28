@@ -189,6 +189,22 @@ public class WriteBackStage implements Stage
 		public void memoryCompletionEvent(MemoryCompletion event)
 		{
 			CpuState postState = event.getPostMemoryState();
+			
+			state.nextBubble = postState.nextBubble;
+			state.nextInstruction = postState.nextInstruction;
+			state.nextInstructionAddress = postState.nextInstructionAddress;
+			
+			state.hot = (postState.hot) ? postState.hot : state.hot;
+			
+			state.nextCt1Memtoreg = postState.nextCt1Memtoreg;
+			state.nextCt1Regwrite = postState.nextCt1Regwrite;
+			state.nextCt1DestRegAddress = postState.nextCt1DestRegAddress;
+			state.nextCt1Jal = postState.nextCt1Jal;
+			state.nextCt1Linkaddress = postState.nextCt1Linkaddress;
+			
+			state.nextDataAluResult = postState.nextDataAluResult;
+			
+			state.nextDataMemreaddata = postState.nextDataMemreaddata;
 		}
 		
 		public void stateRequested(WriteBackStageStateRequest event)
