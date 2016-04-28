@@ -9,31 +9,31 @@ import java.util.List;
 public class SimulatorStatusManager
 {
 	// Stallers
-	boolean isInstructionDecodeStalled;
-	boolean isExecuteStalled;
+	public boolean isInstructionDecodeStalled;
+	public boolean isExecuteStalled;
 	
 	// Continuers
-	boolean isExecuteContinuing;
+	public boolean isExecuteContinuing;
 	
 	// Fowarding Flags
 	// TODO Fix Names
-	boolean mem_mem;
-	boolean mem_ex;
-	boolean mem_ex_lw;
-	boolean ex_ex;
+	public boolean mem_mem;
+	public boolean mem_ex;
+	public boolean mem_ex_lw;
+	public boolean ex_ex;
 	
 	// Simulator Running Statuses
-	boolean isSimulationRunning;
-	boolean hasSimulationStarted;
-	boolean isSimEnabled;
+	public boolean isSimulationRunning;
+	public boolean hasSimulationStarted;
+	public boolean isSimEnabled;
 	
 	// Flag holders
-	long currentFlags;
-	long previousFlags;
+	public long currentFlags;
+	public long previousFlags;
 	
-	boolean isFunctional;
-	boolean willSimDumpTraceOnFailedEvaluation;
-	boolean willSimAllowExecutionOfArbitaryMem;
+	public boolean isFunctional;
+	public boolean willSimDumpTraceOnFailedEvaluation;
+	public boolean willSimAllowExecutionOfArbitaryMem;
 	
 	SimulatorStatusManager()
 	{
