@@ -133,7 +133,120 @@ public class CpuState implements Cloneable
 	{
 		CpuState copy = new CpuState();
 		
+		copy.count = count;
+		copy.ifCount = ifCount;
+		copy.currentInstruction = currentInstruction;
 		
+		copy.currentInstruction = currentInstruction;
+		copy.currentInstructionAddress = currentInstructionAddress;
+		
+		copy.forwardCt1Memtoreg = forwardCt1Memtoreg;
+		copy.forwardCt1Regwrite = forwardCt1Regwrite;
+		
+		copy.forwardCt1Memwrite = forwardCt1Memwrite;
+		copy.forwardCt1Memread = forwardCt1Memread;
+		copy.forwardCt1Jal = forwardCt1Jal;
+		copy.forwardCt1Linkaddress = forwardCt1Linkaddress;
+		
+		copy.forwardCt1DestRegAddress = forwardCt1DestRegAddress;
+
+		copy.forwardDataAluResult = forwardDataAluResult;
+		
+		copy.ct1Pcplus4 = ct1Pcplus4;
+		
+		copy.ct1Alusrc = ct1Alusrc;
+		copy.ct1Aluop = ct1Aluop;
+		copy.ct1Regdest = ct1Regdest;
+		
+		copy.ct1Jump = ct1Jump;
+		copy.ct1Pcsrc = ct1Pcsrc;
+		copy.ct1Branch = ct1Branch;
+		copy.ct1Branchtarget = ct1Branchtarget;
+		copy.ct1JumpTarget = ct1JumpTarget;
+		
+		copy.ct1Forwardx = ct1Forwardx;
+		copy.ct1Forwardy = ct1Forwardy;
+		
+		copy.ct1Memwrite = ct1Memwrite;
+		copy.ct1Memread = ct1Memread;
+		copy.ct1ForwardMemMem = ct1ForwardMemMem;
+		
+		copy.ct1Memtoreg = ct1Memtoreg;
+		copy.ct1Regwrite = ct1Regwrite;
+		copy.ct1DestRegAddress = ct1DestRegAddress;
+		copy.ct1Linkaddress = ct1Linkaddress;
+		copy.ct1Jal = ct1Jal;
+		
+		copy.dataRs = dataRs;
+		copy.dataRt = dataRt;
+		
+		copy.dataX = dataX;
+		copy.dataEffY = dataEffY;
+		copy.dataY = dataY;
+		
+		copy.dataMemwritedata = dataMemwritedata;
+		copy.dataMemLoad = dataMemLoad.longValue();
+		copy.dataMemStore = dataMemStore;
+		
+		copy.dataMemreaddata = dataMemreaddata;
+		copy.dataAluResult = dataAluResult;
+		copy.dataRegwrite = dataRegwrite;
+		
+		copy.dataImmediateSignextended = dataImmediateSignextended;
+		copy.ct1RtAddress = ct1RtAddress;
+		copy.ct1RdAddress = ct1RdAddress;
+		
+		copy.nextInstruction = nextInstruction;
+		copy.nextInstructionAddress = nextInstructionAddress;
+		
+		copy.nextForwardCt1Jal = nextForwardCt1Jal;
+		copy.nextForwardCt1LinkAddress = nextForwardCt1LinkAddress;
+		copy.nextForwardCt1Regwrite = nextForwardCt1Regwrite;
+		copy.nextForwardCt1Memtoreg = nextForwardCt1Memtoreg;
+		copy.nextForwardCt1Memread = nextForwardCt1Memread;
+		copy.nextForwardCt1Memwrite = nextForwardCt1Memwrite;
+		
+		copy.nextForwardCt1DestRegAddress = nextForwardCt1DestRegAddress;
+		
+		copy.nextForwardDataAluResult = nextForwardDataAluResult;
+		
+		copy.nextCt1Pcplus4 = nextCt1Pcplus4;
+		
+		copy.nextCt1RdAddress = nextCt1RdAddress;
+		copy.nextCt1RtAddress = nextCt1RtAddress;
+		copy.nextCt1AluOp = nextCt1AluOp;
+		copy.nextCt1AluSrc = nextCt1AluSrc;
+		copy.nextCt1BranchTarget = nextCt1BranchTarget;
+		copy.nextCt1Branch = nextCt1Branch;
+		copy.nextCt1Jump = nextCt1Jump;
+		copy.nextCt1Regdest = nextCt1Regdest;
+		
+		copy.nextCt1Memwrite = nextCt1Memwrite;
+		copy.nextCt1Memread = nextCt1Memread;
+		
+		copy.nextCt1Memtoreg = nextCt1Memtoreg;
+		copy.nextCt1Regwrite = nextCt1Regwrite;
+		copy.nextCt1DestRegAddress = nextCt1DestRegAddress;
+		copy.nextCt1Linkaddress = nextCt1Linkaddress;
+		copy.nextCt1Jal = nextCt1Jal;
+		
+		copy.nextDataMemwritedata = nextDataMemwritedata;
+
+		copy.nextDataRs = nextDataRs;
+		copy.nextDataRt = nextDataRt;
+		
+		copy.nextDataMemreaddata = nextDataMemreaddata;
+		copy.nextDataAluResult = nextDataAluResult;
+		
+		copy.nextDataImmediateSignExtended = nextDataImmediateSignExtended;
+		
+		copy.internalAluOut = internalAluOut;
+		
+		copy.hot = hot;
+		copy.bubble = bubble;
+		copy.nextBubble = nextBubble;
+		
+		copy.instructionRetired = instructionRetired;
 		
 		return copy;
 	}
