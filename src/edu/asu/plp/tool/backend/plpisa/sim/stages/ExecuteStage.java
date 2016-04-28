@@ -85,19 +85,19 @@ public class ExecuteStage implements Stage
 		
 		//TODO Simulation flag stuff
 		//Forward logic for rs source, 1 for EX->EX, 2 for MEM->EX
-		boolean exEx = false; //ex_ex && memCt1Regwrite && currentMemoryStageState.forwardCt1DestRegAddress == executeRs && executeRs != 0
-		boolean memEx = false; //mem_ex && writeBackCt1Regwrite && currentWriteBackStageState.ct1DestRegAddress == executeRs && executeRs != 0
+		boolean exEx = statusManager.ex_ex;
+		boolean memEx = statusManager.mem_ex;
 		
-		state.ct1Forwardx = exEx ? 1 : memEx ? 2 : 0;
+		boolean fowardDestRegAddressEqualsExRs = currentMemoryStageState.forwardCt1DestRegAddress == executeRs;
+		boolean ct1DestRegAddressEqualsExRs = currentWriteBackStageState.ct1DestRegAddress == executeRs;
+		boolean executeRsNotZero = executeRs != 0;
 		
-		if(state.ct1Forwardx == 1)
-		{
-			//simFlags.add(SimulatorFlag.PLP_SIM_FWD_EX_EX_RS);
-		}
-		else if(state.ct1Forwardx == 2)
-		{
-			//simFlags.add(SimulatorFlag.PLP_SIM_FWD_MEM_EX_RS);
-		}
+		
+		state.ct1Forwardx = (exEx && memCt1Regwrite && fowardDestRegAddressEqualsExRs && executeRsNotZero) ? 1 : 
+			(memEx && writeBackCt1Regwrite && ct1DestRegAddressEqualsExRs && executeRsNotZero) ? 2 : 0;
+		
+		statusManager.currentFlags |= ((state.ct1Forwardx == 1) ? SimulatorFlag.PLP_SIM_FWD_EX_EX_RS.getFlag() :
+            (state.ct1Forwardx == 2) ? SimulatorFlag.PLP_SIM_FWD_MEM_EX_RS.getFlag() : 0);
 		
 		//Foward logic for rt source, 1 for EX->EX, 2 for MEM->EX
 		exEx = false; //ex_ex && memCt1Regwrite && currentMemoryStageState.forwardCt1DestRegAddress == executeRt && executeRt != 0
@@ -141,8 +141,8 @@ public class ExecuteStage implements Stage
 		
 		postMemoryStageState.nextDataMemwritedata = state.dataEffY;
 		
-		postMemoryStageState.ct1Pcsrc = (state.internalAluOut == 1) ? 1 : 0;
-		postMemoryStageState.ct1Pcsrc &= state.ct1Branch;
+		state.ct1Pcsrc = (state.internalAluOut == 1) ? 1 : 0;
+		state.ct1Pcsrc &= state.ct1Branch;
 		
 		int jtype = InstructionExtractor.instructionType(state.currentInstruction);
 		

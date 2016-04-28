@@ -59,7 +59,7 @@ public class InstructionDecodeStage implements Stage
 			throw new IllegalStateException("Could not retrieve memory stage state.");
 			
 		// TODO get from wherever the flag is
-		boolean mem_ex_lw = false;
+		boolean mem_ex_lw = statusManager.mem_ex_lw;
 		
 		byte opCode = (byte) InstructionExtractor.opcode(state.currentInstruction);
 		byte funct = (byte) InstructionExtractor.funct(state.currentInstruction);
@@ -87,30 +87,31 @@ public class InstructionDecodeStage implements Stage
 		
 		if (currentMemoryStageState.hot && mem_ex_lw)
 		{
+			boolean executeEqualsAddressRs = executeRt == addressRs;
 			boolean executeEqualsAddressRt = executeRt == addressRt;
 			boolean executeForwardCt1Memread = currentExecuteStageState.forwardCt1Memread == 1;
 			boolean isCurrentInstructionNotStoreWord = InstructionExtractor.opcode(
 					state.currentInstruction) != PLPInstruction.STORE_WORD.getByteCode();
 					
-			if (executeEqualsAddressRt && (addressRt != 0) && executeForwardCt1Memread)
+			if (executeEqualsAddressRt && (addressRt != 0) && executeForwardCt1Memread && isCurrentInstructionNotStoreWord)
 			{
-				if (isCurrentInstructionNotStoreWord)
-				{
-					// TODO set execute stall to true
-					// TODO add sim flag SimulatorFlag.PLP_SIM_FWD_MEM_EX_LW_RT
-				}
-				
-				// TODO set execute stall to true
-				// TODO add sim flag SimulatorFlag.PLP_SIM_FWD_MEM_EX_LW_RS
+				statusManager.currentFlags |= SimulatorFlag.PLP_SIM_FWD_MEM_EX_LW_RT.getFlag();
+				statusManager.isExecuteStalled = true;
 			}
-			
+			if (executeEqualsAddressRs && (addressRs != 0) && executeForwardCt1Memread)
+			{
+				statusManager.isExecuteStalled = true;
+				statusManager.currentFlags |= SimulatorFlag.PLP_SIM_FWD_MEM_EX_LW_RS.getFlag();	
+			}
 		}
 		
-		// long rt = (addressRt == 0) ? 0 : (Long) memoryModule.read(addressRt);
-		// executePackage.setNextDataRt(rt);
 		
+		//TODO MEMORY MODULE
+		//long rt = (addressRt == 0) ? 0 : (Long) memoryModule.read(addressRt);
+		//postExecuteStageState.nextDataRt = rt;
+
 		// long rs = (addressRs == 0) ? 0 : (Long) memoryModule.read(addressRs);
-		// executePackage.setNextDataRs(rs);
+		//postExecuteStageState.nextDataRs = rs;
 		
 		long immediateField = InstructionExtractor.imm(state.currentInstruction);
 		
