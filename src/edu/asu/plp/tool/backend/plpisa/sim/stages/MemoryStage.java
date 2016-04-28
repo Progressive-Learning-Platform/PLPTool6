@@ -244,6 +244,26 @@ public class MemoryStage implements Stage
 		public void executeCompletionEvent(ExecuteCompletion event)
 		{
 			CpuState postState = event.getPostMemoryState();
+			
+			state.nextBubble = postState.nextBubble;
+			state.nextInstruction = postState.nextInstruction;
+			state.nextInstructionAddress = postState.nextInstructionAddress;
+			
+			state.hot = (postState.hot) ? postState.hot : state.hot;
+			
+			state.nextForwardDataAluResult = postState.nextForwardDataAluResult;
+			
+			state.nextForwardCt1Memtoreg = postState.nextForwardCt1Memtoreg;
+			state.nextForwardCt1Regwrite = postState.nextForwardCt1Regwrite;
+			state.nextForwardCt1DestRegAddress = postState.nextForwardCt1DestRegAddress;
+			
+			state.nextCt1Memwrite = postState.nextCt1Memwrite;
+			state.nextCt1Memread = postState.nextCt1Memread;
+			state.nextForwardCt1LinkAddress = postState.nextForwardCt1LinkAddress;
+			
+			state.nextForwardCt1Jal = postState.nextForwardCt1Jal;
+			
+			state.nextDataMemwritedata = postState.nextDataMemwritedata;
 		}
 		
 		public void stateRequested(MemoryStageStateRequest event)
