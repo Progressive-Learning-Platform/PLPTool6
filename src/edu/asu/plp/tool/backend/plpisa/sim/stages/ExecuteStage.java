@@ -390,7 +390,56 @@ public class ExecuteStage implements Stage
 				postState.nextCt1Branch = 0;
 			}
 			
-			// TODO transfer state
+			state.nextBubble = postState.nextBubble;
+			state.nextInstruction = postState.nextInstruction;
+			state.nextInstructionAddress = postState.nextInstructionAddress;
+			
+			state.hot = (postState.hot) ? postState.hot : state.hot;
+			
+			state.nextDataImmediateSignExtended = postState.nextDataImmediateSignExtended;
+			
+			state.nextCt1RdAddress = postState.nextCt1RdAddress;
+			state.nextCt1RtAddress = postState.nextCt1RtAddress;
+			
+			state.nextCt1AluOp = postState.nextCt1AluOp;
+			
+			state.nextForwardCt1LinkAddress = postState.nextForwardCt1LinkAddress;
+			
+			if(postState.nextForwardCt1Regwrite >= 1)
+				state.nextForwardCt1Regwrite = postState.nextForwardCt1Regwrite;
+			
+			if(postState.nextForwardCt1Memtoreg >= 1)
+				state.nextForwardCt1Memtoreg = postState.nextForwardCt1Memtoreg;
+			
+			if(postState.nextForwardCt1Memread >= 1)
+				state.nextForwardCt1Memread = postState.nextForwardCt1Memread;
+			
+			if(postState.nextForwardCt1Memwrite >= 1)
+				state.nextForwardCt1Memwrite = postState.nextForwardCt1Memwrite;
+			
+			if(postState.nextForwardCt1Jal >= 1)
+				state.nextForwardCt1Jal = postState.nextForwardCt1Jal;
+			
+			if(postState.nextCt1Jump >= 1)
+				state.nextCt1Jump = postState.nextCt1Jump;
+			
+			if(postState.nextCt1Branch >= 1)
+				state.nextCt1Branch = postState.nextCt1Branch;
+			
+			if(postState.nextCt1AluSrc >= 1)
+				state.nextCt1AluSrc = postState.nextCt1AluSrc;
+			
+			if(postState.nextCt1Regdest >= 1)
+				state.nextCt1Regdest = postState.nextCt1Regdest;
+			
+			if(postState.nextCt1RdAddress >= 1)
+				state.nextCt1RdAddress = postState.nextCt1RdAddress;
+			
+			state.nextCt1BranchTarget = postState.nextCt1BranchTarget;
+			
+			state.nextDataRt = postState.nextDataRt;
+			state.nextDataRs = postState.nextDataRs;
+			
 		}
 		
 		public void stateRequested(ExecuteStageStateRequest event)
