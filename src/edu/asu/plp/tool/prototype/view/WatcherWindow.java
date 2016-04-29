@@ -47,41 +47,9 @@ public class WatcherWindow extends BorderPane
 	private ObjectProperty<Function<Integer, String>> memoryDisplayFunction;
 	private MemoryModule32Bit memory;
 	
-	public WatcherWindow()
+	public WatcherWindow(MemoryModule32Bit memory)
 	{
-		// TODO: use actual memory module
-		memory = new MemoryModule32Bit() {
-			
-			@Override
-			public boolean hasRegister(String registerName)
-			{
-				return true;
-			}
-			
-			@Override
-			public IntegerProperty getRegisterValueProperty(String registerName)
-			{
-				return new SimpleIntegerProperty();
-			}
-			
-			@Override
-			public String getRegisterID(String registerName)
-			{
-				return registerName;
-			}
-			
-			@Override
-			public IntegerProperty getMemoryValueProperty(int address)
-			{
-				return new SimpleIntegerProperty();
-			}
-			
-			@Override
-			public void validateAddress(int address)
-			{
-				
-			}
-		};
+		this.memory = memory;
 
 		Function<Integer, String> defaultDisplay = (value) -> Integer.toString(value);
 		registerDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
