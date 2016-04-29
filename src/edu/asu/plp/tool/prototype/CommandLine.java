@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import edu.asu.plp.tool.prototype.model.PLPProject;
-import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.SimpleASMFile;
-import javafx.collections.ObservableList;
 
 //This whole Console.java will be updated
 
@@ -21,17 +19,17 @@ public class CommandLine
 		Controller controller;
 		String[] commandInput;
 		
+		//for demo to clear console
+		for(int x = 0; x< 15; x++){
+			System.out.println("");
+		}
+		
 		System.out.println("PLP Command Line:");
 		System.out.println("Enter Command or 'Help' for list of commands");
 		
 		while (true)
 		{
 			commandInput = getCommand();
-			System.out.println("User Input was: ");
-			for (int i = 0; i < commandInput.length; i++)
-			{
-				System.out.println(commandInput[i] + " ");
-			}
 			if (commandList.commands.get(commandInput[0]) == null)
 			{
 				System.out.println("Invalid command");
@@ -62,6 +60,23 @@ public class CommandLine
 		
 		public CommandList()
 		{			
+			commands.put("Help", new Command() {
+				public void execute()
+				{
+					for (String key : commands.keySet()) {
+					    System.out.println(key);
+					}
+				}
+				
+				@Override
+				public void execute(String args)
+				{
+					for (String key : commands.keySet()) {
+					    System.out.println(key);
+					}
+				}
+			});
+			
 			commands.put("Edit", new Command() {
 				public void execute()
 				{
@@ -92,9 +107,7 @@ public class CommandLine
 				
 				@Override
 				public void execute(String args)
-				{
-					System.out.println("This arg: " + args);
-					
+				{					
 					System.out.println("Enter Project Location for new Project: ");
 					String projectLocation = getInput();
 					
@@ -112,6 +125,7 @@ public class CommandLine
 					try
 					{
 						project.save();
+						System.out.println("Project Created");
 					}
 					catch (IOException e)
 					{
@@ -122,19 +136,6 @@ public class CommandLine
 			});
 			
 			commands.put("CreateNewASM", new Command() {
-				public void execute()
-				{
-					System.out.println("Not Yet Iplemented");
-				}
-				
-				@Override
-				public void execute(String args)
-				{
-					System.out.println("Not Yet Iplemented");
-				}
-			});
-			
-			commands.put("test", new Command() {
 				public void execute()
 				{
 					System.out.println("Not Yet Iplemented");
