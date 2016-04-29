@@ -174,6 +174,25 @@ public class ProjectExplorerTree extends BorderPane
 		return projects.size() == 0;
 	}
 	
+	public boolean setExpanded(Project project, boolean isExpanded)
+	{
+		TreeItem<String> node = getProjectNode(project);
+		if (node != null)
+			node.expandedProperty().set(isExpanded);
+		
+		return (node != null);
+	}
+	
+	public boolean collapseProject(Project project)
+	{
+		return setExpanded(project, false);
+	}
+	
+	public boolean expandProject(Project project)
+	{
+		return setExpanded(project, true);
+	}
+	
 	private int getGlobalIndexOf(TreeItem<String> fileNode)
 	{
 		TreeItem<String> root = projectTreeDisplay.getRoot();
@@ -266,6 +285,12 @@ public class ProjectExplorerTree extends BorderPane
 	private void addProjectToTree(Project project)
 	{
 		project.addListener(this::projectFilesChanged);
+		
+		/*
+		String projectTypeString = project.getType();
+		projectTypeString = " (" + projectTypeString.toUpperCase() + ")";
+		TreeItem<String> projectItem = new TreeItem<>(project.getName() + projectTypeString);
+		*/
 		TreeItem<String> projectItem = new TreeItem<>(project.getName());
 		
 		for (ASMFile file : project)
@@ -340,4 +365,5 @@ public class ProjectExplorerTree extends BorderPane
 		
 		return null;
 	}
+
 }

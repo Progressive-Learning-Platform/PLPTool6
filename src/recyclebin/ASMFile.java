@@ -8,13 +8,16 @@ import java.util.List;
 import java.util.Optional;
 
 import edu.asu.plp.tool.backend.util.FileUtil;
+import edu.asu.plp.tool.prototype.util.Dialogues;
 
 public class ASMFile
 {
 	protected String asmFilePath;
 	protected String asmContents;
 	protected List<String> asmLines;
-	
+	private static final char[] ILLEGAL_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f',
+			'`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
+			
 	public ASMFile(String asmFilePath) throws IOException
 	{
 		this(FileUtil.readAllLines(asmFilePath), asmFilePath);
@@ -33,7 +36,7 @@ public class ASMFile
 			this.asmLines = Arrays.asList(asmContents.split("\n"));
 		}
 	}
-
+	
 	public boolean loadFromFile()
 	{
 		return loadFromFile(asmFilePath);
@@ -87,10 +90,15 @@ public class ASMFile
 	 */
 	public void setAsmFilePath(String asmFilePath, boolean overwriteCurrent)
 	{
-		this.asmFilePath = asmFilePath;
-		if (overwriteCurrent)
+		boolean validPath;
+		validPath = checkValidPath(asmFilePath);
+		if (validPath)
 		{
-			loadFromFile(asmFilePath);
+			this.asmFilePath = asmFilePath;
+			if (overwriteCurrent)
+			{
+				loadFromFile(asmFilePath);
+			}
 		}
 	}
 	
@@ -123,5 +131,36 @@ public class ASMFile
 	public List<String> getAsmLines()
 	{
 		return asmLines;
+	}
+	
+	public boolean checkValidPath(String path)
+	{
+		boolean valid = false;
+		char tempChar;
+		
+		for (int i = 0; i < ILLEGAL_CHARACTERS.length; i++)
+		{
+			tempChar = ILLEGAL_CHARACTERS[i];
+			try
+			{
+				if (!path.contains(Character.toString(tempChar)))
+				{
+					valid = true;
+				}
+				else
+				{
+					String cause = "There was an invalid Character (" + tempChar
+							+ ") in the path name.";
+					throw new Exception(cause);
+				}
+			}
+			catch (Exception exception)
+			{
+				String recoveryMessage = "The ASM file could not be saved because of an invalid path name";
+				Dialogues.showAlertDialogue(exception, recoveryMessage);
+			}
+		}
+		
+		return valid;
 	}
 }

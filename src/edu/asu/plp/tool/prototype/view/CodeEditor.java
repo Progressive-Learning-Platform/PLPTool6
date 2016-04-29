@@ -168,6 +168,12 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		codeBodyProperty.removeListener(listener);
 	}
 	
+	public void jumpToLine(int lineNumber)
+	{
+		String script = "editor.gotoLine(" + lineNumber + ", 0, true);";
+		webView.getEngine().executeScript(script);
+	}
+	
 	private void initializeEngineEvents()
 	{
 		webView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {

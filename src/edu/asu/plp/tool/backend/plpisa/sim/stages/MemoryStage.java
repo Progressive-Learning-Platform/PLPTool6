@@ -1,10 +1,14 @@
-package edu.asu.plp.tool.backend.plpisa.sim;
+package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
-public class WriteBackStage implements Stage
+import com.google.common.eventbus.EventBus;
+
+public class MemoryStage implements Stage
 {
-	public WriteBackStage()
+	private EventBus bus;
+	
+	public MemoryStage(EventBus simulatorBus)
 	{
-		// TODO Auto-generated constructor stub
+		this.bus = simulatorBus;
 	}
 	
 	@Override
@@ -40,6 +44,13 @@ public class WriteBackStage implements Stage
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void reset()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

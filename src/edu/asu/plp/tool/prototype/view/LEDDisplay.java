@@ -44,7 +44,8 @@ public class LEDDisplay extends BorderPane
 			LED led = createLED(index);
 			
 			ledNodes[index] = led;
-			int position = NUMBER_OF_LEDS - index - 1;
+			//int position = NUMBER_OF_LEDS - index - 1;
+			int position = index;
 			grid.add(led, position, 0);
 		}
 		
@@ -64,7 +65,7 @@ public class LEDDisplay extends BorderPane
 	{
 		for (BorderPane led : ledNodes)
 		{
-			led.setPrefHeight(size);
+			led.setMinHeight(size);
 			led.setPrefWidth(size);
 		}
 	}
@@ -78,7 +79,7 @@ public class LEDDisplay extends BorderPane
 		ledLabel.setTextFill(FONT_COLOR);
 		
 		LED led = new LED();
-		led.setPrefHeight(DEFAULT_SIZE);
+		led.setMinHeight(DEFAULT_SIZE);
 		led.setPrefWidth(DEFAULT_SIZE);
 		led.setCenter(ledLabel);
 		updateLEDStyle(led);

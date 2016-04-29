@@ -3,178 +3,117 @@ package edu.asu.plp.tool.prototype;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.asu.plp.tool.prototype.model.ImageButton;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
+
 
 public class MainToolbar extends BorderPane
 {
-	public MainToolbar(BusinessLogic businessLogic)
+	public MainToolbar(Controller controller)
 	{
 		HBox toolbar = new HBox();
-		Set<Node> toggleButtons = new HashSet<>();
+		Set<ImageButton> runButtons = new HashSet<>();
+		Set<ImageButton> simButtons = new HashSet<>();
 		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
 		toolbar.setSpacing(5);
 		ObservableList<Node> buttons = toolbar.getChildren();
 		
-		DropShadow lightBlueShadow = new DropShadow();
-		lightBlueShadow.setColor(Color.LIGHTBLUE);
-		DropShadow darkBlueShadow = new DropShadow();
-		darkBlueShadow.setColor(Color.DARKBLUE);
-		
-		Node newProjectButton = new ImageView("toolbar_new.png");
-		// Hover style
-		newProjectButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-				(event) -> newProjectButton.setEffect(lightBlueShadow));
-		
-		// Removing the shadow when the mouse cursor is off
-		newProjectButton.addEventHandler(MouseEvent.MOUSE_EXITED,
-				(event) -> newProjectButton.setEffect(null));
-		
-		// Darken shadow on click
-		newProjectButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (event) -> {
-			businessLogic.onCreateNewProject(event);
-			newProjectButton.setEffect(darkBlueShadow);
-		});
-		
-		// Restore hover style on click end
-		newProjectButton.addEventHandler(MouseEvent.MOUSE_RELEASED,
-				(event) -> newProjectButton.setEffect(lightBlueShadow));
+		ImageButton newProjectButton = new ImageButton("toolbar_new.png");
+		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
 		buttons.add(newProjectButton);
 		
-		Node newFileButton = new ImageView("menu_new.png");
-		newFileButton.setOnMouseClicked(businessLogic::onNewASMFile);
+		ImageButton newFileButton = new ImageButton("menu_new.png");
+		newFileButton.setOnMouseClicked((e) -> controller.createNewASM());
 		buttons.add(newFileButton);
-		
-		Node openButton = new ImageView("toolbar_open.png");
-		openButton.setOnMouseClicked(businessLogic::onOpenProject);
+
+		ImageButton openButton = new ImageButton("toolbar_open.png");
+		openButton.setOnMouseClicked((e) -> controller.openProject());
 		buttons.add(openButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		Node saveButton = new ImageView("toolbar_save.png");
-		saveButton.setOnMouseClicked(businessLogic::onSaveProject);
+		ImageButton saveButton = new ImageButton("toolbar_save.png");
+		saveButton.setOnMouseClicked((e) -> controller.saveActiveProject());
 		buttons.add(saveButton);
 		
-		Node assembleButton = new ImageView("toolbar_assemble.png");
-		assembleButton.setOnMouseClicked(businessLogic::onAssemble);
+		ImageButton assembleButton = new ImageButton("toolbar_assemble.png");
+		assembleButton.setOnMouseClicked((event) -> {
+			simButtons.forEach(MainToolbar::toggleDisabled);
+			controller.assembleActiveProject();
+		});
 		buttons.add(assembleButton);
+		Tooltip assembleTooltip = new Tooltip();
+		assembleTooltip.setText("Once Assembled, the Simulate Project button will become enabled.");
+		Tooltip.install(assembleButton, assembleTooltip);
 		
-		Node simulateButton = new ImageView("toolbar_simulate.png");
+		ImageButton simulateButton = new ImageButton("toolbar_simulate.png", "toolbar_simulate_grey.png");
 		simulateButton.setOnMouseClicked((event) -> {
-			businessLogic.onSimulate(event);
-			toggleButtons.forEach(MainToolbar::toggleDisabled);
+			controller.simulateActiveProject();
+			runButtons.forEach(MainToolbar::toggleDisabled);
 		});
 		buttons.add(simulateButton);
+		simButtons.add(simulateButton);
+		Tooltip simTooltip = new Tooltip();
+		simTooltip.setText("Once the Sim button is clicked, the Run and Emulator buttons will enable.");
+		Tooltip.install(simulateButton, simTooltip);
 		
-		Node programButton = new ImageView("toolbar_program.png");
-		// TODO: programButton.setOnMouseClicked(); {{what does this button do?}}
-		buttons.add(programButton);
+		/*This button is supposed Program the PLP Board
+		 *Not 100% to its use, may need to check with Dr.  Sohoni
+		 *because I don't ever remember using it.
+		 *
+		 *Probably not included in our scope.
+		 */
+		ImageButton programBoardButton = new ImageButton("toolbar_program.png");
+		programBoardButton.setOnMouseClicked((e) -> controller.downloadActiveProjectToBoard());
+		buttons.add(programBoardButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		Node stepButton = new ImageView("toolbar_step.png");
-		stepButton.setOnMouseClicked(businessLogic::onSimulationStep);
+		ImageButton stepButton = new ImageButton("toolbar_step.png", "toolbar_step_grey.png");		
+		stepButton.setOnMouseClicked((e) -> controller.stepSimulation());
 		buttons.add(stepButton);
-		toggleButtons.add(stepButton);
+		runButtons.add(stepButton);
 		
-		Node runButton = new ImageView("toolbar_run.png");
-		runButton.setOnMouseClicked(businessLogic::onRunSimulation);
+		ImageButton runButton = new ImageButton("toolbar_run.png", "toolbar_run_grey.png");
+		runButton.setOnMouseClicked((e) -> controller.runSimulation());
 		buttons.add(runButton);
-		toggleButtons.add(runButton);
+		runButtons.add(runButton);
 		
-		Node resetButton = new ImageView("toolbar_reset.png");
-		resetButton.setOnMouseClicked(businessLogic::onResetSimulation);
+		ImageButton resetButton = new ImageButton("toolbar_reset.png", "toolbar_reset_grey.png");
+		resetButton.setOnMouseClicked((e) -> controller.resetSimulation());
 		buttons.add(resetButton);
-		toggleButtons.add(resetButton);
-		
-		Node remoteButton = new ImageView("toolbar_remote.png");
-		// TODO: listener = (e) -> console.println("Floating Sim Control Window Clicked");
-		// TODO: remoteButton.setOnMouseClicked(); {{what does this do? Is it needed?}}
-		buttons.add(remoteButton);
-		toggleButtons.add(remoteButton);
+		runButtons.add(resetButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		// TODO: move these buttons to their own panel/frame
-		Node cpuButton = new ImageView("toolbar_cpu.png");
-		cpuButton.setOnMouseClicked(businessLogic::onOpenCPUView);
-		buttons.add(cpuButton);
-		toggleButtons.add(cpuButton);
+		ImageButton emulatorButton = new ImageButton("toolbar_watcher.png");
+		emulatorButton.setOnMouseClicked((event) -> {
+			//TODO: Attach to I/O Sim Window
+		});
+		buttons.add(emulatorButton);
 		
-		Node watcherButton = new ImageView("toolbar_watcher.png");
-		watcherButton.setOnMouseClicked(businessLogic::onOpenWatcherWindow);
-		buttons.add(watcherButton);
-		toggleButtons.add(watcherButton);
-		
-		Node ledsButton = new ImageView("toolbar_sim_leds.png");
-		ledsButton.setOnMouseClicked(businessLogic::onDisplayLEDEmulator);
-		buttons.add(ledsButton);
-		toggleButtons.add(ledsButton);
-		
-		Node switchesButton = new ImageView("toolbar_sim_switches.png");
-		switchesButton.setOnMouseClicked(businessLogic::onDisplaySwitchesEmulator);
-		buttons.add(switchesButton);
-		toggleButtons.add(switchesButton);
-		
-		Node sevenSegmentButton = new ImageView("toolbar_sim_7segments.png");
-		sevenSegmentButton
-				.setOnMouseClicked(businessLogic::onDisplaySevenSegmentEmulator);
-		buttons.add(sevenSegmentButton);
-		toggleButtons.add(sevenSegmentButton);
-		
-		Node uartButton = new ImageView("toolbar_sim_uart.png");
-		uartButton.setOnMouseClicked(businessLogic::onDisplayUARTEmulator);
-		buttons.add(uartButton);
-		toggleButtons.add(uartButton);
-		
-		Node vgaButton = new ImageView("toolbar_sim_vga.png");
-		vgaButton.setOnMouseClicked(businessLogic::onDisplayVGAEmulator);
-		buttons.add(vgaButton);
-		toggleButtons.add(vgaButton);
-		
-		Node plpidButton = new ImageView("toolbar_sim_plpid.png");
-		plpidButton.setOnMouseClicked(businessLogic::onDisplayPLPIDEmulator);
-		buttons.add(plpidButton);
-		toggleButtons.add(plpidButton);
-		
-		Node gpioButton = new ImageView("toolbar_sim_gpio.png");
-		gpioButton.setOnMouseClicked(businessLogic::onDisplayGPIOEmulator);
-		buttons.add(gpioButton);
-		toggleButtons.add(gpioButton);
-		
-		Node interuptButton = new ImageView("toolbar_exclamation.png");
-		interuptButton.setOnMouseClicked(businessLogic::onSimulationInterrupt);
-		buttons.add(interuptButton);
-		toggleButtons.add(interuptButton);
+		ImageButton cpuViewButton = new ImageButton("toolbar_cpu.png");
+		cpuViewButton.setOnMouseClicked((e) -> controller.openCpuViewWindow());
+		buttons.add(cpuViewButton);
 
-		toggleButtons.forEach(MainToolbar::disable);
+		simButtons.forEach(MainToolbar::toggleDisabled);
+		runButtons.forEach(MainToolbar::toggleDisabled);
 		this.setCenter(toolbar);
+		
 	}
 	
-	private static void disable(Node node)
-	{
-		DropShadow dropShadow = new DropShadow();
-		node.setEffect(dropShadow);
-		node.setDisable(true);
-	}
-	
-	private static void toggleDisabled(Node node)
-	{
-		DropShadow dropShadow = new DropShadow();
+	private static void toggleDisabled(ImageButton button)
+	{		
+		button.toggleImage();
 		
-		// Invert the isDisabled property
-		boolean isDisabled = !node.isDisabled();
-		
-		node.setEffect(isDisabled ? dropShadow : null);
-		node.setDisable(isDisabled);
+		boolean isDisabled = !button.isDisabled();
+		button.setDisable(isDisabled);
 	}
 }

@@ -22,7 +22,7 @@ public interface Project extends ObservableList<ASMFile>
 	 * The files contained by this project will be saved to a subdirectory named "src"
 	 * <p>
 	 * Source files will be exported to a child directory of the project, called "src" and
-	 * each .asm file will be named according to {@link PLPSourceFile#getName()}.
+	 * each .asm file will be named according to {@link SimpleASMFile#getName()}.
 	 * 
 	 * @see
 	 * @throws IllegalStateException
@@ -38,7 +38,7 @@ public interface Project extends ObservableList<ASMFile>
 	 * successful.
 	 * <p>
 	 * Source files will be exported to a child directory of the project, called "src" and
-	 * each .asm file will be named according to {@link PLPSourceFile#getName()}.
+	 * each .asm file will be named according to {@link SimpleASMFile#getName()}.
 	 * <p>
 	 * If the specified file already exists, an exception will be raised, and the file
 	 * <b>will not</b> be overwritten.

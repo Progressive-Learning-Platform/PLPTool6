@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -48,8 +49,7 @@ public class ASMCreationPanel extends BorderPane
 	private TextField nameText;
 	
 	/** Field to enter the name of the project to which the new file will belong */
-	// TODO: replace this text field with a dropdown of valid project names
-	private TextField projectText;
+	private ComboBox<String> projectListDropdown;
 	
 	/** Routine to be performed after {@link #onCreateASM} (usually to close the panel) */
 	private Subroutine finallyOperation;
@@ -91,8 +91,7 @@ public class ASMCreationPanel extends BorderPane
 		projectName.setText("Add to Project: ");
 		projectName.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
-		projectText = new TextField();
-		projectText.setPrefWidth(200);
+		projectListDropdown = new ComboBox<>();
 		
 		Button create = new Button();
 		create.setText("Create");
@@ -101,7 +100,7 @@ public class ASMCreationPanel extends BorderPane
 		grid.add(ASMFileName, 0, 0);
 		grid.add(nameText, 1, 0);
 		grid.add(projectName, 0, 1);
-		grid.add(projectText, 1, 1);
+		grid.add(projectListDropdown, 1, 1);
 		
 		this.setCenter(grid);
 		buttons.getChildren().add(create);
@@ -111,7 +110,12 @@ public class ASMCreationPanel extends BorderPane
 	
 	public void setProjectName(String projectName)
 	{
-		projectText.setText(projectName);
+		projectListDropdown.setValue(projectName);
+	}
+	
+	public void addProjectName(String name)
+	{
+		projectListDropdown.getItems().add(name);
 	}
 	
 	public void setFinallyOperation(Subroutine finallyOperation)
@@ -142,7 +146,7 @@ public class ASMCreationPanel extends BorderPane
 	
 	private ASMCreationDetails extractDetailsFromGUI()
 	{
-		String projectName = projectText.getText();
+		String projectName = projectListDropdown.getValue();
 		String fileName = nameText.getText();
 		
 		return new ASMCreationDetails(projectName, fileName);
@@ -155,7 +159,7 @@ public class ASMCreationPanel extends BorderPane
 		
 		if (projectName == null || projectName.trim().isEmpty())
 		{
-			Dialogues.showInfoDialogue("You entered an invalid Project Name");
+			Dialogues.showInfoDialogue("You did not select a current Project");
 		}
 		else if (fileName == null || fileName.trim().isEmpty())
 		{

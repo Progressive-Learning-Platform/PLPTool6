@@ -3,7 +3,7 @@ package edu.asu.plp.tool.backend.isa;
 import java.io.File;
 import java.io.IOException;
 
-import edu.asu.plp.tool.prototype.model.PLPSourceFile;
+import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 import edu.asu.plp.tool.prototype.model.Project;
 import javafx.beans.property.StringProperty;
 
@@ -16,7 +16,7 @@ public interface ASMFile
 	boolean writeToFile(File file, boolean overwrite) throws IOException;
 	
 	/**
-	 * Writes the contents of this {@link PLPSourceFile}, specified by {@link #getContent()}
+	 * Writes the contents of this {@link SimpleASMFile}, specified by {@link #getContent()}
 	 * , to the specified path, overwriting the current contents.
 	 * <p>
 	 * This method is equivalent to {@link #writeToFile(String, boolean)} with the
@@ -34,7 +34,7 @@ public interface ASMFile
 	boolean writeToFile(String path) throws IOException;
 	
 	/**
-	 * Writes the contents of this {@link PLPSourceFile}, specified by {@link #getContent()}
+	 * Writes the contents of this {@link SimpleASMFile}, specified by {@link #getContent()}
 	 * , to the specified path.
 	 * <p>
 	 * If the path references a file, the specified name will be used. If the specified
