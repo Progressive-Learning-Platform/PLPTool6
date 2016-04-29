@@ -30,56 +30,6 @@ import edu.asu.plp.tool.prototype.model.SimpleASMFile;
 
 public class ProjectManager
 {
-	@FunctionalInterface
-	public static interface SaveFunction
-	{
-		void save(Project project, File file);
-	}
-	
-	@FunctionalInterface
-	public static interface LoadFunction
-	{
-		Project load(File file);
-	}
-	
-	public static class ProjectType
-	{
-		private String name;
-		private String extension;
-		private SaveFunction saveFunction;
-		private LoadFunction loadFunction;
-		
-		public ProjectType(String name, String extension, SaveFunction saveFunction,
-				LoadFunction loadFunction)
-		{
-			super();
-			this.name = name;
-			this.extension = extension;
-			this.saveFunction = saveFunction;
-			this.loadFunction = loadFunction;
-		}
-		
-		public String getName()
-		{
-			return name;
-		}
-		
-		public String getExtension()
-		{
-			return extension;
-		}
-		
-		public SaveFunction saveFunction()
-		{
-			return saveFunction;
-		}
-		
-		public LoadFunction loadFunction()
-		{
-			return loadFunction;
-		}
-	}
-	
 	private ObservableList<Project> projects;
 	private ObjectProperty<Project> activeProjectProperty;
 	private ObservableList<ProjectType> supportedProjectTypes;
@@ -128,7 +78,7 @@ public class ProjectManager
 			throw new FileNotFoundException();
 		
 		ProjectType type = getType(file);
-		Project project = type.loadFunction().load(file);
+		Project project = type.load(file);
 		this.addProject(project);
 	}
 	
@@ -136,35 +86,34 @@ public class ProjectManager
 	{
 		Project activeProject = getActiveProject();
 		String filePath = activeProject.getPath();
+		File destination = new File(filePath);
 		String projectType = activeProject.getType();
 		
-		saveActiveProjectAs(filePath, projectType);
+		saveActiveProjectAs(destination, projectType);
 	}
 	
-	public void saveActiveProjectAs(String filePath)
+	public void saveActiveProjectAs(File destination)
 			throws UnsupportedProjectTypeException
 	{
 		Project activeProject = getActiveProject();
 		String projectType = activeProject.getType();
 		
-		saveActiveProjectAs(filePath, projectType);
+		saveActiveProjectAs(destination, projectType);
 	}
 	
-	public void saveActiveProjectAs(String filePath, String projectType)
+	public void saveActiveProjectAs(File destination, String projectType)
 			throws UnsupportedProjectTypeException
 	{
 		Project activeProject = getActiveProject();
-		ProjectType type = getType(activeProject);
+		ProjectType type = getTypeByName(projectType);
 		
-		File file = new File(filePath);
-		type.saveFunction().save(activeProject, file);
+		type.save(activeProject, destination);
 	}
 	
-	private ProjectType getType(Project activeProject)
+	public ProjectType getTypeByName(String typeName)
 			throws UnsupportedProjectTypeException
 	{
-		String typeName = activeProject.getType();
-		Predicate<ProjectType> filter = (type) -> typeName.equals(type.getExtension());
+		Predicate<ProjectType> filter = (type) -> typeName.equals(type.getName());
 		ObservableList<ProjectType> validTypes = supportedProjectTypes.filtered(filter);
 		
 		if (validTypes.isEmpty())
@@ -176,7 +125,7 @@ public class ProjectManager
 	private ProjectType getType(File file) throws UnsupportedFileExtensionException
 	{
 		String extension = FilenameUtils.getExtension(file.getAbsolutePath());
-		Predicate<ProjectType> filter = (type) -> extension.equals(type.getExtension());
+		Predicate<ProjectType> filter = (type) -> type.isFileExtensionSupported(extension);
 		ObservableList<ProjectType> validTypes = supportedProjectTypes.filtered(filter);
 		
 		if (validTypes.isEmpty())

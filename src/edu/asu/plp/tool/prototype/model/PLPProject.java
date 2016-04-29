@@ -24,7 +24,6 @@ import edu.asu.plp.tool.core.ISARegistry;
  * {@link SimpleASMFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
- * 		
  */
 public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
