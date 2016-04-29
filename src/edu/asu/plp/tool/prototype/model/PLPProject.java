@@ -18,14 +18,12 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.util.PLP5ProjectParser;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
-import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 
 /**
  * A {@link PLPProject} represents an ordered, observable collection of
  * {@link SimpleASMFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
- * 		
  */
 public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 {
@@ -64,13 +62,11 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *            file or directory of the specified project
 	 * @return A {@link PLPProject} representative of the information stored in the given
 	 *         file.
-	 * @throws UnexpectedFileTypeException
-	 *             if the given file is not a PLP project file (PLP6 or legacy formats).
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
 	 */
 	public static PLPProject load(File file)
-			throws UnexpectedFileTypeException, IOException
+			throws IOException
 	{
 		if (file.isFile())
 			return loadLegacy(file);
@@ -128,14 +124,12 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *            Path to the specified file; may be relative or absolute
 	 * @return A {@link PLPProject} representative of the information stored in the given
 	 *         file.
-	 * @throws UnexpectedFileTypeException
-	 *             if the given file is not a PLP project file (PLP6 or legacy formats).
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
 	 * @see #load(File)
 	 */
 	public static Project load(String filePath)
-			throws UnexpectedFileTypeException, IOException
+			throws IOException
 	{
 		File file = new File(filePath);
 		return load(file);

@@ -1,20 +1,21 @@
 package edu.asu.plp.tool.prototype.view;
 
-import static java.nio.ByteOrder.*;
+import static edu.asu.plp.tool.prototype.util.IntegerUtils.smartParse;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
-import edu.asu.plp.tool.prototype.util.IntegerUtils;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -30,171 +31,34 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
+import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
+import edu.asu.plp.tool.prototype.util.IntegerUtils;
 
 public class WatcherWindow extends BorderPane
 {
-	public class ValueRow
-	{
-		private IntegerProperty value;
-		
-		public ValueRow(int value)
-		{
-			this.value = new SimpleIntegerProperty(value);
-		}
-		
-		public ValueRow(IntegerProperty value)
-		{
-			this.value = value;
-		}
-		
-		public String getValue()
-		{
-			return "0x" + Integer.toString(value.get(), 16).toUpperCase();
-		}
-		
-		public void setValue(int value)
-		{
-			this.value.set(value);
-		}
-		
-		public void setValue(String value)
-		{
-			int oldValue = this.value.get();
-			try
-			{
-				setValue(Integer.parseInt(value));
-			}
-			catch (Exception e)
-			{
-				setValue(oldValue);
-			}
-		}
-	}
-	
-	public class RegisterRow extends ValueRow
-	{
-		private StringProperty registerName;
-		private StringProperty registerID;
-		
-		public RegisterRow(String name, String id, int value)
-		{
-			super(value);
-			registerName = new SimpleStringProperty(name);
-			registerID = new SimpleStringProperty(id);
-		}
-		
-		public RegisterRow(String name, String id, IntegerProperty value)
-		{
-			super(value);
-			registerName = new SimpleStringProperty(name);
-			registerID = new SimpleStringProperty(id);
-		}
-		
-		public String getRegisterName()
-		{
-			return registerName.get();
-		}
-		
-		public void setRegisterName(String name)
-		{
-			registerName.set(name);
-		}
-		
-		public String getRegisterID()
-		{
-			return registerID.get();
-		}
-		
-		public void setRegisterID(String id)
-		{
-			registerID.set(id);
-		}
-	}
-	
-	public class MemoryRow extends ValueRow
-	{
-		private IntegerProperty address;
-		
-		public MemoryRow(int address, IntegerProperty value)
-		{
-			super(value);
-			this.address = new SimpleIntegerProperty(address);
-		}
-		
-		public MemoryRow(int address, int value)
-		{
-			super(value);
-			this.address = new SimpleIntegerProperty(address);
-		}
-		
-		public String getAddress()
-		{
-			return Integer.toString(address.get());
-		}
-		
-		public void setAddress(int value)
-		{
-			this.address.set(value);
-		}
-		
-		public void setAddress(String address)
-		{
-			int oldAddress = this.address.get();
-			try
-			{
-				setAddress(Integer.parseInt(address));
-			}
-			catch (Exception e)
-			{
-				setAddress(oldAddress);
-			}
-		}
-	}
+	private static final double CP_PADDING = 5;
+	private static final double CP_SPACING = 5;
 	
 	private ObservableList<MemoryRow> memoryAddresses;
 	private ObservableList<RegisterRow> registers;
 	private Map<String, Function<Integer, String>> valueDisplayOptions;
+	private ObjectProperty<Function<Integer, String>> registerDisplayFunction;
+	private ObjectProperty<Function<Integer, String>> memoryDisplayFunction;
 	private MemoryModule32Bit memory;
 	
-	public WatcherWindow()
+	public WatcherWindow(MemoryModule32Bit memory)
 	{
-		// TODO: use actual memory module
-		memory = new MemoryModule32Bit() {
-			
-			@Override
-			public boolean hasRegister(String registerName)
-			{
-				return true;
-			}
-			
-			@Override
-			public IntegerProperty getRegisterValueProperty(String registerName)
-			{
-				return new SimpleIntegerProperty();
-			}
-			
-			@Override
-			public String getRegisterID(String registerName)
-			{
-				return registerName;
-			}
-			
-			@Override
-			public IntegerProperty getMemoryValueProperty(int address)
-			{
-				return new SimpleIntegerProperty();
-			}
-			
-			@Override
-			public void validateAddress(int address)
-			{
-				
-			}
-		};
+		this.memory = memory;
+
+		Function<Integer, String> defaultDisplay = (value) -> Integer.toString(value);
+		registerDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
+		memoryDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
 		valueDisplayOptions = new LinkedHashMap<>();
 		populateDisplayOptions();
 		memoryAddresses = FXCollections.observableArrayList();
 		registers = FXCollections.observableArrayList();
+		
 		// TODO: remove placeholder
 		memoryAddresses.add(new MemoryRow(10025, 100000));
 		registers.add(new RegisterRow("$t0", "$8", 100000));
@@ -203,6 +67,9 @@ public class WatcherWindow extends BorderPane
 		TableView<MemoryRow> watchedAddresses = createMemoryTable();
 		Node registerControlPanel = createRegisterControlPanel();
 		Node memoryControlPanel = createMemoryControlPanel();
+
+		registerDisplayFunction.addListener(updateOnChangeEvent(registers));
+		memoryDisplayFunction.addListener(updateOnChangeEvent(memoryAddresses));
 		
 		GridPane center = new GridPane();
 		center.add(watchedRegisters, 0, 0);
@@ -227,22 +94,22 @@ public class WatcherWindow extends BorderPane
 		this.setCenter(center);
 	}
 	
+	private <T, G> ChangeListener<G> updateOnChangeEvent(ObservableList<T> model)
+	{
+		return (value, current, old) -> {
+			ObservableList<T> temp = FXCollections.observableArrayList();
+			temp.addAll(model);
+			model.removeAll(model);
+			model.addAll(temp);
+		};
+	}
+	
 	private void populateDisplayOptions()
 	{
 		valueDisplayOptions.put("Decimal", (value) -> Integer.toString(value));
-		valueDisplayOptions.put("Hex", (value) -> Integer.toString(value, 16));
-		valueDisplayOptions.put("Binary", (value) -> Integer.toString(value, 2));
-		// TODO: move to utility class
-		valueDisplayOptions.put("Packed ASCII",
-				(value) -> {
-					byte[] bytes = ByteBuffer.allocate(4).order(BIG_ENDIAN).putInt(value)
-							.array();
-					StringBuilder builder = new StringBuilder();
-					for (byte element : bytes)
-						builder.append((char) element);
-					
-					return builder.toString();
-				});
+		valueDisplayOptions.put("Hex", (value) -> "0x" + Integer.toString(value, 16));
+		valueDisplayOptions.put("Binary", (value) -> "0b" + Integer.toString(value, 2));
+		valueDisplayOptions.put("Packed ASCII", IntegerUtils::toAsciiString);
 	}
 	
 	private Node createRegisterControlPanel()
@@ -263,13 +130,22 @@ public class WatcherWindow extends BorderPane
 		registerPanel.setRight(watchRegisterButton);
 		setAlignment(watchRegisterButton, Pos.CENTER);
 		
-		Node displayOptions = createDisplayOptionsRow();
+		Pair<Node, ComboBox<String>> optionsRowPair = createDisplayOptionsRow();
+		Node displayOptions = optionsRowPair.getKey();
+		ComboBox<String> displayDropdown = optionsRowPair.getValue();
+		displayDropdown.setOnAction((event) -> {
+			String selection = displayDropdown.getSelectionModel().getSelectedItem();
+			Function<Integer, String> function = valueDisplayOptions.get(selection);
+			registerDisplayFunction.set(function);
+		});
 		
 		VBox controlPanel = new VBox();
 		controlPanel.getChildren().add(registerPanel);
 		controlPanel.getChildren().add(displayOptions);
 		controlPanel.setAlignment(Pos.CENTER);
 		setAlignment(controlPanel, Pos.CENTER);
+		controlPanel.setPadding(new Insets(CP_PADDING));
+		controlPanel.setSpacing(CP_SPACING);
 		
 		return controlPanel;
 	}
@@ -322,7 +198,14 @@ public class WatcherWindow extends BorderPane
 		rangePanel.setRight(watchRangeButton);
 		setAlignment(watchRangeButton, Pos.CENTER);
 		
-		Node displayOptions = createDisplayOptionsRow();
+		Pair<Node, ComboBox<String>> optionsRowPair = createDisplayOptionsRow();
+		Node displayOptions = optionsRowPair.getKey();
+		ComboBox<String> displayDropdown = optionsRowPair.getValue();
+		displayDropdown.setOnAction((event) -> {
+			String selection = displayDropdown.getSelectionModel().getSelectedItem();
+			Function<Integer, String> function = valueDisplayOptions.get(selection);
+			memoryDisplayFunction.set(function);
+		});
 		
 		VBox controlPanel = new VBox();
 		controlPanel.getChildren().add(addressPanel);
@@ -330,22 +213,24 @@ public class WatcherWindow extends BorderPane
 		controlPanel.getChildren().add(displayOptions);
 		controlPanel.setAlignment(Pos.CENTER);
 		setAlignment(controlPanel, Pos.CENTER);
+		controlPanel.setPadding(new Insets(CP_PADDING));
+		controlPanel.setSpacing(CP_SPACING);
 		
 		return controlPanel;
 	}
 	
-	private Node createDisplayOptionsRow()
+	private Pair<Node, ComboBox<String>> createDisplayOptionsRow()
 	{
-		BorderPane displayOptions = new BorderPane();
+		BorderPane rowDisplay = new BorderPane();
 		
 		Label label = new Label("Display values as: ");
-		displayOptions.setLeft(label);
+		rowDisplay.setLeft(label);
 		
 		ComboBox<String> dropdown = createDisplayOptionsDropdown();
 		dropdown.setPrefWidth(Integer.MAX_VALUE);
-		displayOptions.setCenter(dropdown);
+		rowDisplay.setCenter(dropdown);
 		
-		return displayOptions;
+		return new Pair<>(rowDisplay, dropdown);
 	}
 	
 	private ComboBox<String> createDisplayOptionsDropdown()
@@ -362,6 +247,7 @@ public class WatcherWindow extends BorderPane
 	{
 		if (registerName.length() == 0)
 			return;
+		// The memory module is responsible for equating the names "0" "$0" and "$zero"
 		if (!memory.hasRegister(registerName))
 			throw new IllegalArgumentException("There isn't a register with the name "
 					+ registerName);
@@ -431,6 +317,7 @@ public class WatcherWindow extends BorderPane
 		table.getColumns().add(valueColumn);
 		
 		table.setItems(registers);
+		table.setMinHeight(80);
 		return table;
 	}
 	
@@ -450,6 +337,7 @@ public class WatcherWindow extends BorderPane
 		table.getColumns().add(valueColumn);
 		
 		table.setItems(memoryAddresses);
+		table.setMinHeight(80);
 		return table;
 	}
 	
@@ -469,5 +357,128 @@ public class WatcherWindow extends BorderPane
 	private static PropertyValueFactory<MemoryRow, String> memoryFactory(String attribute)
 	{
 		return new PropertyValueFactory<MemoryRow, String>(attribute);
+	}
+	
+	public class ValueRow
+	{
+		private IntegerProperty value;
+		ObjectProperty<Function<Integer, String>> displayFunctionProperty;
+		
+		public ValueRow(int value, ObjectProperty<Function<Integer, String>> function)
+		{
+			this.value = new SimpleIntegerProperty(value);
+			this.displayFunctionProperty = function;
+		}
+		
+		public ValueRow(IntegerProperty value, ObjectProperty<Function<Integer, String>> function)
+		{
+			this.value = value;
+			this.displayFunctionProperty = function;
+		}
+		
+		public String getValue()
+		{
+			Function<Integer, String> displayFunction = displayFunctionProperty.get();
+			int intValue = value.get();
+			return displayFunction.apply(intValue);
+		}
+		
+		public void setValue(int value)
+		{
+			this.value.set(value);
+		}
+		
+		public void setValue(String value)
+		{
+			int oldValue = this.value.get();
+			try
+			{
+				setValue(smartParse(value));
+			}
+			catch (Exception e)
+			{
+				setValue(oldValue);
+			}
+		}
+	}
+	
+	public class RegisterRow extends ValueRow
+	{
+		private StringProperty registerName;
+		private StringProperty registerID;
+		
+		public RegisterRow(String name, String id, int value)
+		{
+			super(value, WatcherWindow.this.registerDisplayFunction);
+			registerName = new SimpleStringProperty(name);
+			registerID = new SimpleStringProperty(id);
+		}
+		
+		public RegisterRow(String name, String id, IntegerProperty value)
+		{
+			super(value, WatcherWindow.this.registerDisplayFunction);
+			registerName = new SimpleStringProperty(name);
+			registerID = new SimpleStringProperty(id);
+		}
+		
+		public String getRegisterName()
+		{
+			return registerName.get();
+		}
+		
+		public void setRegisterName(String name)
+		{
+			registerName.set(name);
+		}
+		
+		public String getRegisterID()
+		{
+			return registerID.get();
+		}
+		
+		public void setRegisterID(String id)
+		{
+			registerID.set(id);
+		}
+	}
+	
+	public class MemoryRow extends ValueRow
+	{
+		private IntegerProperty address;
+		
+		public MemoryRow(int address, IntegerProperty value)
+		{
+			super(value, WatcherWindow.this.memoryDisplayFunction);
+			this.address = new SimpleIntegerProperty(address);
+		}
+		
+		public MemoryRow(int address, int value)
+		{
+			super(value, WatcherWindow.this.memoryDisplayFunction);
+			this.address = new SimpleIntegerProperty(address);
+		}
+		
+		public String getAddress()
+		{
+			return Integer.toString(address.get());
+		}
+		
+		public void setAddress(int value)
+		{
+			this.address.set(value);
+		}
+		
+		public void setAddress(String address)
+		{
+			int oldAddress = this.address.get();
+			try
+			{
+				setAddress(smartParse(address));
+			}
+			catch (Exception e)
+			{
+				setAddress(oldAddress);
+			}
+		}
 	}
 }

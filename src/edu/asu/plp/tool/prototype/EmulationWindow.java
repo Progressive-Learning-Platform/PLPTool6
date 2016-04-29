@@ -3,23 +3,12 @@ package edu.asu.plp.tool.prototype;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.JSplitPane;
-
-import edu.asu.plp.tool.prototype.view.LEDDisplay;
-import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
-import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
-import edu.asu.plp.tool.prototype.view.UARTPanel;
-import edu.asu.plp.tool.prototype.view.WatcherWindow;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -27,16 +16,20 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
+import edu.asu.plp.tool.prototype.view.LEDDisplay;
+import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
+import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
+import edu.asu.plp.tool.prototype.view.UARTPanel;
+import edu.asu.plp.tool.prototype.view.WatcherWindow;
 
 public class EmulationWindow extends BorderPane
 {
-	
 	public EmulationWindow()
 	{
 		GridPane demoGrid = createDemo();
@@ -66,175 +59,72 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		Node ledDisplay = new LEDDisplay();
-		ledDisplay.setEffect(backgroundColor);
-		HBox ledFrame = new HBox();
-		ledFrame.setPadding(new Insets(10));
-		ledFrame.setStyle("-fx-background-color: grey;");
-		//frame.setEffect(backgroundColor);
-		ledFrame.getChildren().add(ledDisplay);
+		LEDDisplay ledDisplay = new LEDDisplay();
+		ledDisplay.setPadding(new Insets(10));
+		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node switchesDisplay = new SwitchesDisplay();
-		//switchesDisplay.setEffect(backgroundColor);
-		HBox switchesFrame = new HBox();
-		switchesFrame.setPadding(new Insets(10));
-		switchesFrame.setStyle("-fx-background-color: grey;");
-		switchesFrame.getChildren().add(switchesDisplay);
+		SwitchesDisplay switchesDisplay = new SwitchesDisplay();
+		switchesDisplay.setPadding(new Insets(10));
+		switchesDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node uartDisplay = new UARTPanel();
-		//uartDisplay.setEffect(backgroundColor);
-		HBox uartFrame = new HBox();
-		uartFrame.setPadding(new Insets(10));
-		uartFrame.setStyle("-fx-background-color: grey;");
-		uartFrame.getChildren().add(uartDisplay);
+		UARTPanel uartDisplay = new UARTPanel();
+		uartDisplay.setPadding(new Insets(10));
+		uartDisplay.setStyle("-fx-background-color: grey;");
+
+		// TODO: pass active memory module to WatcherWindow
+		WatcherWindow watcherWindowDisplay = new WatcherWindow(new PLPMemoryModule());
+		watcherWindowDisplay.setPadding(new Insets(10));
+		watcherWindowDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node watcherWindowDisplay = new WatcherWindow();
-		//watcherWindowDisplay.setEffect(backgroundColor);
-		HBox watcherFrame = new HBox();
-		watcherFrame.setPadding(new Insets(10));
-		watcherFrame.setStyle("-fx-background-color: grey;");
-		watcherFrame.getChildren().add(watcherWindowDisplay);
+		SevenSegmentPanel sevenSegDisplay = new SevenSegmentPanel();
+		sevenSegDisplay.setStyle("-fx-background-color: grey;");
 		
-		Node sevenSegDisplay = new SevenSegmentPanel();
-		//sevenSegDisplay.setEffect(backgroundColor);
-		HBox sevenSegFrame = new HBox();
-		sevenSegFrame.setStyle("-fx-background-color: grey;");
-		sevenSegFrame.getChildren().add(sevenSegDisplay);
+		Label ledLabel = label("LEDs");
+		Label switchesLabel = label("Switches");
+		Label uartLabel = label("UART");
+		Label sevenSegLabel = label("Seven Segment Display");
+		Label watcherWindowLabel = label("Watcher Window");
 		
-		Label ledLabel = new Label();
-		ledLabel.setText("LEDs: ");
-		ledLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		leftSide.getChildren().addAll(watcherWindowLabel, watcherWindowDisplay);
+		rightSide.getChildren()
+				.addAll(sevenSegLabel, sevenSegDisplay, ledLabel,
+						ledDisplay, switchesLabel, switchesDisplay, uartLabel, uartDisplay);
 		
-		Label switchesLabel = new Label();
-		switchesLabel.setText("Switches: ");
-		switchesLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label uartLabel = new Label();
-		uartLabel.setText("UART: ");
-		uartLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label sevenSegLabel = new Label();
-		sevenSegLabel.setText("Seven Segment Display: ");
-		sevenSegLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		Label watcherWindowLabel = new Label();
-		watcherWindowLabel.setText("Watcher Window ");
-		watcherWindowLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-		
-		leftSide.getChildren().addAll(watcherWindowLabel, watcherFrame, ledLabel,
-				ledFrame, switchesLabel, switchesFrame);
-		rightSide.getChildren().addAll(uartLabel, uartFrame, sevenSegLabel,
-				sevenSegFrame);
-				
 		Text title = new Text("Windows");
 		title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
 		checkOptions.getChildren().add(title);
 		
 		CheckBox sevenSegCheckBox = new CheckBox("7 Segment Display");
 		sevenSegCheckBox.setSelected(true);
-		sevenSegCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!sevenSegCheckBox.isSelected())
-				{
-					rightSide.getChildren().remove(sevenSegLabel);
-					rightSide.getChildren().remove(sevenSegFrame);
-				}
-				else
-				{
-					rightSide.getChildren().add(sevenSegLabel);
-					rightSide.getChildren().add(sevenSegFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(sevenSegCheckBox, sevenSegLabel, sevenSegDisplay);
+		
 		CheckBox ledCheckBox = new CheckBox("LED's");
 		ledCheckBox.setSelected(true);
-		ledCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!ledCheckBox.isSelected())
-				{
-					leftSide.getChildren().remove(ledLabel);
-					leftSide.getChildren().remove(ledFrame);
-				}
-				else
-				{
-					leftSide.getChildren().add(ledLabel);
-					leftSide.getChildren().add(ledFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(ledCheckBox, ledLabel, ledDisplay);
 		
 		CheckBox uartCheckBox = new CheckBox("UART");
 		uartCheckBox.setSelected(true);
-		uartCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!uartCheckBox.isSelected())
-				{
-					rightSide.getChildren().remove(uartLabel);
-					rightSide.getChildren().remove(uartFrame);
-				}
-				else
-				{
-					rightSide.getChildren().add(uartLabel);
-					rightSide.getChildren().add(uartFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(uartCheckBox, uartLabel, uartDisplay);
 		
 		CheckBox switchesCheckBox = new CheckBox("Switches");
 		switchesCheckBox.setSelected(true);
-		switchesCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val,
-					Boolean new_val)
-			{
-				if (!switchesCheckBox.isSelected())
-				{
-					leftSide.getChildren().remove(switchesLabel);
-					leftSide.getChildren().remove(switchesFrame);
-				}
-				else
-				{
-					leftSide.getChildren().add(switchesLabel);
-					leftSide.getChildren().add(switchesFrame);
-				}
-			}
-		});
+		bindDisplaysToCheckBox(switchesCheckBox, switchesLabel, switchesDisplay);
 		
 		CheckBox watcherWindowCheckBox = new CheckBox("Watcher Window");
 		watcherWindowCheckBox.setSelected(true);
-		watcherWindowCheckBox.selectedProperty()
-				.addListener(new ChangeListener<Boolean>() {
-					public void changed(ObservableValue<? extends Boolean> ov,
-							Boolean old_val, Boolean new_val)
-					{
-						if (!watcherWindowCheckBox.isSelected())
-						{
-							leftSide.getChildren().remove(watcherWindowLabel);
-							leftSide.getChildren().remove(watcherFrame);
-						}
-						else
-						{
-							leftSide.getChildren().add(watcherWindowLabel);
-							leftSide.getChildren().add(watcherFrame);
-						}
-					}
-				});
-				
+		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcherWindowDisplay);
+		
 		checkOptions.getChildren().addAll(sevenSegCheckBox, ledCheckBox, uartCheckBox,
 				switchesCheckBox, watcherWindowCheckBox);
-				
+		
 		SplitPane splitPane = new SplitPane();
 		splitPane.setStyle("-fx-box-border: transparent;");
 		splitPane.setStyle("-fx-padding: 4 10 10 10;");
-	    Node divider = splitPane.lookup(".split-pane-divider");
-	    if(divider!=null){
-	        divider.setStyle("-fx-background-color: transparent;");
-	    }
+		Node divider = splitPane.lookup(".split-pane-divider");
+		if (divider != null)
+		{
+			divider.setStyle("-fx-background-color: transparent;");
+		}
 		splitPane.getItems().addAll(leftSide, rightSide);
 		
 		grid.add(checkOptions, 0, 0);
@@ -244,6 +134,13 @@ public class EmulationWindow extends BorderPane
 		return grid;
 	}
 	
+	private Label label(String name)
+	{
+		Label label = new Label(name + ": ");
+		label.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+		return label;
+	}
+
 	public HBox createTopBar()
 	{
 		HBox hbox = new HBox();
@@ -256,21 +153,21 @@ public class EmulationWindow extends BorderPane
 		Node runButton = new ImageView("toolbar_run.png");
 		runButton.setOnMouseClicked((event) -> {
 			// TODO: Attach to Backend
-		});
+			});
 		buttons.add(runButton);
 		buttonEffectsSet.add(runButton);
 		
 		Node stepButton = new ImageView("toolbar_step.png");
 		runButton.setOnMouseClicked((event) -> {
 			// TODO: Attach to Backend
-		});
+			});
 		buttons.add(stepButton);
 		buttonEffectsSet.add(stepButton);
 		
 		Node resetButton = new ImageView("toolbar_reset.png");
 		runButton.setOnMouseClicked((event) -> {
 			// TODO: Attach to Backend
-		});
+			});
 		buttons.add(resetButton);
 		buttonEffectsSet.add(resetButton);
 		
@@ -308,14 +205,13 @@ public class EmulationWindow extends BorderPane
 		
 	}
 	
-	private static void toggleDisabled(Node node)
+	private void bindDisplaysToCheckBox(CheckBox checkBox, Node... nodes)
 	{
-		// Invert the isDisabled property
-		boolean isDisabled = !node.isDisabled();
-		
-		// node.setEffect(isDisabled ? dropShadow : null);
-		node.setDisable(isDisabled);
-		
+		for (Node node : nodes)
+		{
+			node.visibleProperty().bind(checkBox.selectedProperty());
+			node.managedProperty().bind(checkBox.selectedProperty());
+		}
 	}
 	
 	private static void setButtonEffect(Node node)
@@ -327,17 +223,16 @@ public class EmulationWindow extends BorderPane
 		
 		node.addEventHandler(MouseEvent.MOUSE_ENTERED,
 				(event) -> node.setEffect(rollOverColor));
-				
+		
 		// Removing the shadow when the mouse cursor is off
 		node.addEventHandler(MouseEvent.MOUSE_EXITED, (event) -> node.setEffect(null));
 		
 		// Darken shadow on click
 		node.addEventHandler(MouseEvent.MOUSE_PRESSED,
 				(event) -> node.setEffect(clickColor));
-				
+		
 		// Restore hover style on click end
 		node.addEventHandler(MouseEvent.MOUSE_RELEASED,
 				(event) -> node.setEffect(rollOverColor));
-				
 	}
 }
