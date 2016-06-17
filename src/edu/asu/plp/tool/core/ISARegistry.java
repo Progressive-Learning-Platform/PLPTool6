@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,12 +50,35 @@ public class ISARegistry
 		
 		// TODO: The following is temporary
 		// TODO: Remove and replace with a decoupled solution
-		Function<String, Boolean> supportsProjectType;
-		supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
-		Simulator simulator = new PLPSimulator();
-		Assembler assembler = new PLPAssembler();
-		ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
-		registeredModules.add(plp6Module);
+		
+		//Did some work of what is mentioned in TODO - Harsha
+		File folder = new File("isas");
+		if(folder.exists() && folder.isDirectory())
+		{
+			File[] listOfFiles = folder.listFiles();
+			if(listOfFiles.length > 0)
+			{
+			
+			}
+			else
+			{
+				Function<String, Boolean> supportsProjectType;
+				supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
+				Simulator simulator = new PLPSimulator();
+				Assembler assembler = new PLPAssembler();
+				ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
+				registeredModules.add(plp6Module);
+			}
+		}
+		else
+		{
+			Function<String, Boolean> supportsProjectType;
+			supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
+			Simulator simulator = new PLPSimulator();
+			Assembler assembler = new PLPAssembler();
+			ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
+			registeredModules.add(plp6Module);
+		}
 	}
 	
 	public Optional<ISAModule> lookupByProjectType(String projectType)

@@ -447,7 +447,7 @@ public class DisposablePLPAssembler
 					if (directiveMap.containsKey(currentToken.getValue()))
 						directiveMap.get(currentToken.getValue()).perform();
 					else
-						throw new AssemblerException("Unknown directive. Found: "
+						throw new AssemblerException("Line number: "+ Integer.toString(lineNumber)+ ":Unknown directive. Found: "
 								+ currentToken.getValue());
 				}
 				// Loop PseudoOps
@@ -479,9 +479,10 @@ public class DisposablePLPAssembler
 				}
 				else
 				{
+					
 					System.out.println("Failed on: " + lineNumber);
 					throw new AssemblerException(
-							"Unknown token in preprocessing, found: "
+							"Line number: " + Integer.toString(lineNumber) + ":Unknown token in preprocessing, found: "
 									+ currentToken.getValue());
 				}
 				
@@ -526,7 +527,7 @@ public class DisposablePLPAssembler
 	{
 		expectedNextToken("pseudo move operation");
 		
-		ensureTokenEquality("(b) Expected a label to branch to, found: ",
+		ensureTokenEquality("Line Number: " + Integer.toString(lineNumber) + "(b) Expected a label to branch to, found: ",
 				PLPTokenType.LABEL_PLAIN);
 		
 		appendPreprocessedInstruction("beq $0, $0, " + currentToken.getValue(),
@@ -867,16 +868,16 @@ public class DisposablePLPAssembler
 		
 		expectedNextToken("register immediate normal instruction");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(" + instruction + ") Expected a target register, found: ",
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction + ") Expected a target register, found: ",
 				PLPTokenType.ADDRESS);
 		
 		expectedNextToken("register immediate normal instruction");
-		ensureTokenEquality("(" + instruction + ") Expected a comma after "
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction + ") Expected a comma after "
 				+ targetRegister + " found: ", PLPTokenType.COMMA);
 		
 		expectedNextToken("register immediate normal instruction");
 		String immediate = currentToken.getValue();
-		ensureTokenEquality("(" + instruction
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction
 				+ ") Expected an immediate value (16-bit), found: ", PLPTokenType.NUMERIC);
 		
 		appendPreprocessedInstruction(instruction + " " + targetRegister + ", "
@@ -964,7 +965,7 @@ public class DisposablePLPAssembler
 		
 		expectedNextToken("two register immediate normal instruction");
 		String destinationRegister = currentToken.getValue();
-		ensureTokenEquality("(" + instruction
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction
 				+ ") Expected a destination register, found: ", PLPTokenType.ADDRESS);
 		
 		expectedNextToken("two register immediate normal instruction");
@@ -973,16 +974,16 @@ public class DisposablePLPAssembler
 		
 		expectedNextToken("two register immediate normal instruction");
 		String sourceRegister = currentToken.getValue();
-		ensureTokenEquality("(" + instruction + ") Expected an source register, found: ",
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction + ") Expected an source register, found: ",
 				PLPTokenType.ADDRESS);
 		
 		expectedNextToken("two register immediate normal instruction");
-		ensureTokenEquality("(" + instruction + ") Expected a comma after "
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction + ") Expected a comma after "
 				+ sourceRegister + " found: ", PLPTokenType.COMMA);
 		
 		expectedNextToken("two register immediate normal instruction");
 		String immediate = currentToken.getValue();
-		ensureTokenEquality("(" + instruction + ") Expected an immediate value, found: ",
+		ensureTokenEquality("Line number: "+ Integer.toString(lineNumber)+"(" + instruction + ") Expected an immediate value, found: ",
 				PLPTokenType.NUMERIC);
 		
 		appendPreprocessedInstruction(instruction + " " + destinationRegister + ", "
@@ -1645,6 +1646,7 @@ public class DisposablePLPAssembler
 			if (!tokenIterator.hasNext())
 				return false;
 			currentToken = tokenIterator.next();
+			
 		}
 		
 		return true;
@@ -1672,6 +1674,9 @@ public class DisposablePLPAssembler
 	private void ensureTokenEquality(String assemblerExceptionMessage,
 			PLPTokenType compareTo) throws AssemblerException
 	{
+		String lineNumberString = "Failed at Line Number: " + Integer.toString(lineNumber)+ " :";
+		assemblerExceptionMessage = lineNumberString + assemblerExceptionMessage;
+		
 		if (compareTo.equals(PLPTokenType.INSTRUCTION))
 		{
 			willThrowAssemblerMessage(!isInstruction(), assemblerExceptionMessage

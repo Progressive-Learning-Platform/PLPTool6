@@ -1,7 +1,10 @@
 package edu.asu.plp.tool.prototype.model;
 
 import java.awt.geom.IllegalPathStateException;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
@@ -68,10 +71,41 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	public static PLPProject load(File file)
 			throws IOException
 	{
+		
 		if (file.isFile())
 			return loadLegacy(file);
 		else
 			return loadCurrent(file);
+	}
+	
+	/**
+	 * Reads the asm file content. It is used while creating the asm file object and associating to PLPProject.{@link #AsmFileContent()}
+	 * @param fileName
+	 * 				The full path name of the asm file whose content needs to be read.
+	 * @return A String object containing the asm file contents.
+	 * @throws IOException
+	 */
+	private static String AsmFileContent(String fileName) throws IOException
+	{
+		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		try
+		{
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+			
+			while(line != null)
+			{
+				sb.append(line);
+				sb.append("\n");
+				line = br.readLine();
+			}
+			return sb.toString();
+		}
+		finally
+		{
+			br.close();
+		}
+		
 	}
 	
 	/**
@@ -96,19 +130,26 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		String fileString = FileUtils.readFileToString(projectFile);
 		JSONObject projectDetails = new JSONObject(fileString);
 		String name = projectDetails.optString(NAME_KEY);
-		String type = projectDetails.optString(NAME_KEY);
+		//String type = projectDetails.optString(NAME_KEY);
+		String type = projectDetails.optString(TYPE_KEY);
 		String sourceDirectoryName = projectDetails.optString(SOURCE_NAME_KEY, "src");
 		
 		Path projectPath = projectDirectory.toPath();
 		Path sourcePath = projectPath.resolve(sourceDirectoryName);
 		File sourceDirectory = sourcePath.toFile();
 		
-		PLPProject project = new PLPProject(name, type);
+		//PLPProject project = new PLPProject(name, type);
+		PLPProject project = new PLPProject(name, type, projectPath.toString());
 		for (File file : sourceDirectory.listFiles())
 		{
 			String sourceName = file.getName();
+			
 			sourceName = FilenameUtils.removeExtension(sourceName);
-			SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
+			
+			//While associating asmfile to the project, we need to pass the content of the file also, otherwise when 
+			//user tries to open the respective file from project explorer, Editor pane will show empty file - Harsha
+			SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName, AsmFileContent(file.getAbsolutePath()));
+			//SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 			project.add(sourceFile);
 		}
 		
@@ -231,6 +272,15 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		this();
 		nameProperty.set(name);
 		typeProperty.set(type);
+	}
+	
+	//Need to set the path of the project otherwise, it will fail while saving the project - Harsha
+	public PLPProject(String name, String type, String path)
+	{
+		this();
+		nameProperty.set(name);
+		typeProperty.set(type);
+		pathProperty.set(path);
 	}
 	
 	public PLPProject(String name)

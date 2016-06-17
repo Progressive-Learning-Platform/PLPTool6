@@ -233,7 +233,7 @@ public class Main extends Application implements Controller
 		
 		SplitPane.setResizableWithParent(leftSplitPane, Boolean.FALSE);
 		
-		loadOpenProjects();
+		//loadOpenProjects();
 		
 		Parent menuBar = createMenuBar();
 		Parent toolbar = createToolbar();
@@ -381,12 +381,17 @@ public class Main extends Application implements Controller
 		return fileChooser.showOpenDialog(stage);
 	}
 	
+	
 	@Override
 	public void openProject()
 	{
 		File selectedFile = showOpenDialogue();
 		if (selectedFile != null)
 		{
+			//If we are selecting the new format, that is a file with name .project.
+			//In that case change the file to parent folder rather than file. - Harsha
+			if(selectedFile.getName().endsWith(PLPProject.FILE_EXTENSION))
+				selectedFile = selectedFile.getParentFile();
 			openProjectFromFile(selectedFile);
 		}
 	}
@@ -533,6 +538,8 @@ public class Main extends Application implements Controller
 		
 		System.out.println("Opening " + fileName);
 		Tab tab = openFileTabs.get(file);
+		
+		String str = file.getContent();
 		
 		if (tab == null)
 		{

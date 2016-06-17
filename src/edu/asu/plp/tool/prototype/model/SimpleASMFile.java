@@ -27,6 +27,14 @@ public class SimpleASMFile implements ASMFile
 		this.contentProperty = new SimpleStringProperty();
 	}
 	
+	public SimpleASMFile(Project project, String name, String content)
+	{
+		this.project = project;
+		this.nameProperty = new SimpleStringProperty(name);
+		this.contentProperty = new SimpleStringProperty(content);
+	}
+	
+	
 	@Override
 	public boolean writeToFile(File file) throws IOException
 	{
@@ -136,6 +144,7 @@ public class SimpleASMFile implements ASMFile
 	@Override
 	public String getContent()
 	{
+		
 		return contentProperty.get();
 	}
 	
