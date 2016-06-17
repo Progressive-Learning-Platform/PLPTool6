@@ -258,7 +258,7 @@ public class Main extends Application implements Controller
 		primaryStage.show();
 	}
 	
-	private Node plpQuickRef()
+	private Parent plpQuickRef()
 	{
 		// TODO: load this from a JSON file
 		List<QuickViewSection> plp = new ArrayList<>();
@@ -1557,8 +1557,14 @@ public class Main extends Application implements Controller
 	@Override
 	public void showQuickReference()
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		Stage stage = new Stage();
+		
+		// TODO: remove hard-coded numbers. Where did these even come from?
+		// TODO account for different quick references, such as MIPs, x86, etc
+		Scene scene = new Scene(plpQuickRef(), 888, 500);
+		stage.setTitle("Quick Reference");
+		stage.setScene(scene);
+		stage.show();
 	}
 	
 	@Override
