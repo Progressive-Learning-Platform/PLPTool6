@@ -418,7 +418,7 @@ public class DisposablePLPAssembler
 					objectCode[index]));
 		}
 		
-		return new PLPASMImage(assemblyToDisassemblyMap, asmFiles);
+		return new PLPASMImage(assemblyToDisassemblyMap);
 	}
 	
 	/*
