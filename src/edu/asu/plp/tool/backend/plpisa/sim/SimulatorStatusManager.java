@@ -9,27 +9,31 @@ import java.util.List;
 public class SimulatorStatusManager
 {
 	// Stallers
-	boolean isInstructionDecodeStalled;
-	boolean isExecuteStalled;
+	public boolean isInstructionDecodeStalled;
+	public boolean isExecuteStalled;
 	
 	// Continuers
-	boolean isExecuteContinuing;
+	public boolean isExecuteContinuing;
 	
 	// Fowarding Flags
 	// TODO Fix Names
-	boolean mem_mem;
-	boolean mem_ex;
-	boolean mem_ex_lw;
-	boolean ex_ex;
+	public boolean mem_mem;
+	public boolean mem_ex;
+	public boolean mem_ex_lw;
+	public boolean ex_ex;
 	
 	// Simulator Running Statuses
-	boolean isSimulationRunning;
-	boolean hasSimulationStarted;
-	boolean isSimEnabled;
+	public boolean isSimulationRunning;
+	public boolean hasSimulationStarted;
+	public boolean isSimEnabled;
 	
 	// Flag holders
-	private List<SimulatorFlag> currentFlags;
-	private List<SimulatorFlag> previousFlags;
+	public long currentFlags;
+	public long previousFlags;
+	
+	public boolean isFunctional;
+	public boolean willSimDumpTraceOnFailedEvaluation;
+	public boolean willSimAllowExecutionOfArbitaryMem;
 	
 	SimulatorStatusManager()
 	{
@@ -42,8 +46,16 @@ public class SimulatorStatusManager
 		hasSimulationStarted = false;
 		isSimEnabled = false;
 		
-		currentFlags = new ArrayList<>();
-		previousFlags = new ArrayList<>();
+		clearFlags();
+		
+		mem_mem = true;
+		mem_ex = true;
+		mem_ex_lw = true;
+		ex_ex = true;
+		
+		isFunctional = false;
+		willSimDumpTraceOnFailedEvaluation = false;
+		willSimAllowExecutionOfArbitaryMem = false;
 	}
 	
 	public boolean toggleSimMode()
@@ -64,8 +76,8 @@ public class SimulatorStatusManager
 	
 	public void clearFlags()
 	{
-		currentFlags.clear();
-		previousFlags.clear();
+		currentFlags = (long) 0;
+		previousFlags = (long) 0;
 	}
 	
 	public boolean isSimEnabled()
@@ -81,10 +93,15 @@ public class SimulatorStatusManager
 		
 		clearFlags();
 	}
-
+	
 	public void advanceFlags()
 	{
 		previousFlags = currentFlags;
-		currentFlags = new ArrayList<>();
+		currentFlags = (long) 0;
+	}
+	
+	public boolean isFunctional()
+	{
+		return isFunctional;
 	}
 }
