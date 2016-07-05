@@ -24,7 +24,7 @@ import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler.AssemblerStep;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPDisassembly;
-import edu.asu.plp.tool.backend.plpisa.assembler.PLPTokenType;
+import edu.asu.plp.tool.backend.plpisa.assembler2.PLPTokenType;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.RegisterArgument;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.StringLiteral;
@@ -146,6 +146,9 @@ public class PLPAssembler implements Assembler
 		plpInstructions.addITypeInstruction("slti", 0x0a);
 		plpInstructions.addITypeInstruction("sltiu", 0x0b);
 		plpInstructions.addITypeInstruction("lui", 0x0f);
+		
+		plpInstructions.addRLTypeInstruction("lw", 0x23);
+		plpInstructions.addRLTypeInstruction("sw", 0x2B);
 		
 		
 	}
@@ -697,24 +700,28 @@ public class PLPAssembler implements Assembler
 					expectedNextToken(strInstruction + " operation");
 					ensureTokenEquality("(" + strInstruction + ") Expected a comma after "
 							+ strFirstArgument + " found: ", PLPTokenType.COMMA);
-					
+
 					expectedNextToken(strInstruction + " operation");
 					ensureArgumentEquality(strInstruction, lstArguments[1]);
-					
+						
 					strSecondArgument = currentToken.getValue();
 					preprocessedInstruction += (" " + strSecondArgument);
-					
+						
 					if(lstArguments.length > 2)
 					{
 						expectedNextToken(strInstruction + " operation");
 						ensureTokenEquality("(" + strInstruction + ") Expected a comma after "
-								+ strSecondArgument + " found: ", PLPTokenType.COMMA);
-						
+									+ strSecondArgument + " found: ", PLPTokenType.COMMA);
+							
 						expectedNextToken(strInstruction + " operation");
 						ensureArgumentEquality(strInstruction, lstArguments[2]);
-						
+							
 						preprocessedInstruction += (" " + currentToken.getValue());
 					}
+						
+					
+					
+					
 				}
 				
 				
@@ -785,6 +792,10 @@ public class PLPAssembler implements Assembler
 		{
 			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber)+ " expected a numeric value but got "+ currentToken.getValue()+" at "+message);
 		}
+		else if(argument.equals(ArgumentType.MEMORY_LOCATION) && !isMemoryLocation(currentToken))
+		{
+			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber)+ " expected a memory location (represented -> <<number>>(<<register>>) example - 4($t3) ) but got "+ currentToken.getValue()+" at "+message);
+		}
 		
 	}
 	
@@ -809,10 +820,18 @@ public class PLPAssembler implements Assembler
 			
 			return;
 		}
-		else if (compareTo.equals(PLPTokenType.ADDRESS)
-				|| compareTo.equals(PLPTokenType.PARENTHESIS_ADDRESS))
+		else if (compareTo.equals(PLPTokenType.ADDRESS))
 		{
 			if(!isRegister(currentToken))
+			{
+				throw new AssemblerException(sMessage);
+			}
+			
+			return;
+		}
+		else if (compareTo.equals(PLPTokenType.PARENTHESIS_ADDRESS))
+		{
+			if(!isMemoryLocation(currentToken))
 			{
 				throw new AssemblerException(sMessage);
 			}
@@ -825,11 +844,39 @@ public class PLPAssembler implements Assembler
 		
 	}
 	
+	private boolean isMemoryLocation(Token token)
+	{
+		
+		boolean valid = false;
+		
+		String value = token.getValue();
+		
+		String[] parts = value.split("\\(");
+		
+		if(isNumericValue(parts[0]))
+		{
+			String reg = parts[1].substring(0, parts[1].length()-1);
+			valid = registerMap.containsKey(reg);
+		}
+		
+		return valid;
+	}
+	
 	private boolean isNumericValue(Token token)
 	{
 		boolean valid = false;
 		
 		String argumentString = token.getValue();
+		
+		
+		
+		return isNumericValue(argumentString);
+		
+	}
+	
+	private boolean isNumericValue(String argumentString)
+	{
+		boolean valid = false;
 		
 		if (argumentString.startsWith("0x"))
 		{
@@ -850,7 +897,6 @@ public class PLPAssembler implements Assembler
 		}
 		
 		return valid;
-		
 	}
 	
 	private boolean isInstruction(Token token)

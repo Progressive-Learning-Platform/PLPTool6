@@ -1,23 +1,31 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2.instructions;
 
+import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.MEMORY_LOCATION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
+
 import java.text.ParseException;
 
 import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
 import edu.asu.plp.tool.backend.plpisa.assembler2.PLPInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AbstractInstruction;
 
-public class JTypeInstruction implements PLPInstruction
+public class JTypeInstruction extends AbstractInstruction
 {
-	@Override
-	public int assemble(Argument[] arguments) throws ParseException
-	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+	
+	int opCode;
+	
+
+	public JTypeInstruction(int nOpcode) {
+		super(new ArgumentType[] { REGISTER, MEMORY_LOCATION });
+		
+		this.opCode = nOpcode;
 	}
 
 	@Override
-	public ArgumentType[] getArgumentsofInstruction() {
+	protected int safeAssemble(Argument[] arguments) throws ParseException {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
+	
 }

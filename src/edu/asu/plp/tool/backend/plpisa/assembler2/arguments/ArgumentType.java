@@ -12,7 +12,8 @@ public enum ArgumentType
 	MEMORY_LOCATION("[0-9]+\\(\\$[a-z0-9]+\\)", (source) -> new MemoryArgument(source)),
 	STRING_LITERAL(PatternLiterals.LITERAL_STRING, (source) -> new StringLiteral(source)),
 	NUMBER_LITERAL("(0[xb])?[0-9]+", (source) -> new Value(source)),
-	CHAR_LITERAL("'[a-z A-Z0-9]'", (source) -> new CharLiteral(source));
+	CHAR_LITERAL("'[a-z A-Z0-9]'", (source) -> new CharLiteral(source)),
+	LABEL_LITERAL("[a-zA-Z0-9_]+", (source) -> new LabelLiteral(source));
 	
 	private String regex;
 	private Function<String, Argument> parseFunction;
