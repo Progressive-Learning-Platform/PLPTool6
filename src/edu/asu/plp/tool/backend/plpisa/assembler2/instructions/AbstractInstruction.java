@@ -16,6 +16,8 @@ public abstract class AbstractInstruction implements PLPInstruction
 		this.argumentTypes = argumentTypes;
 	}
 	
+	
+	
 	protected abstract int safeAssemble(Argument[] arguments) throws ParseException;
 	
 	@Override
@@ -23,6 +25,11 @@ public abstract class AbstractInstruction implements PLPInstruction
 	{
 		validateArguments(arguments);
 		return safeAssemble(arguments);
+	}
+	
+	@Override
+	public ArgumentType[] getArgumentsofInstruction() {
+		return argumentTypes;
 	}
 	
 	private <T> String[] toStrings(T[] arguments, Function<T, String> toString)

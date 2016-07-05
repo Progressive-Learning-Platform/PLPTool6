@@ -46,4 +46,6 @@ public class RITypeInstruction extends AbstractInstruction
 		
 		return encodedBitString;
 	}
+
+	
 }
