@@ -13,10 +13,10 @@ public enum PLPTokenType
 	ADDRESS("\\$([a-zA-Z]|[0-9])+"),
 	COMMENT("#.*$"),
 	COMMA(","),
-	PARENTHESIS_ADDRESS("\\(\\$([a-zA-Z]|[0-9])+\\)"),
+	PARENTHESIS_ADDRESS("([0-9]+|0[xh][0-9a-fA-F]+|0b[01]+)\\(\\$([a-zA-Z]|[0-9])+\\)"),
 	DIRECTIVE("\\B\\.(.+?)\\b"),
 	STRING("\"(.*?)\""),
-	NUMERIC("\\b((\\d)+|0x([0-9a-fA-F]+))\\b"),
+	NUMERIC("\\b((\\d)+|0[xh]([0-9a-fA-F]+))\\b"),
 	NEW_LINE("^\\s*$");
 	//TODO include .include, .text, .data
 	
