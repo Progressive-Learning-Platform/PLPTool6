@@ -7,6 +7,8 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RITypeInstruction
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RJTypeInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RLTypeInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.BTypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.JTypeInstruction;
 
 public class InstructionMap extends HashMap<String, PLPInstruction>
 {
@@ -37,6 +39,18 @@ public class InstructionMap extends HashMap<String, PLPInstruction>
 	public void addRLTypeInstruction(String name, int opCode)
 	{
 		RLTypeInstruction instruction = new RLTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addJTypeInstruction(String name, int opCode)
+	{
+		JTypeInstruction instruction = new JTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addBTypeInstruction(String name, int opCode)
+	{
+		BTypeInstruction instruction = new BTypeInstruction(opCode);
 		this.put(name, instruction);
 	}
 	

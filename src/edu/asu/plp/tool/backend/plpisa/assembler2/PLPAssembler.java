@@ -151,6 +151,13 @@ public class PLPAssembler implements Assembler
 		plpInstructions.addRLTypeInstruction("sw", 0x2B);
 		
 		
+		plpInstructions.addBTypeInstruction("bne", 0x05);
+		plpInstructions.addBTypeInstruction("beq", 0x04);
+		
+		plpInstructions.addJTypeInstruction("j", 0x02);
+		plpInstructions.addJTypeInstruction("jal", 0x03);
+		
+		
 	}
 	
 	@Override
@@ -182,22 +189,75 @@ public class PLPAssembler implements Assembler
 	{
 		String[] lines = content.split("\\n\\r?");
 		lineNumber = 1;
+		programLocation = 0;
 		try
 		{
 			for (String line : lines)
 			{
 				String source = line.trim();
-				String instruction = source.split("\\s+")[0];
-				String remainder = source.substring(instruction.length());
-				remainder = remainder.trim();
-				String[] argumentStrings = remainder.split(",\\s*");
-				
-				Argument[] arguments = parseArguments(argumentStrings);
 				
 				
-				PLPDisassembly disassembly = process(instruction, arguments);
-				ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
-				assemblyToDisassemblyMap.put(key, disassembly);
+				String preProcessInstruction = lineNumAndAsmFileMap.get(asmFileName).get(lineNumber);
+				
+				if(preProcessInstruction.contains(ASM__ORG__))
+				{
+					programLocation = ISAUtil
+							.sanitize32bits(preProcessInstruction.split(" ")[1]);
+				}
+				else if(preProcessInstruction.contains(ASM__SKIP__))
+				{
+					
+				}
+				else if(preProcessInstruction.contains(ASM__WORD__))
+				{
+					ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
+					int value = (int)ISAUtil.sanitize32bits(preProcessInstruction.split(" ")[1]);
+					PLPDisassembly disassembly = new PLPDisassembly(programLocation, value);
+					programLocation += 4;
+					assemblyToDisassemblyMap.put(key, disassembly);
+					
+				}
+				else
+				{
+					String instruction = source.split("\\s+")[0];
+					
+					if(pseudoOperationMap.containsKey(instruction))
+					{
+						String[] actualInstructions = preProcessInstruction.split("\n");
+						for (String inst : actualInstructions)
+						{
+							String subSource = inst.trim();
+							String subInstruction = subSource.split("\\s+")[0];
+							String remainder = subSource.substring(subInstruction.length());
+							remainder = remainder.trim();
+							String[] argumentStrings = remainder.split(",\\s*");
+							
+							Argument[] arguments = parseArguments(argumentStrings);
+							
+							PLPDisassembly disassembly = process(subInstruction, arguments);
+							ASMInstruction key = new PLPAssemblyInstruction(lineNumber, subSource);
+							assemblyToDisassemblyMap.put(key, disassembly);
+							
+							
+						}
+					}
+					else
+					{
+						String remainder = source.substring(instruction.length());
+						remainder = remainder.trim();
+						String[] argumentStrings = remainder.split(",\\s*");
+						
+						Argument[] arguments = parseArguments(argumentStrings);
+						
+						PLPDisassembly disassembly = process(instruction, arguments);
+						ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
+						assemblyToDisassemblyMap.put(key, disassembly);
+					}
+					
+					
+				}
+				
+				
 				
 				lineNumber++;
 			}
@@ -259,7 +319,7 @@ public class PLPAssembler implements Assembler
 				{
 					preprocessedInstruction = ASM__SKIP__;						
 				}
-				else if(currentToken.getTypeName() == PLPTokenType.LABEL_COLON.name())
+				else if(isLabel(currentToken))
 				{
 					preprocessedInstruction = labeldeclarationProcessing();
 				}
@@ -301,8 +361,9 @@ public class PLPAssembler implements Assembler
 	{
 		PLPInstruction instruction = plpInstructions.get(instructionName);
 		int codedInstruction = instruction.assemble(arguments);
-		long address = programLocation++;
-		PLPDisassembly disassembly = new PLPDisassembly(address, codedInstruction);
+		//long address = programLocation+;
+		PLPDisassembly disassembly = new PLPDisassembly(programLocation, codedInstruction);
+		programLocation += 4;
 		
 		return disassembly;
 	}
@@ -729,7 +790,7 @@ public class PLPAssembler implements Assembler
 			
 		}
 			
-		
+		addRegionAndIncrementAddress(1,4);
 		return preprocessedInstruction;
 	}
 	
@@ -795,6 +856,14 @@ public class PLPAssembler implements Assembler
 		else if(argument.equals(ArgumentType.MEMORY_LOCATION) && !isMemoryLocation(currentToken))
 		{
 			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber)+ " expected a memory location (represented -> <<number>>(<<register>>) example - 4($t3) ) but got "+ currentToken.getValue()+" at "+message);
+		}
+		else if(argument.equals(ArgumentType.LABEL_LITERAL) && !isLabel(currentToken))
+		{
+			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber) + " expected a label but got "+ currentToken.getValue()+" at "+ message);
+		}
+		else
+		{
+			//TODO: run out of argument types so it has to be error!!!!
 		}
 		
 	}
@@ -910,7 +979,7 @@ public class PLPAssembler implements Assembler
 	
 	private boolean isLabel(Token token)
 	{
-		if(false)
+		if(token.getTypeName() == PLPTokenType.LABEL_COLON.name() || token.getTypeName() == PLPTokenType.LABEL_PLAIN.name())
 			return true;
 		else
 			return false;
