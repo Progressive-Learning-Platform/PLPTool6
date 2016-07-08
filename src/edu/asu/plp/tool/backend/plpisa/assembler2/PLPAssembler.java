@@ -37,7 +37,7 @@ public class PLPAssembler implements Assembler
 	private InstructionMap plpInstructions;
 	private HashMap<String, AssemblerDirectiveStep> directiveMap;
 	private HashMap<String, Byte> registerMap;
-	private HashMap<String, AssemblerStep> pseudoOperationMap;
+	private HashMap<String, AssemblerDirectiveStep> pseudoOperationMap;
 	
 	private HashMap<String, Long> symbolTable;
 	private HashMap<String, HashMap<Integer, String>> lineNumAndAsmFileMap;
@@ -100,6 +100,18 @@ public class PLPAssembler implements Assembler
 	private void loadPLPPseudoOperationsMap()
 	{
 		pseudoOperationMap = new HashMap<>();
+		pseudoOperationMap.put("nop", this::nopOperation);
+		pseudoOperationMap.put("b", this::branchOperation);
+		pseudoOperationMap.put("move", this::moveOperation);
+		pseudoOperationMap.put("push", this::pushOperation);
+		pseudoOperationMap.put("pop", this::popOperation);
+		pseudoOperationMap.put("li", this::liOperation);
+		pseudoOperationMap.put("call", this::callOperation);
+		pseudoOperationMap.put("return", this::returnOperation);
+		pseudoOperationMap.put("save", this::saveOperation);
+		pseudoOperationMap.put("restore", this::restoreOperation);
+		pseudoOperationMap.put("lwm", this::lwmOperation);
+		pseudoOperationMap.put("swm", this::swmOperation);
 	}
 	
 	private void loadRegisterMap()
@@ -309,7 +321,7 @@ public class PLPAssembler implements Assembler
 				}
 				else if(pseudoOperationMap.containsKey(currentToken.getValue()))
 				{
-						
+					preprocessedInstruction = pseudoOperationMap.get(currentToken.getValue()).perform();	
 				}
 				else if(isInstruction(currentToken))
 				{
@@ -455,7 +467,353 @@ public class PLPAssembler implements Assembler
 		}
 	}
 	
+	/*
+	 * 
+	 * ======================= Pseudo Operations =========================
+	 */
 	
+	/**
+	 * No-operation. Can be used for branch delay slots
+	 * 
+	 * nop
+	 * 
+	 * equivalent to: sll $0, $0, 0
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String nopOperation() throws AssemblerException
+	{
+		addRegionAndIncrementAddress();
+		return "sll $0, $0, 0";
+	}
+	
+	/**
+	 * Branch always to label
+	 * 
+	 * b label
+	 * 
+	 * equivalent to: beq $0, $0, label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String branchOperation() throws AssemblerException
+	{
+		expectedNextToken("pseudo move operation");
+		
+		ensureTokenEquality("Line Number: " + Integer.toString(lineNumber) + "(b) Expected a label to branch to, found: ",
+				PLPTokenType.LABEL_PLAIN);
+		
+		addRegionAndIncrementAddress();
+		return "beq $0, $0, " + currentToken.getValue();
+	}
+	
+	
+	/**
+	 * Copy Register. Copy $rs to $rd
+	 * 
+	 * move $rd, $rs
+	 * 
+	 * equivalent to: add $rd, $0, $rs
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String moveOperation() throws AssemblerException
+	{
+		expectedNextToken("pseudo move operation");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality("(move) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		expectedNextToken("move pseudo instruction");
+		ensureTokenEquality("(move) Expected a comma after " + destinationRegister
+				+ " found: ", PLPTokenType.COMMA);
+		
+		expectedNextToken("pseudo move operation");
+		String startingRegister = currentToken.getValue();
+		ensureTokenEquality("(move) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		// TODO (Look into) Google Code PLP says it's equivalent instruction is Add, src
+		// code uses or
+		
+		addRegionAndIncrementAddress();
+		return "or " + destinationRegister + ", $0," + startingRegister;
+	}
+	
+	
+	/**
+	 * Push register onto stack-- we modify the stack pointer first so if the CPU is
+	 * interrupted between the two instructions, the data written wont get clobbered
+	 * 
+	 * Push $rt into the stack
+	 * 
+	 * push $rt
+	 * 
+	 * equivalent to: addiu $sp, $sp, -4; sw $rt, 0($sp)
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String pushOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("push pseudo operation");
+		
+		ensureTokenEquality("(push) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		preprocessedInstructions = "addiu $sp, $sp, -4" + "\n" + "sw "  + currentToken.getValue() + ", 4($sp)";
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
+	}
+	
+	
+	/**
+	 * Pop data from stack onto a register-- in the pop case, we want to load first so if
+	 * the CPU is interrupted we have the data copied already
+	 * 
+	 * Pop data from the top of the stack to $rt
+	 * 
+	 * pop $rt
+	 * 
+	 * equivalent to: lw $rt, 0($sp); addiu $sp, $sp, 4
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String popOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("pop pseudo operation");
+		
+		ensureTokenEquality("(push) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		preprocessedInstructions = "lw " + currentToken.getValue() + ", 4($sp)" + "\n" + "addiu $sp, $sp, 4";
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Load Immediate
+	 * 
+	 * Load a 32-bit number to $rd Load the address of a label to a register to be used as
+	 * a pointer.
+	 * 
+	 * <p>
+	 * li $rd, imm
+	 * </p>
+	 * <p>
+	 * li $rd, label
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: lui $rd, (imm & 0xff00) >> 16; ori $rd, imm & 0x00ff
+	 * </p>
+	 * <p>
+	 * equivalent to: lui $rd, (imm & 0xff00) >> 16; ori $rd, imm & 0x00ff
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String liOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("load immediate pseudo operation");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(li) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		expectedNextToken("load immediate pseudo instruction");
+		ensureTokenEquality("(li) Expected a comma after " + targetRegister + " found: ",
+				PLPTokenType.COMMA);
+		
+		expectedNextToken("load immediate pseudo operation");
+		String immediateOrLabel = currentToken.getValue();
+		ensureTokenEquality("(li) Expected a immediate value or label, found: ", 
+				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+		
+		preprocessedInstructions = String.format("lui %s, %s %s", targetRegister,ASM__HIGH__, immediateOrLabel) + "\n" +
+				String.format("ori %s, %s, %s %s", targetRegister,targetRegister, ASM__LOW__, immediateOrLabel);
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Store the value in $rt to a memory location
+	 * 
+	 * lwm $rt, imm32/label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String lwmOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("lvm psuedo operation");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(lvm) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		expectedNextToken("two register immediate normal instruction");
+		ensureTokenEquality(
+				"(lvm) Expected a comma after " + targetRegister + " found: ",
+				PLPTokenType.COMMA);
+		
+		expectedNextToken("lvm psuedo operation");
+		String immediateOrLabel = currentToken.getValue();
+		ensureTokenEquality("Expected a immediate value or label, found: ", 
+				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+		
+		preprocessedInstructions = String.format("lui $at, %s %s", ASM__HIGH__, immediateOrLabel) + "\n" +
+				String.format("ori $at, $at, %s %s", ASM__LOW__, immediateOrLabel) + "\n" +
+				"lw " + targetRegister + ", 0($at)";
+		addRegionAndIncrementAddress(3, 12);
+		return preprocessedInstructions;
+	}
+	
+	
+	/**
+	 * Store to memory
+	 * 
+	 * swm $rt, imm32/label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String swmOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("svm psuedo operation");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("(svm) Expected a register, found: ", PLPTokenType.ADDRESS);
+		
+		expectedNextToken("svm pseudo instruction");
+		ensureTokenEquality(
+				"(svm) Expected a comma after " + targetRegister + " found: ",
+				PLPTokenType.COMMA);
+		
+		expectedNextToken("svm psuedo operation");
+		String immediateOrLabel = currentToken.getValue();
+		ensureTokenEquality("Expected a immediate value or label, found:",
+				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+		
+		preprocessedInstructions = String.format("lui $at, %s %s", ASM__HIGH__, immediateOrLabel) + "\n" +
+				String.format("ori $at, $at, %s %s", ASM__LOW__, immediateOrLabel) + "\n" +
+				"sw " + targetRegister + ", 0($at)";
+		addRegionAndIncrementAddress(3, 12);
+		return preprocessedInstructions;
+	}
+	
+	
+	/**
+	 * Save registers and call a function
+	 * 
+	 * Save $aX, $tX, $sX, and $ra to stack and call function
+	 * 
+	 * call label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String callOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("call psuedo operation");
+		String label = currentToken.getValue();
+		ensureTokenEquality("(call) Expected a label, found: ", PLPTokenType.LABEL_PLAIN);
+		
+		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2", "$t3",
+				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
+				"$s4", "$s5", "$s6", "$s7", "$ra" };
+		
+		preprocessedInstructions = "addiu $sp, $sp, " + (registers.length * 4);
+		for (int registerIndex = 0; registerIndex < registers.length; registerIndex++)
+		{
+			preprocessedInstructions = preprocessedInstructions + "\n" + "sw " + registers[registerIndex] + ", "
+					+ (registerIndex + 1) * 4 + "($sp)";
+		}
+		preprocessedInstructions = preprocessedInstructions + "\n" + "jal " + label + "\n" + "sll $0, $0, 0";
+		
+		addRegionAndIncrementAddress(26, 104);
+		return preprocessedInstructions;
+	}
+	
+	
+	/**
+	 * Restore registers and return from callee. NOT INTERRUPT SAFE
+	 * 
+	 * Restore $aX, $tX, $sX, and $ra from stack and return
+	 * 
+	 * return
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String returnOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2t", "$t3",
+				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
+				"$s4", "$s5", "$s6", "$s7" };
+		
+		for (int registerIndex = 0; registerIndex < registers.length; registerIndex++)
+		{
+			preprocessedInstructions = preprocessedInstructions + "lw " + registers[registerIndex] + ", "
+					+ (registerIndex + 1) * 4 + "($sp)" + "\n";
+		}
+		preprocessedInstructions = preprocessedInstructions + "addu $at, $zero, $ra" + "\n" +
+				"lw $ra, " + ((registers.length + 1) * 4) + "($sp)" + "\n" +
+				"addiu $sp, $sp, " + ((registers.length + 1) * 4) + "\n" +
+				"sll $0, $0, 0";
+		
+		addRegionAndIncrementAddress(27, 108);
+		return preprocessedInstructions;
+	}
+	
+	
+	/**
+	 * Save all registers except for $zero to stack
+	 * 
+	 * save
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String saveOperation() throws AssemblerException
+	{
+		// Start at four instead of zero and exclude $zero register, and normal register
+		// names ((registerMap.size() / 2) - 2) * 4;
+		String preprocessedInstructions = "";
+		preprocessedInstructions = "addiu $sp, $sp, " + ((registerMap.size() / 2) - 2)* 4;
+		int registerCount = (registerMap.size() / 2) - 1;
+		for (int registerIndex = 1; registerIndex <= registerCount; registerIndex++)
+		{
+			preprocessedInstructions = preprocessedInstructions + "\n" + "sw $" + registerIndex + ", " + registerIndex
+					* 4 + "($sp)";
+		}
+		
+		addRegionAndIncrementAddress(registerCount, registerCount * 4);
+		return preprocessedInstructions;
+	}
+	
+	
+	/**
+	 * Restore all none-zero registers from the stack
+	 * 
+	 * Restore all registers saved by 'save' in reverse order
+	 * 
+	 * restore
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String restoreOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		int registerCount = (registerMap.size() / 2) - 1;
+		for (int registerIndex = 1; registerIndex <= registerCount; registerIndex++)
+		{
+			preprocessedInstructions = preprocessedInstructions + "lw $" + registerIndex + ", " + registerIndex
+					* 4 + "($sp)" + "\n";
+		}
+		
+		preprocessedInstructions = preprocessedInstructions + "addiu $sp, $sp, " + ((registerMap.size() / 2) - 2)* 4;
+		addRegionAndIncrementAddress(registerCount, registerCount * 4);
+		return preprocessedInstructions;
+	}
+	
+	
+	/*
+	 * 
+	 * ======================= Assembler Directives Preprocessing =========================
+	 */
 	private String orgDirective() throws AssemblerException
 	{
 		expectedNextToken(".org directive");
@@ -913,6 +1271,37 @@ public class PLPAssembler implements Assembler
 		
 	}
 	
+	
+	private void ensureTokenEquality(String message,
+			PLPTokenType... compareTo) throws AssemblerException
+	{
+		String sMessage = "Line Number: " +Integer.toString(lineNumber) + " " + message + currentToken.getValue();
+		for (PLPTokenType comparison : compareTo)
+		{
+			if (comparison.equals(PLPTokenType.INSTRUCTION))
+			{
+				if(isInstruction(currentToken))
+					return;
+			}
+			else if (comparison.equals(PLPTokenType.LABEL_PLAIN))
+			{
+				if(isLabel(currentToken))
+					return;
+			}
+			else if (comparison.equals(PLPTokenType.ADDRESS)
+					|| comparison.equals(PLPTokenType.PARENTHESIS_ADDRESS))
+			{
+				if(isRegister(currentToken))
+					return;
+			}
+			
+			else if (currentToken.getTypeName().equals(comparison.name()))
+				return;
+		}
+		
+		throw new AssemblerException(sMessage);
+	}
+	
 	private boolean isMemoryLocation(Token token)
 	{
 		
@@ -1014,5 +1403,8 @@ public class PLPAssembler implements Assembler
 		currentAddress += currentAddressIncrementSize;
 	}
 	
-	
+	private void addRegionAndIncrementAddress()
+	{
+		addRegionAndIncrementAddress(1, 4);
+	}
 }
