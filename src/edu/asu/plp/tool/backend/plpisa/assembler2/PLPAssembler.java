@@ -415,7 +415,7 @@ public class PLPAssembler implements Assembler
 		}
 		else if (argumentString.startsWith("0x"))
 		{
-			boolean valid = argumentString.matches("0x[a-fA-F0-9]+");
+			boolean valid = isNumericValue(argumentString);
 			if (!valid)
 			{
 				throw new ParseException(
@@ -423,13 +423,11 @@ public class PLPAssembler implements Assembler
 								+ argumentString + "'", lineNumber);
 			}
 			
-			String number = argumentString.substring(2);
-			int value = Integer.parseInt(number, 16);
-			return new Value(value);
+			return new Value(argumentString);
 		}
 		else if (argumentString.startsWith("0h"))
 		{
-			boolean valid = argumentString.matches("0h[a-fA-F0-9]+");
+			boolean valid = isNumericValue(argumentString);
 			if (!valid)
 			{
 				throw new ParseException(
@@ -437,13 +435,11 @@ public class PLPAssembler implements Assembler
 								+ argumentString + "'", lineNumber);
 			}
 			
-			String number = argumentString.substring(2);
-			int value = Integer.parseInt(number, 16);
-			return new Value(value);
+			return new Value(argumentString);
 		}
 		else if (argumentString.startsWith("0b"))
 		{
-			boolean valid = argumentString.matches("0b[01]+");
+			boolean valid = isNumericValue(argumentString);
 			if (!valid)
 			{
 				throw new ParseException(
@@ -451,14 +447,12 @@ public class PLPAssembler implements Assembler
 								+ argumentString + "'", lineNumber);
 			}
 			
-			String number = argumentString.substring(2);
-			int value = Integer.parseInt(number, 2);
-			return new Value(value);
+			
+			return new Value(argumentString);
 		}
 		else if (argumentString.matches("[0-9]+"))
 		{
-			int value = Integer.parseInt(argumentString);
-			return new Value(value);
+			return new Value(argumentString);
 		}
 		else
 		{

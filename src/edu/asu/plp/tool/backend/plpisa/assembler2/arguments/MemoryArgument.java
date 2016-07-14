@@ -16,6 +16,13 @@ public class MemoryArgument implements Argument
 	{
 		this.rawValue = rawValue;
 		
+		
+		
+	}
+	
+	@Override
+	public int encode()
+	{
 		String[] parts = this.rawValue.split("\\(");
 		
 		offsetValue = new Value(parts[0]);
@@ -23,13 +30,7 @@ public class MemoryArgument implements Argument
 		String reg = parts[1].substring(0, parts[1].length()-1);
 		this.reg = new RegisterArgument(reg);
 		
-	}
-	
-	@Override
-	public int encode()
-	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return -1;
 	}
 
 	@Override

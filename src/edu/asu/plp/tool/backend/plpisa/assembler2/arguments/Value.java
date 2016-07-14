@@ -1,15 +1,11 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2.arguments;
 
 import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.util.ISAUtil;
 
 public class Value implements Argument
 {
 	private String rawValue;
-	
-	public Value(int value)
-	{
-		// TODO Auto-generated constructor stub
-	}
 	
 	public Value(String rawValue)
 	{
@@ -17,23 +13,35 @@ public class Value implements Argument
 	}
 	
 	@Override
-	public int encode()
+	public int encode() 
 	{
-		// TODO Auto-generated method stub return 0;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		long value = 0;
+		
+		if (this.rawValue.startsWith("0x") || this.rawValue.startsWith("0h"))
+		{
+			value =  Long.parseLong(this.rawValue.substring(2), 16) & 0xFFFF;
+		}
+		else if (this.rawValue.startsWith("0b"))
+		{
+			value = Long.parseLong(this.rawValue.substring(2), 2) & 0xFFFF;
+		}
+		else
+		{
+			value = Long.parseLong(this.rawValue) & 0xFFFF;
+		}
+		
+		return (int)value;
 	}
 
 	@Override
 	public ArgumentType getType()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return ArgumentType.NUMBER_LITERAL;
 	}
 	
 	@Override
 	public String raw()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return this.rawValue;
 	}
 }

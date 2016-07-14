@@ -5,28 +5,33 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
 public class LabelLiteral implements Argument{
 	
 	String rawValue;
+	long addressValue;
 	
 	public LabelLiteral(String rawValue)
 	{
 		this.rawValue = rawValue;
+		addressValue = -1;
+	}
+	
+	public LabelLiteral(String rawValue, long addressValue)
+	{
+		this.rawValue = rawValue;
+		this.addressValue = addressValue;
 	}
 
 	@Override
 	public int encode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return (int)this.addressValue;
 	}
 
 	@Override
 	public String raw() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.rawValue;
 	}
 
 	@Override
 	public ArgumentType getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return ArgumentType.LABEL_LITERAL;
 	}
 
 }
