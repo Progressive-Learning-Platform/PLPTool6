@@ -2,6 +2,12 @@ package edu.asu.plp.tool.backend.plpisa.assembler2.instructions;
 
 import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.MEMORY_LOCATION;
 import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.FUNCT_CODE_POSITION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_5BIT;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_6BIT;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RD_POSITION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RT_POSITION;
+import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.SHAMT_POSITION;
 
 import java.text.ParseException;
 
@@ -16,6 +22,7 @@ public class RLTypeInstruction extends AbstractInstruction
 	public static final int OP_CODE_POSITION = 26;
 	public static final int RS_POSITION = 21;
 	public static final int RT_POSITION = 16;
+	public static final int IMMEDIATE_POSITION = 0;
 	
 	private int opCode;
 
@@ -36,14 +43,20 @@ public class RLTypeInstruction extends AbstractInstruction
 		
 	}
 	
-	private int assembleEncodings(int encodedRegisterArgument,
+	private int assembleEncodings(int encodedRTArgument,
 			int encodedMemoryArgument)
 	{
 		int encodedBitString = 0;
-		
-		//TODO: encodin need to be done
+		int offset = Integer.parseInt(Integer.toString(encodedMemoryArgument).split("")[0]);
+		int encodedRSArgument = Integer.parseInt(Integer.toString(encodedMemoryArgument).split("")[1]);
+		encodedBitString |= (encodedRSArgument & MASK_5BIT) << RS_POSITION;
+		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_POSITION;
+		encodedBitString |= (offset & MASK_16BIT) << IMMEDIATE_POSITION;
+		encodedBitString |= (opCode & MASK_6BIT) << OP_CODE_POSITION;
 		
 		return encodedBitString;
+		//TODO: encoding need to be done
+		
 	}
 
 }

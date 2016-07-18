@@ -29,8 +29,7 @@ public class MemoryArgument implements Argument
 		
 		String reg = parts[1].substring(0, parts[1].length()-1);
 		this.reg = new RegisterArgument(reg);
-		
-		return -1;
+		return Integer.parseInt(Integer.toString(offsetValue.encode()) +  Integer.toString(this.reg.encode()));
 	}
 
 	@Override
