@@ -382,7 +382,7 @@ public class PLPAssembler implements Assembler
 		return disassembly;
 	}
 	
-	private Argument[] parseArguments(String[] argumentStrings) throws ParseException
+	private Argument[] parseArguments(String[] argumentStrings) throws ParseException, AssemblyException
 	{
 		int size = argumentStrings.length;
 		Argument[] arguments = new Argument[size];
@@ -390,16 +390,44 @@ public class PLPAssembler implements Assembler
 		for (int index = 0; index < size; index++)
 		{
 			String argumentString = argumentStrings[index];
+			
 			arguments[index] = parseArgument(argumentString);
 		}
 		
 		return arguments;
 	}
 	
-	private Argument parseArgument(String argumentString) throws ParseException
+	private Argument parseArgument(String argumentString) throws ParseException, AssemblyException
 	{
 		argumentString = argumentString.trim();
-		if (argumentString.startsWith("'") || argumentString.startsWith("\""))
+		if(argumentString.startsWith(ASM__HIGH__))
+		{
+			String symbolResolver = argumentString.replaceAll(ASM__HIGH__, "");
+			int symbolResolverValue = 0;
+			if (symbolTable.containsKey(symbolResolver))
+			{
+				symbolResolverValue = (int) (symbolTable.get(symbolResolver) >> 16);
+			}
+			else
+			{
+				symbolResolverValue = (int) (ISAUtil
+						.sanitize32bits(symbolResolver) >> 16);
+			}
+			return new Value(Integer.toString(symbolResolverValue));
+		}
+		else if(argumentString.startsWith(ASM__LOW__))
+		{
+			String symbolResolver = argumentString.replaceAll(ASM__LOW__, "");
+			int symbolResolverValue = 0;
+			if (symbolTable.containsKey(symbolResolver))
+				symbolResolverValue = (int) (symbolTable.get(symbolResolver) & 0xFFFF);
+			else
+				symbolResolverValue = (int) (ISAUtil
+						.sanitize32bits(symbolResolver) & 0xFFFF);
+			
+			return new Value(Integer.toString(symbolResolverValue));
+		}
+		else if (argumentString.startsWith("'") || argumentString.startsWith("\""))
 		{
 			boolean valid = argumentString.endsWith("" + argumentString.charAt(0));
 			if (!valid)
@@ -631,8 +659,9 @@ public class PLPAssembler implements Assembler
 		ensureTokenEquality("(li) Expected a immediate value or label, found: ", 
 				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
 		
-		preprocessedInstructions = String.format("lui %s, %s %s", targetRegister,ASM__HIGH__, immediateOrLabel) + "\n" +
-				String.format("ori %s, %s, %s %s", targetRegister,targetRegister, ASM__LOW__, immediateOrLabel);
+		
+		preprocessedInstructions = String.format("lui %s, %s", targetRegister,ASM__HIGH__ + immediateOrLabel) + "\n" +
+				String.format("ori %s, %s, %s", targetRegister,targetRegister, ASM__LOW__ + immediateOrLabel);
 		addRegionAndIncrementAddress(2, 8);
 		return preprocessedInstructions;
 	}
