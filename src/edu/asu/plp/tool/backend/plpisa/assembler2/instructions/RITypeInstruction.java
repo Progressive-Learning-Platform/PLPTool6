@@ -2,12 +2,6 @@ package edu.asu.plp.tool.backend.plpisa.assembler2.instructions;
 
 import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.NUMBER_LITERAL;
 import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.FUNCT_CODE_POSITION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_5BIT;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_6BIT;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RD_POSITION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RT_POSITION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.SHAMT_POSITION;
 
 import java.text.ParseException;
 
@@ -17,6 +11,13 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 public class RITypeInstruction extends AbstractInstruction
 {
 	private int functCode;
+	public static final int MASK_5BIT = 0b011111;
+	public static final int MASK_6BIT = 0b111111;
+	public static final int RS_POSITION = 21;
+	public static final int RT_POSITION = 16;
+	public static final int RD_POSITION = 11;
+	public static final int SHAMT_POSITION = 6;
+	public static final int FUNCT_CODE_POSITION = 0;
 	
 	public RITypeInstruction(int functCode)
 	{

@@ -26,6 +26,8 @@ import edu.asu.plp.tool.backend.plpisa.assembler.AssemblerStep;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPDisassembly;
 import edu.asu.plp.tool.backend.plpisa.assembler2.PLPTokenType;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.LabelLiteral;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.MemoryArgument;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.RegisterArgument;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.StringLiteral;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.Value;
@@ -409,6 +411,10 @@ public class PLPAssembler implements Assembler
 			
 			return new StringLiteral(argumentString);
 		}
+		else if (argumentString.matches("[0-9]+\\(\\$[a-z0-9]+\\)"))
+		{
+			return new MemoryArgument(argumentString);
+		}
 		else if (argumentString.startsWith("\\$"))
 		{
 			return new RegisterArgument(argumentString);
@@ -453,6 +459,11 @@ public class PLPAssembler implements Assembler
 		else if (argumentString.matches("[0-9]+"))
 		{
 			return new Value(argumentString);
+		}
+		else if (argumentString.matches("[a-zA-Z0-9_]+"))
+		{
+			LabelLiteral lbType = new LabelLiteral(argumentString, symbolTable.get(argumentString), programLocation);
+			return lbType;
 		}
 		else
 		{

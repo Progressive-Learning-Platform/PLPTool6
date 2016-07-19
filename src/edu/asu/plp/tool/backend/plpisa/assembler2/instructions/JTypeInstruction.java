@@ -10,7 +10,10 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AbstractInstructi
 
 public class JTypeInstruction extends AbstractInstruction
 {
-	
+	public static final int OP_CODE_POSITION = 26;
+	public static final int MASK_6BIT = 0b111111;
+	public static final int LABEL_POSITION = 0;
+	public static final int LABEL_MASK = 0x3FFFFFF;
 	int opCode;
 	
 
@@ -23,8 +26,24 @@ public class JTypeInstruction extends AbstractInstruction
 
 	@Override
 	protected int safeAssemble(Argument[] arguments) throws ParseException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		Argument lbArgument = arguments[0];
+		
+		
+		return assembleEncodings(lbArgument.encode());
+	}
+	
+	private int assembleEncodings(int labelLocation)
+	{
+		int encodedBitString = 0;
+		
+		labelLocation = labelLocation >> 2;
+		
+		encodedBitString |= (labelLocation & LABEL_MASK) << LABEL_POSITION;
+		encodedBitString |= (opCode & MASK_6BIT) << OP_CODE_POSITION;
+		
+		return encodedBitString;
+		
 	}
 	
 }
