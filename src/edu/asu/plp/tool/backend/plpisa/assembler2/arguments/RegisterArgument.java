@@ -30,7 +30,7 @@ public class RegisterArgument implements Argument
 			String posReg1 = registers[index];
 			String posReg2 = "$" + index; 
 			
-			if(this.rawValue == posReg1 || this.rawValue == posReg2)
+			if(this.rawValue.equalsIgnoreCase(posReg2) || this.rawValue.equalsIgnoreCase(posReg1))
 			{
 				encodedValue = index;
 				break;

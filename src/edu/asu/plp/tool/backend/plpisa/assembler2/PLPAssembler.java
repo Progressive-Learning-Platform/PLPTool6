@@ -189,6 +189,8 @@ public class PLPAssembler implements Assembler
 			preprocessFile(asmFile.getContent(), asmFile);
 		}
 		
+		programLocation = 0;
+		
 		//2nd Step Object Code generation
 		for (ASMFile asmFile : asmFiles)
 		{
@@ -205,7 +207,7 @@ public class PLPAssembler implements Assembler
 	{
 		String[] lines = content.split("\\n\\r?");
 		lineNumber = 1;
-		programLocation = 0;
+		//programLocation = 0;
 		try
 		{
 			for (String line : lines)

@@ -41,7 +41,7 @@ public class RIUTypeInstruction extends AbstractInstruction
 		int encodedBitString = 0;
 		
 		encodedBitString |= encodedImmediateArgument;
-		encodedBitString |= (encodedImmediateArgument & MASK_5BIT) << RT_LOCATION;
+		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_LOCATION;
 		encodedBitString |= (opCode & MASK_6BIT) << OP_CODE_POSITION;
 		
 		return encodedBitString;
