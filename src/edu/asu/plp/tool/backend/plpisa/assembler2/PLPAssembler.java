@@ -1,5 +1,9 @@
 package edu.asu.plp.tool.backend.plpisa.assembler2;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.faeysoft.preceptor.lexer.LexException;
 import com.faeysoft.preceptor.lexer.Lexer;
 import com.faeysoft.preceptor.lexer.Token;
 
@@ -22,7 +25,6 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler.AssemblerStep;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPDisassembly;
 import edu.asu.plp.tool.backend.plpisa.assembler2.PLPTokenType;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
@@ -40,6 +42,8 @@ public class PLPAssembler implements Assembler
 	private HashMap<String, AssemblerDirectiveStep> directiveMap;
 	private HashMap<String, Byte> registerMap;
 	private HashMap<String, AssemblerDirectiveStep> pseudoOperationMap;
+	
+	private List<PLPDisassemblyInfo> lstInstEncodings;
 	
 	private HashMap<String, Long> symbolTable;
 	private HashMap<String, HashMap<Integer, String>> lineNumAndAsmFileMap;
@@ -59,6 +63,8 @@ public class PLPAssembler implements Assembler
 	private int currentRegion;
 	private long entryPoint;
 	//private ArrayList<Integer> regionMap;
+	
+	private String projectPath;
 	
 	
 	private static final String ASM__WORD__ = "ASM__WORD__";
@@ -181,15 +187,18 @@ public class PLPAssembler implements Assembler
 	{
 		assemblyToDisassemblyMap = new OrderedBiDirectionalOneToManyHashMap<>();
 		
+		
 		initialize();
 		
 		//2nd Step Preprocess - Take care of syntax errors, symbol table, assembler directives, pseudoOperations, comments and empty lines
 		for (ASMFile asmFile : asmFiles)
 		{
+			projectPath = asmFile.getProject().getPath();
 			preprocessFile(asmFile.getContent(), asmFile);
 		}
 		
 		programLocation = 0;
+		lstInstEncodings = new ArrayList<>();
 		
 		//2nd Step Object Code generation
 		for (ASMFile asmFile : asmFiles)
@@ -198,7 +207,62 @@ public class PLPAssembler implements Assembler
 			assembleFile(asmFile.getContent(), asmFile.getName());
 		}
 		
+		disassemblygenerator();
+		
 		return new PLPASMImage(assemblyToDisassemblyMap);
+	}
+	
+	private void disassemblygenerator()
+	{
+		PrintWriter writer;
+		try {
+			
+			writer = new PrintWriter(projectPath + "\\DisassemblyOfFile.txt");
+		
+		
+		System.out.print("===================================================================================================================================================");
+		writer.println("\n");
+		System.out.print("===================================================================================================================================================");
+		writer.println("\n");
+		System.out.println("Symbol Table");
+		writer.println("Symbol Table");
+		System.out.println("");
+		writer.println("");
+		String head = String.format("%-40s | %-40s", "key", "value");
+		System.out.println(head);
+		writer.println(head);
+		System.out.println("");
+		writer.println("");
+		symbolTable.forEach((key, value) -> {
+			System.out.println(String.format("%-40s | 0x%05x", key, value));
+			writer.println(String.format("%-40s | 0x%05x", key, value));
+		});
+		System.out.print("===================================================================================================================================================");
+		writer.println("\n");
+		System.out.println("Program encoding");
+		writer.println("Program encoding");
+		System.out.println("");
+		writer.println("");
+		String headline = String.format("%12s | %12s | %24s | %24s | %-40s | %-40s | %-11s | %-40s", "Address[Hex]", "Address[Dec]", "InstructionEncoding[Hex]", "InstructionEncoding[Dec]", "Actual Instruction", "Sub Instruction", "Line Number", "Source File" );
+		System.out.println(headline);
+		writer.println(headline);
+		System.out.println("");
+		writer.println("");
+		for(PLPDisassemblyInfo info : lstInstEncodings)
+		{
+			System.out.println(info.toString());
+			writer.println(info.toString());
+		}
+		System.out.print("===================================================================================================================================================");
+		writer.println("\n");
+		System.out.print("===================================================================================================================================================");
+		writer.println("\n");
+		writer.close();
+		
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -255,6 +319,8 @@ public class PLPAssembler implements Assembler
 							PLPDisassembly disassembly = process(subInstruction, arguments);
 							ASMInstruction key = new PLPAssemblyInstruction(lineNumber, subSource);
 							assemblyToDisassemblyMap.put(key, disassembly);
+							PLPDisassemblyInfo arg = new PLPDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, subSource, asmFileName);
+							this.lstInstEncodings.add(arg);
 							
 							
 						}
@@ -270,6 +336,8 @@ public class PLPAssembler implements Assembler
 						PLPDisassembly disassembly = process(instruction, arguments);
 						ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
 						assemblyToDisassemblyMap.put(key, disassembly);
+						PLPDisassemblyInfo arg = new PLPDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, source, asmFileName);
+						this.lstInstEncodings.add(arg);
 					}
 					
 					
