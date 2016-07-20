@@ -10,6 +10,10 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AbstractInstructi
 
 public class JTypeInstruction extends AbstractInstruction
 {
+	//j label
+	//jal label
+	//Type 7
+	
 	public static final int OP_CODE_POSITION = 26;
 	public static final int MASK_6BIT = 0b111111;
 	public static final int LABEL_POSITION = 0;

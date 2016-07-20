@@ -10,6 +10,10 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 
 public class RITypeInstruction extends AbstractInstruction
 {
+	//sll $rd, $rt, shamt
+	//srl $rd, $rt, shamt
+	//Type 1
+	
 	private int functCode;
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;

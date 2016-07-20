@@ -16,6 +16,11 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 
 public class RLTypeInstruction extends AbstractInstruction
 {
+	//lw $rs, offset(register)
+	//sw $rd, offset(register)
+	
+	//Type 6
+	
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
 	public static final int MASK_16BIT = 0xFFFF;

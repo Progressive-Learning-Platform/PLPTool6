@@ -12,6 +12,10 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AbstractInstructi
 
 public class BTypeInstruction extends AbstractInstruction
 {
+	//bne $t1, $t2, label
+	//beq $t1, $t2, label
+	//Type 3
+	
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
 	public static final int MASK_16BIT = 0xFFFF;

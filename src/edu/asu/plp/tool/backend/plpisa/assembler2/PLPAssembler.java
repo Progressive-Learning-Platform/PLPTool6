@@ -152,14 +152,16 @@ public class PLPAssembler implements Assembler
 		plpInstructions.addRITypeInstruction("srl", 0x02);
 		
 		plpInstructions.addRJTypeInstruction("jr", 0x08);
-		plpInstructions.addRJTypeInstruction("jalr", 0x09);
+		
+		plpInstructions.addJRRTypeInstruction("jalr", 0x09);
 		
 		plpInstructions.addITypeInstruction("addiu", 0x09);
 		plpInstructions.addITypeInstruction("andi", 0x0c);
 		plpInstructions.addITypeInstruction("ori", 0x0d);
 		plpInstructions.addITypeInstruction("slti", 0x0a);
 		plpInstructions.addITypeInstruction("sltiu", 0x0b);
-		plpInstructions.addITypeInstruction("lui", 0x0f);
+		
+		plpInstructions.addRIUTypeInstruction("lui", 0x0f);
 		
 		plpInstructions.addRLTypeInstruction("lw", 0x23);
 		plpInstructions.addRLTypeInstruction("sw", 0x2B);
@@ -402,7 +404,7 @@ public class PLPAssembler implements Assembler
 		argumentString = argumentString.trim();
 		if(argumentString.startsWith(ASM__HIGH__))
 		{
-			String symbolResolver = argumentString.replaceAll(ASM__HIGH__, "");
+			String symbolResolver = argumentString.substring(5);
 			int symbolResolverValue = 0;
 			if (symbolTable.containsKey(symbolResolver))
 			{
@@ -417,7 +419,7 @@ public class PLPAssembler implements Assembler
 		}
 		else if(argumentString.startsWith(ASM__LOW__))
 		{
-			String symbolResolver = argumentString.replaceAll(ASM__LOW__, "");
+			String symbolResolver = argumentString.substring(5);
 			int symbolResolverValue = 0;
 			if (symbolTable.containsKey(symbolResolver))
 				symbolResolverValue = (int) (symbolTable.get(symbolResolver) & 0xFFFF);
@@ -443,7 +445,7 @@ public class PLPAssembler implements Assembler
 		{
 			return new MemoryArgument(argumentString);
 		}
-		else if (argumentString.startsWith("\\$"))
+		else if (argumentString.startsWith("$"))
 		{
 			return new RegisterArgument(argumentString);
 		}

@@ -10,6 +10,13 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 
 public class ITypeInstruction extends AbstractInstruction
 {
+	//addiu $rd, $rs, imm
+	//andi $rd, $rs, imm
+	//ori $rd, $rs, imm
+	//slti $rd, $rs, imm
+	//sltiu $rd, $rs, imm
+	//Type 4
+	
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
 	public static final int MASK_16BIT = 0xFFFF;
