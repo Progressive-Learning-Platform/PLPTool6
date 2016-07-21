@@ -13,6 +13,7 @@ import java.util.Optional;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONObject;
@@ -35,6 +36,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	private static final String NAME_KEY = "projectName";
 	private static final String TYPE_KEY = "projectType";
 	private static final String SOURCE_NAME_KEY = "sourceDirectoryName";
+	private static final String SOURCE_FILES = "sourceAsmFiles";
 	
 	/**
 	 * Path to this project in the file system. If the this project exists in memory only
@@ -133,6 +135,8 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		//String type = projectDetails.optString(NAME_KEY);
 		String type = projectDetails.optString(TYPE_KEY);
 		String sourceDirectoryName = projectDetails.optString(SOURCE_NAME_KEY, "src");
+		String lstAsmFiles = projectDetails.optString(SOURCE_FILES);
+		String[] listFiles = lstAsmFiles.split(",");
 		
 		Path projectPath = projectDirectory.toPath();
 		Path sourcePath = projectPath.resolve(sourceDirectoryName);
@@ -140,7 +144,17 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		
 		//PLPProject project = new PLPProject(name, type);
 		PLPProject project = new PLPProject(name, type, projectPath.toString());
-		for (File file : sourceDirectory.listFiles())
+		
+		for (String fileName : listFiles)
+		{
+			String fullPath = FilenameUtils.concat(sourceDirectory.getAbsolutePath(), fileName);
+			String sourceName = FilenameUtils.removeExtension(fileName);
+			
+			SimpleASMFile sourceFile = new SimpleASMFile(project, fileName, AsmFileContent(fullPath));
+			project.add(sourceFile);
+		}
+		
+		/*for (File file : sourceDirectory.listFiles())
 		{
 			String sourceName = file.getName();
 			
@@ -151,7 +165,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 			SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName, AsmFileContent(file.getAbsolutePath()));
 			//SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 			project.add(sourceFile);
-		}
+		}*/
 		
 		return project;
 	}
@@ -345,6 +359,15 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		root.put(TYPE_KEY, getType());
 		// TODO: make "src" a constant
 		root.put(SOURCE_NAME_KEY, "src");
+		String fileList = "";
+		for(int i = 0; i < this.getFileCount(); i++)
+		{
+			fileList += (this.get(i).getName() + ",");
+		}
+		if(fileList.length() > 0)
+			fileList = fileList.substring(0, fileList.length() - 1);
+		
+		root.put(SOURCE_FILES, fileList );
 		
 		return root.toString();
 	}

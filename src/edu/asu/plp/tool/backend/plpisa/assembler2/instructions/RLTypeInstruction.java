@@ -13,6 +13,7 @@ import java.text.ParseException;
 
 import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.MemoryArgument;
 
 public class RLTypeInstruction extends AbstractInstruction
 {
@@ -41,26 +42,27 @@ public class RLTypeInstruction extends AbstractInstruction
 	protected int safeAssemble(Argument[] arguments) throws ParseException {
 		
 		Argument registerArgument = arguments[0];
-		Argument memoryArgument = arguments[1];
+		MemoryArgument memoryArgument = (MemoryArgument)arguments[1];
+		
+		memoryArgument.encode();
 		
 		return assembleEncodings(registerArgument.encode(),
-				memoryArgument.encode());
+				memoryArgument.getOffsetValue(), memoryArgument.getRegisterValue());
 		
 	}
 	
 	private int assembleEncodings(int encodedRTArgument,
-			int encodedMemoryArgument)
+			int offsetofMemoryArgument, int registerOfMemoryArgument)
 	{
 		int encodedBitString = 0;
-		int offset = Integer.parseInt(Integer.toString(encodedMemoryArgument).split("")[0]);
-		int encodedRSArgument = Integer.parseInt(Integer.toString(encodedMemoryArgument).split("")[1]);
-		encodedBitString |= (encodedRSArgument & MASK_5BIT) << RS_POSITION;
+		
+		encodedBitString |= (offsetofMemoryArgument & MASK_16BIT) << IMMEDIATE_POSITION;
 		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_POSITION;
-		encodedBitString |= (offset & MASK_16BIT) << IMMEDIATE_POSITION;
+		encodedBitString |= (registerOfMemoryArgument & MASK_5BIT) << RS_POSITION;
 		encodedBitString |= (opCode & MASK_6BIT) << OP_CODE_POSITION;
 		
 		return encodedBitString;
-		//TODO: encoding need to be done
+		
 		
 	}
 

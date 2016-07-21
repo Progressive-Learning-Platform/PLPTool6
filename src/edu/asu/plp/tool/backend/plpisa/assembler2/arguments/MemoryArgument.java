@@ -29,7 +29,7 @@ public class MemoryArgument implements Argument
 		
 		String reg = parts[1].substring(0, parts[1].length()-1);
 		this.reg = new RegisterArgument(reg);
-		return Integer.parseInt(Integer.toString(offsetValue.encode()) +  Integer.toString(this.reg.encode()));
+		return offsetValue.encode();
 	}
 
 	@Override
@@ -44,14 +44,14 @@ public class MemoryArgument implements Argument
 		return this.rawValue;
 	}
 	
-	public RegisterArgument getRegisterValue()
+	public int getRegisterValue()
 	{
-		return this.reg;
+		return this.reg.encode();
 	}
 	
-	public Value getOffsetValue()
+	public int getOffsetValue()
 	{
-		return this.offsetValue;
+		return this.offsetValue.encode();
 	}
 	
 }

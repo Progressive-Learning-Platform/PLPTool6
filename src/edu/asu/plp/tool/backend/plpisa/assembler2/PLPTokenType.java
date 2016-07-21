@@ -16,7 +16,7 @@ public enum PLPTokenType
 	PARENTHESIS_ADDRESS("([0-9]+|0[xh][0-9a-fA-F]+|0b[01]+)\\(\\$([a-zA-Z]|[0-9])+\\)"),
 	DIRECTIVE("\\B\\.(.+?)\\b"),
 	STRING("\"(.*?)\""),
-	NUMERIC("\\b((\\d)+|0[xh]([0-9a-fA-F]+)|0b[01]+)\\b"),
+	NUMERIC("\\b([-\\+]?(\\d)+|0[xh]([0-9a-fA-F]+)|0b[01]+)\\b"),
 	NEW_LINE("^\\s*$");
 	//TODO include .include, .text, .data
 	

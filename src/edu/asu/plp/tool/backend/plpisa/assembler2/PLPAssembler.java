@@ -57,6 +57,7 @@ public class PLPAssembler implements Assembler
 	private long programLocation;
 	private int lineNumber;
 	private long currentAddress;
+	private ASMFile currentFile;
 	
 	private long currentDataAddress;
 	private long currentTextAddress;
@@ -194,6 +195,7 @@ public class PLPAssembler implements Assembler
 		for (ASMFile asmFile : asmFiles)
 		{
 			projectPath = asmFile.getProject().getPath();
+			currentFile = asmFile;
 			preprocessFile(asmFile.getContent(), asmFile);
 		}
 		
@@ -203,7 +205,7 @@ public class PLPAssembler implements Assembler
 		//2nd Step Object Code generation
 		for (ASMFile asmFile : asmFiles)
 		{
-			
+			currentFile = asmFile;
 			assembleFile(asmFile.getContent(), asmFile.getName());
 		}
 		
@@ -277,6 +279,9 @@ public class PLPAssembler implements Assembler
 			for (String line : lines)
 			{
 				String source = line.trim();
+				if(source.indexOf('#') > 0)
+					source = source.substring(0, source.indexOf('#') - 1).trim();
+				
 				
 				
 				String preProcessInstruction = lineNumAndAsmFileMap.get(asmFileName).get(lineNumber);
@@ -422,7 +427,17 @@ public class PLPAssembler implements Assembler
 				
 				if(nextToken(1))
 				{
-					throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + ":Extra token is present a line, found: " + currentToken.getValue());
+					if(currentToken.getTypeName() == PLPTokenType.COMMENT.name())
+					{
+						if(nextToken(1))
+							throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + ":Extra token is present a line, found: " + currentToken.getValue());
+						
+					}
+					else
+					{
+						throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + ":Extra token is present a line, found: " + currentToken.getValue());
+					}	
+					
 				}
 				
 					
@@ -505,13 +520,13 @@ public class PLPAssembler implements Assembler
 			if (!valid)
 			{
 				throw new ParseException(
-						"String literals must be enclosed in single or double quotes.",
+						"Line Number:"+Integer.toString(lineNumber)+" String literals must be enclosed in single or double quotes.",
 						lineNumber);
 			}
 			
 			return new StringLiteral(argumentString);
 		}
-		else if (argumentString.matches("[0-9]+\\(\\$[a-z0-9]+\\)"))
+		else if (argumentString.matches("[-\\+]?[0-9]+\\(\\$[a-z0-9]+\\)"))
 		{
 			return new MemoryArgument(argumentString);
 		}
@@ -525,7 +540,7 @@ public class PLPAssembler implements Assembler
 			if (!valid)
 			{
 				throw new ParseException(
-						"Expected an integer value to follow '0x' but found '"
+						"Line Number:"+Integer.toString(lineNumber)+" Expected an integer value to follow '0x' but found '"
 								+ argumentString + "'", lineNumber);
 			}
 			
@@ -537,7 +552,7 @@ public class PLPAssembler implements Assembler
 			if (!valid)
 			{
 				throw new ParseException(
-						"Expected an integer value to follow '0x' but found '"
+						"Line Number:"+Integer.toString(lineNumber)+" Expected an integer value to follow '0x' but found '"
 								+ argumentString + "'", lineNumber);
 			}
 			
@@ -549,14 +564,14 @@ public class PLPAssembler implements Assembler
 			if (!valid)
 			{
 				throw new ParseException(
-						"Expected an integer value to follow '0b' but found '"
+						"Line Number:"+Integer.toString(lineNumber)+" Expected an integer value to follow '0b' but found '"
 								+ argumentString + "'", lineNumber);
 			}
 			
 			
 			return new Value(argumentString);
 		}
-		else if (argumentString.matches("[0-9]+"))
+		else if (argumentString.matches("[-\\+]?[0-9]+"))
 		{
 			return new Value(argumentString);
 		}
@@ -567,7 +582,7 @@ public class PLPAssembler implements Assembler
 		}
 		else
 		{
-			throw new ParseException("Expected argument but found '" + argumentString
+			throw new ParseException("Line Number:"+Integer.toString(lineNumber)+" Expected argument but found '" + argumentString
 					+ "'", lineNumber);
 		}
 	}

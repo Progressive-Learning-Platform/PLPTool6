@@ -11,7 +11,7 @@ public enum ArgumentType
 	REGISTER("\\$[a-z0-9]+", (source) -> new RegisterArgument(source)),
 	MEMORY_LOCATION("[0-9]+\\(\\$[a-z0-9]+\\)", (source) -> new MemoryArgument(source)),
 	STRING_LITERAL(PatternLiterals.LITERAL_STRING, (source) -> new StringLiteral(source)),
-	NUMBER_LITERAL("(0[xhb])?[0-9]+", (source) -> new Value(source)),
+	NUMBER_LITERAL("\\b([-\\+]?(\\d)+|0[xh]([0-9a-fA-F]+)|0b[01]+)\\b", (source) -> new Value(source)),
 	CHAR_LITERAL("'[a-z A-Z0-9]'", (source) -> new CharLiteral(source)),
 	LABEL_LITERAL("[a-zA-Z0-9_]+", (source) -> new LabelLiteral(source));
 	
