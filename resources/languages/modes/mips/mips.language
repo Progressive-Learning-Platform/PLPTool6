@@ -1,5 +1,0 @@
-{
-  "Official Name" : "MIPS",
-  "mode file" : "mode-mips.js",
-  "associated file types" : ["asm", "s"],
-}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../CSS/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="../JS/Libraries/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../JS/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="../JS/jqwidgets/jqxsplitter.js"></script>
+    <link rel="stylesheet" href="../CSS/codemirror.css">
+    <script src="../JS/codemirror/codemirror.js"></script>
+    <script src="../JS/codemirror/active-line.js"></script>
+    <script src="../JS/codemirror/annotatescrollbar.js"></script>
+    <script src="../JS/codemirror/matchesonscrollbar.js"></script>
+    <script src="../JS/codemirror/searchcursor.js"></script>
+    <script src="../JS/codemirror/match-highlighter.js"></script>
+    <style type="text/css">
+        .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+        .CodeMirror-focused .cm-matchhighlight {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+            background-position: bottom;
+            background-repeat: repeat-x;
+        }
+        .cm-matchhighlight {background-color: lightgreen}
+        .CodeMirror-selection-highlight-scrollbar {background-color: green}
+    </style>
+    <link rel="stylesheet" href="../CSS/ide.css"  type="text/css">
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var rss = (function ($) {
+                var ht = $(window).height()*0.82;
+                console.log("ht is"+ht);
+                var createWidgets = function () {
+                    $('#mainSplitter').jqxSplitter({  width: '100%', height: ht, panels: [{ size: 150, min: 100 }, {min: 500, size: 400}] });
+                    $('#contentSplitter').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: 900, min: 500, collapsible: false }, { min: 100, collapsible: true}] });
+                    $('#simSplitter').jqxSplitter({  width: '100%', height: '100%', panels: [{ size: 900, min: 500, collapsible: false}, {min: 400, collapsible: true}] });
+                };
+                return {
+                    init: function () {
+                        createWidgets();
+                    }
+                }
+
+            } (jQuery));
+
+            rss.init();
+        });
+    </script>
+    <title>PLP IDE</title>
+</head>
+<body>
+    <h2>PLP Tool IDE</h2>
+    <div id="toolbar">
+        <div id="inibar" style="float: left">
+            <input type="file" id="upfile" style="height: 0; width: 0; visibility: hidden">
+            <button type="button" title="New"><img src="../images/toolbar_new.png"></button>
+            <button type="button" title="Open" onclick="$('#upfile').trigger('click'); return false;"><img src="../images/toolbar_open.png"></button>
+            <button type="button" title="Save"><img src="../images/toolbar_save.png"></button>
+            <button type="button" title="Assemble"><img src="../images/toolbar_assemble.png"></button>
+            <button type="button" title="Simulate"><img src="../images/toolbar_simulate.png"></button>
+        </div>
+        <div id="runbar" style="float: right">
+            <button type="button" title="Step"><img src="../images/toolbar_step.png"></button>
+            <button type="button" title="Run"><img src="../images/toolbar_run.png"></button>
+            <button type="button" title="Reset"><img src="../images/toolbar_reset.png"></button>
+            <button type="button" title="Remote"><img src="../images/toolbar_remote.png"></button>
+            <button type="button" title="CPU"><img src="../images/toolbar_cpu.png"></button>
+            <button type="button" title="Watcher"><img src="../images/toolbar_watcher.png"></button>
+            <button type="button" title="Simulation LEDs"><img src="../images/toolbar_sim_leds.png"></button>
+            <button type="button" title="Simulation Switches"><img src="../images/toolbar_sim_switches.png"></button>
+            <button type="button" title="Simulation 7-segment"><img src="../images/toolbar_sim_7segments.png"></button>
+            <button type="button" title="Simulation UART"><img src="../images/toolbar_sim_uart.png"></button>
+            <button type="button" title="Simulation VGA"><img src="../images/toolbar_sim_vga.png"></button>
+            <button type="button" title="Simulation PLP ID"><img src="../images/toolbar_sim_plpid.png"></button>
+            <button type="button" title="Simulation GPIO"><img src="../images/toolbar_sim_gpio.png"></button>
+            <button type="button" title="Exclamation"><img src="../images/toolbar_exclamation.png"></button>
+        </div>
+    </div>
+    <div id='jqxWidget'>
+        <div id="mainSplitter">
+            <div style="overflow-y: auto;">
+                File Structure
+            </div>
+            <!--////////////////////////-->
+            <div>
+                <div id="simSplitter">
+                    <div>
+                        <div id="contentSplitter">
+                            <div style="overflow-y: auto;">
+                                <div id = "code" style="width: 99%; height: 98%; margin-right: 1%">
+                                    <div id="editor" style="width: 100%; height: 100%">.org 0x10000000
+ nop
+ lbl1:
+ addiu $t1 $s0 13
+ jal lbl1
+ li $a1 0x110</div>
+                                    <script src="../JS/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+                                    <script src="../JS/textAreaJS.js"></script>
+                                </div>
+                            </div>
+                            <div style="overflow-y: auto;">
+                                Console Messages go Here!!!!
+                            </div>
+                        </div>
+                    </div>
+                    <!--////////////////////////-->
+                    <div style="overflow-y: auto;">
+                        <!--Sim Stuff-->
+                        <div class="tabs">
+
+                            <div class="tab">
+                                <input type="radio" id="tab-1" name="tab-group-1" checked>
+                                <label for="tab-1">Tab One</label>
+
+                                <div class="content">
+                                    Tab1 stuff
+                                </div>
+                            </div>
+
+                            <div class="tab">
+                                <input type="radio" id="tab-2" name="tab-group-1">
+                                <label for="tab-2">Tab Two</label>
+
+                                <div class="content">
+                                    Tab2 stuff
+                                </div>
+                            </div>
+
+                            <div class="tab">
+                                <input type="radio" id="tab-3" name="tab-group-1">
+                                <label for="tab-3">Tab Three</label>
+
+                                <div class="content">
+                                    Tab 3 stuff
+                                </div>
+                            </div>
+
+                        </div>
+                        <!--1234567890-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
