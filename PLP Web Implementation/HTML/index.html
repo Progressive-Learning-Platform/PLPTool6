@@ -66,6 +66,7 @@
 //                console.log(fileIn);
 //                console.log(fileIn[0].value);
                 var f = fileIn[0].files[0];
+                consoletxt = document.getElementById('console');
 
                 if (f) {
                     var r = new FileReader();
@@ -77,6 +78,7 @@
                                 +"size: " + f.size + " bytesn"
                                 + "starts with: " + contents.substr(1, contents.indexOf("n"))
                         );
+                        consoletxt.innerHTML = contents;
 //                        console.log(editTxt);
                         console.log(contents);
 //                        console.log("contents of file are"+ r.result);
@@ -145,7 +147,7 @@
                                     <script src="../JS/textAreaJS.js"></script>
                                 </div>
                             </div>
-                            <div style="overflow-y: auto;">
+                            <div id = "console" style="overflow-y: auto;">
                                 Console Messages go Here!!!!
                             </div>
                         </div>
