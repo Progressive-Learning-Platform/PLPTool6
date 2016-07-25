@@ -25,6 +25,7 @@
     </style>
     <link rel="stylesheet" href="../CSS/ide.css"  type="text/css">
     <script type="text/javascript">
+
         $(document).ready(function () {
             var rss = (function ($) {
                 var ht = $(window).height()*0.82;
@@ -44,6 +45,53 @@
 
             rss.init();
         });
+
+        function uploadFile() {
+            console.log("in uploadFile");
+            fileIn = $('#upfile');
+            fileIn.trigger('click');
+            return false;
+        }
+
+        function openFile() {
+            console.log("in openFile");
+//            console.log(window.File!=null);
+//            console.log(window.FileReader!=null);
+//            console.log(window.FileList!=null);
+//            console.log(window.Blob!=null);
+            if ((window.File!=null) && (window.FileReader!=null) && (window.FileList!=null) && (window.Blob!=null)) {
+                //do your stuff!
+                console.log("in if");
+                fileIn = $('#upfile');
+//                console.log(fileIn);
+//                console.log(fileIn[0].value);
+                var f = fileIn[0].files[0];
+
+                if (f) {
+                    var r = new FileReader();
+                    r.onload = function(e) {
+                        var contents = e.target.result;
+                        alert( "Got the file.n"
+                                +"name: " + f.name + "n"
+                                +"type: " + f.type + "n"
+                                +"size: " + f.size + " bytesn"
+                                + "starts with: " + contents.substr(1, contents.indexOf("n"))
+                        );
+//                        console.log(editTxt);
+                        console.log(contents);
+//                        console.log("contents of file are"+ r.result);
+                    }
+                    temp = r.readAsText(f);
+//                    console.log("contents of file are"+ r.result);
+//                    console.log("file is"+f);
+//                    console.log(temp);
+                } else {
+                    alert("Failed to load file");
+                }
+            } else {
+                alert('The File APIs are not fully supported by your browser.');
+            }
+        }
     </script>
     <title>PLP IDE</title>
 </head>
@@ -51,9 +99,9 @@
     <h2>PLP Tool IDE</h2>
     <div id="toolbar">
         <div id="inibar" style="float: left">
-            <input type="file" id="upfile" style="height: 0; width: 0; visibility: hidden">
+            <input type="file" id="upfile" style="height: 0; width: 0; visibility: hidden" onchange="openFile()">
             <button type="button" title="New"><img src="../images/toolbar_new.png"></button>
-            <button type="button" title="Open" onclick="$('#upfile').trigger('click'); return false;"><img src="../images/toolbar_open.png"></button>
+            <button type="button" title="Open" onclick="uploadFile()"><img src="../images/toolbar_open.png"></button>
             <button type="button" title="Save"><img src="../images/toolbar_save.png"></button>
             <button type="button" title="Assemble"><img src="../images/toolbar_assemble.png"></button>
             <button type="button" title="Simulate"><img src="../images/toolbar_simulate.png"></button>
