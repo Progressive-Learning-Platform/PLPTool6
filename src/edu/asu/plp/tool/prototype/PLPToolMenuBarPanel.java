@@ -264,6 +264,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemCopy = new MenuItem("Copy");
 		itemCopy.setAccelerator(new KeyCodeCombination(KeyCode.C,
 				KeyCombination.CONTROL_DOWN));
+		itemCopy.setOnAction((e) -> controller.editCopy());
 		
 		MenuItem itemCut = new MenuItem("Cut");
 		itemCut.setAccelerator(new KeyCodeCombination(KeyCode.X,

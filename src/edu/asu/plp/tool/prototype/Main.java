@@ -563,6 +563,17 @@ public class Main extends Application implements Controller
 	}
 	
 	@Override
+	public void editCopy()
+	{
+		Tab tab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		
+		CodeEditor ed = (CodeEditor)tab.getContent();
+		
+		ed.copySelectionToClipboard();	
+		
+	}
+	
+	@Override
 	public void saveActiveProjectAs()
 	{
 		Stage createProjectStage = new Stage();
@@ -573,6 +584,8 @@ public class Main extends Application implements Controller
 		createProjectStage.setResizable(false);
 		createProjectStage.show();
 	}
+	
+	
 	
 	private Parent saveAsMenu()
 	{
