@@ -24,6 +24,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @RestController
 public class PLPWebController {
+	
+	String fileStoragePath = "/Users/nitingoel/Desktop/plp-nitin/";
 
 	@RequestMapping("/register")
 	@CrossOrigin
@@ -55,10 +57,10 @@ public class PLPWebController {
             //org.springframework.web.multipart.MultipartFile
             MultipartFile mFile = mRequest.getFile(itr.next());
             String fileName = mFile.getOriginalFilename();
-            System.out.println("*****"+ fileName);
+            System.out.println("**Saved at** "+fileStoragePath+ fileName);
 
             //To copy the file to a specific location in machine.
-            File file = new File("C:\\serverDownload\\"+fileName);
+            File file = new File(fileStoragePath+fileName);
             try {
 				FileCopyUtils.copy(mFile.getBytes(), file);
 			} catch (IOException e) {
