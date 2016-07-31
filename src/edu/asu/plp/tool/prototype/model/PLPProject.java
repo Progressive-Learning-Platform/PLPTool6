@@ -414,10 +414,37 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if there is an issue outputting to the specified path
 	 */
+	
+	
 	public void saveLegacy() throws IOException
 	{
-		// TODO: implement
-		throw new UnsupportedOperationException("Not Yet Implemented");
+		
+		File directory = validateAndFilizePath();
+		// moving this
+		// if (!directory.exists())
+		// directory.mkdir();
+		
+		File sourceDirectory = validateAndFilizeSourceDirectory(directory);
+		if (!sourceDirectory.exists())
+			sourceDirectory.mkdir();
+			
+		File projectFile = validateAndFilizeProjectFile(directory);
+		if (!projectFile.exists())
+			projectFile.createNewFile();
+		String projectFileContent = createProjectFileContent();
+		FileUtils.write(projectFile, projectFileContent);
+		
+		Path sourcePath = sourceDirectory.toPath();
+		for (ASMFile file : this)
+		{
+			String fileName = file.constructFileName();
+			Path asmPath = sourcePath.resolve(fileName);
+			File diskFile = asmPath.toFile();
+			String asmContent = file.getContent();
+			FileUtils.write(diskFile, asmContent);
+		}
+		//System.out.println("Inside saveLegacy\n");
+		//throw new UnsupportedOperationException("Not Yet Implemented");
 	}
 	
 	/**
