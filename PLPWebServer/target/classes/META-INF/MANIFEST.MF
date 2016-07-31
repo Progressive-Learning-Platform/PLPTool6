@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: PLPWebServer
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: ngoel2
+Implementation-Vendor-Id: edu.asu.PLPWebserver
+Build-Jdk: 1.8.0_101
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+
