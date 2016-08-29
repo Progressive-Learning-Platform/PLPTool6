@@ -86,4 +86,6 @@ public interface Controller
 	
 	void editCopy();
 	
+	void editUndo();
+	
 }

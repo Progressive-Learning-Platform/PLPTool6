@@ -281,6 +281,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 		MenuItem itemUndo = new MenuItem("Undo");
 		itemUndo.setAccelerator(new KeyCodeCombination(KeyCode.Z,
 				KeyCombination.CONTROL_DOWN));
+		itemUndo.setOnAction((e) -> controller.editUndo());
 		
 		MenuItem itemRedo = new MenuItem("Redo");
 		itemRedo.setAccelerator(new KeyCodeCombination(KeyCode.Y,

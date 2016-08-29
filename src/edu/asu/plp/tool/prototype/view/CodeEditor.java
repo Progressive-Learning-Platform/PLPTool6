@@ -112,7 +112,7 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 		
 		return selectedText;
 	}
-	
+		
 	public void copySelectionToClipboard()
 	{
 		//http://stackoverflow.com/questions/13929371/copy-and-paste-in-codemirror-js-embeded-in-javafx-application
@@ -120,6 +120,12 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	    final ClipboardContent content = new ClipboardContent();
 	    content.putString(getSelectedText());
 	    clipboard.setContent(content);
+	}
+	
+	public void undoText()
+	{
+		webView.getEngine().executeScript("document.execCommand('undo', false, null);");
+		return;
 	}
 	
 	public void setText(String text)

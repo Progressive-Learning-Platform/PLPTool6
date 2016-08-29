@@ -574,6 +574,17 @@ public class Main extends Application implements Controller
 	}
 	
 	@Override
+	public void editUndo()
+	{
+		Tab tab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		
+		CodeEditor ed = (CodeEditor)tab.getContent();
+		
+		ed.undoText();	
+		
+	}
+	
+	@Override
 	public void saveActiveProjectAs()
 	{
 		Stage createProjectStage = new Stage();
@@ -1637,6 +1648,8 @@ public class Main extends Application implements Controller
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
+	
+	
 	
 	@Override
 	public void showOptionsMenu()
