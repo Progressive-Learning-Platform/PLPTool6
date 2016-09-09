@@ -18,6 +18,8 @@ public class PLPMemoryModule implements MemoryModule32Bit
 	public PLPMemoryModule()
 	{
 		this.registers = new IntegerProperty[NUMBER_OF_REGISTERS];
+		for(IntegerProperty x: this.registers)
+			x.set(0);
 		this.namedRegisters = buildNamedRegistersMap();
 		this.memoryLocations = new HashMap<>();
 	}
@@ -95,6 +97,8 @@ public class PLPMemoryModule implements MemoryModule32Bit
 			memoryLocations.put(address, memoryValueProperty);
 		}
 		
+		
+		
 		return memoryValueProperty;
 	}
 	
@@ -153,5 +157,14 @@ public class PLPMemoryModule implements MemoryModule32Bit
 		map.put("ir", 30);
 		map.put("ra", 31);
 		return map;
+	}
+	
+	public Long read(long addr)
+	{
+		Long value = null;
+		
+		return value;
+		
+		
 	}
 }

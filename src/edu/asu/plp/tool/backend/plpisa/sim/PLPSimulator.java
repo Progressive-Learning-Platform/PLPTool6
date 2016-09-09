@@ -31,7 +31,8 @@ public class PLPSimulator implements Simulator
 	
 	private PLPASMImage assembledImage;
 	
-	private MemoryModule32Bit regFile;
+	//private MemoryModule32Bit regFile;
+	private PLPRegFile regFile;
 	private ProgramCounter programCounter;
 	
 	private Stage instructionDecodeStage;
@@ -347,8 +348,8 @@ public class PLPSimulator implements Simulator
 		long jaddr = InstructionExtractor.jaddr(instruction);
 		
 		//TODO memory read
-		long s = 0; //regFile.read(rs)
-		long t = 0; //regFile.read(rt)
+		long s = regFile.read(rs);	//0; //regFile.read(rs)
+		long t = regFile.read(rt);	//0; //regFile.read(rt)
 		long s_imm = (short) imm & 0xffffffffL;
 		long alu_result;
 		
@@ -363,6 +364,7 @@ public class PLPSimulator implements Simulator
 				if(funct  == 0x09) //jalr
 				{
 					//TODO memory write
+					regFile.write(rd, (int)pcplus4 + 4, false);
 					//regFile.write(rd, pcplus4 + 4, false);
 				}
 			}
@@ -372,6 +374,7 @@ public class PLPSimulator implements Simulator
 				alu_result &= 0xffffffffL;
 				
 				//TODO memory write
+				regFile.write(rd, (int)alu_result, false);
 				//regFile.write(rd, alu_result, false);
 			}
 		}
@@ -394,7 +397,8 @@ public class PLPSimulator implements Simulator
 		else if(opcode == 0x23) //lw
 		{
 			//TODO bus read
-			Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
+			//Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
+			Integer data = 0;
 			if(data == null)
 			{
 				System.out.println("Bus read error");
@@ -403,6 +407,7 @@ public class PLPSimulator implements Simulator
 			
 			//TODO memory write
 			//regFile.write(rt, data, false);
+			regFile.write(rt, data, false);
 		}
 		else if(opcode == 0x2B) //sw
 		{
@@ -424,6 +429,7 @@ public class PLPSimulator implements Simulator
 			{
 				//TODO memory write
 				//regFile.write(31, pcplus4 + 4, false);
+				regFile.write(31,  (int)pcplus4 + 4, false);
 			}
 		}
 		else if(opcode == 0x0C || opcode == 0x0D) //ori, andi
@@ -431,6 +437,7 @@ public class PLPSimulator implements Simulator
 			alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
 			//TODO memory write
 			//regFile.write(rt, alu_result, false);
+			regFile.write(rt, (int)alu_result, false);
 		}
 		else
 		{
@@ -445,6 +452,7 @@ public class PLPSimulator implements Simulator
 			alu_result &= 0xffffffffL;
 			//TODO memory write
 			//regFile.write(rt, alu_result, false);
+			regFile.write(rt, (int)alu_result, false);
 		}
 		
 		//TODO Bus actions
@@ -632,7 +640,7 @@ public class PLPSimulator implements Simulator
 				writeBackStage);
 				
 		// FIXME new MemModule(0,32,false);
-		regFile = null;
+		regFile = new PLPRegFile();
 		programCounter = new ProgramCounter(0);
 		
 		alu = new ALU();

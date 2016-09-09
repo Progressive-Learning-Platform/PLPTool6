@@ -80,6 +80,7 @@ import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
@@ -1693,8 +1694,8 @@ public class Main extends Application implements Controller
 	public void showWatcherWindow()
 	{
 		Stage stage = new Stage();
-		// TODO: pass active memory module to WatcherWindow
-		WatcherWindow watcherWindow = new WatcherWindow(new PLPMemoryModule());
+		// TODO: pass active memory module and register File to WatcherWindow
+		WatcherWindow watcherWindow = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
 		
 		Scene scene = new Scene(watcherWindow, 888, 500);
 		stage.setTitle("Watcher Window");
