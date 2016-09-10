@@ -8,23 +8,47 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-
+/***
+ * This class represents the registry file of PLP processor
+ * @author Harsha
+ *
+ */
 public class PLPRegFile {
+	/***
+	 * Total number of registers present in PLP processor
+	 */
 	public static final int NUMBER_OF_REGISTERS = 32;
-	private static final int DEFAULT_MEMORY_VALUE = 0;
 	
+	/***
+	 * The default value stored in register
+	 */
+	private static final int DEFAULT_REGISTER_VALUE = 0;
+	
+	/***
+	 * This stores the actual register values
+	 */
 	private IntegerProperty[] registers;
+	
+	/***
+	 * This indicates whether each register is holding an instruction or data
+	 */
 	private BooleanProperty[] regInstructions;
 	
+	/***
+	 * This holds the mapping for register names to their index
+	 */
 	private Map<String, Integer> namedRegisters;
 	
+	/***
+	 * PLPRegFile constructor. It creates all the registers and initializes to default value
+	 */
 	public PLPRegFile()
 	{
 		this.registers = new IntegerProperty[NUMBER_OF_REGISTERS];
 		this.regInstructions = new BooleanProperty[NUMBER_OF_REGISTERS];
 		
 		for(IntegerProperty x: this.registers)
-			x = new SimpleIntegerProperty(0);
+			x = new SimpleIntegerProperty(DEFAULT_REGISTER_VALUE);
 		
 		for(BooleanProperty x: this.regInstructions)
 			x = new SimpleBooleanProperty(false);
@@ -32,6 +56,10 @@ public class PLPRegFile {
 		this.namedRegisters = buildNamedRegistersMap();
 	}
 	
+	/***
+	 * This will map all the named registers to their respective index values
+	 * @return dictionary/map having register to index mapping
+	 */
 	private Map<String, Integer> buildNamedRegistersMap()
 	{
 		// TODO: This is sloppy. Consider reading from JSON?
@@ -71,6 +99,11 @@ public class PLPRegFile {
 		return map;
 	}
 	
+	/***
+	 * A register name can be given as $s1 or s1. In either case make a standard form and return that name.
+	 * @param registerName register whose name has to be standardized
+	 * @return if $s1 is given then s1 will be returned else return as it is
+	 */
 	private String normalizeRegisterName(String registerName)
 	{
 		if (registerName == null)
@@ -87,6 +120,11 @@ public class PLPRegFile {
 		}
 	}
 	
+	/**
+	 * Given a register name corresponding index value of that register will be returned
+	 * @param registerName register whose index value needs to be fetched
+	 * @return index value of the register
+	 */
 	private int convertNameToIndex(String registerName)
 	{
 		registerName = normalizeRegisterName(registerName);
@@ -101,19 +139,32 @@ public class PLPRegFile {
 		}
 	}
 	
-	
+	/**
+	 * It checks if the given registername is valid register or not
+	 * @param registerName Register Name which needs to be verified
+	 * @return true of register exists else false
+	 */
 	public boolean hasRegister(String registerName)
 	{
 		int index = convertNameToIndex(registerName);
 		return registerIndexIsValid(index);
 	}
 	
+	/**
+	 * Given an index of any register whether that index is valid or not
+	 * @param index index which needs to be checked whether it is in the range
+	 * @return true if index is present with in the range else false
+	 */
 	private boolean registerIndexIsValid(int index)
 	{
 		return index >= 0 && index < registers.length;
 	}
 	
-	
+	/**
+	 * This gets the value of the given register. It actually gives the property so we can bind to any other object
+	 * @param registerName Register whose value property needs to be fetched
+	 * @return returns the registers value propery.
+	 */
 	public IntegerProperty getRegisterValueProperty(String registerName)
 	{
 		int index = convertNameToIndex(registerName);
@@ -123,7 +174,11 @@ public class PLPRegFile {
 			return null;
 	}
 	
-	
+	/**
+	 * Given a register it will return the index corresponding to that register.
+	 * @param registerName register whose index needs to be fetched
+	 * @return index of the register
+	 */
 	public String getRegisterID(String registerName)
 	{
 		int index = convertNameToIndex(registerName);
@@ -133,6 +188,10 @@ public class PLPRegFile {
 			return null;
 	}
 	
+	/**
+	 * Check if given register index is valid. If not valid throw an exception
+	 * @param address index of the register
+	 */
 	public void validateAddress(int address)
 	{
 		/*if ((address % 4) != 0)
@@ -142,6 +201,11 @@ public class PLPRegFile {
 			throw new IllegalArgumentException("Register Number can be between 0 to " + Integer.toString(this.NUMBER_OF_REGISTERS));
 	}
 	
+	/**
+	 * This function will read the content of the register and return its value.
+	 * @param address index of the register which needs to be read
+	 * @return value of the register
+	 */
 	public long read(int address)
 	{
 		long value = 0;
@@ -154,6 +218,12 @@ public class PLPRegFile {
 		
 	}
 	
+	/**
+	 * This function will write the content of the register
+	 * @param address register index where value needs to be written
+	 * @param value value to be stored in register
+	 * @param isInstruction whether the value if bytecode of an instruciton or not
+	 */
 	public void write(int address, int value, boolean isInstruction)
 	{
 		validateAddress(address);
@@ -162,12 +232,22 @@ public class PLPRegFile {
 		
 	}
 	
+	/**
+	 * This function will write the value to a register given the registers index
+	 * @param address index of the register where data needs to be written
+	 * @param value data to be written to register
+	 */
 	public void write(int address, int value)
 	{
 		validateAddress(address);
 		registers[address].set(value);
 	}
 	
+	/**
+	 * Checks if the register indicated by the address holds an instruction or not
+	 * @param address index of the register whose instruction verification needs to be done
+	 * @return true if data stored is an instruciton else false
+	 */
 	public boolean isInstruction(int address)
 	{
 		validateAddress(address);

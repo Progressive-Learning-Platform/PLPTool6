@@ -1,4 +1,4 @@
-package edu.asu.plp.tool.backend.plpisa.sim;
+package edu.asu.plp.tool.backend.plpisa.devices;
 
 import java.util.Iterator;
 import java.util.TreeMap;
@@ -19,10 +19,10 @@ public abstract class PLPIOMemoryModule extends Thread {
 	public boolean threaded = false;
 	public boolean stop;
 	
-	// Registers specific to this module
+	// Registers or Memory specific to this module
 	protected TreeMap<Long, Object> values;
 	
-	//Denotes each entry in the register whether it is an instruction.
+	//Denotes each entry in the register or memory whether it is an instruction.
 	// Used in main memory implementation and caches
 	protected TreeMap<Long, Boolean> isInstruction;
 	
