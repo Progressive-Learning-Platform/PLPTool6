@@ -54,6 +54,8 @@ public class PLPSimulator implements Simulator
 	
 	private long startAddress;
 	
+	
+	
 	/**
 	 * Used to evaluate breakpoints.
 	 * <p>
@@ -61,6 +63,7 @@ public class PLPSimulator implements Simulator
 	 * base instructions.
 	 */
 	private long asmInstructionAddress;
+	private BreakpointModule breakpoints;
 	
 	private boolean isBranched;
 	private long branchDestination;
@@ -74,11 +77,22 @@ public class PLPSimulator implements Simulator
 	{
 		super();
 		initialize();
+		breakpoints = new BreakpointModule();
 	}
 	
 	@Override
 	public boolean run()
-	{
+	{	
+		while(instructionsIssued < assembledImage.getAssemblyDisassemblyMap().size()){
+		if(breakpoints.hasBreakpoint()){
+			if(breakpoints.isBreakpoint(asmInstructionAddress)){ // asmInstructionAddress ?
+				statusManager.isSimulationRunning = false;
+				
+			}else{
+				step();
+			}
+		}
+		}
 		return false;
 	}
 	
@@ -143,7 +157,7 @@ public class PLPSimulator implements Simulator
 		// TODO bus
 		// Evaluate modules attached to the bus
 		// bus.eval();
-		// Evalulate interrupt controller again to see if anything raised an IRQ
+		// Evaluate interrupt controller again to see if anything raised an IRQ
 		// (PLPSimBus evaluates modules from index 0 upwards)
 		// bus.eval(0);
 		

@@ -92,6 +92,11 @@ public class ExecuteStage implements Stage
 		boolean ct1DestRegAddressEqualsExRs = currentWriteBackStageState.ct1DestRegAddress == executeRs;
 		boolean executeRsNotZero = executeRs != 0;
 		
+		// Rt
+		boolean fowardDestRegAddressEqualsExRt = currentMemoryStageState.forwardCt1DestRegAddress == executeRt;
+		boolean ct1DestRegAddressEqualsExRt = currentWriteBackStageState.ct1DestRegAddress == executeRt;
+		boolean executeRtNotZero = executeRt != 0;
+		
 		
 		state.ct1Forwardx = (exEx && memCt1Regwrite && fowardDestRegAddressEqualsExRs && executeRsNotZero) ? 1 : 
 			(memEx && writeBackCt1Regwrite && ct1DestRegAddressEqualsExRs && executeRsNotZero) ? 2 : 0;
@@ -99,11 +104,19 @@ public class ExecuteStage implements Stage
 		statusManager.currentFlags |= ((state.ct1Forwardx == 1) ? SimulatorFlag.PLP_SIM_FWD_EX_EX_RS.getFlag() :
             (state.ct1Forwardx == 2) ? SimulatorFlag.PLP_SIM_FWD_MEM_EX_RS.getFlag() : 0);
 		
+		//Forward logic for rt source, 1 for EX->EX, 2 for MEM->EX
+		
+		state.ct1Forwardy = (exEx && memCt1Regwrite && fowardDestRegAddressEqualsExRt && executeRtNotZero) ? 1 : 
+			(memEx && writeBackCt1Regwrite && ct1DestRegAddressEqualsExRt && executeRtNotZero) ? 2 : 0;
+		
 		//Foward logic for rt source, 1 for EX->EX, 2 for MEM->EX
 		exEx = false; //ex_ex && memCt1Regwrite && currentMemoryStageState.forwardCt1DestRegAddress == executeRt && executeRt != 0
 		memEx = false; //mem_ex && writeBackCt1Regwrite && currentWriteBackStageState.ct1DestRegAddress == executeRt && executeRt != 0
 		
 		state.ct1Forwardy = exEx ? 1 : memEx ? 2 : 0;
+		
+		statusManager.currentFlags |= ((state.ct1Forwardy == 1) ? SimulatorFlag.PLP_SIM_FWD_EX_EX_RT.getFlag() :
+            (state.ct1Forwardy == 2) ? SimulatorFlag.PLP_SIM_FWD_MEM_EX_RT.getFlag() : 0);
 		
 		if(state.ct1Forwardy == 1)
 		{
