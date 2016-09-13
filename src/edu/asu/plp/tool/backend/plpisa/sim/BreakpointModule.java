@@ -1,4 +1,5 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
+import plptool.Constants;
 
 import java.util.ArrayList;
 
@@ -109,7 +110,7 @@ public class BreakpointModule {
      */
     public long getBreakpointAddress(int index) {
         if(index < 0 || index > breakpoints.size())
-            return -1;    // Constants.PLP_NUMBER_ERROR ?
+            return Constants.PLP_NUMBER_ERROR;
 
         return breakpoints.get(index).getAddr();
     }

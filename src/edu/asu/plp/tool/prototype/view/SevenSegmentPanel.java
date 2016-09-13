@@ -28,7 +28,7 @@ public class SevenSegmentPanel extends BorderPane
 		this.setCenter(hbox);
 	}
 	
-	private static class Segment extends HBox
+	public static class Segment extends HBox
 	{
 		List<Parent> segments;
 		
@@ -93,6 +93,24 @@ public class SevenSegmentPanel extends BorderPane
 			}
 		}
 		
+		/*
+		public void setState(int state)
+		{
+			// 0 is on, 1 is off
+			for (int index = 0; index < segments.size(); index++)
+			{
+				int maskedBit = (state >> index) & 1;
+				boolean isOn = (maskedBit == 0);
+
+				String color = isOn ? ON_COLOR : OFF_COLOR;
+				Parent segment = segments.get(index);
+				for (Node section : segment.getChildrenUnmodifiable())
+				{
+					section.setStyle("-fx-background-color: " + color);
+				}
+			}
+		}
+		*/
 		private Parent horizontalPiece()
 		{
 			HBox segment = new HBox();
