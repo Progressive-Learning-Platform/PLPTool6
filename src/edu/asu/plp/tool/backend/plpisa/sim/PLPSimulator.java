@@ -699,4 +699,29 @@ public class PLPSimulator implements Simulator
 		return true;
 	}
 	
+	/**
+	 * Set interrupt bit(mask)
+	 * @param IRQ particular interrupt raised by the device
+	 */
+	public void setIRQ(long IRQ)
+	{
+		this.externalInterrupt |= IRQ;
+	}
+	
+	/**
+	 * Mask interrupt bit
+	 * @param IRQ particular interrupt to be masked by the device
+	 */
+	public void maskIRQ(long IRQ)
+	{
+		this.externalInterrupt &= IRQ;
+	}
+	
+	public long getIRQ()
+	{
+		return this.externalInterrupt;
+	}
+	
+	
+	
 }
