@@ -23,6 +23,7 @@ import com.faeysoft.preceptor.lexer.Lexer;
 import com.faeysoft.preceptor.lexer.Token;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
+import edu.asu.plp.tool.backend.OrderedBiDirectionalOneToManyHashMap;
 import edu.asu.plp.tool.backend.isa.ASMDisassembly;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
@@ -30,6 +31,7 @@ import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
+import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 import edu.asu.plp.tool.prototype.model.SimpleASMFile;
@@ -195,6 +197,7 @@ public class DisposablePLPAssembler
 		// Assembler directive line offsets (skips)
 		int assemblerDirectiveSkips = 0;
 		currentRegion = 0;
+		assemblyToDisassemblyMap = new OrderedBiDirectionalOneToManyHashMap<>();
 		
 		// FIXME: Should the delimiter match multiple commas?
 		String delimiters = "[ ,\t]+|[()]";
@@ -382,10 +385,17 @@ public class DisposablePLPAssembler
 			if (!isSkippable)
 			{
 				addressTable[asmLineIndex - assemblerDirectiveSkips] = assemblerPCAddress;
+				long oldAddress = assemblerPCAddress;
 				assemblerPCAddress += 4;
 				
 				// TODO update mappers
+				ASMInstruction key = new PLPAssemblyInstruction(asmLineIndex+1, asmLines[asmLineIndex]);
+				PLPDisassembly disassembly = new PLPDisassembly(oldAddress, objectCode[objectCodeIndex]);
+				assemblyToDisassemblyMap.put(key, disassembly);
+				
 			}
+			
+			
 			
 			asmLineIndex++;
 		}

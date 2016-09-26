@@ -8,7 +8,8 @@ import java.util.function.Function;
 
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
-import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
+//import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
+import edu.asu.plp.tool.backend.plpisa.assembler2.PLPAssembler;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
 
 public class ISARegistry

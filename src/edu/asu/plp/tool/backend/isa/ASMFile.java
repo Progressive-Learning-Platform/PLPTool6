@@ -67,8 +67,10 @@ public interface ASMFile
 		String name = getName();
 		if (name == null)
 			throw new IllegalStateException("Null file name is not allowed");
-		else
+		else if(!name.endsWith(DEFAULT_FILE_EXTENSION))
 			return name + DEFAULT_FILE_EXTENSION;
+		else
+			return name;
 	}
 	
 	String getName();

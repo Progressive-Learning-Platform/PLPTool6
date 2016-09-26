@@ -12,6 +12,7 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -99,6 +100,32 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	public void println(String string)
 	{
 		System.out.println(string);
+	}
+	
+	public String getSelectedText()
+	{
+		//http://chaschev.blogspot.com/2013/10/angularjs-in-desktop-app.html
+		String selectedText = (String) webView.getEngine().executeScript(
+	            "editor.getCopyText();");
+		
+		System.out.println("Selected text: " + selectedText);
+		
+		return selectedText;
+	}
+		
+	public void copySelectionToClipboard()
+	{
+		//http://stackoverflow.com/questions/13929371/copy-and-paste-in-codemirror-js-embeded-in-javafx-application
+		final Clipboard clipboard = Clipboard.getSystemClipboard();
+	    final ClipboardContent content = new ClipboardContent();
+	    content.putString(getSelectedText());
+	    clipboard.setContent(content);
+	}
+	
+	public void undoText()
+	{
+		webView.getEngine().executeScript("document.execCommand('undo', false, null);");
+		return;
 	}
 	
 	public void setText(String text)

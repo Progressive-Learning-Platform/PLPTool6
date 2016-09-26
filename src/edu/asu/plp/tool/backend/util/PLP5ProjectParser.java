@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import java.nio.file.Path;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
@@ -22,9 +24,14 @@ public class PLP5ProjectParser
 		String name = projectFile.getName();
 		name = FilenameUtils.removeExtension(name);
 		String type = "plp5";
-		
-		project = new PLPProject(name, type);
-		project.setPath(projectFile.getAbsolutePath());
+		Path parentPath = projectFile.getParentFile().toPath();
+		Path projectPath = parentPath.resolve(name);
+		File directory = projectPath.toFile();
+		if(!directory.exists())
+			directory.mkdir();
+		String path = directory.getPath();
+
+		project = new PLPProject(name, type, path);
 		
 		extract(projectFile);
 		return project;

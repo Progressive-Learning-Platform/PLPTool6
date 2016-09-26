@@ -74,12 +74,15 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.backend.isa.ASMDisassembly;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
+import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
@@ -563,6 +566,28 @@ public class Main extends Application implements Controller
 	}
 	
 	@Override
+	public void editCopy()
+	{
+		Tab tab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		
+		CodeEditor ed = (CodeEditor)tab.getContent();
+		
+		ed.copySelectionToClipboard();	
+		
+	}
+	
+	@Override
+	public void editUndo()
+	{
+		Tab tab = openProjectsPanel.getSelectionModel().getSelectedItem();
+		
+		CodeEditor ed = (CodeEditor)tab.getContent();
+		
+		ed.undoText();	
+		
+	}
+	
+	@Override
 	public void saveActiveProjectAs()
 	{
 		Stage createProjectStage = new Stage();
@@ -573,6 +598,8 @@ public class Main extends Application implements Controller
 		createProjectStage.setResizable(false);
 		createProjectStage.show();
 	}
+	
+	
 	
 	private Parent saveAsMenu()
 	{
@@ -1625,6 +1652,8 @@ public class Main extends Application implements Controller
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
 	
+	
+	
 	@Override
 	public void showOptionsMenu()
 	{
@@ -1667,8 +1696,8 @@ public class Main extends Application implements Controller
 	public void showWatcherWindow()
 	{
 		Stage stage = new Stage();
-		// TODO: pass active memory module to WatcherWindow
-		WatcherWindow watcherWindow = new WatcherWindow(new PLPMemoryModule());
+		// TODO: pass active memory module and register File to WatcherWindow
+		WatcherWindow watcherWindow = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
 		
 		Scene scene = new Scene(watcherWindow, 888, 500);
 		stage.setTitle("Watcher Window");

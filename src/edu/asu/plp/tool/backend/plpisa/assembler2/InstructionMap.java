@@ -3,9 +3,14 @@ package edu.asu.plp.tool.backend.plpisa.assembler2;
 import java.util.HashMap;
 
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.ITypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.JRRTypeInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RITypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RIUTypeInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RJTypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RLTypeInstruction;
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.BTypeInstruction;
+import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.JTypeInstruction;
 
 public class InstructionMap extends HashMap<String, PLPInstruction>
 {
@@ -30,6 +35,36 @@ public class InstructionMap extends HashMap<String, PLPInstruction>
 	public void addITypeInstruction(String name, int opCode)
 	{
 		ITypeInstruction instruction = new ITypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addRLTypeInstruction(String name, int opCode)
+	{
+		RLTypeInstruction instruction = new RLTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addJTypeInstruction(String name, int opCode)
+	{
+		JTypeInstruction instruction = new JTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addBTypeInstruction(String name, int opCode)
+	{
+		BTypeInstruction instruction = new BTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addRIUTypeInstruction(String name, int opCode)
+	{
+		RIUTypeInstruction instruction = new RIUTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addJRRTypeInstruction(String name, int opCode)
+	{
+		JRRTypeInstruction instruction = new JRRTypeInstruction(opCode);
 		this.put(name, instruction);
 	}
 	

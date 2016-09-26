@@ -104,4 +104,10 @@ public class PsuedoOp implements PLPInstruction
 		String argumentString = String.join(", ",  arguments);
 		return (arguments.length == 0) ? name : name + " " + argumentString;
 	}
+
+	@Override
+	public ArgumentType[] getArgumentsofInstruction() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

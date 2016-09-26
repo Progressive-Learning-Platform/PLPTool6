@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
@@ -71,8 +72,8 @@ public class EmulationWindow extends BorderPane
 		uartDisplay.setPadding(new Insets(10));
 		uartDisplay.setStyle("-fx-background-color: grey;");
 
-		// TODO: pass active memory module to WatcherWindow
-		WatcherWindow watcherWindowDisplay = new WatcherWindow(new PLPMemoryModule());
+		// TODO: pass active memory module and register file to WatcherWindow
+		WatcherWindow watcherWindowDisplay = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
 		watcherWindowDisplay.setPadding(new Insets(10));
 		watcherWindowDisplay.setStyle("-fx-background-color: grey;");
 		

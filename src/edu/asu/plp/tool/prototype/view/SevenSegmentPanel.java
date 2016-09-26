@@ -28,7 +28,7 @@ public class SevenSegmentPanel extends BorderPane
 		this.setCenter(hbox);
 	}
 	
-	private static class Segment extends HBox
+	public static class Segment extends HBox
 	{
 		List<Parent> segments;
 		

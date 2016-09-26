@@ -33,6 +33,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.prototype.util.IntegerUtils;
 
 public class WatcherWindow extends BorderPane
@@ -46,10 +47,12 @@ public class WatcherWindow extends BorderPane
 	private ObjectProperty<Function<Integer, String>> registerDisplayFunction;
 	private ObjectProperty<Function<Integer, String>> memoryDisplayFunction;
 	private MemoryModule32Bit memory;
+	private PLPRegFile regs;
 	
-	public WatcherWindow(MemoryModule32Bit memory)
+	public WatcherWindow(MemoryModule32Bit memory, PLPRegFile reg)
 	{
 		this.memory = memory;
+		this.regs = reg;
 
 		Function<Integer, String> defaultDisplay = (value) -> Integer.toString(value);
 		registerDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
@@ -248,12 +251,12 @@ public class WatcherWindow extends BorderPane
 		if (registerName.length() == 0)
 			return;
 		// The memory module is responsible for equating the names "0" "$0" and "$zero"
-		if (!memory.hasRegister(registerName))
+		if (!regs.hasRegister(registerName))
 			throw new IllegalArgumentException("There isn't a register with the name "
 					+ registerName);
 		
-		String id = memory.getRegisterID(registerName);
-		IntegerProperty register = memory.getRegisterValueProperty(registerName);
+		String id = regs.getRegisterID(registerName);
+		IntegerProperty register = regs.getRegisterValueProperty(registerName);
 		RegisterRow row = new RegisterRow(registerName, id, register);
 		registers.add(row);
 	}

@@ -9,6 +9,11 @@ public interface Assembler
 {
 	ASMImage assemble(List<ASMFile> asmFiles) throws AssemblerException;
 	
+	default void initialize() throws AssemblerException
+	{
+		
+	}
+	
 	default ASMImage assemble(ASMFile asmFile) throws AssemblerException
 	{
 		List<ASMFile> asmFiles = Collections.singletonList(asmFile);

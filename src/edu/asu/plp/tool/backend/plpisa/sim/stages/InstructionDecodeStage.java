@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
@@ -18,6 +19,7 @@ public class InstructionDecodeStage implements Stage
 	private EventBus bus;
 	private InstructionDecodeEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
+	private PLPMemoryModule regFile;
 	
 	private CpuState state;
 	
@@ -106,8 +108,8 @@ public class InstructionDecodeStage implements Stage
 		}
 		
 		
-		//TODO MEMORY MODULE
-		//long rt = (addressRt == 0) ? 0 : (Long) memoryModule.read(addressRt);
+		//TODO MEMORY MODULE 
+		//long rt = (addressRt == 0) ? 0 : (Long) regFile.read(addressRt);
 		//postExecuteStageState.nextDataRt = rt;
 
 		// long rs = (addressRs == 0) ? 0 : (Long) memoryModule.read(addressRs);

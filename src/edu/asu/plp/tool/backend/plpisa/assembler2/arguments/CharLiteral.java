@@ -25,14 +25,12 @@ public class CharLiteral implements Argument
 	@Override
 	public String raw()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return this.rawValue;
 	}
 
 	@Override
 	public ArgumentType getType()
 	{
-		// TODO Auto-generated method stub return null;
-		throw new UnsupportedOperationException("The method is not implemented yet.");
+		return ArgumentType.CHAR_LITERAL;
 	}
 }

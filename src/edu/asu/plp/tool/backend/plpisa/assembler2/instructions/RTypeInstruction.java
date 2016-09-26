@@ -9,6 +9,19 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 
 public class RTypeInstruction extends AbstractInstruction
 {
+	//addu $rd, $rs, $rt
+	//subu $rd, $rs, $rt
+	//mulhi $rd, $rs, $rt
+	//mullo $rd, $rs, $rt
+	//and $rd, $rs, $rt
+	//or $rd, $rs, $rt
+	//nor $rd, $rs, $rt
+	//slt $rd, $rs, $rt
+	//sltu $rd, $rs, $rt
+	//sllv $rd, $rs, $rt
+	//slrv $rd, $rs, $rt
+	//Type 0 and Type 8
+	
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
 	public static final int RS_POSITION = 21;
