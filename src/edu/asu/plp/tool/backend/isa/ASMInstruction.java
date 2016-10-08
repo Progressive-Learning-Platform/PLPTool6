@@ -43,4 +43,13 @@ public interface ASMInstruction
 	 * @return the assembly instruction string
 	 */
 	String getInstructionContents();
+	
+	/**
+	 * Returns the source file on which the instructions. As each {@link ASMFile} will have its own
+	 * line numbers and source, there is a possibility that same instruction can appear at two 
+	 * {@link ASMFile} at same line number in the same project.
+	 * 
+	 * @return the source file where instruction is present.
+	 */
+	String getSourceFile();
 }

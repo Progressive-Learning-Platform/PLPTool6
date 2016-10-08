@@ -35,6 +35,7 @@ import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.StringLiteral;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.Value;
 import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AssemblerDirectiveStep;
 import edu.asu.plp.tool.backend.util.ISAUtil;
+import javafx.util.Pair;
 
 public class PLPAssembler implements Assembler
 {
@@ -49,6 +50,7 @@ public class PLPAssembler implements Assembler
 	private HashMap<String, HashMap<Integer, String>> lineNumAndAsmFileMap;
 	
 	private BiDirectionalOneToManyMap<ASMInstruction, ASMDisassembly> assemblyToDisassemblyMap;
+	private List<Pair<ASMInstruction, ASMDisassembly>> lstdisassem;
 	
 	private ListIterator<Token> tokenIterator;
 	private Lexer lexer;
@@ -66,6 +68,7 @@ public class PLPAssembler implements Assembler
 	//private ArrayList<Integer> regionMap;
 	
 	private String projectPath;
+	private int nInstructionInserted;
 	
 	
 	private static final String ASM__WORD__ = "ASM__WORD__";
@@ -81,6 +84,7 @@ public class PLPAssembler implements Assembler
 		symbolTable = new HashMap<>();
 		lexer = new Lexer(PLPTokenType.createSet());
 		lineNumAndAsmFileMap = new HashMap<>();
+		nInstructionInserted = 0;
 		
 		loadPLPInstructionsMap();
 		loadPLPAssemblerDirectivesMap();
@@ -187,6 +191,7 @@ public class PLPAssembler implements Assembler
 	public ASMImage assemble(List<ASMFile> asmFiles) throws AssemblerException
 	{
 		assemblyToDisassemblyMap = new OrderedBiDirectionalOneToManyHashMap<>();
+		lstdisassem = new ArrayList<>();
 		
 		
 		initialize();
@@ -209,9 +214,12 @@ public class PLPAssembler implements Assembler
 			assembleFile(asmFile.getContent(), asmFile.getName());
 		}
 		
+		int nStartingAddress = lstInstEncodings.get(0).getAddress();
+		
 		disassemblygenerator();
 		
-		return new PLPASMImage(assemblyToDisassemblyMap);
+		//return new PLPASMImage(assemblyToDisassemblyMap, nStartingAddress);
+		return new PLPASMImage(lstdisassem);
 	}
 	
 	private void disassemblygenerator()
@@ -297,11 +305,13 @@ public class PLPAssembler implements Assembler
 				}
 				else if(preProcessInstruction.contains(ASM__WORD__))
 				{
-					ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
+					ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source, asmFileName);
 					int value = (int)ISAUtil.sanitize32bits(preProcessInstruction.split(" ")[1]);
 					PLPDisassembly disassembly = new PLPDisassembly(programLocation, value);
 					programLocation += 4;
 					assemblyToDisassemblyMap.put(key, disassembly);
+					lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
+					nInstructionInserted++;
 					
 				}
 				else
@@ -322,9 +332,12 @@ public class PLPAssembler implements Assembler
 							Argument[] arguments = parseArguments(argumentStrings);
 							
 							PLPDisassembly disassembly = process(subInstruction, arguments);
-							ASMInstruction key = new PLPAssemblyInstruction(lineNumber, subSource);
+							ASMInstruction key = new PLPAssemblyInstruction(lineNumber, subSource, asmFileName);
 							assemblyToDisassemblyMap.put(key, disassembly);
+							lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
+							nInstructionInserted++;
 							PLPDisassemblyInfo arg = new PLPDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, subSource, asmFileName);
+							
 							this.lstInstEncodings.add(arg);
 							
 							
@@ -339,15 +352,16 @@ public class PLPAssembler implements Assembler
 						Argument[] arguments = parseArguments(argumentStrings);
 						
 						PLPDisassembly disassembly = process(instruction, arguments);
-						ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source);
+						ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source, asmFileName);
 						assemblyToDisassemblyMap.put(key, disassembly);
+						lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
+						nInstructionInserted++;
 						PLPDisassemblyInfo arg = new PLPDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, source, asmFileName);
 						this.lstInstEncodings.add(arg);
 					}
 					
 					
 				}
-				
 				
 				
 				lineNumber++;

@@ -47,6 +47,7 @@ public class DisposablePLPAssembler
 	private List<ASMFile> asmFiles;
 	
 	private BiDirectionalOneToManyMap<ASMInstruction, ASMDisassembly> assemblyToDisassemblyMap;
+	private List<Pair<ASMInstruction, ASMDisassembly>> lstdisassem;
 	
 	private HashMap<String, Pair<AssemblerStep, Integer>> instructionMap;
 	private HashMap<String, AssemblerStep> directiveMap;
@@ -198,6 +199,7 @@ public class DisposablePLPAssembler
 		int assemblerDirectiveSkips = 0;
 		currentRegion = 0;
 		assemblyToDisassemblyMap = new OrderedBiDirectionalOneToManyHashMap<>();
+		lstdisassem = new ArrayList<>();
 		
 		// FIXME: Should the delimiter match multiple commas?
 		String delimiters = "[ ,\t]+|[()]";
@@ -389,9 +391,10 @@ public class DisposablePLPAssembler
 				assemblerPCAddress += 4;
 				
 				// TODO update mappers
-				ASMInstruction key = new PLPAssemblyInstruction(asmLineIndex+1, asmLines[asmLineIndex]);
+				ASMInstruction key = new PLPAssemblyInstruction(asmLineIndex+1, asmLines[asmLineIndex], currentActiveFile );
 				PLPDisassembly disassembly = new PLPDisassembly(oldAddress, objectCode[objectCodeIndex]);
 				assemblyToDisassemblyMap.put(key, disassembly);
+				lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 				
 			}
 			
@@ -428,7 +431,8 @@ public class DisposablePLPAssembler
 					objectCode[index]));
 		}
 		
-		return new PLPASMImage(assemblyToDisassemblyMap);
+		//return new PLPASMImage(assemblyToDisassemblyMap);
+		return new PLPASMImage(lstdisassem);
 	}
 	
 	/*

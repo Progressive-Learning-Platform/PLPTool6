@@ -15,6 +15,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
+import javafx.util.Pair;
 
 /**
  * Port of old PLP-Tool simulator with minor improvements
@@ -54,6 +55,8 @@ public class PLPSimulator implements Simulator
 	
 	private long startAddress;
 	
+	private PLPAddressBus addressBus;
+	
 	
 	
 	/**
@@ -70,6 +73,7 @@ public class PLPSimulator implements Simulator
 	
 	private ALU alu;
 	
+	
 	// A sim bus?
 	// breakpoint array?
 	
@@ -83,7 +87,7 @@ public class PLPSimulator implements Simulator
 	@Override
 	public boolean run()
 	{	
-		while(instructionsIssued < assembledImage.getAssemblyDisassemblyMap().size()){
+		while(instructionsIssued < assembledImage.getDisassemblyInfo().size()){
 		if(breakpoints.hasBreakpoint()){
 			if(breakpoints.isBreakpoint(asmInstructionAddress)){ // asmInstructionAddress ?
 				statusManager.isSimulationRunning = false;
@@ -157,9 +161,11 @@ public class PLPSimulator implements Simulator
 		// TODO bus
 		// Evaluate modules attached to the bus
 		// bus.eval();
+		addressBus.eval();
 		// Evaluate interrupt controller again to see if anything raised an IRQ
 		// (PLPSimBus evaluates modules from index 0 upwards)
 		// bus.eval(0);
+		addressBus.eval(0);
 		
 		/*
 		 * STALL ROUTINES
@@ -412,7 +418,8 @@ public class PLPSimulator implements Simulator
 		{
 			//TODO bus read
 			//Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
-			Integer data = 0;
+			Long data = (Long)addressBus.read((s + s_imm) & 0xffffffffL);
+			//Integer data = 0;
 			if(data == null)
 			{
 				System.out.println("Bus read error");
@@ -421,13 +428,14 @@ public class PLPSimulator implements Simulator
 			
 			//TODO memory write
 			//regFile.write(rt, data, false);
-			regFile.write(rt, data, false);
+			regFile.write(rt, data.intValue(), false);
 		}
 		else if(opcode == 0x2B) //sw
 		{
 			//TODO bus write
 			//int ret = bus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
-			int ret = 0;
+			int ret = addressBus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
+			
 			if(ret > 0)
 			{
 				System.out.println("Bus write error");
@@ -471,10 +479,12 @@ public class PLPSimulator implements Simulator
 		
 		//TODO Bus actions
 		//bus.eval();
+		addressBus.eval();
 		
 		//Evaluate interrupt controller again to see if anything raised an irq
 		//(PLP sim bus evaluates modules from index 0 upwards)
 		//bus.eval(0);
+		addressBus.eval(0);
 		
 		//We have an irq waiting, set ack so the controller wont set another
 		//request while we process this one
@@ -498,7 +508,7 @@ public class PLPSimulator implements Simulator
 		long address = programCounter.evaluate();
 		
 		// fetch instruction / frontend stage
-		if (address < 0) // bus.isMapped(address) ||
+		if (address < 0 || !addressBus.isMapped(address))
 		{
 			if (statusManager.willSimDumpTraceOnFailedEvaluation)
 			{
@@ -509,7 +519,8 @@ public class PLPSimulator implements Simulator
 			}
 		}
 		
-		Long ret = (Long) 0L; // (Long) bus.read(address);
+		//Long ret = (Long) 0L; // (Long) bus.read(address);
+		Long ret = (Long) addressBus.read(address);
 		
 		if (ret == null)
 		{
@@ -588,9 +599,11 @@ public class PLPSimulator implements Simulator
 		// Resets program counter, flushes pipeline, clears flags, resets statistics
 		
 		// TODO get from assembled Image
-		this.startAddress = 0;
+		//this.assembledImage.getAssemblyDisassemblyMap().
+		this.startAddress = this.assembledImage.getDisassemblyInfo().get(0).getValue().getAddresss();
 		
 		// Zero register file
+		this.regFile.reset();
 		
 		externalInterrupt = 0;
 		interruptAcknowledge = 0;
@@ -606,13 +619,19 @@ public class PLPSimulator implements Simulator
 		
 		// TODO clear stages
 		
-		flushPipeline();
+		//flushPipeline();
 		
 		// TODO Maybe print simulator reset to console
 		
 		// TODO Load program to bus?
 		
 		statusManager.reset();
+		addressBus.issueZeroes(0);
+		for(int i = 0; i < assembledImage.getDisassemblyInfo().size(); i++)
+		{
+			addressBus.write(assembledImage.getDisassemblyInfo().get(i).getValue().getAddresss(), assembledImage.getDisassemblyInfo().get(i).getValue().getInstruction(), true); 
+			
+		}
 	}
 	
 	private void flushPipeline()
@@ -640,15 +659,16 @@ public class PLPSimulator implements Simulator
 	private void initialize()
 	{
 		simulatorBus = new EventBus();
+		addressBus = new PLPAddressBus();
 		
 		assembledImage = null;
 		
 		statusManager = new SimulatorStatusManager();
 		
-		instructionDecodeStage = new InstructionDecodeStage(simulatorBus, statusManager);
-		executeStage = new ExecuteStage(simulatorBus, statusManager);
-		memoryStage = new MemoryStage(simulatorBus, statusManager);
-		writeBackStage = new WriteBackStage(simulatorBus, statusManager);
+		instructionDecodeStage = new InstructionDecodeStage(addressBus, statusManager);
+		executeStage = new ExecuteStage(addressBus, statusManager);
+		memoryStage = new MemoryStage(addressBus, statusManager);
+		writeBackStage = new WriteBackStage(addressBus, statusManager);
 		
 		stages = Arrays.asList(instructionDecodeStage, executeStage, memoryStage,
 				writeBackStage);
@@ -658,6 +678,9 @@ public class PLPSimulator implements Simulator
 		programCounter = new ProgramCounter(0);
 		
 		alu = new ALU();
+		
+		SetupDevicesandMemory setup = new SetupDevicesandMemory(addressBus);
+		setup.setup();
 	}
 	
 	@Override

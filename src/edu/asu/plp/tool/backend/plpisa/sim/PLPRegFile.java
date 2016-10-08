@@ -47,13 +47,28 @@ public class PLPRegFile {
 		this.registers = new IntegerProperty[NUMBER_OF_REGISTERS];
 		this.regInstructions = new BooleanProperty[NUMBER_OF_REGISTERS];
 		
-		for(IntegerProperty x: this.registers)
-			x = new SimpleIntegerProperty(DEFAULT_REGISTER_VALUE);
+		for(int i = 0; i < NUMBER_OF_REGISTERS; i++)
+			this.registers[i] = new SimpleIntegerProperty(DEFAULT_REGISTER_VALUE);
 		
-		for(BooleanProperty x: this.regInstructions)
-			x = new SimpleBooleanProperty(false);
+		for(int i = 0; i < NUMBER_OF_REGISTERS; i++)
+			this.regInstructions[i] = new SimpleBooleanProperty(false);
+			
 		
 		this.namedRegisters = buildNamedRegistersMap();
+	}
+	
+	/**
+	 * This function is used to clear all the values in register and set to 0
+	 */
+	public void reset()
+	{
+		for(int i = 0; i < NUMBER_OF_REGISTERS; i++)
+		{
+			registers[i].set(DEFAULT_REGISTER_VALUE);
+			regInstructions[i].set(false);
+		}
+		
+		
 	}
 	
 	/***

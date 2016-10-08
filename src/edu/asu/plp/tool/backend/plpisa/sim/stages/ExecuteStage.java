@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.plpisa.sim.ALU;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
@@ -20,6 +21,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 public class ExecuteStage implements Stage
 {
 	private EventBus bus;
+	private PLPAddressBus addressBus;
 	private ExecuteEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
 	
@@ -29,13 +31,14 @@ public class ExecuteStage implements Stage
 	
 	private ALU alu;
 	
-	public ExecuteStage(EventBus simulatorBus, SimulatorStatusManager statusManager)
+	public ExecuteStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
 	{
-		this.bus = simulatorBus;
+		this.bus = null;//simulatorBus;
+		this.addressBus = addressBus;
 		this.eventHandler = new ExecuteEventHandler();
 		this.statusManager = statusManager;
 		
-		this.bus.register(eventHandler);
+		//this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
 		

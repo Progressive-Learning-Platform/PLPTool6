@@ -3,6 +3,7 @@ package edu.asu.plp.tool.backend.plpisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
@@ -12,18 +13,20 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 public class WriteBackStage implements Stage
 {
 	private EventBus bus;
+	private PLPAddressBus addressBus;
 	private WriteBackEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
 	
 	private CpuState state;
 	
-	public WriteBackStage(EventBus simulatorBus, SimulatorStatusManager statusManager)
+	public WriteBackStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
 	{
-		this.bus = simulatorBus;
+		this.bus = null;
+		this.addressBus = addressBus;
 		this.eventHandler = new WriteBackEventHandler();
 		this.statusManager = statusManager;
 		
-		this.bus.register(eventHandler);
+		//this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
 		
