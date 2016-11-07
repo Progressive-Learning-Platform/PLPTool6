@@ -1,4 +1,4 @@
-package edu.asu.plp.tool.backend.plpisa.devices;
+package edu.asu.plp.tool.backend.plpisa;
 
 import java.util.Iterator;
 import java.util.TreeMap;

@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.backend.plpisa.devices;
 
+import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import plptool.Constants;
 import plptool.Text;
 

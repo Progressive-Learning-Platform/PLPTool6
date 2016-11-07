@@ -2,7 +2,7 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 
 import java.util.ArrayList;
 
-import edu.asu.plp.tool.backend.plpisa.devices.PLPIOMemoryModule;
+import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import plptool.Constants;
 /**
  * This class is the main bus connecting the PLP processor to different I/O modules including Main Memory.

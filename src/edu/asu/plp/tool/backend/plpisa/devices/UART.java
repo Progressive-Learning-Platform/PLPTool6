@@ -3,6 +3,7 @@ package edu.asu.plp.tool.backend.plpisa.devices;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
 import plptool.Constants;
 

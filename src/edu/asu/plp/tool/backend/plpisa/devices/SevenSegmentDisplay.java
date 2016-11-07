@@ -1,4 +1,5 @@
 package edu.asu.plp.tool.backend.plpisa.devices;
+import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel.Segment;
 import plptool.Constants;
