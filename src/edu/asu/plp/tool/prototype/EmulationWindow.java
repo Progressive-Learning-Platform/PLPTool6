@@ -73,7 +73,7 @@ public class EmulationWindow extends BorderPane
 		uartDisplay.setStyle("-fx-background-color: grey;");
 
 		// TODO: pass active memory module and register file to WatcherWindow
-		WatcherWindow watcherWindowDisplay = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		WatcherWindow watcherWindowDisplay = null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
 		watcherWindowDisplay.setPadding(new Insets(10));
 		watcherWindowDisplay.setStyle("-fx-background-color: grey;");
 		

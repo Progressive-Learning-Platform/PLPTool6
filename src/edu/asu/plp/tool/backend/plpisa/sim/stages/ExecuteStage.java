@@ -21,7 +21,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 public class ExecuteStage implements Stage
 {
 	private EventBus bus;
-	private PLPAddressBus addressBus;
+	//private PLPAddressBus addressBus;
 	private ExecuteEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
 	
@@ -31,14 +31,14 @@ public class ExecuteStage implements Stage
 	
 	private ALU alu;
 	
-	public ExecuteStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
+	public ExecuteStage(SimulatorStatusManager statusManager, EventBus simulatorBus)
 	{
-		this.bus = null;//simulatorBus;
-		this.addressBus = addressBus;
+		this.bus = simulatorBus;
+		//this.addressBus = addressBus;
 		this.eventHandler = new ExecuteEventHandler();
 		this.statusManager = statusManager;
 		
-		//this.bus.register(eventHandler);
+		this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
 		

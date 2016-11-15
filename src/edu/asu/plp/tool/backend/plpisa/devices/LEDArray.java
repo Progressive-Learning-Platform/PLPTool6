@@ -1,11 +1,12 @@
 package edu.asu.plp.tool.backend.plpisa.devices;
 
+import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import plptool.PLPSimBusModule;
 import plptool.Constants;
 
 
-public class LEDArray extends PLPSimBusModule {
+public class LEDArray extends PLPIOMemoryModule {
 
     public LEDArray(long addr) {
         super(addr, addr, true);
@@ -21,11 +22,11 @@ public class LEDArray extends PLPSimBusModule {
             return Constants.PLP_OK;
 
         // Get register value
-        if(!isInitialized(startAddr)) {
+        if(!isInitialized(startAddress)) {
             return Constants.PLP_SIM_BUS_ERROR;
         }
         
-        long value = (Long) super.read(super.startAddr);
+        long value = (Long) super.read(super.startAddress);
 
         // Combinational logic
         for(int i = 7; i >= 0; i--) {
@@ -39,7 +40,7 @@ public class LEDArray extends PLPSimBusModule {
     }
 
     @Override public void reset() {
-        super.writeReg(super.startAddr, new Long(0L), false);
+        super.writeReg(super.startAddress, new Long(0L), false);
     }
 
     public String introduce() {

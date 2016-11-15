@@ -55,7 +55,7 @@ public class PLPSimulator implements Simulator
 	
 	private long startAddress;
 	
-	private PLPAddressBus addressBus;
+	public PLPAddressBus addressBus;
 	
 	
 	
@@ -108,6 +108,8 @@ public class PLPSimulator implements Simulator
 		((WriteBackStage) writeBackStage).retireInstruction();
 		asmInstructionAddress = -1;
 		long oldPc = programCounter.evaluate();
+		
+		statusManager.isFunctional = true;
 		
 		if (statusManager.isFunctional())
 			return stepFunctional();
@@ -619,7 +621,7 @@ public class PLPSimulator implements Simulator
 		
 		// TODO clear stages
 		
-		//flushPipeline();
+		flushPipeline();
 		
 		// TODO Maybe print simulator reset to console
 		
@@ -664,23 +666,25 @@ public class PLPSimulator implements Simulator
 		assembledImage = null;
 		
 		statusManager = new SimulatorStatusManager();
+		regFile = new PLPRegFile();
 		
-		instructionDecodeStage = new InstructionDecodeStage(addressBus, statusManager);
-		executeStage = new ExecuteStage(addressBus, statusManager);
-		memoryStage = new MemoryStage(addressBus, statusManager);
-		writeBackStage = new WriteBackStage(addressBus, statusManager);
+		instructionDecodeStage = new InstructionDecodeStage(addressBus, statusManager, simulatorBus, regFile);
+		executeStage = new ExecuteStage(statusManager, simulatorBus);
+		memoryStage = new MemoryStage(addressBus, statusManager, simulatorBus);
+		writeBackStage = new WriteBackStage(statusManager, simulatorBus, regFile);
 		
 		stages = Arrays.asList(instructionDecodeStage, executeStage, memoryStage,
 				writeBackStage);
 				
 		// FIXME new MemModule(0,32,false);
-		regFile = new PLPRegFile();
+		
 		programCounter = new ProgramCounter(0);
 		
 		alu = new ALU();
 		
-		SetupDevicesandMemory setup = new SetupDevicesandMemory(addressBus);
+		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
+		addressBus.enableAllModules();
 	}
 	
 	@Override

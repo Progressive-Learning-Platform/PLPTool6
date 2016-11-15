@@ -1484,6 +1484,8 @@ public class Main extends Application implements Controller
 		{
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
+			
+			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
 		}
 		else
 		{
@@ -1697,12 +1699,12 @@ public class Main extends Application implements Controller
 	{
 		Stage stage = new Stage();
 		// TODO: pass active memory module and register File to WatcherWindow
-		WatcherWindow watcherWindow = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		//WatcherWindow watcherWindow = new WatcherWindow(new , new PLPRegFile());
 		
-		Scene scene = new Scene(watcherWindow, 888, 500);
+		/*Scene scene = new Scene(watcherWindow, 888, 500);
 		stage.setTitle("Watcher Window");
 		stage.setScene(scene);
-		stage.show();
+		stage.show();*/
 	}
 	
 	@Override

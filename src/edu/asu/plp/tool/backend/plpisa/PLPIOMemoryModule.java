@@ -348,7 +348,7 @@ public abstract class PLPIOMemoryModule extends Thread {
 	 */
 	public boolean isAddressWithModule(long addr)
 	{
-		if(addr > startAddress && addr < endAddress)
+		if(addr >= startAddress && addr <= endAddress)
 			return true;
 		return false;
 	}

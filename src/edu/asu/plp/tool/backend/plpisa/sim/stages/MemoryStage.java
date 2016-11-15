@@ -23,14 +23,14 @@ public class MemoryStage implements Stage
 	private CpuState state;
 	private CpuState currentWriteBackStageState;
 	
-	public MemoryStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
+	public MemoryStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus)
 	{
-		//this.bus = simulatorBus;
+		this.bus = simulatorBus;
 		this.addressBus = addressBus;
 		this.eventHandler = new MemoryEventHandler();
 		this.statusManager = statusManager;
 		
-		//this.bus.register(eventHandler);
+		this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
 		
@@ -86,7 +86,7 @@ public class MemoryStage implements Stage
 		
 		postWriteBackStageState.nextDataAluResult = state.forwardDataAluResult;
 		
-		//state.dataMemLoad = (state.ct1Memread == 1) ? (Long) simBus.read(state.forwardDataAluResult) : 0;
+		state.dataMemLoad = (state.ct1Memread == 1) ? (Long) addressBus.read(state.forwardDataAluResult) : 0;
 		if(state.dataMemLoad == null)
 			throw new IllegalArgumentException("Bus returned no data. Sim Bus Error: Memory Stage");
 		
@@ -94,7 +94,7 @@ public class MemoryStage implements Stage
 		
 		if(state.ct1Memwrite == 1)
 		{
-			//simBus.write(state.forwardDataAluResult, state.dataMemStore, false);
+			addressBus.write(state.forwardDataAluResult, state.dataMemStore, false);
 		}
 		
 		bus.post(writeBackPackage);
