@@ -81,12 +81,18 @@ public class PLPAssembler implements Assembler
 	@Override
 	public void initialize() throws AssemblerException
 	{
+<<<<<<< Updated upstream
 		symbolTable = new HashMap<>();
 		lexer = new Lexer(PLPTokenType.createSet());
 		lineNumAndAsmFileMap = new HashMap<>();
 		nInstructionInserted = 0;
+=======
+		symbolTable = new HashMap<>(); //storage for labels
+		lexer = new Lexer(PLPTokenType.createSet());//Tokenizer
+		lineNumAndAsmFileMap = new HashMap<>();//map every instruction to line number between differing files
+>>>>>>> Stashed changes
 		
-		loadPLPInstructionsMap();
+		loadPLPInstructionsMap();//ties user insturctions to ISA functionality
 		loadPLPAssemblerDirectivesMap();
 		loadPLPPseudoOperationsMap();
 		loadRegisterMap();
@@ -137,7 +143,7 @@ public class PLPAssembler implements Assembler
 		
 		for (int index = 0; index < registers.length; index++)
 		{
-			registerMap.put("$" + index, (byte) index);
+			registerMap.put("$" + index, (byte) index);//matches index to registers[]
 			registerMap.put(registers[index], (byte) index);
 		}
 	}
@@ -422,7 +428,7 @@ public class PLPAssembler implements Assembler
 				}
 				else if(currentToken.getTypeName() == PLPTokenType.COMMENT.name())
 				{
-					preprocessedInstruction = ASM__SKIP__;						
+					preprocessedInstruction = ASM__SKIP__;		//skips 				
 				}
 				else if(isLabel(currentToken))
 				{
@@ -637,7 +643,7 @@ public class PLPAssembler implements Assembler
 		ensureTokenEquality("Line Number: " + Integer.toString(lineNumber) + "(b) Expected a label to branch to, found: ",
 				PLPTokenType.LABEL_PLAIN);
 		
-		addRegionAndIncrementAddress();
+		addRegionAndIncrementAddress();//Steps through program
 		return "beq $0, $0, " + currentToken.getValue();
 	}
 	
