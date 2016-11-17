@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
@@ -244,6 +245,7 @@ public class MemoryStage implements Stage
 		
 		}
 		
+		@Subscribe
 		public void executeCompletionEvent(ExecuteCompletion event)
 		{
 			CpuState postState = event.getPostMemoryState();
@@ -269,11 +271,13 @@ public class MemoryStage implements Stage
 			state.nextDataMemwritedata = postState.nextDataMemwritedata;
 		}
 		
+		@Subscribe
 		public void stateRequested(MemoryStageStateRequest event)
 		{
 			bus.post(new MemoryStageStateResponse(state.clone()));
 		}
 		
+		@Subscribe
 		public void writeBackStageStateResponse(WriteBackStageStateResponse event)
 		{
 			currentWriteBackStageState = event.getMemoryStageState();

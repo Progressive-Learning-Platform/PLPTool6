@@ -1,6 +1,10 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
+import java.sql.SQLException;
+
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
@@ -305,11 +309,13 @@ public class InstructionDecodeStage implements Stage
 		
 		}
 		
+		@Subscribe
 		public void executeStageStateResponse(ExecuteStageStateResponse event)
 		{
 			currentExecuteStageState = event.getExecuteStageState();
 		}
 		
+		@Subscribe
 		public void memoryStageStateResponse(MemoryStageStateResponse event)
 		{
 			currentMemoryStageState = event.getMemoryStageState();

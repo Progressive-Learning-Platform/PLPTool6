@@ -1,6 +1,8 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
@@ -389,6 +391,7 @@ public class ExecuteStage implements Stage
 		
 		}
 		
+		@Subscribe
 		public void instructionDecodeCompletionEvent(InstructionDecodeCompletion event)
 		{
 			CpuState postState = event.getPostState();
@@ -458,16 +461,19 @@ public class ExecuteStage implements Stage
 			
 		}
 		
+		@Subscribe 
 		public void stateRequested(ExecuteStageStateRequest event)
 		{
 			bus.post(new ExecuteStageStateResponse(state.clone()));
 		}
 		
+		@Subscribe 
 		public void memoryStageStateResponse(MemoryStageStateResponse event)
 		{
 			currentMemoryStageState = event.getMemoryStageState();
 		}
 		
+		@Subscribe
 		public void writeBackStageStateResponse(WriteBackStageStateResponse event)
 		{
 			currentWriteBackStageState = event.getMemoryStageState();
