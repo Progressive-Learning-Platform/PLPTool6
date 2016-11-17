@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
-import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
