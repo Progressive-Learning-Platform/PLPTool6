@@ -80,13 +80,17 @@ public class PLPRegFile {
 		// TODO: This is sloppy. Consider reading from JSON?
 		Map<String, Integer> map = new HashMap<>();
 		map.put("zero", 0);
+		
 		map.put("at", 1);
+		
 		map.put("v0", 2);
 		map.put("v1", 3);
+		
 		map.put("a0", 4);
 		map.put("a1", 5);
 		map.put("a2", 6);
 		map.put("a3", 7);
+		
 		map.put("t0", 8);
 		map.put("t1", 9);
 		map.put("t2", 10);
@@ -97,6 +101,7 @@ public class PLPRegFile {
 		map.put("t7", 15);
 		map.put("t8", 16);
 		map.put("t9", 17);
+		
 		map.put("s0", 18);
 		map.put("s1", 19);
 		map.put("s2", 20);
@@ -105,11 +110,13 @@ public class PLPRegFile {
 		map.put("s5", 23);
 		map.put("s6", 24);
 		map.put("s7", 25);
+		
 		map.put("i0", 26);
 		map.put("i1", 27);
 		map.put("iv", 28);
 		map.put("sp", 29);
 		map.put("ir", 30);
+		
 		map.put("ra", 31);
 		return map;
 	}
