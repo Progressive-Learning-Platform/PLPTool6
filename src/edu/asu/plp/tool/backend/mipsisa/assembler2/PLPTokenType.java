@@ -1,4 +1,4 @@
-package edu.asu.plp.tool.backend.plpisa.assembler2;
+package edu.asu.plp.tool.backend.mipsisa.assembler2;
 //START HERE, DEFINE MIPS TOKEN TYPES
 
 import com.faeysoft.preceptor.lexer.TokenType;
