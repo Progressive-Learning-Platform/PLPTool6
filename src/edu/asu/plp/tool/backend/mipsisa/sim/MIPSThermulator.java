@@ -352,7 +352,7 @@ public class MIPSThermulator implements Simulator
 		long instruction = instructionDecodeStage.getState().nextInstruction;
 		
 		//fill a nop for our interrupts jalr branch delay slot
-		if(interruptRequestStateMachine == 1)
+		if(interruptRequestStateMachine == 1) //
 		{
 			instruction = 0;
 			interruptRequestStateMachine = 0;
@@ -362,9 +362,9 @@ public class MIPSThermulator implements Simulator
 		long pcplus4 = programCounter.evaluate() + 4;
 		
 		//pcplus4, default execution
-		if(!isBranched && interruptRequestStateMachine != 3)
+		if(!isBranched && interruptRequestStateMachine != 3)//no branch, no interrupt
 			programCounter.write(pcplus4);
-		else if(!isBranched && interruptRequestStateMachine == 3)
+		else if(!isBranched && interruptRequestStateMachine == 3)//no branch, interrupt
 		{
 			//System.out.println("INT REQ - ret_addr(pcplus4 - 4) = " + );
 			statusManager.currentFlags |= SimulatorFlag.PLP_SIM_IRQ.getFlag();
@@ -375,7 +375,7 @@ public class MIPSThermulator implements Simulator
 			pcplus4 -= 8; // replay the discarded instruction after return from IRQ (jalr adds 4)
 			interruptRequestStateMachine = 1;
 		}
-		else
+		else //explicit branch
 		{
 			//System.out.println("Delay slot - branching to = ");
 			programCounter.write(branchDestination);
@@ -427,7 +427,7 @@ public class MIPSThermulator implements Simulator
 			if(s == t)
 			{
 				isBranched = true;
-				branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+				branchDehttp://marketplace.eclipse.org/marketplace-client-intro?mpc_install=1336stination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
 			}
 		}
 		else if(opcode == 0x05) //bne
