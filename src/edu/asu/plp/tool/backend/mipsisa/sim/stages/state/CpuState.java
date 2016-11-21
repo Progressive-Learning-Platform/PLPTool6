@@ -1,5 +1,5 @@
 package edu.asu.plp.tool.backend.mipsisa.sim.stages.state;
-
+//what is this
 public class CpuState implements Cloneable
 {
 	public int count;
@@ -112,7 +112,7 @@ public class CpuState implements Cloneable
 	public long internalAluOut;
 	
 	public boolean hot;
-	public boolean bubble;
+	public boolean bubble;	//what is bubble?
 	public boolean nextBubble;
 	
 	public boolean instructionRetired;

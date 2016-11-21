@@ -5,9 +5,9 @@ import edu.asu.plp.tool.backend.plpisa.devices.PLPMainMemory;
 
 public class SetupDevicesandMemory {
 	
-	private PLPAddressBus addressBus;
+	private MIPSAddressBus addressBus;
 	
-	public SetupDevicesandMemory(PLPAddressBus bus)
+	public SetupDevicesandMemory(MIPSAddressBus bus)
 	{
 		addressBus = bus;
 	}

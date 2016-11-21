@@ -11,12 +11,12 @@ import javafx.util.Pair;
 //import edu.asu.plp.tool.backend.util.Pair;
 
 
-public class PLPASMImage implements ASMImage
+public class MIPSASMImage implements ASMImage
 {
 	//private int nStartAddress;
 	private List<Pair<ASMInstruction, ASMDisassembly>> disAssem;
 	
-	public PLPASMImage(List<Pair<ASMInstruction,ASMDisassembly>> disAssem)
+	public MIPSASMImage(List<Pair<ASMInstruction,ASMDisassembly>> disAssem)
 	{
 		this.disAssem = disAssem;
 	}

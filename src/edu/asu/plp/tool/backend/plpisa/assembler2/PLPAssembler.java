@@ -81,16 +81,15 @@ public class PLPAssembler implements Assembler
 	@Override
 	public void initialize() throws AssemblerException
 	{
-<<<<<<< Updated upstream
 		symbolTable = new HashMap<>();
 		lexer = new Lexer(PLPTokenType.createSet());
 		lineNumAndAsmFileMap = new HashMap<>();
 		nInstructionInserted = 0;
-=======
+
 		symbolTable = new HashMap<>(); //storage for labels
 		lexer = new Lexer(PLPTokenType.createSet());//Tokenizer
 		lineNumAndAsmFileMap = new HashMap<>();//map every instruction to line number between differing files
->>>>>>> Stashed changes
+
 		
 		loadPLPInstructionsMap();//ties user insturctions to ISA functionality
 		loadPLPAssemblerDirectivesMap();

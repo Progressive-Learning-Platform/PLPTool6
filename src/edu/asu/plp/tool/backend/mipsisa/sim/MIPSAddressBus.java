@@ -12,14 +12,14 @@ import plptool.Constants;
  * @author Harsha
  *
  */
-public class PLPAddressBus {
+public class MIPSAddressBus {
 	
 	/**
 	 * This list contains all I/O module attached with this bus
 	 */
 	private ArrayList<PLPIOMemoryModule> modules;
 	
-	public PLPAddressBus()
+	public MIPSAddressBus()
 	{
 		modules = new ArrayList<PLPIOMemoryModule>();
 	}

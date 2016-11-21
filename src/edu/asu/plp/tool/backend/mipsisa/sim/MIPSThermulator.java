@@ -8,6 +8,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.ExecuteStage;
@@ -37,7 +38,7 @@ public class MIPSThermulator implements Simulator
 	 */
 	private EventBus simulatorBus;
 	
-	private PLPASMImage assembledImage;		//create MIPS_ASM_Image class
+	private MIPSASMImage assembledImage;		//create MIPS_ASM_Image class
 	
 	//private MemoryModule32Bit regFile;
 	private PLPRegFile regFile;				//load MIPS register file
@@ -62,6 +63,8 @@ public class MIPSThermulator implements Simulator
 	
 	private long startAddress;
 	
+	private MIPSAddressBus addressBus;
+	
 	
 	
 	/**
@@ -85,18 +88,21 @@ public class MIPSThermulator implements Simulator
 	{
 		super();							 //call to super constructor 		
 		initialize();						 //
-		breakpoints = new BreakpointModule();//?????
+		breakpoints = new BreakpointModule();//????? Recognizing breakpoints?
 	}
 	
 	@Override
 	public boolean run()
 	{	
-		while(instructionsIssued < assembledImage.getAssemblyDisassemblyMap().size()){
+		
+		//while the instructions received is less than the number of instructions contained on the map
+		while(instructionsIssued < assembledImage.getDisassemblyInfo().size()){  //while
+		//if breakpoint is detected, stop simulator	
 		if(breakpoints.hasBreakpoint()){
 			if(breakpoints.isBreakpoint(asmInstructionAddress)){ // asmInstructionAddress ?
 				statusManager.isSimulationRunning = false;
 				
-			}else{
+			}else{ //no breakpoint, step PC
 				step();
 			}
 		}
@@ -105,21 +111,31 @@ public class MIPSThermulator implements Simulator
 	}
 	
 	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see edu.asu.plp.tool.backend.isa.Simulator#step()
+	 * 
+	 * advances flags (saves old flags and clears mem location of current)
+	 * increments instructions issued
+	 * retireInstruction???
+	 * gets old Program Counter
+	 */
 	public boolean step()
 	{
 		statusManager.advanceFlags();
 		instructionsIssued++;
-		((WriteBackStage) writeBackStage).retireInstruction();
+		((WriteBackStage) writeBackStage).retireInstruction(); //removes instruction from pipeline
 		asmInstructionAddress = -1;
 		long oldPc = programCounter.evaluate();
 		
 		if (statusManager.isFunctional())
-			return stepFunctional();
+			return stepFunctional();		//what's going on here?
 			
 		/****************** RISING EDGE OF THE CLOCK **********************/
 		
 		// Propagate values
 		// move next* values to the output side of the pipeline registers
+		//.clock just steps to the next clock cycle
 		if (writeBackStage.isHot())
 			writeBackStage.clock();
 		if (memoryStage.isHot())
@@ -143,10 +159,11 @@ public class MIPSThermulator implements Simulator
 		executeStage.evaluate();
 		instructionDecodeStage.evaluate();
 		
-		// Program counter update logic (input side IF)
+		// Program counter update logic (input side Instruction Fetch)
 		boolean nonNegativeInstructionAddress = executeStage
 				.getState().currentInstructionAddress != -1;
-		boolean ct1Pcsrc = executeStage.getState().ct1Pcsrc == 1;       //WHAT DOES THIS DO??
+		boolean ct1Pcsrc = executeStage.getState().ct1Pcsrc == 1;       //and's with result of ALU,
+																		//used in determining jumping or branching
 		
 		if (executeStage.isHot() && nonNegativeInstructionAddress && ct1Pcsrc)
 		{
@@ -165,9 +182,11 @@ public class MIPSThermulator implements Simulator
 		// TODO bus
 		// Evaluate modules attached to the bus
 		// bus.eval();
+		addressBus.eval();
 		// Evaluate interrupt controller again to see if anything raised an IRQ
 		// (PLPSimBus evaluates modules from index 0 upwards)
 		// bus.eval(0);
+		addressBus.eval(0);
 		
 		/*
 		 * STALL ROUTINES
@@ -504,6 +523,7 @@ public class MIPSThermulator implements Simulator
 	 *
 	 * @return Returns true for success, false otherwise.
 	 */
+	@SuppressWarnings("unused")
 	private boolean fetch()
 	{
 		long address = programCounter.evaluate();
@@ -533,7 +553,7 @@ public class MIPSThermulator implements Simulator
 				return false;
 			}
 		}
-		
+		//couldn't find instruction at memory??
 		if (!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
 		{
 			System.out.println(String.format("%s %08x",
@@ -541,6 +561,7 @@ public class MIPSThermulator implements Simulator
 			return false;
 		}
 		
+		//loads the next instruction to be decoded?
 		instructionDecodeStage.getState().nextInstruction = ret;
 		instructionDecodeStage.getState().nextInstructionAddress = address;
 		instructionDecodeStage.getState().nextCt1Pcplus4 = address + 4;
@@ -586,7 +607,7 @@ public class MIPSThermulator implements Simulator
 		if (assembledImage == null)
 			return false;
 			
-		this.assembledImage = (PLPASMImage) assembledImage;
+		this.assembledImage = (MIPSASMImage) assembledImage;
 		
 		setupFromImage();
 		

@@ -1,4 +1,4 @@
-package edu.asu.plp.tool.backend.plpisa;
+package edu.asu.plp.tool.backend.mipsisa;
 
 import edu.asu.plp.tool.backend.PLP;
 import edu.asu.plp.tool.backend.isa.LanguageSpecification;

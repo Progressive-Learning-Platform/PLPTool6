@@ -12,7 +12,7 @@ import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.BTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.JTypeInstruction;
 
-public class InstructionMap extends HashMap<String, PLPInstruction>
+public class InstructionMap extends HashMap<String, MIPSInstruction>
 {
 	public void addRTypeInstruction(String name, int functCode)
 	{
@@ -69,7 +69,7 @@ public class InstructionMap extends HashMap<String, PLPInstruction>
 	}
 	
 	@Override
-	public PLPInstruction put(String name, PLPInstruction instruction)
+	public MIPSInstruction put(String name, MIPSInstruction instruction)
 	{
 		validateKey(name);
 		return super.put(name, instruction);
