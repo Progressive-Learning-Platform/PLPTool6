@@ -3,6 +3,7 @@ package edu.asu.plp.tool.backend.plpisa;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import edu.asu.plp.tool.backend.isa.IOMemoryModule;
 import plptool.Constants;
 import plptool.Text;
 
@@ -13,7 +14,7 @@ import plptool.Text;
  * 
  * TODO: As of now it is same as PLPTool 5.2. Update or modify this as you gain confidence and more understanding about simulation
  */
-public abstract class PLPIOMemoryModule extends Thread {
+public abstract class PLPIOMemoryModule extends Thread implements IOMemoryModule {
 	
 	//If this module needs to be run separately as thread.
 	public boolean threaded = false;

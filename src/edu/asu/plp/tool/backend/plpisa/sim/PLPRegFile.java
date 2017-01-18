@@ -3,6 +3,7 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.asu.plp.tool.backend.isa.RegisterFile;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -16,7 +17,7 @@ import javafx.beans.property.SimpleLongProperty;
  * @author Harsha
  *
  */
-public class PLPRegFile {
+public class PLPRegFile implements RegisterFile {
 	/***
 	 * Total number of registers present in PLP processor
 	 */
@@ -246,6 +247,7 @@ public class PLPRegFile {
 	{
 		validateAddress(address);
 		registers[address].set(value);
+		//registers[address].
 		regInstructions[address].set(isInstruction);
 		
 	}

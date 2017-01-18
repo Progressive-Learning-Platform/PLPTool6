@@ -100,6 +100,16 @@ public class PLPSimulator implements Simulator
 		return false;
 	}
 	
+	public PLPRegFile getRegisterFile()
+	{
+		return regFile;
+	}
+	
+	public PLPAddressBus getAddressBus()
+	{
+		return addressBus;
+	}
+	
 	@Override
 	public boolean step()
 	{
@@ -684,7 +694,7 @@ public class PLPSimulator implements Simulator
 		
 		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
-		addressBus.enableAllModules();
+		addressBus.enable_allmodules();
 	}
 	
 	@Override

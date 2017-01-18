@@ -2,6 +2,8 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 
 import java.util.ArrayList;
 
+import edu.asu.plp.tool.backend.isa.AddressBus;
+import edu.asu.plp.tool.backend.isa.IOMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import plptool.Constants;
 /**
@@ -12,7 +14,7 @@ import plptool.Constants;
  * @author Harsha
  *
  */
-public class PLPAddressBus {
+public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This list contains all I/O module attached with this bus
@@ -29,11 +31,19 @@ public class PLPAddressBus {
 	 * @param mod PLPIOMemoryModule to be added
 	 * @return returns the index of the module after adding
 	 */
-	public int add(PLPIOMemoryModule mod)
+	public int add(IOMemoryModule mod)
 	{
-		modules.add(mod);
+		modules.add((PLPIOMemoryModule)mod);
 		return modules.indexOf(mod);
 	}
+	
+	@Override
+	public int remove(IOMemoryModule rmmod) {
+		modules.remove((PLPIOMemoryModule)rmmod);
+		
+		return 0;
+	}
+
 	
 	/**
 	 * This method removes the module form the bus. 
@@ -45,6 +55,23 @@ public class PLPAddressBus {
 		//Index out of range possibility
 		modules.remove(index);
 		return Constants.PLP_OK;
+	}
+	
+	@Override
+	public boolean validateAddress(long address)
+	{
+		boolean isValid = false;
+		
+		for(PLPIOMemoryModule mod : modules)
+		{
+			if(mod.isAddressWithModule(address))
+			{
+				isValid = true;
+				break;
+			}
+		}
+		
+		return isValid;
 	}
 	
 	/**
@@ -227,28 +254,22 @@ public class PLPAddressBus {
 		
 	}
 	
-	/**
-	 * This method enables all the modules installed to this bus
-	 * @return Ok for success else error
-	 */
-	public synchronized int enableAllModules()
-	{
+	@Override
+	public synchronized int enable_allmodules() {
 		for (PLPIOMemoryModule mod: modules)
 			mod.enable();
 		
 		return Constants.PLP_OK;
+		
 	}
-	
-	/**
-	 * This method disables all the modules installed to this bus
-	 * @return Ok for success else error
-	 */
-	public synchronized int disableAllModules()
-	{
+
+	@Override
+	public synchronized int disable_allmodules() {
 		for(PLPIOMemoryModule mod: modules)
 			mod.disable();
 		return Constants.PLP_OK;
 	}
+	
 	
 	/**
 	 * This method checks if a module indicated by index is enabled or not
@@ -400,6 +421,9 @@ public class PLPAddressBus {
 		//Index out of range possibility
 		return modules.get(index).endAddress();
 	}
+
+
+	
 	
 	
 

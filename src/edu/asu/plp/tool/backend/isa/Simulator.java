@@ -21,4 +21,8 @@ public interface Simulator
 	boolean isProgramLoaded();
 	
 	boolean loadProgram(ASMImage assembledImage);
+	
+	RegisterFile getRegisterFile();
+	
+	AddressBus getAddressBus();
 }

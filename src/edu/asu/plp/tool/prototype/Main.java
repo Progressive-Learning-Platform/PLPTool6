@@ -1044,7 +1044,7 @@ public class Main extends Application implements Controller
 	public void showEmulationWindow()
 	{
 		Stage createEmulationStage = new Stage();
-		EmulationWindow emulationWindow = new EmulationWindow();
+		EmulationWindow emulationWindow = new EmulationWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());
 		
 		Scene scene = new Scene(emulationWindow, 1275, 700);
 		createEmulationStage.setTitle("Emulation Window");

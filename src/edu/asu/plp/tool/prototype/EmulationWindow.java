@@ -21,6 +21,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import edu.asu.plp.tool.backend.isa.AddressBus;
+import edu.asu.plp.tool.backend.isa.RegisterFile;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
@@ -31,16 +33,28 @@ import edu.asu.plp.tool.prototype.view.WatcherWindow;
 
 public class EmulationWindow extends BorderPane
 {
-	public EmulationWindow()
+	private WatcherWindow watcher;
+	
+	public WatcherWindow getWatcherWindow()
 	{
-		GridPane demoGrid = createDemo();
+		return watcher;
+	}
+	
+	public EmulationWindow(AddressBus bus, RegisterFile regFile)
+	{
+		GridPane demoGrid = createDemo(bus, regFile);
 		HBox topBar = createTopBar();
 		
 		this.setTop(topBar);
 		this.setCenter(demoGrid);
 	}
 	
-	private GridPane createDemo()
+	/*public void updateEmulationComponents()
+	{
+		watcher.update_values();
+	}*/
+	
+	private GridPane createDemo(AddressBus bus, RegisterFile regFile)
 	{
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
@@ -73,9 +87,9 @@ public class EmulationWindow extends BorderPane
 		uartDisplay.setStyle("-fx-background-color: grey;");
 
 		// TODO: pass active memory module and register file to WatcherWindow
-		WatcherWindow watcherWindowDisplay = null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
-		watcherWindowDisplay.setPadding(new Insets(10));
-		watcherWindowDisplay.setStyle("-fx-background-color: grey;");
+		watcher = new WatcherWindow(bus, regFile);//null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		watcher.setPadding(new Insets(10));
+		watcher.setStyle("-fx-background-color: grey;");
 		
 		SevenSegmentPanel sevenSegDisplay = new SevenSegmentPanel();
 		sevenSegDisplay.setStyle("-fx-background-color: grey;");
@@ -86,7 +100,7 @@ public class EmulationWindow extends BorderPane
 		Label sevenSegLabel = label("Seven Segment Display");
 		Label watcherWindowLabel = label("Watcher Window");
 		
-		leftSide.getChildren().addAll(watcherWindowLabel, watcherWindowDisplay);
+		leftSide.getChildren().addAll(watcherWindowLabel, watcher);
 		rightSide.getChildren()
 				.addAll(sevenSegLabel, sevenSegDisplay, ledLabel,
 						ledDisplay, switchesLabel, switchesDisplay, uartLabel, uartDisplay);
@@ -113,7 +127,7 @@ public class EmulationWindow extends BorderPane
 		
 		CheckBox watcherWindowCheckBox = new CheckBox("Watcher Window");
 		watcherWindowCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcherWindowDisplay);
+		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcher);
 		
 		checkOptions.getChildren().addAll(sevenSegCheckBox, ledCheckBox, uartCheckBox,
 				switchesCheckBox, watcherWindowCheckBox);

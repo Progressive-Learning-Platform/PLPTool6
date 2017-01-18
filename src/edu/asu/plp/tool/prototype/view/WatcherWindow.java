@@ -34,6 +34,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import edu.asu.plp.tool.backend.isa.AddressBus;
+import edu.asu.plp.tool.backend.isa.RegisterFile;
 import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
@@ -50,10 +52,10 @@ public class WatcherWindow extends BorderPane
 	private Map<String, Function<Long, String>> valueDisplayOptions;
 	private ObjectProperty<Function<Long, String>> registerDisplayFunction;
 	private ObjectProperty<Function<Long, String>> memoryDisplayFunction;
-	private PLPIOMemoryModule memory;
-	private PLPRegFile regs;
+	private AddressBus memory;
+	private RegisterFile regs;
 	
-	public WatcherWindow(PLPIOMemoryModule memory, PLPRegFile reg)
+	public WatcherWindow(AddressBus memory, RegisterFile reg)
 	{
 		this.memory = memory;
 		this.regs = reg;
@@ -67,8 +69,8 @@ public class WatcherWindow extends BorderPane
 		registers = FXCollections.observableArrayList();
 		
 		// TODO: remove placeholder
-		memoryAddresses.add(new MemoryRow(10025, 100000));
-		registers.add(new RegisterRow("$t0", "$8", 100000));
+		//memoryAddresses.add(new MemoryRow(10025, 100000));
+		//registers.add(new RegisterRow("$t0", "$8", 100000));
 		
 		TableView<RegisterRow> watchedRegisters = createRegisterTable();
 		TableView<MemoryRow> watchedAddresses = createMemoryTable();
@@ -110,6 +112,11 @@ public class WatcherWindow extends BorderPane
 			model.addAll(temp);
 		};
 	}
+	
+	/*public void update_values()
+	{
+		registers
+	}*/
 	
 	private void populateDisplayOptions()
 	{
@@ -275,8 +282,9 @@ public class WatcherWindow extends BorderPane
 	
 	private void watchMemoryAddress(long address)
 	{
-		memory.isAddressWithModule(address);
+		//memory.isAddressWithModule(address);
 		//memory.validateAddress(address);
+		memory.validateAddress(address);
 		long newValue = (long)memory.read(address);
 		
 		LongProperty value = new SimpleLongProperty(newValue);//memory.getMemoryValueProperty(address);

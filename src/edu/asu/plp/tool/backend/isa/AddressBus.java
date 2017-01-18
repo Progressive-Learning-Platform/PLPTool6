@@ -16,5 +16,6 @@ public interface AddressBus {
 	int disableModule(int index);
 	boolean isEnabled(int index);
 	void reset();
+	boolean validateAddress(long address);
 
 }
