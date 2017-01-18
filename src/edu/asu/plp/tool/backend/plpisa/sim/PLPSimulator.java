@@ -536,7 +536,7 @@ public class PLPSimulator implements Simulator
 			}
 		}
 		
-		if (!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
+		if (!addressBus.isInstruction(address))		//!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
 		{
 			System.out.println(String.format("%s %08x",
 					"fetch(): Attempted to fetch non-executable memory: pc=", address));
@@ -628,7 +628,7 @@ public class PLPSimulator implements Simulator
 		// TODO Load program to bus?
 		
 		statusManager.reset();
-		addressBus.issueZeroes(0);
+		//addressBus.issueZeroes(0);
 		for(int i = 0; i < assembledImage.getDisassemblyInfo().size(); i++)
 		{
 			addressBus.write(assembledImage.getDisassemblyInfo().get(i).getValue().getAddresss(), assembledImage.getDisassemblyInfo().get(i).getValue().getInstruction(), true); 
