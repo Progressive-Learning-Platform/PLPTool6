@@ -34,11 +34,14 @@ import edu.asu.plp.tool.prototype.view.WatcherWindow;
 public class EmulationWindow extends BorderPane
 {
 	private WatcherWindow watcher;
+	private boolean isActive;
 	
 	public WatcherWindow getWatcherWindow()
 	{
 		return watcher;
 	}
+	
+	//public 
 	
 	public EmulationWindow(AddressBus bus, RegisterFile regFile)
 	{

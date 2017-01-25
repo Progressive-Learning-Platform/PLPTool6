@@ -54,6 +54,8 @@ public class WatcherWindow extends BorderPane
 	private ObjectProperty<Function<Long, String>> memoryDisplayFunction;
 	private AddressBus memory;
 	private RegisterFile regs;
+	private TableView<RegisterRow> watchedRegisters;
+	private TableView<MemoryRow> watchedAddresses;
 	
 	public WatcherWindow(AddressBus memory, RegisterFile reg)
 	{
@@ -72,10 +74,12 @@ public class WatcherWindow extends BorderPane
 		//memoryAddresses.add(new MemoryRow(10025, 100000));
 		//registers.add(new RegisterRow("$t0", "$8", 100000));
 		
-		TableView<RegisterRow> watchedRegisters = createRegisterTable();
-		TableView<MemoryRow> watchedAddresses = createMemoryTable();
+		watchedRegisters = createRegisterTable();
+		watchedAddresses = createMemoryTable();
 		Node registerControlPanel = createRegisterControlPanel();
 		Node memoryControlPanel = createMemoryControlPanel();
+		
+		
 
 		registerDisplayFunction.addListener(updateOnChangeEvent(registers));
 		memoryDisplayFunction.addListener(updateOnChangeEvent(memoryAddresses));
@@ -105,6 +109,7 @@ public class WatcherWindow extends BorderPane
 	
 	private <T, G> ChangeListener<G> updateOnChangeEvent(ObservableList<T> model)
 	{
+		
 		return (value, current, old) -> {
 			ObservableList<T> temp = FXCollections.observableArrayList();
 			temp.addAll(model);
@@ -113,10 +118,25 @@ public class WatcherWindow extends BorderPane
 		};
 	}
 	
-	/*public void update_values()
+	public void update_values()
 	{
-		registers
-	}*/
+		int i = 0;
+		
+		
+		for(RegisterRow row: registers)
+		{
+			watchedRegisters.getColumns().get(i).setVisible(false);
+			watchedRegisters.getColumns().get(i).setVisible(true);
+			i++;
+		}
+		i = 0;
+		for(MemoryRow row: memoryAddresses)
+		{
+			watchedAddresses.getColumns().get(i).setVisible(false);
+			watchedAddresses.getColumns().get(i).setVisible(true);
+			i++;
+		}
+	}
 	
 	private void populateDisplayOptions()
 	{

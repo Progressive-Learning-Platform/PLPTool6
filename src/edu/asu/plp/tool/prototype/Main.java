@@ -139,6 +139,8 @@ public class Main extends Application implements Controller
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
+	private WatcherWindow watcher = null;
+	private EmulationWindow emulationWindow = null;
 	
 	private ApplicationThemeManager applicationThemeManager;
 	private OutlineView outlineView;
@@ -1044,13 +1046,15 @@ public class Main extends Application implements Controller
 	public void showEmulationWindow()
 	{
 		Stage createEmulationStage = new Stage();
-		EmulationWindow emulationWindow = new EmulationWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());
+		
 		
 		Scene scene = new Scene(emulationWindow, 1275, 700);
 		createEmulationStage.setTitle("Emulation Window");
 		createEmulationStage.setScene(scene);
 		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
+		
+
 	}
 	
 	public void openCpuViewWindow()
@@ -1485,7 +1489,13 @@ public class Main extends Application implements Controller
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
 			
+			emulationWindow = new EmulationWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());
+			
 			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
+			
+			activeSimulator.getAddressBus().setEmulationWindow(emulationWindow);
+			
+			
 		}
 		else
 		{
@@ -1700,11 +1710,12 @@ public class Main extends Application implements Controller
 		Stage stage = new Stage();
 		// TODO: pass active memory module and register File to WatcherWindow
 		//WatcherWindow watcherWindow = new WatcherWindow(new , new PLPRegFile());
+		watcher = new WatcherWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());//emulationWindow.getWatcherWindow();
 		
-		/*Scene scene = new Scene(watcherWindow, 888, 500);
+		Scene scene = new Scene(watcher, 888, 500);
 		stage.setTitle("Watcher Window");
 		stage.setScene(scene);
-		stage.show();*/
+		stage.show();
 	}
 	
 	@Override

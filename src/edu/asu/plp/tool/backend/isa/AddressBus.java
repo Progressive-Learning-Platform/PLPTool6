@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.backend.isa;
 
+import edu.asu.plp.tool.prototype.EmulationWindow;
+
 public interface AddressBus {
 	int add(IOMemoryModule mod);
 	int remove(IOMemoryModule mod);
@@ -17,5 +19,6 @@ public interface AddressBus {
 	boolean isEnabled(int index);
 	void reset();
 	boolean validateAddress(long address);
+	void setEmulationWindow(EmulationWindow window);
 
 }

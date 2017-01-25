@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
+import edu.asu.plp.tool.prototype.EmulationWindow;
 import plptool.Constants;
 /**
  * This class is the main bus connecting the PLP processor to different I/O modules including Main Memory.
@@ -20,6 +21,8 @@ public class PLPAddressBus implements AddressBus{
 	 * This list contains all I/O module attached with this bus
 	 */
 	private ArrayList<PLPIOMemoryModule> modules;
+	
+	private EmulationWindow window;
 	
 	public PLPAddressBus()
 	{
@@ -219,6 +222,8 @@ public class PLPAddressBus implements AddressBus{
 		{
 			ret += mod.eval();
 		}
+		
+		window.getWatcherWindow().update_values();
 		
 		return ret;
 	}
@@ -420,6 +425,13 @@ public class PLPAddressBus implements AddressBus{
 	{
 		//Index out of range possibility
 		return modules.get(index).endAddress();
+	}
+
+	@Override
+	public void setEmulationWindow(EmulationWindow window) {
+		// TODO Auto-generated method stub
+		this.window = window;
+		
 	}
 
 

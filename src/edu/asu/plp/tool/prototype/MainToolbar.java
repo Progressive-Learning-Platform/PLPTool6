@@ -93,11 +93,10 @@ public class MainToolbar extends BorderPane
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		ImageButton emulatorButton = new ImageButton("toolbar_watcher.png");
-		emulatorButton.setOnMouseClicked((event) -> {
-			//TODO: Attach to I/O Sim Window
-		});
-		buttons.add(emulatorButton);
+		ImageButton emulationButton = new ImageButton("toolbar_watcher.png");
+		emulationButton.setOnMouseClicked((e) -> controller.showEmulationWindow());
+		buttons.add(emulationButton);
+		runButtons.add(emulationButton);
 		
 		ImageButton cpuViewButton = new ImageButton("toolbar_cpu.png");
 		cpuViewButton.setOnMouseClicked((e) -> controller.openCpuViewWindow());
