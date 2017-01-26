@@ -1,4 +1,5 @@
 package edu.asu.plp.tool.core;
+//contains both assembler and simulator
 
 import java.io.File;
 import java.util.ArrayList;
@@ -53,7 +54,8 @@ public class ISARegistry
 		// TODO: Remove and replace with a decoupled solution
 		
 		//Did some work of what is mentioned in TODO - Harsha
-		File folder = new File("isas");
+		//
+		File folder = new File("isas");//searches for file containing ISA
 		if(folder.exists() && folder.isDirectory())
 		{
 			File[] listOfFiles = folder.listFiles();
@@ -65,13 +67,13 @@ public class ISARegistry
 			{
 				Function<String, Boolean> supportsProjectType;
 				supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
-				Simulator simulator = new PLPSimulator();
+				Simulator simulator = new PLPSimulator();//generic class
 				Assembler assembler = new PLPAssembler();
-				ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
+				ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType); //creates new module from ISAModule.java
 				registeredModules.add(plp6Module);
 			}
 		}
-		else
+		else 
 		{
 			Function<String, Boolean> supportsProjectType;
 			supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
