@@ -1,12 +1,11 @@
-package edu.asu.plp.tool.backend.plpisa.devices;
+package edu.asu.plp.tool.prototype.devices;
 
-import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
+
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
-import plptool.PLPSimBusModule;
 import plptool.Constants;
 
 
-public class LEDArray extends PLPIOMemoryModule {
+public class LEDArray extends PLPToolIOMemoryModule {
 
     public LEDArray(long addr) {
         super(addr, addr, true);
@@ -40,7 +39,7 @@ public class LEDArray extends PLPIOMemoryModule {
     }
 
     @Override public void reset() {
-        super.writeReg(super.startAddress, new Long(0L), false);
+        super.write(super.startAddress, new Long(0L), false);
     }
 
     public String introduce() {

@@ -23,8 +23,10 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.RegisterFile;
+import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
+import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
@@ -35,6 +37,8 @@ public class EmulationWindow extends BorderPane
 {
 	private WatcherWindow watcher;
 	private boolean isActive;
+	private Simulator sim;
+	private SetupDevicesandMemory deviceSetup;
 	
 	public WatcherWindow getWatcherWindow()
 	{
@@ -43,9 +47,11 @@ public class EmulationWindow extends BorderPane
 	
 	//public 
 	
-	public EmulationWindow(AddressBus bus, RegisterFile regFile)
+	public EmulationWindow(Simulator sim, SetupDevicesandMemory deviceSetup)
 	{
-		GridPane demoGrid = createDemo(bus, regFile);
+		this.sim = sim;
+		this.deviceSetup = deviceSetup;
+		GridPane demoGrid = createDemo();
 		HBox topBar = createTopBar();
 		
 		this.setTop(topBar);
@@ -57,7 +63,7 @@ public class EmulationWindow extends BorderPane
 		watcher.update_values();
 	}*/
 	
-	private GridPane createDemo(AddressBus bus, RegisterFile regFile)
+	private GridPane createDemo()
 	{
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
@@ -81,7 +87,7 @@ public class EmulationWindow extends BorderPane
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		SwitchesDisplay switchesDisplay = new SwitchesDisplay();
+		SwitchesDisplay switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule( deviceSetup.SWITCH_INDEX));
 		switchesDisplay.setPadding(new Insets(10));
 		switchesDisplay.setStyle("-fx-background-color: grey;");
 		
@@ -90,7 +96,7 @@ public class EmulationWindow extends BorderPane
 		uartDisplay.setStyle("-fx-background-color: grey;");
 
 		// TODO: pass active memory module and register file to WatcherWindow
-		watcher = new WatcherWindow(bus, regFile);//null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		watcher = new WatcherWindow(sim.getAddressBus(), sim.getRegisterFile());//null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
 		watcher.setPadding(new Insets(10));
 		watcher.setStyle("-fx-background-color: grey;");
 		

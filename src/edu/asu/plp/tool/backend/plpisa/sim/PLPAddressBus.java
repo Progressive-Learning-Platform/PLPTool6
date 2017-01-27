@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
-import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import edu.asu.plp.tool.prototype.EmulationWindow;
+import javafx.beans.property.LongProperty;
 import plptool.Constants;
 /**
  * This class is the main bus connecting the PLP processor to different I/O modules including Main Memory.
@@ -20,13 +20,13 @@ public class PLPAddressBus implements AddressBus{
 	/**
 	 * This list contains all I/O module attached with this bus
 	 */
-	private ArrayList<PLPIOMemoryModule> modules;
+	private ArrayList<IOMemoryModule> modules;
 	
 	private EmulationWindow window;
 	
 	public PLPAddressBus()
 	{
-		modules = new ArrayList<PLPIOMemoryModule>();
+		modules = new ArrayList<IOMemoryModule>();
 	}
 	
 	/**
@@ -36,13 +36,13 @@ public class PLPAddressBus implements AddressBus{
 	 */
 	public int add(IOMemoryModule mod)
 	{
-		modules.add((PLPIOMemoryModule)mod);
+		modules.add(mod);
 		return modules.indexOf(mod);
 	}
 	
 	@Override
 	public int remove(IOMemoryModule rmmod) {
-		modules.remove((PLPIOMemoryModule)rmmod);
+		modules.remove(rmmod);
 		
 		return 0;
 	}
@@ -65,7 +65,7 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean isValid = false;
 		
-		for(PLPIOMemoryModule mod : modules)
+		for(IOMemoryModule mod : modules)
 		{
 			if(mod.isAddressWithModule(address))
 			{
@@ -82,15 +82,15 @@ public class PLPAddressBus implements AddressBus{
 	 * @param addr address whose data needs to be read
 	 * @return read object else error code
 	 */
-	public synchronized Object read(long addr)
+	public synchronized Long read(long addr)
 	{
-		Object value = null;
+		Long value = null;
 		
-		for(PLPIOMemoryModule mod : modules)
+		for(IOMemoryModule mod : modules)
 		{
 			if(mod.isAddressWithModule(addr))
 			{
-				if(!mod.phantom)
+				if(!mod.isPhantom())
 					value = mod.read(addr);
 				else
 				{
@@ -106,15 +106,43 @@ public class PLPAddressBus implements AddressBus{
 		
 		if(value == null && isMapped(addr))
 		{
-			return Constants.PLP_SIM_MODULE_NO_DATA_ON_READ;
+			 //Constants.PLP_SIM_MODULE_NO_DATA_ON_READ;
+			return null;
 		}
 		else if(!isMapped(addr))
 		{
-			return Constants.PLP_SIM_UNMAPPED_MEMORY_ACCESS;
+			//return Constants.PLP_SIM_UNMAPPED_MEMORY_ACCESS;
+			return null;
 		}
 		
 		
 		return value;
+	}
+	
+	@Override
+	public LongProperty getMemoryValueProperty(long address)
+	{
+		LongProperty valueProperty = null;
+		
+		for(IOMemoryModule mod : modules)
+		{
+			if(mod.isAddressWithModule(address))
+			{
+				if(!mod.isPhantom())
+					valueProperty = mod.getMemoryValueProperty(address);
+				else
+				{
+					//verify: why are we even calling read of the module if not interested in its value
+					//mod.read(addr);
+				}
+				
+				break;
+			}
+			
+			
+		}
+		
+		return valueProperty;
 	}
 	
 	/**
@@ -124,12 +152,12 @@ public class PLPAddressBus implements AddressBus{
 	 * @param isInstr whether data to be written is an instruction or not
 	 * @return
 	 */
-	public synchronized int write(long addr, Object data, boolean isInstr)
+	public synchronized int write(long addr, long data, boolean isInstr)
 	{
 		int ret = Constants.PLP_SIM_UNMAPPED_MEMORY_ACCESS;
 		
 		
-		for(PLPIOMemoryModule mod : modules)
+		for(IOMemoryModule mod : modules)
 		{
 			if(mod.isAddressWithModule(addr))
 			{
@@ -141,6 +169,11 @@ public class PLPAddressBus implements AddressBus{
 		return ret;
 	}
 	
+	public IOMemoryModule getModule(int index)
+	{
+		return modules.get(index);
+	}
+	
 	/**
 	 * This method checks if the module to which the given address belongs is initialized or not
 	 * @param addr address belonging to a particular module
@@ -150,7 +183,7 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean bInitialized = false;
 		
-		for(PLPIOMemoryModule mod : modules)
+		for(IOMemoryModule mod : modules)
 			if(mod.isAddressWithModule(addr))
 			{
 				if(mod.isInitialized(addr))
@@ -173,7 +206,7 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean bMapped = false;
 		
-		for(PLPIOMemoryModule mod : modules)
+		for(IOMemoryModule mod : modules)
 		{
 			if(mod.isAddressWithModule(addr))
 			{
@@ -198,7 +231,7 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean bInstr = false;
 		
-		for(PLPIOMemoryModule mod : modules)
+		for(IOMemoryModule mod : modules)
 		{
 			if(mod.isAddressWithModule(addr))
 			{
@@ -218,7 +251,7 @@ public class PLPAddressBus implements AddressBus{
 	public synchronized int eval()
 	{
 		int ret = Constants.PLP_OK;
-		for(PLPIOMemoryModule mod: modules)
+		for(IOMemoryModule mod: modules)
 		{
 			ret += mod.eval();
 		}
@@ -248,7 +281,7 @@ public class PLPAddressBus implements AddressBus{
 	public int gui_eval(int index, Object x)
 	{
 		//There is a possiblity of error here - index not in range
-		if(modules.get(index).threaded)
+		if(modules.get(index).isThreaded())
 			return modules.get(index).gui_eval(x);
 		else
 		{
@@ -261,7 +294,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	@Override
 	public synchronized int enable_allmodules() {
-		for (PLPIOMemoryModule mod: modules)
+		for (IOMemoryModule mod: modules)
 			mod.enable();
 		
 		return Constants.PLP_OK;
@@ -270,7 +303,7 @@ public class PLPAddressBus implements AddressBus{
 
 	@Override
 	public synchronized int disable_allmodules() {
-		for(PLPIOMemoryModule mod: modules)
+		for(IOMemoryModule mod: modules)
 			mod.disable();
 		return Constants.PLP_OK;
 	}
@@ -351,7 +384,7 @@ public class PLPAddressBus implements AddressBus{
 	public synchronized Object uncheckedRead(long addr)
 	{
 		Object value = null;
-		for(PLPIOMemoryModule mod: modules)
+		for(IOMemoryModule mod: modules)
 		{
 			if(mod.isAddressWithModule(addr))
 			{
@@ -367,7 +400,7 @@ public class PLPAddressBus implements AddressBus{
 	 */
 	public void reset()
 	{
-		for(PLPIOMemoryModule mod: modules)
+		for(IOMemoryModule mod: modules)
 			mod.reset();
 	}
 	
@@ -377,7 +410,7 @@ public class PLPAddressBus implements AddressBus{
 	 */
 	public synchronized void issueZeroes(int index)
 	{
-		PLPIOMemoryModule mod = modules.get(index);
+		IOMemoryModule mod = modules.get(index);
 		
 		for(int i = 0; i < mod.size(); i++)
 		{
@@ -390,7 +423,7 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module as installed in the bus
 	 * @return Object of module
 	 */
-	public synchronized PLPIOMemoryModule getReferenceModule(int index)
+	public synchronized IOMemoryModule getReferenceModule(int index)
 	{
 		//Index out of range possibility
 		return modules.get(index);

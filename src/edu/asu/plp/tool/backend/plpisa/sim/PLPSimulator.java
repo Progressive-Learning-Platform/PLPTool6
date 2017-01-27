@@ -15,6 +15,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
+import javafx.beans.property.LongProperty;
 import javafx.util.Pair;
 
 /**
@@ -99,6 +100,7 @@ public class PLPSimulator implements Simulator
 		}
 		return false;
 	}
+	
 	
 	public PLPRegFile getRegisterFile()
 	{
@@ -430,6 +432,7 @@ public class PLPSimulator implements Simulator
 		{
 			//TODO bus read
 			//Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
+			//Object odata = addressBus.read((s + s_imm) & 0xffffffffL);
 			Long data = (Long)addressBus.read((s + s_imm) & 0xffffffffL);
 			//Integer data = 0;
 			if(data == null)
@@ -440,7 +443,7 @@ public class PLPSimulator implements Simulator
 			
 			//TODO memory write
 			//regFile.write(rt, data, false);
-			regFile.write(rt, data.intValue(), false);
+			regFile.write(rt, data.longValue(), false);
 		}
 		else if(opcode == 0x2B) //sw
 		{
@@ -471,7 +474,7 @@ public class PLPSimulator implements Simulator
 			alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
 			//TODO memory write
 			//regFile.write(rt, alu_result, false);
-			regFile.write(rt, (int)alu_result, false);
+			regFile.write(rt, alu_result, false);
 		}
 		else
 		{
@@ -532,9 +535,10 @@ public class PLPSimulator implements Simulator
 		}
 		
 		//Long ret = (Long) 0L; // (Long) bus.read(address);
-		Long ret = (Long) addressBus.read(address);
+		Long val = addressBus.read(address);
+		//long val.get();
 		
-		if (ret == null)
+		if (val == null)
 		{
 			if (statusManager.willSimDumpTraceOnFailedEvaluation)
 			{
@@ -553,7 +557,7 @@ public class PLPSimulator implements Simulator
 			return false;
 		}
 		
-		instructionDecodeStage.getState().nextInstruction = ret;
+		instructionDecodeStage.getState().nextInstruction = val;
 		instructionDecodeStage.getState().nextInstructionAddress = address;
 		instructionDecodeStage.getState().nextCt1Pcplus4 = address + 4;
 		
@@ -641,7 +645,7 @@ public class PLPSimulator implements Simulator
 		//addressBus.issueZeroes(0);
 		for(int i = 0; i < assembledImage.getDisassemblyInfo().size(); i++)
 		{
-			addressBus.write(assembledImage.getDisassemblyInfo().get(i).getValue().getAddresss(), assembledImage.getDisassemblyInfo().get(i).getValue().getInstruction(), true); 
+			addressBus.write(assembledImage.getDisassemblyInfo().get(i).getValue().getAddresss(), (long)assembledImage.getDisassemblyInfo().get(i).getValue().getInstruction(), true); 
 			
 		}
 	}
@@ -692,9 +696,9 @@ public class PLPSimulator implements Simulator
 		
 		alu = new ALU();
 		
-		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
+		/*SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
-		addressBus.enable_allmodules();
+		addressBus.enable_allmodules();*/
 	}
 	
 	@Override

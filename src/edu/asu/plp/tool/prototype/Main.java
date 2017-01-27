@@ -85,6 +85,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
+import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -144,6 +145,7 @@ public class Main extends Application implements Controller
 	
 	private ApplicationThemeManager applicationThemeManager;
 	private OutlineView outlineView;
+	private SetupDevicesandMemory devicesSetup = null;
 	
 	public static void main(String[] args)
 	{
@@ -1489,7 +1491,14 @@ public class Main extends Application implements Controller
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
 			
-			emulationWindow = new EmulationWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());
+			if(devicesSetup == null)
+			{
+				devicesSetup = new SetupDevicesandMemory(activeSimulator);
+				devicesSetup.setup();
+				activeSimulator.getAddressBus().enable_allmodules();
+			}
+			
+			emulationWindow = new EmulationWindow(activeSimulator, devicesSetup);
 			
 			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
 			

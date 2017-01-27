@@ -1,11 +1,9 @@
-package edu.asu.plp.tool.backend.plpisa.devices;
+package edu.asu.plp.tool.prototype.devices;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
-import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
 import plptool.Constants;
+import edu.asu.plp.tool.backend.isa.Simulator;
 
 /**
  * This class is the working model of UART in our PLPTool.
@@ -18,7 +16,7 @@ import plptool.Constants;
  * @author Harsha
  *
  */
-public class UART extends PLPIOMemoryModule {
+public class UART extends PLPToolIOMemoryModule {
 	/**
 	 * This is the local receive buffer used by the UART
 	 */
@@ -38,7 +36,7 @@ public class UART extends PLPIOMemoryModule {
 	 * This is our reference to simulator which is like processor. 
 	 * We have this to initiate interrupts on UART ready or not
 	 */
-	private PLPSimulator sim;
+	private Simulator sim;
 	
 	/**
 	 * As user types contents, those data will get stored here. Only first character is displayed to user via receive buffer
@@ -50,7 +48,7 @@ public class UART extends PLPIOMemoryModule {
 	 * @param address starting address that is command registers address
 	 * @param sim reference to PLPSimulator
 	 */
-	public UART(long address, PLPSimulator sim)
+	public UART(long address, Simulator sim)
 	{
 		super(address, address+12, true);
 		this.sim = sim;
@@ -93,9 +91,9 @@ public class UART extends PLPIOMemoryModule {
 	public void reset() {
 		ready = false;
 		internalBuffer = new LinkedList<Long>();
-		super.writeReg(startAddress+4, new Long(0L), false);
-		super.writeReg(startAddress+8, new Long(0L), false);
-		super.writeReg(startAddress+12, new Long(0L), false);
+		super.write(startAddress+4, new Long(0L), false);
+		super.write(startAddress+8, new Long(0L), false);
+		super.write(startAddress+12, new Long(0L), false);
 		
 	}
 
@@ -111,7 +109,7 @@ public class UART extends PLPIOMemoryModule {
 	 * This function is used read the contents of the UART registers.
 	 */
 	@Override
-	public Object read(long addr)
+	public Long read(long addr)
 	{
 		Long ret = new Long(0);
 		
@@ -159,9 +157,9 @@ public class UART extends PLPIOMemoryModule {
 	 * some actions in other places. 
 	 */
 	@Override
-	public int write(long addr, Object input, boolean isInstr)
+	public int write(long addr, long input, boolean isInstr)
 	{
-		long data = (Long)input;
+		long data = input;
 		
 		if(addr == startAddress)
 		{

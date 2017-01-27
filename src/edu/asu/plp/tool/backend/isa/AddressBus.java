@@ -1,12 +1,13 @@
 package edu.asu.plp.tool.backend.isa;
 
 import edu.asu.plp.tool.prototype.EmulationWindow;
+import javafx.beans.property.LongProperty;
 
 public interface AddressBus {
 	int add(IOMemoryModule mod);
 	int remove(IOMemoryModule mod);
-	Object read(long addr);
-	int write(long addr, Object data, boolean isInstr);
+	Long read(long addr);
+	int write(long addr, long data, boolean isInstr);
 	boolean isMapped(long addr);
 	boolean isInitialized(long addr);
 	boolean isInstruction(long addr);
@@ -20,5 +21,8 @@ public interface AddressBus {
 	void reset();
 	boolean validateAddress(long address);
 	void setEmulationWindow(EmulationWindow window);
-
+	long getModuleStartAddress(int index);
+	long getModuleEndAddress(int index);
+	IOMemoryModule getModule(int index);
+	LongProperty getMemoryValueProperty(long addr);
 }

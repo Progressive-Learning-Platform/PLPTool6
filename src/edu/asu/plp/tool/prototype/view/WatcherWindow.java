@@ -36,7 +36,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.RegisterFile;
-import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 //import edu.asu.plp.tool.prototype.util.IntegerUtils;
@@ -125,15 +124,15 @@ public class WatcherWindow extends BorderPane
 		
 		for(RegisterRow row: registers)
 		{
-			watchedRegisters.getColumns().get(i).setVisible(false);
-			watchedRegisters.getColumns().get(i).setVisible(true);
+			watchedRegisters.getColumns().get(0).setVisible(false);
+			watchedRegisters.getColumns().get(0).setVisible(true);
 			i++;
 		}
 		i = 0;
 		for(MemoryRow row: memoryAddresses)
 		{
-			watchedAddresses.getColumns().get(i).setVisible(false);
-			watchedAddresses.getColumns().get(i).setVisible(true);
+			watchedAddresses.getColumns().get(0).setVisible(false);
+			watchedAddresses.getColumns().get(0).setVisible(true);
 			i++;
 		}
 	}
@@ -305,9 +304,11 @@ public class WatcherWindow extends BorderPane
 		//memory.isAddressWithModule(address);
 		//memory.validateAddress(address);
 		memory.validateAddress(address);
-		long newValue = (long)memory.read(address);
+		//long newValue = (long)memory.read(address);
+		//Integer tempvalue = (Integer)memory.read(address);
 		
-		LongProperty value = new SimpleLongProperty(newValue);//memory.getMemoryValueProperty(address);
+		
+		LongProperty value = (LongProperty)memory.getMemoryValueProperty(address);//memory.getMemoryValueProperty(address);
 		MemoryRow row = new MemoryRow(address, value);
 		memoryAddresses.add(row);
 	}

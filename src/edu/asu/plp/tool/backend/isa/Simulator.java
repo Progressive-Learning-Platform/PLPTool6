@@ -25,4 +25,7 @@ public interface Simulator
 	RegisterFile getRegisterFile();
 	
 	AddressBus getAddressBus();
+	
+	void setIRQ(long value);
+	void maskIRQ(long value);
 }

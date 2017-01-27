@@ -1,12 +1,12 @@
-package edu.asu.plp.tool.backend.plpisa.devices;
-import edu.asu.plp.tool.backend.plpisa.PLPIOMemoryModule;
+package edu.asu.plp.tool.prototype.devices;
+
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel.Segment;
 import plptool.Constants;
 import javafx.scene.layout.HBox;
 
 
-public class SevenSegmentDisplay extends PLPIOMemoryModule {
+public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
     public SevenSegmentDisplay(long addr) {
         super(addr, addr, true);
     }
@@ -25,8 +25,8 @@ public class SevenSegmentDisplay extends PLPIOMemoryModule {
             return Constants.PLP_SIM_BUS_ERROR;
         }
 
-        //long value = (Long) super.read(super.startAddress);
-        int value = (Integer) super.read(super.startAddress);
+        long value = super.read(super.startAddress);
+        //int value = (Integer) super.read(super.startAddress);
         HBox hbox = (HBox) ((SevenSegmentPanel)x).getCenter();
         Segment segments[] = (Segment[])hbox.getChildren().toArray();
        
@@ -38,11 +38,11 @@ public class SevenSegmentDisplay extends PLPIOMemoryModule {
         
         int convert[] = {192, 249, 164, 176, 153, 146, 130, 248, 128, 152};
 		int temp = 0;
-        int prev = value;
+        int prev = (int)value;
         
         // Only considering lower 4 digits (4 seven segment displays)
         if(value/10000 != 0){
-        	temp = value/10000;
+        	temp = (int)value/10000;
         	prev = prev - temp * 10000;
         }
         temp = 0;
@@ -56,7 +56,7 @@ public class SevenSegmentDisplay extends PLPIOMemoryModule {
     }
 
     @Override public void reset() {
-        super.writeReg(startAddress, new Long(0xffffffffL), false);
+        super.write(startAddress, new Long(0xffffffffL), false);
     }
 
     public String introduce() {
