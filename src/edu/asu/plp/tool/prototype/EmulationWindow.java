@@ -36,6 +36,8 @@ import edu.asu.plp.tool.prototype.view.WatcherWindow;
 public class EmulationWindow extends BorderPane
 {
 	private WatcherWindow watcher;
+	private LEDDisplay ledDisplay;
+	SwitchesDisplay switchesDisplay;
 	private boolean isActive;
 	private Simulator sim;
 	private SetupDevicesandMemory deviceSetup;
@@ -58,10 +60,13 @@ public class EmulationWindow extends BorderPane
 		this.setCenter(demoGrid);
 	}
 	
-	/*public void updateEmulationComponents()
+	public void updateEmulationComponents()
 	{
+		//watcher.update_values();
 		watcher.update_values();
-	}*/
+		ledDisplay.update_display();
+		
+	}
 	
 	private GridPane createDemo()
 	{
@@ -83,11 +88,11 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		LEDDisplay ledDisplay = new LEDDisplay();
+		ledDisplay = new LEDDisplay(sim.getAddressBus().getModule(deviceSetup.LED_INDEX));
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		SwitchesDisplay switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule( deviceSetup.SWITCH_INDEX));
+		switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule( deviceSetup.SWITCH_INDEX));
 		switchesDisplay.setPadding(new Insets(10));
 		switchesDisplay.setStyle("-fx-background-color: grey;");
 		

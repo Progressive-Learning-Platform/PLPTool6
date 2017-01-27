@@ -25,7 +25,7 @@ public class LEDArray extends PLPToolIOMemoryModule {
             return Constants.PLP_SIM_BUS_ERROR;
         }
         
-        long value = (Long) super.read(super.startAddress);
+        long value = super.read(super.startAddress);
 
         // Combinational logic
         for(int i = 7; i >= 0; i--) {
@@ -50,4 +50,11 @@ public class LEDArray extends PLPToolIOMemoryModule {
     public String toString() {
         return "LEDArray";
     }
+    
+    @Override
+	public synchronized void enable() {
+		super.enable();
+		writeRegister(startAddress(), (long)0, false);
+		
+	}
 }

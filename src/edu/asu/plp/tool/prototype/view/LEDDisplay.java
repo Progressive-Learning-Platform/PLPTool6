@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype.view;
 
+import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.prototype.devices.LEDArray;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -19,6 +21,8 @@ public class LEDDisplay extends BorderPane
 	private static final String LIT_COLOR = "green";
 	private static final String UNLIT_COLOR = "black";
 	
+	private LEDArray ledBackend;
+	
 	private static class LED extends BorderPane
 	{
 		private boolean isLit;
@@ -35,7 +39,7 @@ public class LEDDisplay extends BorderPane
 	 */
 	private LED[] ledNodes;
 	
-	public LEDDisplay()
+	public LEDDisplay(IOMemoryModule memLed)
 	{
 		GridPane grid = new GridPane();
 		ledNodes = new LED[NUMBER_OF_LEDS];
@@ -48,6 +52,8 @@ public class LEDDisplay extends BorderPane
 			int position = index;
 			grid.add(led, position, 0);
 		}
+		
+		ledBackend = (LEDArray)memLed;
 		
 		setCenter(grid);
 		
@@ -68,6 +74,11 @@ public class LEDDisplay extends BorderPane
 			led.setMinHeight(size);
 			led.setPrefWidth(size);
 		}
+	}
+	
+	public void update_display()
+	{
+		ledBackend.gui_eval(this);
 	}
 	
 	private LED createLED(int number)

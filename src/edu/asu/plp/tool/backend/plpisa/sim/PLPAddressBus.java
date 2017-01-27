@@ -256,7 +256,9 @@ public class PLPAddressBus implements AddressBus{
 			ret += mod.eval();
 		}
 		
-		window.getWatcherWindow().update_values();
+		window.updateEmulationComponents();
+		
+		//window.getWatcherWindow().update_values();
 		
 		return ret;
 	}
