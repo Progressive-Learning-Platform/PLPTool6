@@ -26,6 +26,120 @@
     "speed" : "100",
     "allow execution of non instruction memory" : "true",
     "assume zero on reads from uninitialized memory" : "true"
+  },
+  "DevicesandMemory" : {
+	  "MainMemory": {
+	    "start address": "0x10000000",
+	    "size": "0x1000000",
+	    "aligned": "false",
+	    "description":"PLP general purpose memory module. PLP's RAM",
+	    "GUI": "false",
+	    "variable registers": "false"
+	  },
+	  "ROM": {
+	    "start address": "0x0L",
+	    "size": "0x800L",
+	    "aligned": "false",
+	    "description":"This is PLP's read only memory ROM",
+	    "GUI": "false",
+	    "variable registers": "false"
+	  },
+	  "LED Array": {
+	    "start address": "0xf0200000",
+	    "size": "0x1",
+	    "aligned": "true",
+	    "description":"Simulated LED array. Will light up proper LEDs when input data is written to its register. This module only has one register and the register address must be aligned.",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "Switches": {
+	    "start address": "0xf0100000",
+	    "size": "0x1",
+	    "aligned": "true",
+	    "description":"Input switches. Action on the GUI frame will update the I/O register. This is a read-only register, writes issued to this module will have no effect and return a write error.",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "FTracer": {
+	    "start address": "0x0",
+	    "size": "0xffffffff",
+	    "aligned": "true",
+	    "description":"Traces all bus activity to the console. This module requires the simulator to be reset to work properly.",
+	    "GUI": "false",
+	    "variable registers": "true"
+	  },
+	  "PLPID": {
+	    "start address": "0xf0500000",
+	    "size": "0x2",
+	    "aligned": "true",
+	    "description":"This module always returns the board ID and frequency when the first and second registers are read, respectively.",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "Dummy Memory": {
+	    "start address": "0x0L",
+	    "size": "0x1",
+	    "aligned": "true",
+	    "description":"This module always returns zero, no init required.",
+	    "GUI": "false",
+	    "variable registers": "true"
+	  },
+	  "VGA": {
+	    "start address": "0xf0400000",
+	    "size": "0x2",
+	    "aligned": "true",
+	    "description":"640x480 VGA module. Consists of two registers, refer to the manual for usage.",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "Timer": {
+	    "start address": "0xf0600000",
+	    "size": "0x1",
+	    "aligned": "true",
+	    "description":"Timer Module",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "UART": {
+	    "start address": "0xf0000000",
+	    "size": "0x4",
+	    "aligned": "true",
+	    "description":"UART Module",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "Seven Segment LEDs": {
+	    "start address": "0xf0a00000",
+	    "size": "0x1",
+	    "aligned": "true",
+	    "description":"Simulated seven segments LED.",
+	    "GUI": "true",
+	    "variable registers": "false"
+	  },
+	  "Interrupt Controller": {
+	    "start address": "0xf0700000",
+	    "size": "0x2",
+	    "aligned": "true",
+	    "description":"This module implements the PLP MIPS interrupt controller.",
+	    "GUI": "false",
+	    "variable registers": "false"
+	  },
+	  "Bus Monitor": {
+	    "start address": "0x0L",
+	    "size": "0x1",
+	    "aligned": "true",
+	    "description":"Monitors bus addresses and updates the timing diagram",
+	    "GUI": "false",
+	    "variable registers": "false"
+	  },
+	  "General Purpose IO": {
+	    "start address": "0xf0300000",
+	    "size": "0x3",
+	    "aligned": "true",
+	    "description":"2x8 bit GPIO with tristate register",
+	    "GUI": "true",
+	    "variable registers": "false"
+  	}
   }
 
 }

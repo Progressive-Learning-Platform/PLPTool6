@@ -15,6 +15,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
+import javafx.beans.property.LongProperty;
 import javafx.util.Pair;
 
 /**
@@ -55,7 +56,7 @@ public class PLPSimulator implements Simulator
 	
 	private long startAddress;
 	
-	private PLPAddressBus addressBus;
+	public PLPAddressBus addressBus;
 	
 	
 	
@@ -100,6 +101,17 @@ public class PLPSimulator implements Simulator
 		return false;
 	}
 	
+	
+	public PLPRegFile getRegisterFile()
+	{
+		return regFile;
+	}
+	
+	public PLPAddressBus getAddressBus()
+	{
+		return addressBus;
+	}
+	
 	@Override
 	public boolean step()
 	{
@@ -108,6 +120,8 @@ public class PLPSimulator implements Simulator
 		((WriteBackStage) writeBackStage).retireInstruction();
 		asmInstructionAddress = -1;
 		long oldPc = programCounter.evaluate();
+		
+		statusManager.isFunctional = true;
 		
 		if (statusManager.isFunctional())
 			return stepFunctional();
@@ -418,6 +432,7 @@ public class PLPSimulator implements Simulator
 		{
 			//TODO bus read
 			//Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
+			//Object odata = addressBus.read((s + s_imm) & 0xffffffffL);
 			Long data = (Long)addressBus.read((s + s_imm) & 0xffffffffL);
 			//Integer data = 0;
 			if(data == null)
@@ -428,7 +443,7 @@ public class PLPSimulator implements Simulator
 			
 			//TODO memory write
 			//regFile.write(rt, data, false);
-			regFile.write(rt, data.intValue(), false);
+			regFile.write(rt, data.longValue(), false);
 		}
 		else if(opcode == 0x2B) //sw
 		{
@@ -459,7 +474,7 @@ public class PLPSimulator implements Simulator
 			alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
 			//TODO memory write
 			//regFile.write(rt, alu_result, false);
-			regFile.write(rt, (int)alu_result, false);
+			regFile.write(rt, alu_result, false);
 		}
 		else
 		{
@@ -520,9 +535,10 @@ public class PLPSimulator implements Simulator
 		}
 		
 		//Long ret = (Long) 0L; // (Long) bus.read(address);
-		Long ret = (Long) addressBus.read(address);
+		Long val = addressBus.read(address);
+		//long val.get();
 		
-		if (ret == null)
+		if (val == null)
 		{
 			if (statusManager.willSimDumpTraceOnFailedEvaluation)
 			{
@@ -534,14 +550,14 @@ public class PLPSimulator implements Simulator
 			}
 		}
 		
-		if (!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
+		if (!addressBus.isInstruction(address))		//!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
 		{
 			System.out.println(String.format("%s %08x",
 					"fetch(): Attempted to fetch non-executable memory: pc=", address));
 			return false;
 		}
 		
-		instructionDecodeStage.getState().nextInstruction = ret;
+		instructionDecodeStage.getState().nextInstruction = val;
 		instructionDecodeStage.getState().nextInstructionAddress = address;
 		instructionDecodeStage.getState().nextCt1Pcplus4 = address + 4;
 		
@@ -619,17 +635,17 @@ public class PLPSimulator implements Simulator
 		
 		// TODO clear stages
 		
-		//flushPipeline();
+		flushPipeline();
 		
 		// TODO Maybe print simulator reset to console
 		
 		// TODO Load program to bus?
 		
 		statusManager.reset();
-		addressBus.issueZeroes(0);
+		//addressBus.issueZeroes(0);
 		for(int i = 0; i < assembledImage.getDisassemblyInfo().size(); i++)
 		{
-			addressBus.write(assembledImage.getDisassemblyInfo().get(i).getValue().getAddresss(), assembledImage.getDisassemblyInfo().get(i).getValue().getInstruction(), true); 
+			addressBus.write(assembledImage.getDisassemblyInfo().get(i).getValue().getAddresss(), (long)assembledImage.getDisassemblyInfo().get(i).getValue().getInstruction(), true); 
 			
 		}
 	}
@@ -664,23 +680,25 @@ public class PLPSimulator implements Simulator
 		assembledImage = null;
 		
 		statusManager = new SimulatorStatusManager();
+		regFile = new PLPRegFile();
 		
-		instructionDecodeStage = new InstructionDecodeStage(addressBus, statusManager);
-		executeStage = new ExecuteStage(addressBus, statusManager);
-		memoryStage = new MemoryStage(addressBus, statusManager);
-		writeBackStage = new WriteBackStage(addressBus, statusManager);
+		instructionDecodeStage = new InstructionDecodeStage(addressBus, statusManager, simulatorBus, regFile);
+		executeStage = new ExecuteStage(statusManager, simulatorBus);
+		memoryStage = new MemoryStage(addressBus, statusManager, simulatorBus);
+		writeBackStage = new WriteBackStage(statusManager, simulatorBus, regFile);
 		
 		stages = Arrays.asList(instructionDecodeStage, executeStage, memoryStage,
 				writeBackStage);
 				
 		// FIXME new MemModule(0,32,false);
-		regFile = new PLPRegFile();
+		
 		programCounter = new ProgramCounter(0);
 		
 		alu = new ALU();
 		
-		SetupDevicesandMemory setup = new SetupDevicesandMemory(addressBus);
+		/*SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
+		addressBus.enable_allmodules();*/
 	}
 	
 	@Override

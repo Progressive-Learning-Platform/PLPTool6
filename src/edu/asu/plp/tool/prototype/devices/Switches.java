@@ -1,4 +1,4 @@
-package edu.asu.plp.tool.backend.plpisa.devices;
+package edu.asu.plp.tool.prototype.devices;
 
 import plptool.Constants;
 
@@ -10,7 +10,7 @@ import plptool.Constants;
  * @author Harsha
  *
  */
-public class Switches extends PLPIOMemoryModule
+public class Switches extends PLPToolIOMemoryModule
 {
 	/**
 	 * This is the constructor of Switches class
@@ -20,6 +20,7 @@ public class Switches extends PLPIOMemoryModule
 	public Switches(long addr)
 	{
 		super(addr, addr, true);
+		//writeRegister(addr, 0, false);
 	}
 	
 	/**
@@ -57,7 +58,7 @@ public class Switches extends PLPIOMemoryModule
 	 * @return should return an error condition.
 	 */
 	@Override
-	public int write(long addr, Object data, boolean isInstruction)
+	public int write(long addr, long data, boolean isInstruction)
 	{
 		//TODO: throw an error as we cannot write to switch address
 		return 0;
@@ -71,5 +72,14 @@ public class Switches extends PLPIOMemoryModule
 	public String introduce() {
 		return "PLP Switches";
 	}
+	
+	@Override
+	public synchronized void enable() {
+		super.enable();
+		writeRegister(startAddress(), (long)0, false);
+		
+	}
+	
+	
 
 }

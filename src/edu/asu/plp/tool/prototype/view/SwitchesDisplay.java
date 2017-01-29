@@ -1,5 +1,8 @@
 package edu.asu.plp.tool.prototype.view;
 
+
+import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.prototype.devices.Switches;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +21,9 @@ public class SwitchesDisplay extends BorderPane
 	private static final Paint FONT_COLOR = Color.WHITE;
 	private static final String ACTIVE_COLOR = "green";
 	private static final String INACTIVE_COLOR = "black";
+	private static final int DEFAULT_VALUE = 0;
+	
+	private Switches switchBackend;
 	
 	private static class Switch extends Button
 	{
@@ -34,9 +40,10 @@ public class SwitchesDisplay extends BorderPane
 	 */
 	private Switch[] switches;
 	
-	public SwitchesDisplay()
+	public SwitchesDisplay(IOMemoryModule switchBackend)
 	{
 		GridPane grid = new GridPane();
+		this.switchBackend = (Switches)switchBackend;
 		switches = new Switch[NUMBER_OF_SWITCHES];
 		for (int index = 0; index < NUMBER_OF_SWITCHES; index++)
 		{
@@ -50,6 +57,8 @@ public class SwitchesDisplay extends BorderPane
 		setCenter(grid);
 		
 		this.widthProperty().addListener(this::onSizeChange);
+		
+
 	}
 	
 	private void onSizeChange(ObservableValue<? extends Number> value, Number old,
@@ -103,6 +112,28 @@ public class SwitchesDisplay extends BorderPane
 	{
 		button.isActive = !button.isActive;
 		updateSwitchStyle(button);
+		
+		updateValue();
+	}
+	
+	private void updateValue()
+	{
+		long value = 0;
+		
+		for (int index = 0; index < NUMBER_OF_SWITCHES; index++)
+		{
+			if(switches[index].isActive)
+			{
+				long p = (long)Math.pow(2, index);
+				value += p;
+			}
+		}
+		
+		if(switchBackend != null)
+		{
+			switchBackend.writeRegister(switchBackend.startAddress(), value, false);
+		}
+		
 	}
 	
 	private void updateSwitchStyle(Switch button)

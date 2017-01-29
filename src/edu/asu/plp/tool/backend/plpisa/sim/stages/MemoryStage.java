@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
@@ -23,14 +24,14 @@ public class MemoryStage implements Stage
 	private CpuState state;
 	private CpuState currentWriteBackStageState;
 	
-	public MemoryStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
+	public MemoryStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus)
 	{
-		//this.bus = simulatorBus;
+		this.bus = simulatorBus;
 		this.addressBus = addressBus;
 		this.eventHandler = new MemoryEventHandler();
 		this.statusManager = statusManager;
 		
-		//this.bus.register(eventHandler);
+		this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
 		
@@ -86,7 +87,7 @@ public class MemoryStage implements Stage
 		
 		postWriteBackStageState.nextDataAluResult = state.forwardDataAluResult;
 		
-		//state.dataMemLoad = (state.ct1Memread == 1) ? (Long) simBus.read(state.forwardDataAluResult) : 0;
+		state.dataMemLoad = (state.ct1Memread == 1) ? (Long) addressBus.read(state.forwardDataAluResult) : 0;
 		if(state.dataMemLoad == null)
 			throw new IllegalArgumentException("Bus returned no data. Sim Bus Error: Memory Stage");
 		
@@ -94,7 +95,7 @@ public class MemoryStage implements Stage
 		
 		if(state.ct1Memwrite == 1)
 		{
-			//simBus.write(state.forwardDataAluResult, state.dataMemStore, false);
+			addressBus.write(state.forwardDataAluResult, state.dataMemStore, false);
 		}
 		
 		bus.post(writeBackPackage);
@@ -244,6 +245,7 @@ public class MemoryStage implements Stage
 		
 		}
 		
+		@Subscribe
 		public void executeCompletionEvent(ExecuteCompletion event)
 		{
 			CpuState postState = event.getPostMemoryState();
@@ -269,11 +271,13 @@ public class MemoryStage implements Stage
 			state.nextDataMemwritedata = postState.nextDataMemwritedata;
 		}
 		
+		@Subscribe
 		public void stateRequested(MemoryStageStateRequest event)
 		{
 			bus.post(new MemoryStageStateResponse(state.clone()));
 		}
 		
+		@Subscribe
 		public void writeBackStageStateResponse(WriteBackStageStateResponse event)
 		{
 			currentWriteBackStageState = event.getMemoryStageState();

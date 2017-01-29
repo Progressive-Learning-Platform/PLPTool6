@@ -1,13 +1,13 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.plpisa.sim.ALU;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
-
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
@@ -22,7 +22,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 public class ExecuteStage implements Stage
 {
 	private EventBus bus;
-	private PLPAddressBus addressBus;
+	//private PLPAddressBus addressBus;
 	private ExecuteEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
 	
@@ -32,14 +32,14 @@ public class ExecuteStage implements Stage
 	
 	private ALU alu;
 	
-	public ExecuteStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
+	public ExecuteStage(SimulatorStatusManager statusManager, EventBus simulatorBus)
 	{
-		this.bus = null;//simulatorBus;
-		this.addressBus = addressBus;
+		this.bus = simulatorBus;
+		//this.addressBus = addressBus;
 		this.eventHandler = new ExecuteEventHandler();
 		this.statusManager = statusManager;
 		
-		//this.bus.register(eventHandler);
+		this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
 		
@@ -390,6 +390,7 @@ public class ExecuteStage implements Stage
 		
 		}
 		
+		@Subscribe
 		public void instructionDecodeCompletionEvent(InstructionDecodeCompletion event)
 		{
 			CpuState postState = event.getPostState();
@@ -459,16 +460,19 @@ public class ExecuteStage implements Stage
 			
 		}
 		
+		@Subscribe 
 		public void stateRequested(ExecuteStageStateRequest event)
 		{
 			bus.post(new ExecuteStageStateResponse(state.clone()));
 		}
 		
+		@Subscribe 
 		public void memoryStageStateResponse(MemoryStageStateResponse event)
 		{
 			currentMemoryStageState = event.getMemoryStageState();
 		}
 		
+		@Subscribe
 		public void writeBackStageStateResponse(WriteBackStageStateResponse event)
 		{
 			currentWriteBackStageState = event.getMemoryStageState();

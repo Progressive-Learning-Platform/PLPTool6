@@ -21,8 +21,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import edu.asu.plp.tool.backend.isa.AddressBus;
+import edu.asu.plp.tool.backend.isa.RegisterFile;
+import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
+import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SwitchesDisplay;
@@ -31,13 +35,37 @@ import edu.asu.plp.tool.prototype.view.WatcherWindow;
 
 public class EmulationWindow extends BorderPane
 {
-	public EmulationWindow()
+	private WatcherWindow watcher;
+	private LEDDisplay ledDisplay;
+	SwitchesDisplay switchesDisplay;
+	private boolean isActive;
+	private Simulator sim;
+	private SetupDevicesandMemory deviceSetup;
+	
+	public WatcherWindow getWatcherWindow()
 	{
+		return watcher;
+	}
+	
+	//public 
+	
+	public EmulationWindow(Simulator sim, SetupDevicesandMemory deviceSetup)
+	{
+		this.sim = sim;
+		this.deviceSetup = deviceSetup;
 		GridPane demoGrid = createDemo();
 		HBox topBar = createTopBar();
 		
 		this.setTop(topBar);
 		this.setCenter(demoGrid);
+	}
+	
+	public void updateEmulationComponents()
+	{
+		//watcher.update_values();
+		watcher.update_values();
+		ledDisplay.update_display();
+		
 	}
 	
 	private GridPane createDemo()
@@ -60,11 +88,11 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		LEDDisplay ledDisplay = new LEDDisplay();
+		ledDisplay = new LEDDisplay(sim.getAddressBus().getModule(deviceSetup.LED_INDEX));
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		SwitchesDisplay switchesDisplay = new SwitchesDisplay();
+		switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule( deviceSetup.SWITCH_INDEX));
 		switchesDisplay.setPadding(new Insets(10));
 		switchesDisplay.setStyle("-fx-background-color: grey;");
 		
@@ -73,9 +101,9 @@ public class EmulationWindow extends BorderPane
 		uartDisplay.setStyle("-fx-background-color: grey;");
 
 		// TODO: pass active memory module and register file to WatcherWindow
-		WatcherWindow watcherWindowDisplay = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
-		watcherWindowDisplay.setPadding(new Insets(10));
-		watcherWindowDisplay.setStyle("-fx-background-color: grey;");
+		watcher = new WatcherWindow(sim.getAddressBus(), sim.getRegisterFile());//null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		watcher.setPadding(new Insets(10));
+		watcher.setStyle("-fx-background-color: grey;");
 		
 		SevenSegmentPanel sevenSegDisplay = new SevenSegmentPanel();
 		sevenSegDisplay.setStyle("-fx-background-color: grey;");
@@ -86,7 +114,7 @@ public class EmulationWindow extends BorderPane
 		Label sevenSegLabel = label("Seven Segment Display");
 		Label watcherWindowLabel = label("Watcher Window");
 		
-		leftSide.getChildren().addAll(watcherWindowLabel, watcherWindowDisplay);
+		leftSide.getChildren().addAll(watcherWindowLabel, watcher);
 		rightSide.getChildren()
 				.addAll(sevenSegLabel, sevenSegDisplay, ledLabel,
 						ledDisplay, switchesLabel, switchesDisplay, uartLabel, uartDisplay);
@@ -113,7 +141,7 @@ public class EmulationWindow extends BorderPane
 		
 		CheckBox watcherWindowCheckBox = new CheckBox("Watcher Window");
 		watcherWindowCheckBox.setSelected(true);
-		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcherWindowDisplay);
+		bindDisplaysToCheckBox(watcherWindowCheckBox, watcherWindowLabel, watcher);
 		
 		checkOptions.getChildren().addAll(sevenSegCheckBox, ledCheckBox, uartCheckBox,
 				switchesCheckBox, watcherWindowCheckBox);

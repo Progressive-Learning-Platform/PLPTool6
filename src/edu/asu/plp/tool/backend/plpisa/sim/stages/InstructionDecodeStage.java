@@ -1,11 +1,13 @@
 package edu.asu.plp.tool.backend.plpisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
+import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
@@ -21,7 +23,7 @@ public class InstructionDecodeStage implements Stage
 	private PLPAddressBus addressBus;
 	private InstructionDecodeEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
-	private PLPMemoryModule regFile;
+	private PLPRegFile regFile;
 	
 	private CpuState state;
 	
@@ -29,16 +31,17 @@ public class InstructionDecodeStage implements Stage
 	private CpuState currentExecuteStageState;
 	private CpuState currentMemoryStageState;
 	
-	public InstructionDecodeStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
+	public InstructionDecodeStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus, PLPRegFile regFile)
 	{
-		//this.bus = simulatorBus;
+		this.bus = simulatorBus;
 		this.addressBus = addressBus;
 		this.eventHandler = new InstructionDecodeEventHandler();
 		this.statusManager = statusManager;
 		
-		//this.bus.register(eventHandler);
+		this.bus.register(eventHandler);
 
 		this.state = new CpuState();
+		this.regFile = regFile;
 		
 		reset();
 	}
@@ -112,11 +115,11 @@ public class InstructionDecodeStage implements Stage
 		
 		
 		//TODO MEMORY MODULE 
-		//long rt = (addressRt == 0) ? 0 : (Long) regFile.read(addressRt);
-		//postExecuteStageState.nextDataRt = rt;
+		long rt = (addressRt == 0) ? 0 : regFile.read((int)addressRt);
+		postExecuteStageState.nextDataRt = rt;
 
-		// long rs = (addressRs == 0) ? 0 : (Long) memoryModule.read(addressRs);
-		//postExecuteStageState.nextDataRs = rs;
+		long rs = (addressRs == 0) ? 0 : (Long) regFile.read((int)addressRs);
+		postExecuteStageState.nextDataRs = rs;
 		
 		long immediateField = InstructionExtractor.imm(state.currentInstruction);
 		
@@ -303,11 +306,13 @@ public class InstructionDecodeStage implements Stage
 		
 		}
 		
+		@Subscribe
 		public void executeStageStateResponse(ExecuteStageStateResponse event)
 		{
 			currentExecuteStageState = event.getExecuteStageState();
 		}
 		
+		@Subscribe
 		public void memoryStageStateResponse(MemoryStageStateResponse event)
 		{
 			currentMemoryStageState = event.getMemoryStageState();

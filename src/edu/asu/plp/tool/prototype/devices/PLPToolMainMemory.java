@@ -1,4 +1,5 @@
-package edu.asu.plp.tool.backend.plpisa.devices;
+package edu.asu.plp.tool.prototype.devices;
+
 
 import plptool.Constants;
 import plptool.Text;
@@ -9,7 +10,7 @@ import plptool.Text;
  * @author Harsha
  * @see PLPIOMemoryModule
  */
-public class PLPMainMemory extends PLPIOMemoryModule
+public class PLPToolMainMemory extends PLPToolIOMemoryModule
 {
 	/**
 	 * This is the constructor of the MainMemory.
@@ -18,7 +19,7 @@ public class PLPMainMemory extends PLPIOMemoryModule
 	 * @param size Amount of memory associated to this module
 	 * @param wordAligned Whether memory allocated is word aligned or not
 	 */
-	public PLPMainMemory(long addr, long size, boolean wordAligned)
+	public PLPToolMainMemory(long addr, long size, boolean wordAligned)
 	{
 		super(addr, addr + (wordAligned? size-4: size-1), wordAligned);
 	}
@@ -58,5 +59,7 @@ public class PLPMainMemory extends PLPIOMemoryModule
 	public String introduce() {
 		return "Main Memory Module " + Text.versionString;
 	}
+	
+	
 
 }

@@ -85,6 +85,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
+import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -139,9 +140,12 @@ public class Main extends Application implements Controller
 	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
+	private WatcherWindow watcher = null;
+	private EmulationWindow emulationWindow = null;
 	
 	private ApplicationThemeManager applicationThemeManager;
 	private OutlineView outlineView;
+	private SetupDevicesandMemory devicesSetup = null;
 	
 	public static void main(String[] args)
 	{
@@ -1044,13 +1048,15 @@ public class Main extends Application implements Controller
 	public void showEmulationWindow()
 	{
 		Stage createEmulationStage = new Stage();
-		EmulationWindow emulationWindow = new EmulationWindow();
+		
 		
 		Scene scene = new Scene(emulationWindow, 1275, 700);
 		createEmulationStage.setTitle("Emulation Window");
 		createEmulationStage.setScene(scene);
 		// createEmulationStage.setResizable(false);
 		createEmulationStage.show();
+		
+
 	}
 	
 	public void openCpuViewWindow()
@@ -1484,6 +1490,21 @@ public class Main extends Application implements Controller
 		{
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
+			
+			if(devicesSetup == null)
+			{
+				devicesSetup = new SetupDevicesandMemory(activeSimulator);
+				devicesSetup.setup();
+				activeSimulator.getAddressBus().enable_allmodules();
+			}
+			
+			emulationWindow = new EmulationWindow(activeSimulator, devicesSetup);
+			
+			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
+			
+			activeSimulator.getAddressBus().setEmulationWindow(emulationWindow);
+			
+			
 		}
 		else
 		{
@@ -1697,9 +1718,10 @@ public class Main extends Application implements Controller
 	{
 		Stage stage = new Stage();
 		// TODO: pass active memory module and register File to WatcherWindow
-		WatcherWindow watcherWindow = new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		//WatcherWindow watcherWindow = new WatcherWindow(new , new PLPRegFile());
+		watcher = new WatcherWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());//emulationWindow.getWatcherWindow();
 		
-		Scene scene = new Scene(watcherWindow, 888, 500);
+		Scene scene = new Scene(watcher, 888, 500);
 		stage.setTitle("Watcher Window");
 		stage.setScene(scene);
 		stage.show();

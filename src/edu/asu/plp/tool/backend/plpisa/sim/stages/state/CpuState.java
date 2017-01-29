@@ -185,7 +185,10 @@ public class CpuState implements Cloneable
 		copy.dataY = dataY;
 		
 		copy.dataMemwritedata = dataMemwritedata;
-		copy.dataMemLoad = dataMemLoad.longValue();
+		if(dataMemLoad == null)
+			copy.dataMemLoad = dataMemLoad;
+		else
+			copy.dataMemLoad = dataMemLoad.longValue();
 		copy.dataMemStore = dataMemStore;
 		
 		copy.dataMemreaddata = dataMemreaddata;
