@@ -392,7 +392,7 @@ public class DisposablePLPAssembler
 				
 				// TODO update mappers
 				ASMInstruction key = new PLPAssemblyInstruction(asmLineIndex+1, asmLines[asmLineIndex], currentActiveFile );
-				PLPDisassembly disassembly = new PLPDisassembly(oldAddress, objectCode[objectCodeIndex]);
+				MIPSDisassembly disassembly = new MIPSDisassembly(oldAddress, objectCode[objectCodeIndex]);
 				assemblyToDisassemblyMap.put(key, disassembly);
 				lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 				

@@ -25,7 +25,7 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler.PLPDisassembly;
+import edu.asu.plp.tool.backend.plpisa.assembler.MIPSDisassembly;
 import edu.asu.plp.tool.backend.plpisa.assembler2.PLPTokenType;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
 import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.LabelLiteral;
@@ -312,7 +312,7 @@ public class PLPAssembler implements Assembler
 				{
 					ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source, asmFileName);
 					int value = (int)ISAUtil.sanitize32bits(preProcessInstruction.split(" ")[1]);
-					PLPDisassembly disassembly = new PLPDisassembly(programLocation, value);
+					MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, value);
 					programLocation += 4;
 					assemblyToDisassemblyMap.put(key, disassembly);
 					lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
@@ -336,7 +336,7 @@ public class PLPAssembler implements Assembler
 							
 							Argument[] arguments = parseArguments(argumentStrings);
 							
-							PLPDisassembly disassembly = process(subInstruction, arguments);
+							MIPSDisassembly disassembly = process(subInstruction, arguments);
 							ASMInstruction key = new PLPAssemblyInstruction(lineNumber, subSource, asmFileName);
 							assemblyToDisassemblyMap.put(key, disassembly);
 							lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
@@ -356,7 +356,7 @@ public class PLPAssembler implements Assembler
 						
 						Argument[] arguments = parseArguments(argumentStrings);
 						
-						PLPDisassembly disassembly = process(instruction, arguments);
+						MIPSDisassembly disassembly = process(instruction, arguments);
 						ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source, asmFileName);
 						assemblyToDisassemblyMap.put(key, disassembly);
 						lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
@@ -476,13 +476,13 @@ public class PLPAssembler implements Assembler
 		
 	}
 	
-	private PLPDisassembly process(String instructionName, Argument[] arguments)
+	private MIPSDisassembly process(String instructionName, Argument[] arguments)
 			throws ParseException
 	{
 		PLPInstruction instruction = plpInstructions.get(instructionName);
 		int codedInstruction = instruction.assemble(arguments);
 		//long address = programLocation+;
-		PLPDisassembly disassembly = new PLPDisassembly(programLocation, codedInstruction);
+		MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, codedInstruction);
 		programLocation += 4;
 		
 		return disassembly;

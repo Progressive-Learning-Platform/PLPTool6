@@ -9,7 +9,7 @@ import plptool.Text;
  * @author Harsha
  * @see PLPIOMemoryModule
  */
-public class PLPMainMemory extends PLPIOMemoryModule
+public class MIPSMainMemory extends PLPIOMemoryModule
 {
 	/**
 	 * This is the constructor of the MainMemory.
@@ -18,7 +18,7 @@ public class PLPMainMemory extends PLPIOMemoryModule
 	 * @param size Amount of memory associated to this module
 	 * @param wordAligned Whether memory allocated is word aligned or not
 	 */
-	public PLPMainMemory(long addr, long size, boolean wordAligned)
+	public MIPSMainMemory(long addr, long size, boolean wordAligned)
 	{
 		super(addr, addr + (wordAligned? size-4: size-1), wordAligned);
 	}
