@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa;
 
-public enum PLPInstruction
+public enum MIPSInstruction
 {
 	SHIFT_LEFT_LOGICAL("sll", "function", 0x00, 1),
 	SHIFT_LEFT_LOGICAL_VARIABLE("sllv", "function", 0x01, 0),
@@ -39,7 +39,7 @@ public enum PLPInstruction
 	private int instructionType;
 	
 	// TODO: consider removing "type"
-	private PLPInstruction(String identifier, String type, int byteCode, int instructionType)
+	private MIPSInstruction(String identifier, String type, int byteCode, int instructionType)
 	{
 		this.identifier = identifier;
 		this.type = type;

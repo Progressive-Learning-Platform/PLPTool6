@@ -83,7 +83,7 @@ public class InstructionExtractor
 	{
 		byte extractedByteCode = extractByteCode(instruction);
 		
-		for(PLPInstruction plpInstruction : PLPInstruction.values())
+		for(MIPSInstruction plpInstruction : MIPSInstruction.values())
 		{
 			if(plpInstruction.getByteCode() == extractedByteCode)
 			{
@@ -98,7 +98,7 @@ public class InstructionExtractor
 	{
 		byte extractedByteCode = extractByteCode(instruction);
 		
-		for(PLPInstruction plpInstruction : PLPInstruction.values())
+		for(MIPSInstruction plpInstruction : MIPSInstruction.values())
 		{
 			if(plpInstruction.getByteCode() == extractedByteCode)
 			{

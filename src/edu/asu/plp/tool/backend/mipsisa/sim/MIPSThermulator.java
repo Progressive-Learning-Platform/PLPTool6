@@ -427,7 +427,7 @@ public class MIPSThermulator implements Simulator
 			if(s == t)
 			{
 				isBranched = true;
-				branchDehttp://marketplace.eclipse.org/marketplace-client-intro?mpc_install=1336stination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+				branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
 			}
 		}
 		else if(opcode == 0x05) //bne
@@ -672,15 +672,17 @@ public class MIPSThermulator implements Simulator
 	private void initialize()
 	{
 		simulatorBus = new EventBus();
+		addressBus = new MIPSAddressBus();
 		
 		assembledImage = null;
 		
 		statusManager = new SimulatorStatusManager();
+		regFile = new PLPRegFile();
 		
-		instructionDecodeStage = new InstructionDecodeStage(simulatorBus, statusManager);
-		executeStage = new ExecuteStage(simulatorBus, statusManager);
-		memoryStage = new MemoryStage(simulatorBus, statusManager);
-		writeBackStage = new WriteBackStage(simulatorBus, statusManager);
+		instructionDecodeStage = new InstructionDecodeStage(addressBus, statusManager, simulatorBus, regFile);
+		executeStage = new ExecuteStage(statusManager, simulatorBus);
+		memoryStage = new MemoryStage(addressBus, statusManager, simulatorBus);
+		writeBackStage = new WriteBackStage(statusManager, simulatorBus, regFile);
 		
 		stages = Arrays.asList(instructionDecodeStage, executeStage, memoryStage,
 				writeBackStage);
