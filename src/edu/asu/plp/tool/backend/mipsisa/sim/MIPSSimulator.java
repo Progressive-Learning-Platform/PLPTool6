@@ -29,7 +29,7 @@ import edu.asu.plp.tool.backend.mipsisa.sim.stages.WriteBackStage;
  *
  * @author Morgan Nesbitt
  */
-public class MIPSThermulator implements Simulator
+public class MIPSSimulator implements Simulator
 {
 	/**
 	 * Used to prevent unknown messages to simulator only events. Used for internal stage
@@ -83,7 +83,7 @@ public class MIPSThermulator implements Simulator
 	// A sim bus?
 	// breakpoint array?
 	
-	public MIPSThermulator()
+	public MIPSSimulator()
 	{
 		super();							 //call to super constructor 		
 		initialize();						 //
