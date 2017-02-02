@@ -2,33 +2,36 @@ package edu.asu.plp.tool.backend.mipsisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
 
+import edu.asu.plp.tool.backend.mipsisa.sim.MIPSAddressBus;
+import edu.asu.plp.tool.backend.mipsisa.sim.PLPRegFile;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorStatusManager;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.InstructionDecodeCompletion;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage.InstructionDecodeEventHandler;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
 
 public class InstructionDecodeStage implements Stage
 {
 	private EventBus bus;
-	private PLPAddressBus addressBus;
+	private MIPSAddressBus addressBus;
 	private InstructionDecodeEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
-	private PLPMemoryModule regFile;
+	private PLPRegFile regFile;
 	
 	private CpuState state;
 	
 	// Get state from other stages thats required (Hard Porting)
 	private CpuState currentExecuteStageState;
 	private CpuState currentMemoryStageState;
-	
+	/*
 	public InstructionDecodeStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
 	{
 		//this.bus = simulatorBus;
@@ -42,7 +45,22 @@ public class InstructionDecodeStage implements Stage
 		
 		reset();
 	}
-	
+	*/
+	public InstructionDecodeStage(MIPSAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus, PLPRegFile regFile) {
+		// TODO Auto-generated constructor stub
+		this.bus = simulatorBus;
+		this.addressBus = addressBus;
+		this.eventHandler = new InstructionDecodeEventHandler();
+		this.statusManager = statusManager;
+		
+		this.bus.register(eventHandler);
+
+		this.state = new CpuState();
+		this.regFile = regFile;
+		
+		reset();
+	}
+
 	@Override
 	public void evaluate()
 	{

@@ -2,33 +2,35 @@ package edu.asu.plp.tool.backend.mipsisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
 
-import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
+import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.mipsisa.sim.MIPSAddressBus;
+import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorStatusManager;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryCompletion;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.WriteBackStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.WriteBackStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState;
+import edu.asu.plp.tool.backend.mipsisa.sim.PLPRegFile;
 
 public class WriteBackStage implements Stage
 {
 	private EventBus bus;
-	private PLPAddressBus addressBus;
+	private MIPSAddressBus addressBus;
 	private WriteBackEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
+	private PLPRegFile regFile;
 	
 	private CpuState state;
 	
-	public WriteBackStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager)
+	public WriteBackStage(SimulatorStatusManager statusManager, EventBus simulatorBus, PLPRegFile regFile)
 	{
 		this.bus = null;
-		this.addressBus = addressBus;
 		this.eventHandler = new WriteBackEventHandler();
 		this.statusManager = statusManager;
 		
-		//this.bus.register(eventHandler);
+		this.bus.register(eventHandler);
 		
 		this.state = new CpuState();
+		this.regFile = regFile;
 		
 		reset();
 	}

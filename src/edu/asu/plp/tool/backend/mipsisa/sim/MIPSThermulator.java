@@ -9,13 +9,12 @@ import com.google.common.eventbus.EventBus;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
-import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.ExecuteStage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
+import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.ExecuteStage;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.InstructionDecodeStage;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.MemoryStage;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.Stage;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.WriteBackStage;
 
 //REVIEW CLASSES
 /*
