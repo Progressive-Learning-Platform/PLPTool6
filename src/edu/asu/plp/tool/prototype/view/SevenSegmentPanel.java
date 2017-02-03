@@ -3,6 +3,8 @@ package edu.asu.plp.tool.prototype.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.prototype.devices.SevenSegmentDisplay;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -21,11 +23,21 @@ public class SevenSegmentPanel extends BorderPane
 	private static final int HORIZONTAL_SEGMENT_LENGTH = 4;
 	private static final int VERTICAL_SEGMENT_LENGTH = 3;
 	
-	public SevenSegmentPanel()
+	private SevenSegmentDisplay displayBackend = null;
+	private HBox hbox = null;
+	
+	public SevenSegmentPanel(IOMemoryModule memModule)
 	{
-		HBox hbox = new HBox();
+		hbox = new HBox();
 		hbox.getChildren().addAll(new Segment(), new Segment(), new Segment(), new Segment());
 		this.setCenter(hbox);
+		
+		displayBackend = (SevenSegmentDisplay)memModule;
+	}
+	
+	public void update_display()
+	{
+		displayBackend.gui_eval(this);
 	}
 	
 	public static class Segment extends HBox
@@ -84,7 +96,7 @@ public class SevenSegmentPanel extends BorderPane
 				int maskedBit = (state >> index) & 1;
 				boolean isOn = (maskedBit == 0);
 
-				String color = isOn ? ON_COLOR : OFF_COLOR;
+				String color = isOn ? OFF_COLOR : ON_COLOR;
 				Parent segment = segments.get(index);
 				for (Node section : segment.getChildrenUnmodifiable())
 				{
