@@ -1,5 +1,7 @@
 package edu.asu.plp.tool.prototype.devices;
 
+import java.util.ArrayList;
+
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel.Segment;
 import plptool.Constants;
@@ -25,16 +27,43 @@ public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
             return Constants.PLP_SIM_BUS_ERROR;
         }
 
-        long value = super.read(super.startAddress);
+        int value = super.read(super.startAddress).intValue();
         //int value = (Integer) super.read(super.startAddress);
         HBox hbox = (HBox) ((SevenSegmentPanel)x).getCenter();
-        Segment segments[] = (Segment[])hbox.getChildren().toArray();
-       
+        Object lis = hbox.getChildren();
+        Object ar[] = hbox.getChildren().toArray();
+        ArrayList<SevenSegmentPanel.Segment> segments = new ArrayList<SevenSegmentPanel.Segment>();
+        for(Object ob: ar)
+        {
+        	segments.add((SevenSegmentPanel.Segment)ob);
+        }
         
+        int maskValue = 0x000000FF;
+        int nCount = 0;
+        for(SevenSegmentPanel.Segment seg: segments)
+        {
+        	int afterMaskValue = maskValue & value;
+        	int temp = nCount;
+        	while(temp > 0)
+        	{
+        		afterMaskValue = afterMaskValue >> 8;
+        		temp--;
+        	}
+        	//String str = Integer.toBinaryString(afterMaskValue);
+        	seg.setState(afterMaskValue);
+        	
+        	maskValue = maskValue<<8;
+        	nCount++;
+        	
+        	
+        }
+        
+       
+        /*
         /* Converting from BCD to 7 segment in reverse order according to the interpretation 
         of state in setState(int state) function of SevenSegmentPanel.java 
         For eg: 0(BCD) -> {1,1,0,0,0,0,0,0} in the form {h,g,f,e,d,c,b,a}(7 segment)-> 192 (11000000)
-        where (a to g) are the 7 segments and h is for decimal point which is always masked (off state)*/
+        where (a to g) are the 7 segments and h is for decimal point which is always masked (off state)
         
         int convert[] = {192, 249, 164, 176, 153, 146, 130, 248, 128, 152};
 		int temp = 0;
@@ -48,9 +77,9 @@ public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
         temp = 0;
         for(int j = 3; j >= 0; j--){
         	temp = (int) (prev / (Math.pow(10, j)));
-        	segments[j].setState(convert[temp]);
+        	segments.get(j).setState(convert[temp]);
         	prev = (int) (prev - temp * (Math.pow(10, j)));
-        }
+        }*/
         
         return Constants.PLP_OK;
     }
@@ -67,4 +96,11 @@ public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
     public String toString() {
         return "SevenSegments";
     }
+    
+    @Override
+	public synchronized void enable() {
+		super.enable();
+		writeRegister(startAddress(), (long)0, false);
+		
+	}
 }

@@ -117,7 +117,7 @@ public class WatcherWindow extends BorderPane
 		};
 	}
 	
-	public void update_values()
+	public void update_display()
 	{
 		int i = 0;
 		

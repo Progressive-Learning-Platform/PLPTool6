@@ -37,6 +37,7 @@ public class EmulationWindow extends BorderPane
 {
 	private WatcherWindow watcher;
 	private LEDDisplay ledDisplay;
+	private SevenSegmentPanel sevenSegDisplay;
 	SwitchesDisplay switchesDisplay;
 	private boolean isActive;
 	private Simulator sim;
@@ -63,8 +64,9 @@ public class EmulationWindow extends BorderPane
 	public void updateEmulationComponents()
 	{
 		//watcher.update_values();
-		watcher.update_values();
+		watcher.update_display();
 		ledDisplay.update_display();
+		sevenSegDisplay.update_display();
 		
 	}
 	
@@ -105,7 +107,7 @@ public class EmulationWindow extends BorderPane
 		watcher.setPadding(new Insets(10));
 		watcher.setStyle("-fx-background-color: grey;");
 		
-		SevenSegmentPanel sevenSegDisplay = new SevenSegmentPanel();
+		sevenSegDisplay = new SevenSegmentPanel(sim.getAddressBus().getModule(deviceSetup.SEVEN_SEGMENT_INDEX));
 		sevenSegDisplay.setStyle("-fx-background-color: grey;");
 		
 		Label ledLabel = label("LEDs");
