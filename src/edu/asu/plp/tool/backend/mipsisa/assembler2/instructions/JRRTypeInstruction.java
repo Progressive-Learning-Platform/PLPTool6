@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2.instructions;
 
-import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType.REGISTER;
 
 import java.text.ParseException;
 
