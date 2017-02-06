@@ -2,22 +2,22 @@ package edu.asu.plp.tool.backend.mipsisa.sim.stages;
 
 import com.google.common.eventbus.EventBus;
 
-import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
-import edu.asu.plp.tool.backend.plpisa.sim.ALU;
+import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.mipsisa.MIPSInstruction;
+import edu.asu.plp.tool.backend.mipsisa.sim.ALU;
 import edu.asu.plp.tool.backend.mipsisa.sim.MIPSAddressBus;
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
+import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorFlag;
 
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.InstructionDecodeCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
+import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorStatusManager;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteCompletion;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.InstructionDecodeCompletion;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.WriteBackStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.WriteBackStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState;
 
 public class ExecuteStage implements Stage
 {

@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
+import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
 import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
@@ -15,6 +16,8 @@ import edu.asu.plp.tool.backend.mipsisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.WriteBackStage;
+import edu.asu.plp.tool.backend.mipsisa.sim.PLPRegFile;
+import edu.asu.plp.tool.backend.mipsisa.sim.MIPSAddressBus;
 
 //REVIEW CLASSES
 /*
@@ -513,6 +516,24 @@ public class MIPSSimulator implements Simulator
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Returns the addressBus used by the ISA.
+	 * @return MIPSAddressBus
+	 */
+	public MIPSAddressBus getAddressBus()
+	{
+		return addressBus;
+	}
+	
+	/**
+	 * Returns the registerFile used by the simulator.
+	 * @return MIPSRegFile
+	 */
+	public PLPRegFile getRegisterFile()
+	{
+		return regFile;
 	}
 	
 	/**

@@ -3,17 +3,21 @@ package edu.asu.plp.tool.backend.mipsisa.sim;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.asu.plp.tool.backend.isa.RegisterFile;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 
 /***
  * This class represents the registry file of PLP processor
+ * TODO:: Change name to PLPRegisterFile
  * @author Harsha
  *
  */
-public class PLPRegFile {
+public class PLPRegFile implements RegisterFile {
 	/***
 	 * Total number of registers present in PLP processor
 	 */
@@ -27,7 +31,7 @@ public class PLPRegFile {
 	/***
 	 * This stores the actual register values
 	 */
-	private IntegerProperty[] registers;
+	private LongProperty[] registers;
 	
 	/***
 	 * This indicates whether each register is holding an instruction or data
@@ -44,11 +48,11 @@ public class PLPRegFile {
 	 */
 	public PLPRegFile()
 	{
-		this.registers = new IntegerProperty[NUMBER_OF_REGISTERS];
+		this.registers = new LongProperty[NUMBER_OF_REGISTERS];
 		this.regInstructions = new BooleanProperty[NUMBER_OF_REGISTERS];
 		
 		for(int i = 0; i < NUMBER_OF_REGISTERS; i++)
-			this.registers[i] = new SimpleIntegerProperty(DEFAULT_REGISTER_VALUE);
+			this.registers[i] = new SimpleLongProperty(DEFAULT_REGISTER_VALUE);
 		
 		for(int i = 0; i < NUMBER_OF_REGISTERS; i++)
 			this.regInstructions[i] = new SimpleBooleanProperty(false);
@@ -187,7 +191,7 @@ public class PLPRegFile {
 	 * @param registerName Register whose value property needs to be fetched
 	 * @return returns the registers value propery.
 	 */
-	public IntegerProperty getRegisterValueProperty(String registerName)
+	public LongProperty getRegisterValueProperty(String registerName)
 	{
 		int index = convertNameToIndex(registerName);
 		if (registerIndexIsValid(index))
@@ -246,10 +250,11 @@ public class PLPRegFile {
 	 * @param value value to be stored in register
 	 * @param isInstruction whether the value if bytecode of an instruciton or not
 	 */
-	public void write(int address, int value, boolean isInstruction)
+	public void write(int address, long value, boolean isInstruction)
 	{
 		validateAddress(address);
 		registers[address].set(value);
+		//registers[address].
 		regInstructions[address].set(isInstruction);
 		
 	}
@@ -259,7 +264,7 @@ public class PLPRegFile {
 	 * @param address index of the register where data needs to be written
 	 * @param value data to be written to register
 	 */
-	public void write(int address, int value)
+	public void write(int address, long value)
 	{
 		validateAddress(address);
 		registers[address].set(value);

@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa.sim.stages.events;
 
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState;
 
 public class MemoryStageStateResponse
 {

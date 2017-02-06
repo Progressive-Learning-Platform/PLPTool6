@@ -2,6 +2,7 @@ package edu.asu.plp.tool.backend.mipsisa.sim;
 
 import java.util.ArrayList;
 
+import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.mipsisa.devices.PLPIOMemoryModule;
 import plptool.Constants;
 /**
@@ -12,7 +13,7 @@ import plptool.Constants;
  * @author Harsha
  *
  */
-public class MIPSAddressBus {
+public class MIPSAddressBus implements AddressBus {
 	
 	/**
 	 * This list contains all I/O module attached with this bus

@@ -4,19 +4,18 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.mipsisa.sim.MIPSAddressBus;
 import edu.asu.plp.tool.backend.mipsisa.sim.PLPRegFile;
-import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorFlag;
+import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.mipsisa.MIPSInstruction;
+import edu.asu.plp.tool.backend.mipsisa.sim.MIPSMemoryModule;
+import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorFlag;
 import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorStatusManager;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteStageStateRequest;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteStageStateResponse;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.InstructionDecodeCompletion;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateRequest;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage.InstructionDecodeEventHandler;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.InstructionDecodeStage.InstructionDecodeEventHandler;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState;
 
 public class InstructionDecodeStage implements Stage
 {
@@ -114,7 +113,7 @@ public class InstructionDecodeStage implements Stage
 			boolean executeEqualsAddressRt = executeRt == addressRt;
 			boolean executeForwardCt1Memread = currentExecuteStageState.forwardCt1Memread == 1;
 			boolean isCurrentInstructionNotStoreWord = InstructionExtractor.opcode(
-					state.currentInstruction) != PLPInstruction.STORE_WORD.getByteCode();
+					state.currentInstruction) != MIPSInstruction.STORE_WORD.getByteCode();
 					
 			if (executeEqualsAddressRt && (addressRt != 0) && executeForwardCt1Memread && isCurrentInstructionNotStoreWord)
 			{
@@ -138,8 +137,8 @@ public class InstructionDecodeStage implements Stage
 		
 		long immediateField = InstructionExtractor.imm(state.currentInstruction);
 		
-		boolean isNotAndImmediate = opCode != PLPInstruction.AND_IMMEDIATE.getByteCode();
-		boolean isNotOrImmediate = opCode != PLPInstruction.OR_IMMEDIATE.getByteCode();
+		boolean isNotAndImmediate = opCode != MIPSInstruction.AND_IMMEDIATE.getByteCode();
+		boolean isNotOrImmediate = opCode != MIPSInstruction.OR_IMMEDIATE.getByteCode();
 		
 		if (isNotAndImmediate && isNotOrImmediate)
 		{
@@ -161,7 +160,7 @@ public class InstructionDecodeStage implements Stage
 		
 		executePackage.clearLogic();
 		
-		if (opCode != PLPInstruction.SHIFT_LEFT_LOGICAL.getByteCode())
+		if (opCode != MIPSInstruction.SHIFT_LEFT_LOGICAL.getByteCode())
 		{
 			switch (InstructionExtractor.instructionType(state.currentInstruction))
 			{
@@ -174,13 +173,13 @@ public class InstructionDecodeStage implements Stage
 					postExecuteStageState.nextForwardCt1Regwrite = 1;
 					break;
 				case 6: // lw and sw
-					if (opCode == PLPInstruction.LOAD_WORD.getByteCode())
+					if (opCode == MIPSInstruction.LOAD_WORD.getByteCode())
 					{
 						postExecuteStageState.nextForwardCt1Memtoreg = 1;
 						postExecuteStageState.nextForwardCt1Regwrite = 1;
 						postExecuteStageState.nextForwardCt1Memread = 1;
 					}
-					else if (opCode == PLPInstruction.STORE_WORD.getByteCode())
+					else if (opCode == MIPSInstruction.STORE_WORD.getByteCode())
 					{
 						postExecuteStageState.nextForwardCt1Memwrite = 1;
 					}
@@ -189,7 +188,7 @@ public class InstructionDecodeStage implements Stage
 				case 7: // j and jal
 					postExecuteStageState.nextCt1Jump = 1;
 					if (InstructionExtractor.mnemonic(state.currentInstruction)
-							.equals(PLPInstruction.JUMP_AND_LINK.getMnemonic()))
+							.equals(MIPSInstruction.JUMP_AND_LINK.getMnemonic()))
 					{
 						postExecuteStageState.nextCt1Regdest = 1;
 						postExecuteStageState.nextCt1RdAddress = 31;
