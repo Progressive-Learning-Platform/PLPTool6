@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2.arguments;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
 
 public class LabelLiteral implements Argument{
 	

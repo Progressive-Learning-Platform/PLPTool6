@@ -2,17 +2,17 @@ package edu.asu.plp.tool.backend.mipsisa.assembler2;
 
 import java.util.HashMap;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.ITypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.JRRTypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RITypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RIUTypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RJTypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RLTypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.BTypeInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.JTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.ITypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.JRRTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RITypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RIUTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RJTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RLTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.BTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.JTypeInstruction;
 
-public class InstructionMap extends HashMap<String, PLPInstruction>
+public class InstructionMap extends HashMap<String, MIPSInstruction>
 {
 	public void addRTypeInstruction(String name, int functCode)
 	{
@@ -69,7 +69,7 @@ public class InstructionMap extends HashMap<String, PLPInstruction>
 	}
 	
 	@Override
-	public PLPInstruction put(String name, PLPInstruction instruction)
+	public MIPSInstruction put(String name, MIPSInstruction instruction)
 	{
 		validateKey(name);
 		return super.put(name, instruction);

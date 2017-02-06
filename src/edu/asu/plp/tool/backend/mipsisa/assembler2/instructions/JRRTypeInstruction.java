@@ -4,8 +4,8 @@ import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.
 
 import java.text.ParseException;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
 
 public class JRRTypeInstruction extends AbstractInstruction
 {

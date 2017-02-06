@@ -3,11 +3,11 @@ package edu.asu.plp.tool.backend.mipsisa.assembler2.instructions;
 import java.text.ParseException;
 import java.util.function.Function;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.PLPInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
 
-public abstract class AbstractInstruction implements PLPInstruction
+public abstract class AbstractInstruction implements MIPSInstruction
 {
 	private ArgumentType[] argumentTypes;
 	

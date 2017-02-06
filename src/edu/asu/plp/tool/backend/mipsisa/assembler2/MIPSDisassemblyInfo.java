@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2;
 
-public class PLPDisassemblyInfo 
+public class MIPSDisassemblyInfo 
 {
 	public int getLineNumber() {
 		return nLineNumber;
@@ -33,7 +33,7 @@ public class PLPDisassemblyInfo
 	private String strSubInstruction;
 	private String strSourceFile;
 	
-	public PLPDisassemblyInfo(int nline, long nAddress, long nEncodedValue, String acInst, String suInst, String source)
+	public MIPSDisassemblyInfo(int nline, long nAddress, long nEncodedValue, String acInst, String suInst, String source)
 	{
 		this.nLineNumber = nline;
 		this.nAddress = (int)nAddress;

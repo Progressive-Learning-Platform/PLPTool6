@@ -4,7 +4,7 @@ package edu.asu.plp.tool.backend.mipsisa.assembler2;
 import com.faeysoft.preceptor.lexer.TokenType;
 import com.faeysoft.preceptor.lexer.TokenTypeSet;
 
-public enum PLPTokenType
+public enum MIPSTokenType
 {
 	//Foundation
 	//TODO make label colon have nothing after it
@@ -24,7 +24,7 @@ public enum PLPTokenType
 	
 	private String regex;
 	
-	private PLPTokenType(String regex)
+	private MIPSTokenType(String regex)
 	{
 		this.regex = regex;
 	}
@@ -38,7 +38,7 @@ public enum PLPTokenType
 	{
 		TokenTypeSet set = new TokenTypeSet();
 		
-		for (PLPTokenType type : PLPTokenType.values())
+		for (MIPSTokenType type : MIPSTokenType.values())
 		{
 			TokenType tokenType = new TokenType(type.regex, type.name());
 			set.add(tokenType);

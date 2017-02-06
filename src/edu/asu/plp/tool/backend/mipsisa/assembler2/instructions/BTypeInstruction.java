@@ -1,14 +1,14 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2.instructions;
 
-import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.LABEL_LITERAL;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType.LABEL_LITERAL;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType.REGISTER;
 
 import java.text.ParseException;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.LabelLiteral;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AbstractInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.LabelLiteral;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.AbstractInstruction;
 
 public class BTypeInstruction extends AbstractInstruction
 {

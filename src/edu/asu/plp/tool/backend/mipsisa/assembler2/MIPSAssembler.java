@@ -23,28 +23,30 @@ import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
-import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
-import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler.MIPSDisassembly;
-import edu.asu.plp.tool.backend.plpisa.assembler2.PLPTokenType;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.LabelLiteral;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.MemoryArgument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.RegisterArgument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.StringLiteral;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.Value;
-import edu.asu.plp.tool.backend.plpisa.assembler2.instructions.AssemblerDirectiveStep;
+import edu.asu.plp.tool.backend.mipsisa.PLPASMImage;
+import edu.asu.plp.tool.backend.mipsisa.PLPAssemblyInstruction;
+//import edu.asu.plp.tool.backend.mipsisa.assembler.MIPSDisassembly;
+//used instead;  If not working, change back.
+import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSDisassemblyInfo;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSTokenType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.LabelLiteral;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.MemoryArgument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.RegisterArgument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.StringLiteral;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.Value;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.AssemblerDirectiveStep;
 import edu.asu.plp.tool.backend.util.ISAUtil;
 import javafx.util.Pair;
 
-public class PLPAssembler implements Assembler
+public class MIPSAssembler implements Assembler
 {
 	private InstructionMap plpInstructions;
 	private HashMap<String, AssemblerDirectiveStep> directiveMap;
 	private HashMap<String, Byte> registerMap;
 	private HashMap<String, AssemblerDirectiveStep> pseudoOperationMap;
 	
-	private List<PLPDisassemblyInfo> lstInstEncodings;
+	private List<MIPSDisassemblyInfo> lstInstEncodings;
 	
 	private HashMap<String, Long> symbolTable;
 	private HashMap<String, HashMap<Integer, String>> lineNumAndAsmFileMap;
@@ -82,12 +84,12 @@ public class PLPAssembler implements Assembler
 	public void initialize() throws AssemblerException
 	{
 		symbolTable = new HashMap<>();
-		lexer = new Lexer(PLPTokenType.createSet());
+		lexer = new Lexer(MIPSTokenType.createSet());
 		lineNumAndAsmFileMap = new HashMap<>();
 		nInstructionInserted = 0;
 
 		symbolTable = new HashMap<>(); //storage for labels
-		lexer = new Lexer(PLPTokenType.createSet());//Tokenizer
+		lexer = new Lexer(MIPSTokenType.createSet());//Tokenizer
 		lineNumAndAsmFileMap = new HashMap<>();//map every instruction to line number between differing files
 
 		
@@ -263,7 +265,7 @@ public class PLPAssembler implements Assembler
 		writer.println(headline);
 		System.out.println("");
 		writer.println("");
-		for(PLPDisassemblyInfo info : lstInstEncodings)
+		for(MIPSDisassemblyInfo info : lstInstEncodings)
 		{
 			System.out.println(info.toString());
 			writer.println(info.toString());
@@ -341,7 +343,7 @@ public class PLPAssembler implements Assembler
 							assemblyToDisassemblyMap.put(key, disassembly);
 							lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 							nInstructionInserted++;
-							PLPDisassemblyInfo arg = new PLPDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, subSource, asmFileName);
+							MIPSDisassemblyInfo arg = new MIPSDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, subSource, asmFileName);
 							
 							this.lstInstEncodings.add(arg);
 							
@@ -361,7 +363,7 @@ public class PLPAssembler implements Assembler
 						assemblyToDisassemblyMap.put(key, disassembly);
 						lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 						nInstructionInserted++;
-						PLPDisassemblyInfo arg = new PLPDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, source, asmFileName);
+						MIPSDisassemblyInfo arg = new MIPSDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, source, asmFileName);
 						this.lstInstEncodings.add(arg);
 					}
 					
@@ -425,7 +427,7 @@ public class PLPAssembler implements Assembler
 				{
 					preprocessedInstruction = preprocessNormalInstruction();
 				}
-				else if(currentToken.getTypeName() == PLPTokenType.COMMENT.name())
+				else if(currentToken.getTypeName() == MIPSTokenType.COMMENT.name())
 				{
 					preprocessedInstruction = ASM__SKIP__;		//skips 				
 				}
@@ -433,7 +435,7 @@ public class PLPAssembler implements Assembler
 				{
 					preprocessedInstruction = labeldeclarationProcessing();
 				}
-				else if(currentToken.getTypeName() == PLPTokenType.NEW_LINE.name())
+				else if(currentToken.getTypeName() == MIPSTokenType.NEW_LINE.name())
 				{
 					preprocessedInstruction = ASM__SKIP__;
 				}
@@ -446,7 +448,7 @@ public class PLPAssembler implements Assembler
 				
 				if(nextToken(1))
 				{
-					if(currentToken.getTypeName() == PLPTokenType.COMMENT.name())
+					if(currentToken.getTypeName() == MIPSTokenType.COMMENT.name())
 					{
 						if(nextToken(1))
 							throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + ":Extra token is present a line, found: " + currentToken.getValue());
@@ -479,7 +481,7 @@ public class PLPAssembler implements Assembler
 	private MIPSDisassembly process(String instructionName, Argument[] arguments)
 			throws ParseException
 	{
-		PLPInstruction instruction = plpInstructions.get(instructionName);
+		MIPSInstruction instruction = plpInstructions.get(instructionName);
 		int codedInstruction = instruction.assemble(arguments);
 		//long address = programLocation+;
 		MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, codedInstruction);
@@ -640,7 +642,7 @@ public class PLPAssembler implements Assembler
 		expectedNextToken("pseudo move operation");
 		
 		ensureTokenEquality("Line Number: " + Integer.toString(lineNumber) + "(b) Expected a label to branch to, found: ",
-				PLPTokenType.LABEL_PLAIN);
+				MIPSTokenType.LABEL_PLAIN);
 		
 		addRegionAndIncrementAddress();//Steps through program
 		return "beq $0, $0, " + currentToken.getValue();
@@ -660,15 +662,15 @@ public class PLPAssembler implements Assembler
 	{
 		expectedNextToken("pseudo move operation");
 		String destinationRegister = currentToken.getValue();
-		ensureTokenEquality("(move) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(move) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		expectedNextToken("move pseudo instruction");
 		ensureTokenEquality("(move) Expected a comma after " + destinationRegister
-				+ " found: ", PLPTokenType.COMMA);
+				+ " found: ", MIPSTokenType.COMMA);
 		
 		expectedNextToken("pseudo move operation");
 		String startingRegister = currentToken.getValue();
-		ensureTokenEquality("(move) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(move) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		// TODO (Look into) Google Code PLP says it's equivalent instruction is Add, src
 		// code uses or
@@ -695,7 +697,7 @@ public class PLPAssembler implements Assembler
 		String preprocessedInstructions = "";
 		expectedNextToken("push pseudo operation");
 		
-		ensureTokenEquality("(push) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(push) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		preprocessedInstructions = "addiu $sp, $sp, -4" + "\n" + "sw "  + currentToken.getValue() + ", 4($sp)";
 		addRegionAndIncrementAddress(2, 8);
@@ -720,7 +722,7 @@ public class PLPAssembler implements Assembler
 		String preprocessedInstructions = "";
 		expectedNextToken("pop pseudo operation");
 		
-		ensureTokenEquality("(push) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(push) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		preprocessedInstructions = "lw " + currentToken.getValue() + ", 4($sp)" + "\n" + "addiu $sp, $sp, 4";
 		addRegionAndIncrementAddress(2, 8);
@@ -754,16 +756,16 @@ public class PLPAssembler implements Assembler
 		String preprocessedInstructions = "";
 		expectedNextToken("load immediate pseudo operation");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(li) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(li) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		expectedNextToken("load immediate pseudo instruction");
 		ensureTokenEquality("(li) Expected a comma after " + targetRegister + " found: ",
-				PLPTokenType.COMMA);
+				MIPSTokenType.COMMA);
 		
 		expectedNextToken("load immediate pseudo operation");
 		String immediateOrLabel = currentToken.getValue();
 		ensureTokenEquality("(li) Expected a immediate value or label, found: ", 
-				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
 		
 		
 		preprocessedInstructions = String.format("lui %s, %s", targetRegister,ASM__HIGH__ + immediateOrLabel) + "\n" +
@@ -784,17 +786,17 @@ public class PLPAssembler implements Assembler
 		String preprocessedInstructions = "";
 		expectedNextToken("lvm psuedo operation");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(lvm) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(lvm) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		expectedNextToken("two register immediate normal instruction");
 		ensureTokenEquality(
 				"(lvm) Expected a comma after " + targetRegister + " found: ",
-				PLPTokenType.COMMA);
+				MIPSTokenType.COMMA);
 		
 		expectedNextToken("lvm psuedo operation");
 		String immediateOrLabel = currentToken.getValue();
 		ensureTokenEquality("Expected a immediate value or label, found: ", 
-				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
 		
 		preprocessedInstructions = String.format("lui $at, %s %s", ASM__HIGH__, immediateOrLabel) + "\n" +
 				String.format("ori $at, $at, %s %s", ASM__LOW__, immediateOrLabel) + "\n" +
@@ -816,17 +818,17 @@ public class PLPAssembler implements Assembler
 		String preprocessedInstructions = "";
 		expectedNextToken("svm psuedo operation");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(svm) Expected a register, found: ", PLPTokenType.ADDRESS);
+		ensureTokenEquality("(svm) Expected a register, found: ", MIPSTokenType.ADDRESS);
 		
 		expectedNextToken("svm pseudo instruction");
 		ensureTokenEquality(
 				"(svm) Expected a comma after " + targetRegister + " found: ",
-				PLPTokenType.COMMA);
+				MIPSTokenType.COMMA);
 		
 		expectedNextToken("svm psuedo operation");
 		String immediateOrLabel = currentToken.getValue();
 		ensureTokenEquality("Expected a immediate value or label, found:",
-				PLPTokenType.NUMERIC, PLPTokenType.LABEL_PLAIN);
+				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
 		
 		preprocessedInstructions = String.format("lui $at, %s %s", ASM__HIGH__, immediateOrLabel) + "\n" +
 				String.format("ori $at, $at, %s %s", ASM__LOW__, immediateOrLabel) + "\n" +
@@ -850,7 +852,7 @@ public class PLPAssembler implements Assembler
 		String preprocessedInstructions = "";
 		expectedNextToken("call psuedo operation");
 		String label = currentToken.getValue();
-		ensureTokenEquality("(call) Expected a label, found: ", PLPTokenType.LABEL_PLAIN);
+		ensureTokenEquality("(call) Expected a label, found: ", MIPSTokenType.LABEL_PLAIN);
 		
 		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2", "$t3",
 				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
@@ -958,7 +960,7 @@ public class PLPAssembler implements Assembler
 	{
 		expectedNextToken(".org directive");
 		
-		ensureTokenEquality("(.org) Expected an address, found: ", PLPTokenType.NUMERIC);
+		ensureTokenEquality("(.org) Expected an address, found: ", MIPSTokenType.NUMERIC);
 		
 		try
 		{
@@ -980,7 +982,7 @@ public class PLPAssembler implements Assembler
 		
 		ensureTokenEquality(
 				"(.word) Expected number to initialize current memory address to, found: ",
-				PLPTokenType.NUMERIC);
+				MIPSTokenType.NUMERIC);
 		
 		addRegionAndIncrementAddress(1, 4);
 		
@@ -992,7 +994,7 @@ public class PLPAssembler implements Assembler
 	{
 		expectedNextToken(".space directive");
 		
-		ensureTokenEquality("(.space) Expected a number, found: ", PLPTokenType.NUMERIC);
+		ensureTokenEquality("(.space) Expected a number, found: ", MIPSTokenType.NUMERIC);
 		
 		try
 		{
@@ -1019,7 +1021,7 @@ public class PLPAssembler implements Assembler
 		expectedNextToken(currentToken.getValue() + " directive");
 		
 		ensureTokenEquality("(" + directiveToken.getValue()
-				+ ") Expected a string to store, found: ", PLPTokenType.STRING);
+				+ ") Expected a string to store, found: ", MIPSTokenType.STRING);
 		
 		// Strip quotes
 		String currentValue = null;
@@ -1128,7 +1130,7 @@ public class PLPAssembler implements Assembler
 		
 		if (currentRegion != 1)
 		{
-			ensureTokenEquality("(.text) Expected a number, found: ", PLPTokenType.NUMERIC);
+			ensureTokenEquality("(.text) Expected a number, found: ", MIPSTokenType.NUMERIC);
 			
 			//directiveOffset++;
 			
@@ -1161,7 +1163,7 @@ public class PLPAssembler implements Assembler
 	{
 		expectedNextToken(".data directive");
 		
-		ensureTokenEquality("(.data) Expected a number, found: ", PLPTokenType.NUMERIC);
+		ensureTokenEquality("(.data) Expected a number, found: ", MIPSTokenType.NUMERIC);
 	
 		if (currentRegion != 2)
 		{
@@ -1193,7 +1195,7 @@ public class PLPAssembler implements Assembler
 	{
 		expectedNextToken(".equ directive");
 		
-		ensureTokenEquality("(.equ) Expected a string, found: ", PLPTokenType.STRING);
+		ensureTokenEquality("(.equ) Expected a string, found: ", MIPSTokenType.STRING);
 		
 		String symbol = currentToken.getValue();
 		if (symbolTable.containsKey(symbol))
@@ -1205,7 +1207,7 @@ public class PLPAssembler implements Assembler
 		expectedNextToken(".equ directive");
 		
 		ensureTokenEquality("(.equ) Expected an address after symbol, found: ",
-				PLPTokenType.NUMERIC);
+				MIPSTokenType.NUMERIC);
 		
 		long value = Long.MIN_VALUE;
 		try
@@ -1236,7 +1238,7 @@ public class PLPAssembler implements Assembler
 		String strFirstArgument = "", strSecondArgument = "";
 		
 		
-		PLPInstruction instruction = plpInstructions.get(strInstruction);
+		MIPSInstruction instruction = plpInstructions.get(strInstruction);
 		
 		preprocessedInstruction += strInstruction;
 		
@@ -1258,7 +1260,7 @@ public class PLPAssembler implements Assembler
 				{
 					expectedNextToken(strInstruction + " operation");
 					ensureTokenEquality("(" + strInstruction + ") Expected a comma after "
-							+ strFirstArgument + " found: ", PLPTokenType.COMMA);
+							+ strFirstArgument + " found: ", MIPSTokenType.COMMA);
 
 					expectedNextToken(strInstruction + " operation");
 					ensureArgumentEquality(strInstruction, lstArguments[1]);
@@ -1270,7 +1272,7 @@ public class PLPAssembler implements Assembler
 					{
 						expectedNextToken(strInstruction + " operation");
 						ensureTokenEquality("(" + strInstruction + ") Expected a comma after "
-									+ strSecondArgument + " found: ", PLPTokenType.COMMA);
+									+ strSecondArgument + " found: ", MIPSTokenType.COMMA);
 							
 						expectedNextToken(strInstruction + " operation");
 						ensureArgumentEquality(strInstruction, lstArguments[2]);
@@ -1366,11 +1368,11 @@ public class PLPAssembler implements Assembler
 		
 	}
 	
-	private void ensureTokenEquality(String message, PLPTokenType compareTo) throws AssemblerException
+	private void ensureTokenEquality(String message, MIPSTokenType compareTo) throws AssemblerException
 	{
 		String sMessage = "Line Number: " +Integer.toString(lineNumber) + " " + message + currentToken.getValue();
 		
-		if (compareTo.equals(PLPTokenType.INSTRUCTION))
+		if (compareTo.equals(MIPSTokenType.INSTRUCTION))
 		{
 			if(!isInstruction(currentToken))
 			{
@@ -1378,7 +1380,7 @@ public class PLPAssembler implements Assembler
 			}
 			return;
 		}
-		else if (compareTo.equals(PLPTokenType.LABEL_PLAIN))
+		else if (compareTo.equals(MIPSTokenType.LABEL_PLAIN))
 		{
 			if(!isLabel(currentToken))
 			{
@@ -1387,7 +1389,7 @@ public class PLPAssembler implements Assembler
 			
 			return;
 		}
-		else if (compareTo.equals(PLPTokenType.ADDRESS))
+		else if (compareTo.equals(MIPSTokenType.ADDRESS))
 		{
 			if(!isRegister(currentToken))
 			{
@@ -1396,7 +1398,7 @@ public class PLPAssembler implements Assembler
 			
 			return;
 		}
-		else if (compareTo.equals(PLPTokenType.PARENTHESIS_ADDRESS))
+		else if (compareTo.equals(MIPSTokenType.PARENTHESIS_ADDRESS))
 		{
 			if(!isMemoryLocation(currentToken))
 			{
@@ -1413,23 +1415,23 @@ public class PLPAssembler implements Assembler
 	
 	
 	private void ensureTokenEquality(String message,
-			PLPTokenType... compareTo) throws AssemblerException
+			MIPSTokenType... compareTo) throws AssemblerException
 	{
 		String sMessage = "Line Number: " +Integer.toString(lineNumber) + " " + message + currentToken.getValue();
-		for (PLPTokenType comparison : compareTo)
+		for (MIPSTokenType comparison : compareTo)
 		{
-			if (comparison.equals(PLPTokenType.INSTRUCTION))
+			if (comparison.equals(MIPSTokenType.INSTRUCTION))
 			{
 				if(isInstruction(currentToken))
 					return;
 			}
-			else if (comparison.equals(PLPTokenType.LABEL_PLAIN))
+			else if (comparison.equals(MIPSTokenType.LABEL_PLAIN))
 			{
 				if(isLabel(currentToken))
 					return;
 			}
-			else if (comparison.equals(PLPTokenType.ADDRESS)
-					|| comparison.equals(PLPTokenType.PARENTHESIS_ADDRESS))
+			else if (comparison.equals(MIPSTokenType.ADDRESS)
+					|| comparison.equals(MIPSTokenType.PARENTHESIS_ADDRESS))
 			{
 				if(isRegister(currentToken))
 					return;
@@ -1499,7 +1501,7 @@ public class PLPAssembler implements Assembler
 	
 	private boolean isInstruction(Token token)
 	{
-		if(token.getTypeName() == PLPTokenType.INSTRUCTION.name() && plpInstructions.containsKey(token.getValue()))
+		if(token.getTypeName() == MIPSTokenType.INSTRUCTION.name() && plpInstructions.containsKey(token.getValue()))
 			return true;
 		else
 			return false;
@@ -1508,7 +1510,7 @@ public class PLPAssembler implements Assembler
 	
 	private boolean isLabel(Token token)
 	{
-		if(token.getTypeName() == PLPTokenType.LABEL_COLON.name() || token.getTypeName() == PLPTokenType.LABEL_PLAIN.name())
+		if(token.getTypeName() == MIPSTokenType.LABEL_COLON.name() || token.getTypeName() == MIPSTokenType.LABEL_PLAIN.name())
 			return true;
 		else
 			return false;
@@ -1517,11 +1519,11 @@ public class PLPAssembler implements Assembler
 	
 	private boolean isRegister(Token token)
 	{
-		if (token.getTypeName().equals(PLPTokenType.ADDRESS.name()))
+		if (token.getTypeName().equals(MIPSTokenType.ADDRESS.name()))
 		{
 			return registerMap.containsKey(token.getValue());
 		}
-		else if (token.getTypeName().equals(PLPTokenType.PARENTHESIS_ADDRESS.name()))
+		else if (token.getTypeName().equals(MIPSTokenType.PARENTHESIS_ADDRESS.name()))
 		{
 			return registerMap.containsKey(token.getValue().replaceAll("\\(|\\)", ""));
 		}
@@ -1531,7 +1533,7 @@ public class PLPAssembler implements Assembler
 	
 	private boolean isAssemblerDirective(Token token)
 	{
-		if(token.getTypeName() == PLPTokenType.DIRECTIVE.name() && directiveMap.containsKey(token.getValue()))
+		if(token.getTypeName() == MIPSTokenType.DIRECTIVE.name() && directiveMap.containsKey(token.getValue()))
 			return true;
 		else
 			return false;

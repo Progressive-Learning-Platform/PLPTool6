@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
 
 public interface Argument
 {

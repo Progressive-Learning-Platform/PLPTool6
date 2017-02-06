@@ -2,7 +2,7 @@ package edu.asu.plp.tool.backend.mipsisa.assembler2.arguments;
 
 import java.util.HashMap;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
 
 public class RegisterArgument implements Argument
 {

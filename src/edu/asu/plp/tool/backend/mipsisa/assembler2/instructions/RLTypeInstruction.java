@@ -1,19 +1,19 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2.instructions;
 
-import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.MEMORY_LOCATION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType.REGISTER;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.FUNCT_CODE_POSITION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_5BIT;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.MASK_6BIT;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RD_POSITION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.RT_POSITION;
-import static edu.asu.plp.tool.backend.plpisa.assembler2.instructions.RTypeInstruction.SHAMT_POSITION;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType.MEMORY_LOCATION;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType.REGISTER;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction.FUNCT_CODE_POSITION;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction.MASK_5BIT;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction.MASK_6BIT;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction.RD_POSITION;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction.RT_POSITION;
+import static edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction.SHAMT_POSITION;
 
 import java.text.ParseException;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.MemoryArgument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.MemoryArgument;
 
 public class RLTypeInstruction extends AbstractInstruction
 {

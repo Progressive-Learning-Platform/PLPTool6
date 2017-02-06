@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import com.faeysoft.preceptor.lexer.RegexCommons.*;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
 
 public enum ArgumentType
 {

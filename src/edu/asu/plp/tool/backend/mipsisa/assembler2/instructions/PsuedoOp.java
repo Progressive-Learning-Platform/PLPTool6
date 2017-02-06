@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.PLPInstruction;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.ArgumentType;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
 
 public class PsuedoOp implements PLPInstruction
 {

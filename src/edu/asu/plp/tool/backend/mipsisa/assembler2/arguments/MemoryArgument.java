@@ -1,8 +1,8 @@
 package edu.asu.plp.tool.backend.mipsisa.assembler2.arguments;
 
-import edu.asu.plp.tool.backend.plpisa.assembler2.Argument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.RegisterArgument;
-import edu.asu.plp.tool.backend.plpisa.assembler2.arguments.Value;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.RegisterArgument;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.Value;
 
 
 public class MemoryArgument implements Argument
