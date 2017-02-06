@@ -9,7 +9,7 @@ import com.google.common.eventbus.EventBus;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.mipsisa.PLPASMImage;
+import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.ExecuteStage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.MemoryStage;
@@ -31,7 +31,7 @@ public class MIPSSimulator implements Simulator
 	 */
 	private EventBus simulatorBus;
 
-	private PLPASMImage assembledImage;
+	private MIPSASMImage assembledImage;
 
 	//private MemoryModule32Bit regFile;
 	private MIPSRegFile regFile;
@@ -602,7 +602,7 @@ public class MIPSSimulator implements Simulator
 		if (assembledImage == null)
 			return false;
 
-		this.assembledImage = (PLPASMImage) assembledImage;
+		this.assembledImage = (MIPSASMImage) assembledImage;
 
 		setupFromImage();
 

@@ -99,7 +99,7 @@ public class InstructionDecodeStage implements Stage
 			boolean executeEqualsAddressRt = executeRt == addressRt;
 			boolean executeForwardCt1Memread = currentExecuteStageState.forwardCt1Memread == 1;
 			boolean isCurrentInstructionNotStoreWord = InstructionExtractor.opcode(
-					state.currentInstruction) != PLPInstruction.STORE_WORD.getByteCode();
+					state.currentInstruction) != MIPSInstruction.STORE_WORD.getByteCode();
 
 			if (executeEqualsAddressRt && (addressRt != 0) && executeForwardCt1Memread && isCurrentInstructionNotStoreWord)
 			{
@@ -123,8 +123,8 @@ public class InstructionDecodeStage implements Stage
 
 		long immediateField = InstructionExtractor.imm(state.currentInstruction);
 
-		boolean isNotAndImmediate = opCode != PLPInstruction.AND_IMMEDIATE.getByteCode();
-		boolean isNotOrImmediate = opCode != PLPInstruction.OR_IMMEDIATE.getByteCode();
+		boolean isNotAndImmediate = opCode != MIPSInstruction.AND_IMMEDIATE.getByteCode();
+		boolean isNotOrImmediate = opCode != MIPSInstruction.OR_IMMEDIATE.getByteCode();
 
 		if (isNotAndImmediate && isNotOrImmediate)
 		{
@@ -146,7 +146,7 @@ public class InstructionDecodeStage implements Stage
 
 		executePackage.clearLogic();
 
-		if (opCode != PLPInstruction.SHIFT_LEFT_LOGICAL.getByteCode())
+		if (opCode != MIPSInstruction.SHIFT_LEFT_LOGICAL.getByteCode())
 		{
 			switch (InstructionExtractor.instructionType(state.currentInstruction))
 			{
@@ -159,13 +159,13 @@ public class InstructionDecodeStage implements Stage
 					postExecuteStageState.nextForwardCt1Regwrite = 1;
 					break;
 				case 6: // lw and sw
-					if (opCode == PLPInstruction.LOAD_WORD.getByteCode())
+					if (opCode == MIPSInstruction.LOAD_WORD.getByteCode())
 					{
 						postExecuteStageState.nextForwardCt1Memtoreg = 1;
 						postExecuteStageState.nextForwardCt1Regwrite = 1;
 						postExecuteStageState.nextForwardCt1Memread = 1;
 					}
-					else if (opCode == PLPInstruction.STORE_WORD.getByteCode())
+					else if (opCode == MIPSInstruction.STORE_WORD.getByteCode())
 					{
 						postExecuteStageState.nextForwardCt1Memwrite = 1;
 					}
@@ -174,7 +174,7 @@ public class InstructionDecodeStage implements Stage
 				case 7: // j and jal
 					postExecuteStageState.nextCt1Jump = 1;
 					if (InstructionExtractor.mnemonic(state.currentInstruction)
-							.equals(PLPInstruction.JUMP_AND_LINK.getMnemonic()))
+							.equals(MIPSInstruction.JUMP_AND_LINK.getMnemonic()))
 					{
 						postExecuteStageState.nextCt1Regdest = 1;
 						postExecuteStageState.nextCt1RdAddress = 31;

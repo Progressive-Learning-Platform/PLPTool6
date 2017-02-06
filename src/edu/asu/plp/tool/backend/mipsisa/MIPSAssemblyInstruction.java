@@ -2,13 +2,13 @@ package edu.asu.plp.tool.backend.mipsisa;
 
 import edu.asu.plp.tool.backend.isa.ASMInstruction;
 
-public class PLPAssemblyInstruction implements ASMInstruction
+public class MIPSAssemblyInstruction implements ASMInstruction
 {
 	private final int lineNumber;
 	private final String instructionContents;
 	private final String sourceFile;
 	
-	public PLPAssemblyInstruction(int lineNumber, String instructionContents, String sourceFile)
+	public MIPSAssemblyInstruction(int lineNumber, String instructionContents, String sourceFile)
 	{
 		this.lineNumber = lineNumber;
 		this.instructionContents = instructionContents;

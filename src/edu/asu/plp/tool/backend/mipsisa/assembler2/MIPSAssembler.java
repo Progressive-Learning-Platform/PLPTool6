@@ -23,8 +23,8 @@ import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
-import edu.asu.plp.tool.backend.mipsisa.PLPASMImage;
-import edu.asu.plp.tool.backend.mipsisa.PLPAssemblyInstruction;
+import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
+import edu.asu.plp.tool.backend.mipsisa.MIPSAssemblyInstruction;
 //import edu.asu.plp.tool.backend.mipsisa.assembler.MIPSDisassembly;
 //used instead;  If not working, change back.
 import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSDisassemblyInfo;
@@ -226,7 +226,7 @@ public class MIPSAssembler implements Assembler
 		disassemblygenerator();
 		
 		//return new PLPASMImage(assemblyToDisassemblyMap, nStartingAddress);
-		return new PLPASMImage(lstdisassem);
+		return new MIPSASMImage(lstdisassem);
 	}
 	
 	private void disassemblygenerator()
@@ -312,7 +312,7 @@ public class MIPSAssembler implements Assembler
 				}
 				else if(preProcessInstruction.contains(ASM__WORD__))
 				{
-					ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source, asmFileName);
+					ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, source, asmFileName);
 					int value = (int)ISAUtil.sanitize32bits(preProcessInstruction.split(" ")[1]);
 					MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, value);
 					programLocation += 4;
@@ -339,7 +339,7 @@ public class MIPSAssembler implements Assembler
 							Argument[] arguments = parseArguments(argumentStrings);
 							
 							MIPSDisassembly disassembly = process(subInstruction, arguments);
-							ASMInstruction key = new PLPAssemblyInstruction(lineNumber, subSource, asmFileName);
+							ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, subSource, asmFileName);
 							assemblyToDisassemblyMap.put(key, disassembly);
 							lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 							nInstructionInserted++;
@@ -359,7 +359,7 @@ public class MIPSAssembler implements Assembler
 						Argument[] arguments = parseArguments(argumentStrings);
 						
 						MIPSDisassembly disassembly = process(instruction, arguments);
-						ASMInstruction key = new PLPAssemblyInstruction(lineNumber, source, asmFileName);
+						ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, source, asmFileName);
 						assemblyToDisassemblyMap.put(key, disassembly);
 						lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 						nInstructionInserted++;
