@@ -17,7 +17,7 @@ import javafx.beans.property.SimpleLongProperty;
  * @author Harsha
  *
  */
-public class PLPRegFile implements RegisterFile {
+public class MIPSRegFile implements RegisterFile {
 	/***
 	 * Total number of registers present in PLP processor
 	 */
@@ -46,7 +46,7 @@ public class PLPRegFile implements RegisterFile {
 	/***
 	 * PLPRegFile constructor. It creates all the registers and initializes to default value
 	 */
-	public PLPRegFile()
+	public MIPSRegFile()
 	{
 		this.registers = new LongProperty[NUMBER_OF_REGISTERS];
 		this.regInstructions = new BooleanProperty[NUMBER_OF_REGISTERS];

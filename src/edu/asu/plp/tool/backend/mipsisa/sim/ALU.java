@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.mipsisa.sim;
 
-import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
 
 public class ALU
 {

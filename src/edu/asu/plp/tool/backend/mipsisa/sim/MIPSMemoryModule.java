@@ -6,7 +6,7 @@ import java.util.Map;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class PLPMemoryModule implements MemoryModule32Bit
+public class MIPSMemoryModule implements MemoryModule32Bit
 {
 	public static final int NUMBER_OF_REGISTERS = 32;
 	private static final int DEFAULT_MEMORY_VALUE = 0;
@@ -15,7 +15,7 @@ public class PLPMemoryModule implements MemoryModule32Bit
 	private Map<String, Integer> namedRegisters;
 	private Map<Integer, IntegerProperty> memoryLocations;
 	
-	public PLPMemoryModule()
+	public MIPSMemoryModule()
 	{
 		this.registers = new IntegerProperty[NUMBER_OF_REGISTERS];
 		for(IntegerProperty x: this.registers)

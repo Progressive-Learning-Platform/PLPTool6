@@ -15,7 +15,7 @@ import plptool.Constants;
  * @author Harsha
  *
  */
-public class PLPAddressBus implements AddressBus{
+public class MIPSAddressBus implements AddressBus{
 	
 	/**
 	 * This list contains all I/O module attached with this bus
@@ -24,7 +24,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	private EmulationWindow window;
 	
-	public PLPAddressBus()
+	public MIPSAddressBus()
 	{
 		modules = new ArrayList<IOMemoryModule>();
 	}
