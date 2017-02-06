@@ -18,11 +18,11 @@ public class WriteBackStage implements Stage
 	//private PLPAddressBus addressBus;
 	private WriteBackEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
-	private PLPRegFile regFile;
+	private MIPSRegFile regFile;
 
 	private CpuState state;
 
-	public WriteBackStage(SimulatorStatusManager statusManager, EventBus simulatorBus, PLPRegFile regFile)
+	public WriteBackStage(SimulatorStatusManager statusManager, EventBus simulatorBus, MIPSRegFile regFile)
 	{
 		this.bus = simulatorBus;
 		//this.addressBus = addressBus;

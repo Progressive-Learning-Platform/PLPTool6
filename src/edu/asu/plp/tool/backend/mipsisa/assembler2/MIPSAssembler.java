@@ -25,7 +25,7 @@ import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
 import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
 import edu.asu.plp.tool.backend.mipsisa.MIPSAssemblyInstruction;
-//import edu.asu.plp.tool.backend.mipsisa.assembler.MIPSDisassembly;
+//import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSDisassembly;
 //used instead;  If not working, change back.
 import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSDisassemblyInfo;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSTokenType;

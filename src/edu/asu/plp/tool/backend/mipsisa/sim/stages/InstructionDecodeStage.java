@@ -20,10 +20,10 @@ import edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState;
 public class InstructionDecodeStage implements Stage
 {
 	private EventBus bus;
-	private PLPAddressBus addressBus;
+	private MIPSAddressBus addressBus;
 	private InstructionDecodeEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
-	private PLPRegFile regFile;
+	private MIPSRegFile regFile;
 
 	private CpuState state;
 
@@ -31,7 +31,7 @@ public class InstructionDecodeStage implements Stage
 	private CpuState currentExecuteStageState;
 	private CpuState currentMemoryStageState;
 
-	public InstructionDecodeStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus, PLPRegFile regFile)
+	public InstructionDecodeStage(MIPSAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus, MIPSRegFile regFile)
 	{
 		this.bus = simulatorBus;
 		this.addressBus = addressBus;

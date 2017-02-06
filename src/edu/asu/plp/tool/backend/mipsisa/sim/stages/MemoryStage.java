@@ -3,28 +3,28 @@ package edu.asu.plp.tool.backend.mipsisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPAddressBus;
-import edu.asu.plp.tool.backend.plpisa.sim.SimulatorStatusManager;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.ExecuteCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryCompletion;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.MemoryStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateRequest;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.events.WriteBackStageStateResponse;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.state.CpuState;
+import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
+import edu.asu.plp.tool.backend.mipsisa.sim.MIPSAddressBus;
+import edu.asu.plp.tool.backend.mipsisa.sim.SimulatorStatusManager;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.ExecuteCompletion;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryCompletion;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.MemoryStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.WriteBackStageStateRequest;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.events.WriteBackStageStateResponse;
+import edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState;
 
 public class MemoryStage implements Stage
 {
 	private EventBus bus;
-	private PLPAddressBus addressBus;
+	private MIPSAddressBus addressBus;
 	private MemoryEventHandler eventHandler;
 	private SimulatorStatusManager statusManager;
 	
 	private CpuState state;
 	private CpuState currentWriteBackStageState;
 	
-	public MemoryStage(PLPAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus)
+	public MemoryStage(MIPSAddressBus addressBus, SimulatorStatusManager statusManager, EventBus simulatorBus)
 	{
 		this.bus = simulatorBus;
 		this.addressBus = addressBus;
