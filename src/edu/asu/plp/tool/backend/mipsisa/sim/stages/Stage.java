@@ -18,5 +18,5 @@ public interface Stage
 	
 	boolean isHot();
 	
-	CpuState getState();
+	edu.asu.plp.tool.backend.mipsisa.sim.stages.state.CpuState getState();
 }
