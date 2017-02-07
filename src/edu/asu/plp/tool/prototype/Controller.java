@@ -5,6 +5,10 @@ public interface Controller
 	// Project Management
 	void createNewProject();
 	
+	// for MIPS projects
+	void createNewMIPSProject();
+	
+	// TODO do we need one of these for MIPS projects?
 	void openProject();
 	
 	void saveActiveProject();

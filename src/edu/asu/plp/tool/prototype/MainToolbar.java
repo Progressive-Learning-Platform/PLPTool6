@@ -29,6 +29,10 @@ public class MainToolbar extends BorderPane
 		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
 		buttons.add(newProjectButton);
 		
+		ImageButton newMIPSProjectButton = new ImageButton("toolbar_new_mips.png");
+		newMIPSProjectButton.setOnMouseClicked((e) -> controller.createNewMIPSProject());
+		buttons.add(newMIPSProjectButton);
+		
 		ImageButton newFileButton = new ImageButton("menu_new.png");
 		newFileButton.setOnMouseClicked((e) -> controller.createNewASM());
 		buttons.add(newFileButton);

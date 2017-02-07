@@ -1032,6 +1032,31 @@ public class Main extends Application implements Controller
 		projects.add(project);
 		openFile(sourceFile);
 	}
+
+	@Override
+	public void createNewMIPSProject() {
+		Stage createMIPSProjectStage = new Stage();
+		MIPSProjectCreationPanel mipsProjectCreationPanel = mipsProjectCreateMenu();
+		mipsProjectCreationPanel.setFinallyOperation(createMIPSProjectStage::close);
+		
+		Scene scene = new Scene(mipsProjectCreationPanel, 450, 350);
+		createMIPSProjectStage.setTitle("Create New MIPS Project");
+		createMIPSProjectStage.setScene(scene);
+		createMIPSProjectStage.setResizable(false);
+		createMIPSProjectStage.show();
+	}
+	
+	private MIPSProjectCreationPanel mipsProjectCreateMenu() {
+		MIPSProjectCreationPanel mipsProjectCreationPanel = new MIPSProjectCreationPanel();
+		// for future versions, here is were different versions of MIPS can be added(to the drop-down menu anyway)
+		mipsProjectCreationPanel.addProjectType("MIPS", this::createMIPSProject);
+		mipsProjectCreationPanel.setSelectedType("MIPS");		
+		return mipsProjectCreationPanel;
+	}
+	
+	private void createMIPSProject(ProjectCreationDetails details) {
+		// TODO stub
+	}
 	
 	private void tryAndReport(ExceptionalSubroutine subroutine)
 	{
@@ -1742,4 +1767,5 @@ public class Main extends Application implements Controller
 			tryAndReport(project::save);
 		}
 	}
+
 }
