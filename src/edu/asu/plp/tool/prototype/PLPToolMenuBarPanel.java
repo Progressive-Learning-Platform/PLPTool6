@@ -297,10 +297,17 @@ public class PLPToolMenuBarPanel extends BorderPane
 	{
 		Menu fileMenu = new Menu("File");
 		MenuItem itemNew = new MenuItem("New PLP Project");
+		// TODO set this to the actual PLP project menu icon(Harsha)
 		itemNew.setGraphic(new ImageView(new Image("menu_new.png")));
 		itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N,
 				KeyCombination.CONTROL_DOWN));
 		itemNew.setOnAction((e) -> controller.createNewProject());
+		
+		MenuItem itemNewMIPSProject = new MenuItem("New MIPS Project");
+		itemNewMIPSProject.setGraphic(new ImageView(new Image("toolbar_new_mips.png")));
+		// TODO set ctrl-shift-n for MIPS project?
+		itemNewMIPSProject.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+		itemNewMIPSProject.setOnAction((e) -> controller.createNewMIPSProject());
 		
 		MenuItem itemNewASMFile = new MenuItem("New ASM File");
 		itemNewASMFile.setGraphic(new ImageView(new Image("menu_new.png")));
@@ -336,7 +343,7 @@ public class PLPToolMenuBarPanel extends BorderPane
 				KeyCombination.CONTROL_DOWN));
 		itemExit.setOnAction((e) -> controller.exit());
 		
-		fileMenu.getItems().addAll(itemNew, itemNewASMFile, new SeparatorMenuItem(), itemOpen, itemSave,
+		fileMenu.getItems().addAll(itemNew, itemNewMIPSProject, itemNewASMFile, new SeparatorMenuItem(), itemOpen, itemSave,
 				itemSaveAs, new SeparatorMenuItem(), itemPrint, new SeparatorMenuItem(),
 				itemExit);
 		
