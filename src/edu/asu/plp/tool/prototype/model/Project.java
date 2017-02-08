@@ -81,11 +81,11 @@ public interface Project extends ObservableList<ASMFile>
 	String getPathFor(ASMFile child);
 	
 	/**
-	 * Sets the path pointer of this {@link PLPProject}.
+	 * Sets the path pointer of this {@link PLPProject} or {@link MIPSProject}.
 	 * <p>
 	 * Note that this method alone does not alter disk contents, i.e. it does not move the
 	 * project file, or remove the old project file. For these functionalities, the
-	 * application responsible for instantiating {@link PLPProject} should add a change
+	 * application responsible for instantiating {@link PLPProject} or {@link MIPSProject} should add a change
 	 * listener to the {@link #pathProperty} (via {@link #getPathProperty()}), that
 	 * achieves the desired effect.
 	 * 

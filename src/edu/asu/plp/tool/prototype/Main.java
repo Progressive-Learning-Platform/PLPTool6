@@ -91,6 +91,7 @@ import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
 import edu.asu.plp.tool.prototype.model.PLPOptions;
 import edu.asu.plp.tool.prototype.model.PLPProject;
+import edu.asu.plp.tool.prototype.model.MIPSProject;
 import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.QuickViewSection;
 import edu.asu.plp.tool.prototype.model.SimpleASMFile;
@@ -1055,7 +1056,16 @@ public class Main extends Application implements Controller
 	}
 	
 	private void createMIPSProject(ProjectCreationDetails details) {
-		// TODO stub
+		// TODO verify working
+		MIPSProject project = new MIPSProject(details.getProjectName());
+		project.setPath(details.getProjectLocation());
+		
+		String sourceName = details.getMainSourceFileName();
+		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
+		project.add(sourceFile);
+		tryAndReport(project::save);
+		projects.add(project);
+		openFile(sourceFile);
 	}
 	
 	private void tryAndReport(ExceptionalSubroutine subroutine)
