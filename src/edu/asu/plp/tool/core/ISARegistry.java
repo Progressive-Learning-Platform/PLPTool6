@@ -10,8 +10,8 @@ import java.util.function.Function;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 //import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
-import edu.asu.plp.tool.backend.plpisa.assembler2.PLPAssembler;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.MIPSAssembler;
+import edu.asu.plp.tool.backend.mipsisa.sim.MIPSSimulator;
 
 public class ISARegistry
 {
@@ -66,21 +66,21 @@ public class ISARegistry
 			else
 			{
 				Function<String, Boolean> supportsProjectType;
-				supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
-				Simulator simulator = new PLPSimulator();//generic class
-				Assembler assembler = new PLPAssembler();
-				ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType); //creates new module from ISAModule.java
-				registeredModules.add(plp6Module);
+				supportsProjectType = (type) -> type.toLowerCase().startsWith("mips");
+				Simulator simulator = new MIPSSimulator();//generic class
+				Assembler assembler = new MIPSAssembler();
+				ISAModule mipsModule = new ISAModule(assembler, simulator, supportsProjectType); //creates new module from ISAModule.java
+				registeredModules.add(mipsModule);
 			}
 		}
 		else 
 		{
 			Function<String, Boolean> supportsProjectType;
-			supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
-			Simulator simulator = new PLPSimulator();
-			Assembler assembler = new PLPAssembler();
-			ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
-			registeredModules.add(plp6Module);
+			supportsProjectType = (type) -> type.toLowerCase().startsWith("mips");
+			Simulator simulator = new MIPSSimulator();
+			Assembler assembler = new MIPSAssembler();
+			ISAModule mipsModule = new ISAModule(assembler, simulator, supportsProjectType);
+			registeredModules.add(mipsModule);
 		}
 	}
 	
