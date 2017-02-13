@@ -29,7 +29,8 @@ public class JTypeInstruction extends AbstractInstruction
 	}
 
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException {
+	protected int safeAssemble(Argument[] arguments)
+	{
 		
 		Argument lbArgument = arguments[0];
 		

@@ -29,7 +29,7 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
-import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
+
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
 import edu.asu.plp.tool.backend.plpisa.PLPInstruction;
@@ -165,7 +165,7 @@ public class DisposablePLPAssembler
 		{
 			image = assembleImage();
 		}
-		catch (AssemblyException e)
+		catch (AssemblerException e)
 		{
 			e.printStackTrace();
 		}
@@ -192,7 +192,7 @@ public class DisposablePLPAssembler
 		instructionList.addAll(lines);
 	}
 	
-	private ASMImage assembleImage() throws AssemblerException, AssemblyException
+	private ASMImage assembleImage() throws AssemblerException
 	{
 		long assemblerPCAddress = 0;
 		// Assembler directive line offsets (skips)
@@ -392,7 +392,7 @@ public class DisposablePLPAssembler
 				
 				// TODO update mappers
 				ASMInstruction key = new PLPAssemblyInstruction(asmLineIndex+1, asmLines[asmLineIndex], currentActiveFile );
-				MIPSDisassembly disassembly = new MIPSDisassembly(oldAddress, objectCode[objectCodeIndex]);
+				PLPDisassembly disassembly = new PLPDisassembly(oldAddress, objectCode[objectCodeIndex]);
 				assemblyToDisassemblyMap.put(key, disassembly);
 				lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 				
@@ -1142,7 +1142,7 @@ public class DisposablePLPAssembler
 		{
 			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
 		}
-		catch (AssemblyException e)
+		catch (AssemblerException e)
 		{
 			e.printStackTrace();
 		}
@@ -1179,7 +1179,7 @@ public class DisposablePLPAssembler
 					true);
 			directiveOffset++;
 		}
-		catch (AssemblyException e)
+		catch (AssemblerException e)
 		{
 			e.printStackTrace();
 		}
@@ -1302,7 +1302,7 @@ public class DisposablePLPAssembler
 			{
 				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
 			}
-			catch (AssemblyException e)
+			catch (AssemblerException e)
 			{
 				e.printStackTrace();
 			}
@@ -1336,7 +1336,7 @@ public class DisposablePLPAssembler
 			{
 				currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
 			}
-			catch (AssemblyException e)
+			catch (AssemblerException e)
 			{
 				e.printStackTrace();
 			}
@@ -1370,7 +1370,7 @@ public class DisposablePLPAssembler
 		{
 			value = ISAUtil.sanitize32bits(currentToken.getValue());
 		}
-		catch (AssemblyException e)
+		catch (AssemblerException e)
 		{
 			e.printStackTrace();
 		}
