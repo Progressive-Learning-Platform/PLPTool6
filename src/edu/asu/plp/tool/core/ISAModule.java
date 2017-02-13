@@ -15,7 +15,7 @@ public class ISAModule
 			Function<String, Boolean> supportsProjectType)
 	{
 		if (assembler == null || simulator == null || supportsProjectType == null)
-			throw new IllegalArgumentException("All components must be non-null");
+ 			throw new IllegalArgumentException("All components must be non-null");
 		
 		this.assembler = assembler;
 		this.simulator = simulator;
