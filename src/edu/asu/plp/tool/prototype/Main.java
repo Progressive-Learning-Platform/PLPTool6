@@ -346,6 +346,62 @@ public class Main extends Application implements Controller
 		return new QuickViewPanel("PLP 5.2", plp);
 	}
 	
+	private Parent mipsQuickRef() {
+		List<QuickViewSection> mips = new ArrayList<>();
+		
+		QuickViewSection instructionsRType = new QuickViewSection("R-Type Instruction");
+		instructionsRType.addEntry("","");
+		
+		QuickViewSection instructionsIType = new QuickViewSection("I-Type Instructions");
+		instructionsIType.addEntry("","");
+		
+		QuickViewSection instructionsJType = new QuickViewSection("J-Type Instruction");
+		instructionsJType.addEntry("","");
+		
+		QuickViewSection instructionsPsuedo = new QuickViewSection("Pseudo-Operations");
+		instructionsPsuedo.addEntry("","");
+		
+		QuickViewSection directives = new QuickViewSection("Assembler Directive");
+		directives.addEntry("","");
+		
+		QuickViewSection registers = new QuickViewSection("Register Usage Guide");
+		registers.addEntry("$0, zero", "Hard-wired to 0");
+		registers.addEntry("$1, $at", "Reserved for Pseudo-instructions, Assembler temporary");
+		registers.addEntry("$2-$3, $v0-$v1", "Function return values");
+		registers.addEntry("$4-$7, $a0-$a3", "Arguments/Parameters to functions");
+		registers.addEntry("$8-$15, $t0-$t7", "Temporary variables");
+		registers.addEntry("$16-$23, $s0-$s7", "Function variables");
+		registers.addEntry("$24-$25, $t8-$t9", "Additional Temporaries");
+		registers.addEntry("$26-$27, $k0-$k1", "Reserved for Kernel, volatile");
+		registers.addEntry("$28, $gp", "Global Pointer");
+		registers.addEntry("$29, $sp", "Stack Pointer");
+		registers.addEntry("$30, $fp", "Frame Pointer");
+		registers.addEntry("$31, $ra", "Return Address");
+		
+		
+		QuickViewSection ioMap = new QuickViewSection("I/O Memory Map");
+		ioMap.addEntry("0x00000000", "Boot ROM");
+		ioMap.addEntry("0x10000000", "RAM");
+		ioMap.addEntry("0xf0000000", "UART");
+		ioMap.addEntry("0xf0100000", "Switches");
+		ioMap.addEntry("0xf0200000", "LEDs");
+		ioMap.addEntry("0xf0300000", "GPIO");
+		ioMap.addEntry("0xf0400000", "VGA");
+		ioMap.addEntry("0xf0500000", "PLPID");
+		ioMap.addEntry("0xf0600000", "Timer");
+		ioMap.addEntry("0xf0a00000", "Seven Segment Display");
+		ioMap.addEntry("0xf0700000", "Interrupt Controller");
+		
+		mips.add(instructionsRType);
+		mips.add(instructionsIType);
+		mips.add(instructionsJType);
+		mips.add(instructionsPsuedo);
+		mips.add(directives);
+		mips.add(registers);
+		mips.add(ioMap);
+		
+		return new QuickViewPanel("MIPS 32", mips);
+	}
 	private File showOpenDialogue()
 	{
 		FileChooser fileChooser = new FileChooser();
