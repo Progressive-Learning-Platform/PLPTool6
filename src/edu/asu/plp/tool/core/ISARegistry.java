@@ -1,6 +1,9 @@
 package edu.asu.plp.tool.core;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,12 +56,27 @@ public class ISARegistry
 		// TODO: Remove and replace with a decoupled solution
 		
 		//Did some work of what is mentioned in TODO - Harsha
-		File folder = new File("isas");
+		File folder = new File("isa");
 		if(folder.exists() && folder.isDirectory())
 		{
 			File[] listOfFiles = folder.listFiles();
 			if(listOfFiles.length > 0)
 			{
+				try
+				{
+					for(File jarFile: listOfFiles)
+					{
+						URLClassLoader cl = URLClassLoader.newInstance(new URL[]{jarFile.toURI().toURL()});
+						Class jarClass = cl.loadClass("edu.asu.plp.tool.backend.plpisa.ModuleObjectCreator");
+						Method getMod = jarClass.getMethod("getModule");
+						registeredModules.add((ISAModule)getMod.invoke(null));
+						
+					}
+				}
+				catch(Exception exp)
+				{
+					exp.printStackTrace();
+				}
 			
 			}
 			else
