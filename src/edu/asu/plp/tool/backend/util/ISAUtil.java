@@ -1,13 +1,13 @@
 package edu.asu.plp.tool.backend.util;
 
-import edu.asu.plp.tool.backend.isa.exceptions.AssemblyException;
+import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 
 public class ISAUtil
 {
 	public static final long MASK_32 = 0xFFFFFFFF;
 	public static final long MASK_16 = 0xFFFF;
 	
-	public static long sanitize32bits(String number) throws AssemblyException
+	public static long sanitize32bits(String number) throws AssemblerException
 	{
 		if (number.startsWith("0x") || number.startsWith("0h"))
 		{
@@ -25,7 +25,7 @@ public class ISAUtil
 		return Long.parseLong(number) & 0xFFFFFFFF;
 	}
 	
-	public static long sanitize16bits(String number) throws AssemblyException
+	public static long sanitize16bits(String number) throws AssemblerException
 	{
 		if (number.startsWith("0x") || number.startsWith("0h"))
 		{
@@ -49,7 +49,7 @@ public class ISAUtil
 	 * @param string
 	 * @return
 	 */
-	public static long parseEscapeCharacter(String string) throws AssemblyException
+	public static long parseEscapeCharacter(String string) throws AssemblerException
 	{
 		if (string.length() == 3)
 			return string.charAt(1);
@@ -74,13 +74,13 @@ public class ISAUtil
 					case '0':
 						return '\0';
 					default:
-						throw new AssemblyException("Invalid escape character");
+						throw new AssemblerException("Invalid escape character");
 				}
 			}
 			else
-				throw new AssemblyException("Invalid character format");
+				throw new AssemblerException("Invalid character format");
 		}
 		else
-			throw new AssemblyException("Invalid character format");
+			throw new AssemblerException("Invalid character format");
 	}
 }

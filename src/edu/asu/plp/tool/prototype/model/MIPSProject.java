@@ -27,6 +27,7 @@ import edu.asu.plp.tool.core.ISARegistry;
  * {@link SimpleASMFile}s that can be assembled collectively as a single unit.
  * 
  * @author Moore, Zachary
+ * @author McEvoy, Daniel
  */
 public class MIPSProject extends ArrayListProperty<ASMFile> implements Project
 {
