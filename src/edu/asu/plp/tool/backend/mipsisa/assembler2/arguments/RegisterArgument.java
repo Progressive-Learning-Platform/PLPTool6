@@ -28,7 +28,7 @@ public class RegisterArgument implements Argument
 		for (int index = 0; index < registers.length; index++)
 		{
 			String posReg1 = registers[index];
-			String posReg2 = "$" + index; 
+			String posReg2 = "$" + index;
 			
 			if(this.rawValue.equalsIgnoreCase(posReg2) || this.rawValue.equalsIgnoreCase(posReg1))
 			{
