@@ -67,7 +67,8 @@ public class ISARegistry
 					for(File jarFile: listOfFiles)
 					{
 						URLClassLoader cl = URLClassLoader.newInstance(new URL[]{jarFile.toURI().toURL()});
-						Class jarClass = cl.loadClass("edu.asu.plp.tool.backend.plpisa.ModuleObjectCreator");
+						String architec = jarFile.getName().substring(0, jarFile.getName().indexOf("_isa.jar"));
+						Class jarClass = cl.loadClass("edu.asu.plp.tool.backend."+architec+"isa.ModuleObjectCreator");
 						Method getMod = jarClass.getMethod("getModule");
 						registeredModules.add((ISAModule)getMod.invoke(null));
 						
