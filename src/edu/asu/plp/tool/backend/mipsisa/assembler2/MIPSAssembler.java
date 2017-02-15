@@ -137,9 +137,9 @@ public class MIPSAssembler implements Assembler
 	{
 		registerMap = new HashMap<>();
 		String[] registers = { "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
-				"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$t8", "$t9",
-				"$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$i0", "$i1",
-				"$iv", "$sp", "$ir", "$ra" };
+				"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", 
+				"$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$i0", "$i1",
+				"$gp", "$sp", "$s8", "$ra" };
 		
 		for (int index = 0; index < registers.length; index++)
 		{
@@ -854,9 +854,11 @@ public class MIPSAssembler implements Assembler
 		ensureTokenEquality("(call) Expected a label, found: ", MIPSTokenType.LABEL_PLAIN);
 		
 		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2", "$t3",
-				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
-				"$s4", "$s5", "$s6", "$s7", "$ra" };
+				"$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3",
+				"$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$s8", "$ra" };
 		
+		//TODO verify does not create pointer mismatch in return. $ra doesn't matter, 
+		//but $s8 being $30 could cause issues, because it is expecting to return them all in order.
 		preprocessedInstructions = "addiu $sp, $sp, " + (registers.length * 4);
 		for (int registerIndex = 0; registerIndex < registers.length; registerIndex++)
 		{
@@ -883,8 +885,8 @@ public class MIPSAssembler implements Assembler
 	{
 		String preprocessedInstructions = "";
 		String[] registers = { "$a0", "$a1", "$a2", "$a3", "$t0", "$t1", "$t2t", "$t3",
-				"$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s0", "$s1", "$s2", "$s3",
-				"$s4", "$s5", "$s6", "$s7" };
+				"$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3",
+				"$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$s8" };
 		
 		for (int registerIndex = 0; registerIndex < registers.length; registerIndex++)
 		{

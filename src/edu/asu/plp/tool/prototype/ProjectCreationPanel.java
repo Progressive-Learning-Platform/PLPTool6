@@ -117,6 +117,7 @@ public class ProjectCreationPanel extends BorderPane
 		
 		projectLocationField = new TextField();
 		projectLocationField.setPrefWidth(200);
+		projectLocationField.setText(System.getProperty("user.home") + File.separator + projectNameField.getText());
 		
 		Button browseLocationButton = new Button();
 		browseLocationButton.setText("Browse");

@@ -474,10 +474,13 @@ public class Main extends Application implements Controller
 		fileChooser.setTitle("Open Resource File");
 		
 		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
+		String mipsExtension = "*" + MIPSProject.FILE_EXTENSION;
+		// Add new types here(or scrap them all in favor of a one, true type)
 		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("All Project Files", "*.plp", plp6Extension, mipsExtension),
 				new ExtensionFilter("PLP6 Project Files", plp6Extension),
-				new ExtensionFilter("Legacy Project Files", "*.plp"),
-				new ExtensionFilter("All PLP Project Files", "*.plp", plp6Extension),
+				new ExtensionFilter("MIPS Project Files", mipsExtension),
+				new ExtensionFilter("PLP Legacy Project Files", "*.plp"),
 				new ExtensionFilter("All Files", "*.*"));
 		
 		return fileChooser.showOpenDialog(stage);
