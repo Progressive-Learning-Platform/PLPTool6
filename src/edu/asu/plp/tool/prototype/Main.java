@@ -402,6 +402,8 @@ public class Main extends Application implements Controller
 		
 		return new QuickViewPanel("MIPS 32", mips);
 	}
+	
+	
 	private File showOpenDialogue()
 	{
 		FileChooser fileChooser = new FileChooser();

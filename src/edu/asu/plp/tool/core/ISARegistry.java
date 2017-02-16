@@ -1,5 +1,4 @@
 package edu.asu.plp.tool.core;
-//contains both assembler and simulator
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -57,26 +56,29 @@ public class ISARegistry
 		// TODO: Remove and replace with a decoupled solution
 		
 		//Did some work of what is mentioned in TODO - Harsha
-		//
-		File folder = new File("isa");//searches for file containing ISA
+		File folder = new File("isa");
 		if(folder.exists() && folder.isDirectory())
 		{
 			File[] listOfFiles = folder.listFiles();
 			if(listOfFiles.length > 0)
 			{
-				try {
-					for (File jarFile : listOfFiles) 
+				try
+				{
+					for(File jarFile: listOfFiles)
 					{
-						URLClassLoader cl = URLClassLoader.newInstance(new URL[] {jarFile.toURI().toURL()});
-						// TODO
-						Class jarClass = cl.loadClass("edu.asu.plp.tool.backend.mipsisa.ModuleObjectCreator");
+						URLClassLoader cl = URLClassLoader.newInstance(new URL[]{jarFile.toURI().toURL()});
+						String architec = jarFile.getName().substring(0, jarFile.getName().indexOf("_isa.jar"));
+						Class jarClass = cl.loadClass("edu.asu.plp.tool.backend."+architec+"isa.ModuleObjectCreator");
 						Method getMod = jarClass.getMethod("getModule");
+						registeredModules.add((ISAModule)getMod.invoke(null));
 						
-						registeredModules.add((ISAModule) getMod.invoke(null));
 					}
-				} catch (Exception exp) {
+				}
+				catch(Exception exp)
+				{
 					exp.printStackTrace();
 				}
+			
 			}
 			else
 			{
@@ -88,7 +90,7 @@ public class ISARegistry
 				registeredModules.add(mipsModule);
 			}
 		}
-		else 
+		else
 		{
 			Function<String, Boolean> supportsProjectType;
 			supportsProjectType = (type) -> type.toLowerCase().startsWith("mips");
