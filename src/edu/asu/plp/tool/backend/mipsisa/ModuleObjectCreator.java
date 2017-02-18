@@ -6,7 +6,7 @@ import edu.asu.plp.tool.backend.mipsisa.sim.MIPSSimulator;
 
 public class ModuleObjectCreator 
 {
-	public static final String ISA_NAME = "plp";
+	public static final String ISA_NAME = "mips";
 	public static MIPSISAModule getModule()
 	{		
 		Function<String, Boolean> supportsProjectType;
