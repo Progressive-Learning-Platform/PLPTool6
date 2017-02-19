@@ -31,7 +31,7 @@ public class PsuedoOp implements MIPSInstruction
 	}
 	
 	@Override
-	public int assemble(Argument[] arguments) throws ParseException
+	public int assemble(Argument[] arguments)
 	{
 		throw new UnsupportedOperationException("PsuedoOps must be preprocessed instead");
 	}

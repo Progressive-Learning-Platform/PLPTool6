@@ -39,7 +39,7 @@ public class RTypeInstruction extends AbstractInstruction
 	}
 	
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException
+	protected int safeAssemble(Argument[] arguments)
 	{
 		Argument rdRegisterArgument = arguments[0];
 		Argument rsRegisterArgument = arguments[1];

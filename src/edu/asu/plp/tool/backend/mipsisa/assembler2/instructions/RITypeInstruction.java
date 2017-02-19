@@ -30,7 +30,7 @@ public class RITypeInstruction extends AbstractInstruction
 	}
 	
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException
+	protected int safeAssemble(Argument[] arguments)
 	{
 		Argument rdRegisterArgument = arguments[0];
 		Argument rtRegisterArgument = arguments[1];

@@ -39,7 +39,7 @@ public class RLTypeInstruction extends AbstractInstruction
 	}
 
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException {
+	protected int safeAssemble(Argument[] arguments) {
 		
 		Argument registerArgument = arguments[0];
 		MemoryArgument memoryArgument = (MemoryArgument)arguments[1];

@@ -28,7 +28,7 @@ public class RIUTypeInstruction extends AbstractInstruction
 	}
 
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException {
+	protected int safeAssemble(Argument[] arguments) {
 		
 		Argument regArgument = arguments[0];
 		Argument valArgument = arguments[1];

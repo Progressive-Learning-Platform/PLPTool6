@@ -6,6 +6,6 @@ import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
 
 public interface MIPSInstruction
 {
-	int assemble(Argument[] arguments) throws ParseException;
+	int assemble(Argument[] arguments);
 	ArgumentType[] getArgumentsofInstruction();
 }

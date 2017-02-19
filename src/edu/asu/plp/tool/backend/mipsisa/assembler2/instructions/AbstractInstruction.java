@@ -18,10 +18,10 @@ public abstract class AbstractInstruction implements MIPSInstruction
 	
 	
 	
-	protected abstract int safeAssemble(Argument[] arguments) throws ParseException;
+	protected abstract int safeAssemble(Argument[] arguments);
 	
 	@Override
-	public final int assemble(Argument[] arguments) throws ParseException
+	public final int assemble(Argument[] arguments)
 	{
 		validateArguments(arguments);
 		return safeAssemble(arguments);

@@ -59,6 +59,7 @@ public class MIPSAssembler implements Assembler
 	
 	private long programLocation;
 	private int lineNumber;
+	private String currentLine;
 	private long currentAddress;
 	private ASMFile currentFile;
 	
@@ -288,98 +289,150 @@ public class MIPSAssembler implements Assembler
 		String[] lines = content.split("\\n\\r?");
 		lineNumber = 1;
 		//programLocation = 0;
-		try
+		for (String line : lines)
 		{
-			for (String line : lines)
+			String source = line.trim();
+			if(source.indexOf('#') > 0)
+				source = source.substring(0, source.indexOf('#') - 1).trim();
+			
+			
+			
+			String preProcessInstruction = lineNumAndAsmFileMap.get(asmFileName).get(lineNumber);
+			
+			if(preProcessInstruction.contains(ASM__ORG__))
 			{
-				String source = line.trim();
-				if(source.indexOf('#') > 0)
-					source = source.substring(0, source.indexOf('#') - 1).trim();
-				
-				
-				
-				String preProcessInstruction = lineNumAndAsmFileMap.get(asmFileName).get(lineNumber);
-				
-				if(preProcessInstruction.contains(ASM__ORG__))
-				{
-					programLocation = ISAUtil
-							.sanitize32bits(preProcessInstruction.split(" ")[1]);
-				}
-				else if(preProcessInstruction.contains(ASM__SKIP__))
-				{
+				try {
+				programLocation = ISAUtil
+						.sanitize32bits(preProcessInstruction.split(" ")[1]);
+				} catch (Exception e) {
+					/*if (e instanceof NumberFormatException) {
+						throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+					} else {
+					*/
+						throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+					//}
 					
 				}
-				else if(preProcessInstruction.contains(ASM__WORD__))
+			}
+			else if(preProcessInstruction.contains(ASM__SKIP__))
+			{
+				
+			}
+			else if(preProcessInstruction.contains(ASM__WORD__))
+			{
+				ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, source, asmFileName);
+				int value = (int)ISAUtil.sanitize32bits(preProcessInstruction.split(" ")[1]);
+				MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, value);
+				programLocation += 4;
+				assemblyToDisassemblyMap.put(key, disassembly);
+				lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
+				nInstructionInserted++;
+				
+			}
+			else
+			{
+				String instruction = source.split("\\s+")[0];
+				
+				if(pseudoOperationMap.containsKey(instruction))
 				{
-					ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, source, asmFileName);
-					int value = (int)ISAUtil.sanitize32bits(preProcessInstruction.split(" ")[1]);
-					MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, value);
-					programLocation += 4;
-					assemblyToDisassemblyMap.put(key, disassembly);
-					lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
-					nInstructionInserted++;
-					
-				}
-				else
-				{
-					String instruction = source.split("\\s+")[0];
-					
-					if(pseudoOperationMap.containsKey(instruction))
+					String[] actualInstructions = preProcessInstruction.split("\n");
+					for (String inst : actualInstructions)
 					{
-						String[] actualInstructions = preProcessInstruction.split("\n");
-						for (String inst : actualInstructions)
-						{
-							String subSource = inst.trim();
-							String subInstruction = subSource.split("\\s+")[0];
-							String remainder = subSource.substring(subInstruction.length());
-							remainder = remainder.trim();
-							String[] argumentStrings = remainder.split(",\\s*");
-							
-							Argument[] arguments = parseArguments(argumentStrings);
-							
-							MIPSDisassembly disassembly = process(subInstruction, arguments);
-							ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, subSource, asmFileName);
-							assemblyToDisassemblyMap.put(key, disassembly);
-							lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
-							nInstructionInserted++;
-							MIPSDisassemblyInfo arg = new MIPSDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, subSource, asmFileName);
-							
-							this.lstInstEncodings.add(arg);
-							
-							
-						}
-					}
-					else
-					{
-						String remainder = source.substring(instruction.length());
+						String subSource = inst.trim();
+						String subInstruction = subSource.split("\\s+")[0];
+						String remainder = subSource.substring(subInstruction.length());
 						remainder = remainder.trim();
 						String[] argumentStrings = remainder.split(",\\s*");
 						
 						Argument[] arguments = parseArguments(argumentStrings);
 						
-						MIPSDisassembly disassembly = process(instruction, arguments);
-						ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, source, asmFileName);
+						MIPSDisassembly disassembly = process(subInstruction, arguments);
+						ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, subSource, asmFileName);
 						assemblyToDisassemblyMap.put(key, disassembly);
 						lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
 						nInstructionInserted++;
-						MIPSDisassemblyInfo arg = new MIPSDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, source, asmFileName);
+						MIPSDisassemblyInfo arg = new MIPSDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, subSource, asmFileName);
+						
 						this.lstInstEncodings.add(arg);
+						
+						
 					}
+				}
+				else
+				{
+					String remainder = source.substring(instruction.length());
+					remainder = remainder.trim();
+					String[] argumentStrings = remainder.split(",\\s*");
 					
+					Argument[] arguments = parseArguments(argumentStrings);
 					
+					MIPSDisassembly disassembly = process(instruction, arguments);
+					ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, source, asmFileName);
+					assemblyToDisassemblyMap.put(key, disassembly);
+					lstdisassem.add(new Pair<ASMInstruction, ASMDisassembly>(key, disassembly));
+					nInstructionInserted++;
+					MIPSDisassemblyInfo arg = new MIPSDisassemblyInfo(lineNumber, disassembly.getAddresss(), disassembly.getInstruction(), source, source, asmFileName);
+					this.lstInstEncodings.add(arg);
 				}
 				
 				
-				lineNumber++;
 			}
+			
+			
+			lineNumber++;
 		}
-		catch (ParseException exception)
-		{
-			throw new AssemblerException(exception);
-		}
-		catch (Exception exception)
-		{
-			throw new AssemblerException(exception);
+	}
+	
+	private void throw_assembler_exception(String errorMessage, int typeOfException) throws AssemblerException {
+		switch (typeOfException) {
+			case AssemblerException.LEXXER_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: " + errorMessage;
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.UNKOWN_TOKEN_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: Got token - " + errorMessage + " , this is unknown token";
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.EXTRA_TOKEN_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: Got extra token - " + errorMessage + " , this needs to be deleted";
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.MISSING_TOKEN_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: Missing token in the instruction";
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.NEXT_TOKEN_MISSING_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: Missing token in the instruction, " + errorMessage;
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.TOKEN_NOT_MATCHING_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: token not matching, " + errorMessage;
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.SANITIZE_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: number parsing error, " + errorMessage;
+				throw new AssemblerException(errMessage);
+			}
+			case AssemblerException.DUPLICATE_LABEL_ERROR:
+			{
+				String errMessage = "ERROR in file " + currentFile.getName() + " at the line number " + String.valueOf(lineNumber) +
+						"\nINSTRUCTION: " + currentLine + "\nERROR INFORMATION: duplicate labels found, " + errorMessage;
+				throw new AssemblerException(errMessage);
+			}
 		}
 	}
 	
@@ -392,93 +445,88 @@ public class MIPSAssembler implements Assembler
 		
 		HashMap<Integer, String> lineNumberToPreprocessed = new HashMap<>();
 		
-		try
+		currentFile = asmFile;
+		for (String line: lines)
 		{
-			for (String line: lines)
+			currentLine = line;
+			List<Token> linetokens = null;
+			try 
 			{
-				List<Token> linetokens = lexer.lex(line);
-				
-				tokenIterator = linetokens.listIterator();
-				currentToken = null;
-				
-				if(!nextToken(1))
+				linetokens = lexer.lex(line);
+			} catch (Exception e) {
+				throw_assembler_exception(e.getMessage(), AssemblerException.LEXXER_ERROR);
+			}
+			
+			tokenIterator = linetokens.listIterator();
+			currentToken = null;
+			
+			if(!nextToken(1))
+			{
+				continue;
+			}
+			
+			String preprocessedInstruction = "";
+			
+			if(currentToken == null)
+			{
+				throw_assembler_exception("", AssemblerException.MISSING_TOKEN_ERROR);
+			}
+			
+			if(isAssemblerDirective(currentToken))
+			{
+				preprocessedInstruction = directiveMap.get(currentToken.getValue()).perform();
+			}
+			else if(pseudoOperationMap.containsKey(currentToken.getValue()))
+			{
+				preprocessedInstruction = pseudoOperationMap.get(currentToken.getValue()).perform();	
+			}
+			else if(isInstruction(currentToken))
+			{
+				preprocessedInstruction = preprocessNormalInstruction();
+			}
+			else if(currentToken.getTypeName() == MIPSTokenType.COMMENT.name())
+			{
+				preprocessedInstruction = ASM__SKIP__;		//skips 				
+			}
+			else if(isLabel(currentToken))
+			{
+				preprocessedInstruction = labeldeclarationProcessing();
+			}
+			else if(currentToken.getTypeName() == MIPSTokenType.NEW_LINE.name())
+			{
+				preprocessedInstruction = ASM__SKIP__;
+			}
+			else
+			{
+				throw_assembler_exception(currentToken.getValue() + ":" + currentToken.getTypeName(), AssemblerException.UNKOWN_TOKEN_ERROR);
+			}
+			
+			if(nextToken(1))
+			{
+				if(currentToken.getTypeName() == MIPSTokenType.COMMENT.name())
 				{
-					continue;
-				}
-				
-				String preprocessedInstruction = "";
-				
-				if(currentToken == null)
-				{
-					//Error
-					throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + " Token is null");
-				}
-				
-				if(isAssemblerDirective(currentToken))
-				{
-					preprocessedInstruction = directiveMap.get(currentToken.getValue()).perform();
-				}
-				else if(pseudoOperationMap.containsKey(currentToken.getValue()))
-				{
-					preprocessedInstruction = pseudoOperationMap.get(currentToken.getValue()).perform();	
-				}
-				else if(isInstruction(currentToken))
-				{
-					preprocessedInstruction = preprocessNormalInstruction();
-				}
-				else if(currentToken.getTypeName() == MIPSTokenType.COMMENT.name())
-				{
-					preprocessedInstruction = ASM__SKIP__;		//skips 				
-				}
-				else if(isLabel(currentToken))
-				{
-					preprocessedInstruction = labeldeclarationProcessing();
-				}
-				else if(currentToken.getTypeName() == MIPSTokenType.NEW_LINE.name())
-				{
-					preprocessedInstruction = ASM__SKIP__;
+					if(nextToken(1))
+						throw_assembler_exception(currentToken.getValue() + ":" + currentToken.getTypeName(), AssemblerException.EXTRA_TOKEN_ERROR);
 				}
 				else
 				{
-					throw new AssemblerException(
-								"Line number: " + Integer.toString(lineNumber) + ":Unknown token in preprocessing, found: "
-										+ currentToken.getValue());
-				}
-				
-				if(nextToken(1))
-				{
-					if(currentToken.getTypeName() == MIPSTokenType.COMMENT.name())
-					{
-						if(nextToken(1))
-							throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + ":Extra token is present a line, found: " + currentToken.getValue());
-						
-					}
-					else
-					{
-						throw new AssemblerException( "Line number: " + Integer.toString(lineNumber) + ":Extra token is present a line, found: " + currentToken.getValue());
-					}	
-					
-				}
-				
-					
-				
-				lineNumberToPreprocessed.put(lineNumber, preprocessedInstruction);
-				fileTokens.addAll(linetokens);
-				lineNumber++;
+					throw_assembler_exception(currentToken.getValue() + ":" + currentToken.getTypeName(), AssemblerException.EXTRA_TOKEN_ERROR);
+				}	
 				
 			}
 			
-			lineNumAndAsmFileMap.put(asmFile.getName(), lineNumberToPreprocessed);
-		}
-		catch(Exception exp)
-		{
+				
+			
+			lineNumberToPreprocessed.put(lineNumber, preprocessedInstruction);
+			fileTokens.addAll(linetokens);
+			lineNumber++;
 			
 		}
 		
+		lineNumAndAsmFileMap.put(asmFile.getName(), lineNumberToPreprocessed);
 	}
 	
 	private MIPSDisassembly process(String instructionName, Argument[] arguments)
-			throws ParseException
 	{
 		MIPSInstruction instruction = plpInstructions.get(instructionName);
 		int codedInstruction = instruction.assemble(arguments);
@@ -489,7 +537,7 @@ public class MIPSAssembler implements Assembler
 		return disassembly;
 	}
 	
-	private Argument[] parseArguments(String[] argumentStrings) throws ParseException, AssemblerException
+	private Argument[] parseArguments(String[] argumentStrings) throws AssemblerException
 	{
 		int size = argumentStrings.length;
 		Argument[] arguments = new Argument[size];
@@ -504,7 +552,7 @@ public class MIPSAssembler implements Assembler
 		return arguments;
 	}
 	
-	private Argument parseArgument(String argumentString) throws ParseException, AssemblerException
+	private Argument parseArgument(String argumentString) throws AssemblerException
 	{
 		argumentString = argumentString.trim();
 		if(argumentString.startsWith(ASM__HIGH__))
@@ -517,8 +565,16 @@ public class MIPSAssembler implements Assembler
 			}
 			else
 			{
-				symbolResolverValue = (int) (ISAUtil
-						.sanitize32bits(symbolResolver) >> 16);
+				try {
+					symbolResolverValue = (int) (ISAUtil.sanitize32bits(symbolResolver) >> 16);
+				} catch (Exception e) {
+					if (e instanceof NumberFormatException) {
+						throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+					} else {
+						throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+					}
+				}
+				
 			}
 			return new Value(Integer.toString(symbolResolverValue));
 		}
@@ -529,9 +585,19 @@ public class MIPSAssembler implements Assembler
 			if (symbolTable.containsKey(symbolResolver))
 				symbolResolverValue = (int) (symbolTable.get(symbolResolver) & 0xFFFF);
 			else
-				symbolResolverValue = (int) (ISAUtil
-						.sanitize32bits(symbolResolver) & 0xFFFF);
-			
+			{
+				try {
+					symbolResolverValue = (int) (ISAUtil
+							.sanitize32bits(symbolResolver) & 0xFFFF);
+				} catch (Exception e) {
+					if (e instanceof NumberFormatException) {
+						throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+					} else {
+						throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+					}
+				}
+				
+			}
 			return new Value(Integer.toString(symbolResolverValue));
 		}
 		else if (argumentString.startsWith("'") || argumentString.startsWith("\""))
@@ -539,9 +605,7 @@ public class MIPSAssembler implements Assembler
 			boolean valid = argumentString.endsWith("" + argumentString.charAt(0));
 			if (!valid)
 			{
-				throw new ParseException(
-						"Line Number:"+Integer.toString(lineNumber)+" String literals must be enclosed in single or double quotes.",
-						lineNumber);
+				throw_assembler_exception(" String literals must be enclosed in single or double quotes.", AssemblerException.SANITIZE_ERROR);
 			}
 			
 			return new StringLiteral(argumentString);
@@ -559,9 +623,7 @@ public class MIPSAssembler implements Assembler
 			boolean valid = isNumericValue(argumentString);
 			if (!valid)
 			{
-				throw new ParseException(
-						"Line Number:"+Integer.toString(lineNumber)+" Expected an integer value to follow '0x' but found '"
-								+ argumentString + "'", lineNumber);
+				throw_assembler_exception(" Expected an integer value to follow '0x' but found '" + argumentString + "'", AssemblerException.SANITIZE_ERROR);
 			}
 			
 			return new Value(argumentString);
@@ -571,9 +633,7 @@ public class MIPSAssembler implements Assembler
 			boolean valid = isNumericValue(argumentString);
 			if (!valid)
 			{
-				throw new ParseException(
-						"Line Number:"+Integer.toString(lineNumber)+" Expected an integer value to follow '0x' but found '"
-								+ argumentString + "'", lineNumber);
+				throw_assembler_exception(" Expected an integer value to follow '0h' but found '" + argumentString + "'", AssemblerException.SANITIZE_ERROR);
 			}
 			
 			return new Value(argumentString);
@@ -583,9 +643,7 @@ public class MIPSAssembler implements Assembler
 			boolean valid = isNumericValue(argumentString);
 			if (!valid)
 			{
-				throw new ParseException(
-						"Line Number:"+Integer.toString(lineNumber)+" Expected an integer value to follow '0b' but found '"
-								+ argumentString + "'", lineNumber);
+				throw_assembler_exception(" Expected an integer value to follow '0b' but found '" + argumentString + "'", AssemblerException.SANITIZE_ERROR);
 			}
 			
 			
@@ -602,8 +660,8 @@ public class MIPSAssembler implements Assembler
 		}
 		else
 		{
-			throw new ParseException("Line Number:"+Integer.toString(lineNumber)+" Expected argument but found '" + argumentString
-					+ "'", lineNumber);
+			throw_assembler_exception(" Expected argument but found '" + argumentString + "'", AssemblerException.SANITIZE_ERROR);
+			return null;
 		}
 	}
 	
@@ -638,10 +696,9 @@ public class MIPSAssembler implements Assembler
 	 */
 	private String branchOperation() throws AssemblerException
 	{
-		expectedNextToken("pseudo move operation");
+		expectedNextToken("It needs a target label");
 		
-		ensureTokenEquality("Line Number: " + Integer.toString(lineNumber) + "(b) Expected a label to branch to, found: ",
-				MIPSTokenType.LABEL_PLAIN);
+		ensureTokenEquality("Expected a target label to branch", MIPSTokenType.LABEL_PLAIN);
 		
 		addRegionAndIncrementAddress();//Steps through program
 		return "beq $0, $0, " + currentToken.getValue();
@@ -659,17 +716,17 @@ public class MIPSAssembler implements Assembler
 	 */
 	private String moveOperation() throws AssemblerException
 	{
-		expectedNextToken("pseudo move operation");
+		expectedNextToken("It needs from and to register");
 		String destinationRegister = currentToken.getValue();
-		ensureTokenEquality("(move) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
 		
-		expectedNextToken("move pseudo instruction");
-		ensureTokenEquality("(move) Expected a comma after " + destinationRegister
+		expectedNextToken("It needs a comma and a register");
+		ensureTokenEquality("Expected a comma" + destinationRegister
 				+ " found: ", MIPSTokenType.COMMA);
 		
-		expectedNextToken("pseudo move operation");
+		expectedNextToken("It needs a from register");
 		String startingRegister = currentToken.getValue();
-		ensureTokenEquality("(move) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a source register", MIPSTokenType.ADDRESS);
 		
 		// TODO (Look into) Google Code PLP says it's equivalent instruction is Add, src
 		// code uses or
@@ -694,9 +751,9 @@ public class MIPSAssembler implements Assembler
 	private String pushOperation() throws AssemblerException
 	{
 		String preprocessedInstructions = "";
-		expectedNextToken("push pseudo operation");
+		expectedNextToken("It needs a register whose value needs to be pushed");
 		
-		ensureTokenEquality("(push) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a register", MIPSTokenType.ADDRESS);
 		
 		preprocessedInstructions = "addiu $sp, $sp, -4" + "\n" + "sw "  + currentToken.getValue() + ", 4($sp)";
 		addRegionAndIncrementAddress(2, 8);
@@ -719,9 +776,9 @@ public class MIPSAssembler implements Assembler
 	private String popOperation() throws AssemblerException
 	{
 		String preprocessedInstructions = "";
-		expectedNextToken("pop pseudo operation");
+		expectedNextToken("It needs a register to which value needs to be popped at");
 		
-		ensureTokenEquality("(push) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a register", MIPSTokenType.ADDRESS);
 		
 		preprocessedInstructions = "lw " + currentToken.getValue() + ", 4($sp)" + "\n" + "addiu $sp, $sp, 4";
 		addRegionAndIncrementAddress(2, 8);
@@ -753,17 +810,17 @@ public class MIPSAssembler implements Assembler
 	private String liOperation() throws AssemblerException
 	{
 		String preprocessedInstructions = "";
-		expectedNextToken("load immediate pseudo operation");
+		expectedNextToken("It needs register and value which needs to be loaded");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(li) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
 		
-		expectedNextToken("load immediate pseudo instruction");
-		ensureTokenEquality("(li) Expected a comma after " + targetRegister + " found: ",
+		expectedNextToken("It needs a comma followed by value which needs to be loaded to register " + targetRegister);
+		ensureTokenEquality("Expected a comma after " + targetRegister,
 				MIPSTokenType.COMMA);
 		
-		expectedNextToken("load immediate pseudo operation");
+		expectedNextToken("It needs a comma followed by value which needs to be loaded to register " + targetRegister);
 		String immediateOrLabel = currentToken.getValue();
-		ensureTokenEquality("(li) Expected a immediate value or label, found: ", 
+		ensureTokenEquality("Expected an immediate value or label", 
 				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
 		
 		
@@ -783,18 +840,16 @@ public class MIPSAssembler implements Assembler
 	private String lwmOperation() throws AssemblerException
 	{
 		String preprocessedInstructions = "";
-		expectedNextToken("lvm psuedo operation");
+		expectedNextToken("This needs a register and memory location");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(lvm) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a register to load values to", MIPSTokenType.ADDRESS);
 		
-		expectedNextToken("two register immediate normal instruction");
-		ensureTokenEquality(
-				"(lvm) Expected a comma after " + targetRegister + " found: ",
-				MIPSTokenType.COMMA);
+		expectedNextToken("It needs a comma followed by the memory location");
+		ensureTokenEquality("Expected a comma after " + targetRegister, MIPSTokenType.COMMA);
 		
-		expectedNextToken("lvm psuedo operation");
+		expectedNextToken("It needs a memory location from which register" + targetRegister + " value needs to be loaded. It can be memory address or label");
 		String immediateOrLabel = currentToken.getValue();
-		ensureTokenEquality("Expected a immediate value or label, found: ", 
+		ensureTokenEquality("Expected an immediate value or label", 
 				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
 		
 		preprocessedInstructions = String.format("lui $at, %s %s", ASM__HIGH__, immediateOrLabel) + "\n" +
@@ -815,18 +870,16 @@ public class MIPSAssembler implements Assembler
 	private String swmOperation() throws AssemblerException
 	{
 		String preprocessedInstructions = "";
-		expectedNextToken("svm psuedo operation");
+		expectedNextToken("It needs a register and a memory location");
 		String targetRegister = currentToken.getValue();
-		ensureTokenEquality("(svm) Expected a register, found: ", MIPSTokenType.ADDRESS);
+		ensureTokenEquality("Expected a register whose value needs to be saved", MIPSTokenType.ADDRESS);
 		
-		expectedNextToken("svm pseudo instruction");
-		ensureTokenEquality(
-				"(svm) Expected a comma after " + targetRegister + " found: ",
-				MIPSTokenType.COMMA);
+		expectedNextToken("It needs a comma and a memory location");
+		ensureTokenEquality("Expected a comma after " + targetRegister, MIPSTokenType.COMMA);
 		
-		expectedNextToken("svm psuedo operation");
+		expectedNextToken("It needs a memory location to which register" + targetRegister + " value needs to be loaded. It can be a memory address or label");
 		String immediateOrLabel = currentToken.getValue();
-		ensureTokenEquality("Expected a immediate value or label, found:",
+		ensureTokenEquality("Expected an immediate value or label",
 				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
 		
 		preprocessedInstructions = String.format("lui $at, %s %s", ASM__HIGH__, immediateOrLabel) + "\n" +
@@ -959,17 +1012,21 @@ public class MIPSAssembler implements Assembler
 	 */
 	private String orgDirective() throws AssemblerException
 	{
-		expectedNextToken(".org directive");
+		expectedNextToken("It needs address value");
 		
-		ensureTokenEquality("(.org) Expected an address, found: ", MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected an address", MIPSTokenType.NUMERIC);
 		
 		try
 		{
 			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
 		}
-		catch (AssemblerException e)
+		catch (Exception e)
 		{
-			e.printStackTrace();
+			if (e instanceof NumberFormatException) {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			} else {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			}
 		}
 		
 		return ASM__ORG__ + " " + currentToken.getValue();
@@ -981,9 +1038,7 @@ public class MIPSAssembler implements Assembler
 	{
 		expectedNextToken(".word directive");
 		
-		ensureTokenEquality(
-				"(.word) Expected number to initialize current memory address to, found: ",
-				MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected number to initialize current memory address to", MIPSTokenType.NUMERIC);
 		
 		addRegionAndIncrementAddress(1, 4);
 		
@@ -993,9 +1048,10 @@ public class MIPSAssembler implements Assembler
 	
 	private String spaceDirective() throws AssemblerException
 	{
+		//TODO: change argument to be more useful.
 		expectedNextToken(".space directive");
 		
-		ensureTokenEquality("(.space) Expected a number, found: ", MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected a number", MIPSTokenType.NUMERIC);
 		
 		try
 		{
@@ -1019,8 +1075,10 @@ public class MIPSAssembler implements Assembler
 		StringBuilder preInstruction = new StringBuilder();
 		preInstruction.append("");
 		
+		//TODO: give a meaningful argument
 		expectedNextToken(currentToken.getValue() + " directive");
 		
+		//TODO: give a meaningful argument
 		ensureTokenEquality("(" + directiveToken.getValue()
 				+ ") Expected a string to store, found: ", MIPSTokenType.STRING);
 		
@@ -1118,6 +1176,7 @@ public class MIPSAssembler implements Assembler
 	 */
 	private String includeDirective() throws AssemblerException
 	{
+		//TODO: give a meaningful argument
 		expectedNextToken("include directive");
 		
 		throw new UnsupportedOperationException("Include Directive is not implemented");
@@ -1127,10 +1186,12 @@ public class MIPSAssembler implements Assembler
 	
 	private String textDirective() throws AssemblerException
 	{
+		//TODO: give a meaningful argument
 		expectedNextToken(".text directive");
 		
 		if (currentRegion != 1)
 		{
+			//TODO: give a meaningful argument
 			ensureTokenEquality("(.text) Expected a number, found: ", MIPSTokenType.NUMERIC);
 			
 			//directiveOffset++;
@@ -1145,13 +1206,17 @@ public class MIPSAssembler implements Assembler
 		try
 		{
 			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
-			
+			//TODO: Once .text directive implementation is done, then modify below exception.  It has to go through throw_assembler_exception function.
 			if (currentAddress < 0)
 				throw new AssemblerException("Line Number: "+ Integer.toString(lineNumber)+ " Starting address for .text is not defined.");
 		}
-		catch (AssemblerException e)
+		catch (Exception e)
 		{
-			e.printStackTrace();
+			if (e instanceof NumberFormatException) {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			} else {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			}
 		}
 		
 		entryPoint = currentAddress;
@@ -1162,8 +1227,10 @@ public class MIPSAssembler implements Assembler
 	
 	private String dataDirective() throws AssemblerException
 	{
+		//TODO: give a meaningful argument
 		expectedNextToken(".data directive");
 		
+		//TODO: give a meaningful argument
 		ensureTokenEquality("(.data) Expected a number, found: ", MIPSTokenType.NUMERIC);
 	
 		if (currentRegion != 2)
@@ -1180,12 +1247,17 @@ public class MIPSAssembler implements Assembler
 		{
 			currentAddress = ISAUtil.sanitize32bits(currentToken.getValue());
 			
+			//TODO: After .data directive is implemented properly, change this exception throwing. Make it to pass through function throw_assembler_function
 			if (currentAddress < 0)
 				throw new AssemblerException("Line Number: "+ Integer.toString(lineNumber)+ " Starting address for .data is not defined.");
 		}
-		catch (AssemblerException e)
+		catch (Exception e)
 		{
-			e.printStackTrace();
+			if (e instanceof NumberFormatException) {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			} else {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			}
 		}
 		currentDataAddress = currentAddress;	
 		
@@ -1194,8 +1266,10 @@ public class MIPSAssembler implements Assembler
 	
 	private String equDirective() throws AssemblerException
 	{
+		//TODO: give a meaningful argument
 		expectedNextToken(".equ directive");
 		
+		//TODO: give a meaningful argument
 		ensureTokenEquality("(.equ) Expected a string, found: ", MIPSTokenType.STRING);
 		
 		String symbol = currentToken.getValue();
@@ -1205,8 +1279,10 @@ public class MIPSAssembler implements Assembler
 					+ currentToken.getValue());
 		}
 		
+		//TODO: give a meaningful argument
 		expectedNextToken(".equ directive");
 		
+		//TODO: give a meaningful argument
 		ensureTokenEquality("(.equ) Expected an address after symbol, found: ",
 				MIPSTokenType.NUMERIC);
 		
@@ -1215,13 +1291,18 @@ public class MIPSAssembler implements Assembler
 		{
 			value = ISAUtil.sanitize32bits(currentToken.getValue());
 		}
-		catch (AssemblerException e)
+		catch (Exception e)
 		{
-			e.printStackTrace();
+			if (e instanceof NumberFormatException) {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			} else {
+				throw_assembler_exception(e.getMessage(), AssemblerException.SANITIZE_ERROR);
+			}
 		}
 		
 		if (value < 0)
 		{
+			//TODO after implementing equ directive , following exception has to go through throw_assembler_exception function
 			throw new AssemblerException(
 					"Line Number: " + Integer.toString(lineNumber) + " (.equ) Could not process address after symbol, found: "
 							+ currentToken.getValue());
@@ -1259,11 +1340,10 @@ public class MIPSAssembler implements Assembler
 				
 				if(lstArguments.length > 1)
 				{
-					expectedNextToken(strInstruction + " operation");
-					ensureTokenEquality("(" + strInstruction + ") Expected a comma after "
-							+ strFirstArgument + " found: ", MIPSTokenType.COMMA);
+					expectedNextToken("");
+					ensureTokenEquality("Expected a comma after " + strFirstArgument, MIPSTokenType.COMMA);
 
-					expectedNextToken(strInstruction + " operation");
+					expectedNextToken("");
 					ensureArgumentEquality(strInstruction, lstArguments[1]);
 						
 					strSecondArgument = currentToken.getValue();
@@ -1271,22 +1351,15 @@ public class MIPSAssembler implements Assembler
 						
 					if(lstArguments.length > 2)
 					{
-						expectedNextToken(strInstruction + " operation");
-						ensureTokenEquality("(" + strInstruction + ") Expected a comma after "
-									+ strSecondArgument + " found: ", MIPSTokenType.COMMA);
+						expectedNextToken("");
+						ensureTokenEquality("Expected a comma after " + strSecondArgument, MIPSTokenType.COMMA);
 							
-						expectedNextToken(strInstruction + " operation");
+						expectedNextToken("");
 						ensureArgumentEquality(strInstruction, lstArguments[2]);
 							
 						preprocessedInstruction += (" " + currentToken.getValue());
 					}
-						
-					
-					
-					
 				}
-				
-				
 			}
 			
 		}
@@ -1306,9 +1379,7 @@ public class MIPSAssembler implements Assembler
 		
 		if (symbolTable.containsKey(labelValue))
 		{
-			throw new AssemblerException("Line Number: "+ Integer.toString(lineNumber)+" (" + directiveToken.getTypeName()
-					+ ") preprocessing label failure. Symbol already defined, found: "
-					+ directiveToken.getValue());
+			throw_assembler_exception("label - " + labelValue + " already exists", AssemblerException.DUPLICATE_LABEL_ERROR);
 		}
 		else
 		{
@@ -1334,33 +1405,31 @@ public class MIPSAssembler implements Assembler
 		return true;
 	}
 	
-	private void expectedNextToken(String location) throws AssemblerException
+	private void expectedNextToken(String errorInfo) throws AssemblerException
 	{
 		String previousToken = currentToken.getValue();
 		//String strLineNumber = String.valueOf(lineNumber);
 		if (!nextToken(1))
-			throw new AssemblerException("Line Number: "+String.valueOf(lineNumber)+" Previous token->(" + previousToken
-					+ ") Unexpected end of token stream at " + location);
-		
+			throw_assembler_exception(errorInfo + ", expected another token after " + previousToken, AssemblerException.NEXT_TOKEN_MISSING_ERROR);	
 	}
 	
 	private void ensureArgumentEquality(String message, ArgumentType argument) throws AssemblerException
 	{
 		if(argument.equals(ArgumentType.REGISTER) && !isRegister(currentToken))
 		{
-			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber)+ " expected a register but got "+ currentToken.getValue()+" at "+message);
+			throw_assembler_exception("Expected a register but got " + currentToken.getValue(), AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 		}
 		else if(argument.equals(ArgumentType.NUMBER_LITERAL) && !isNumericValue(currentToken))
 		{
-			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber)+ " expected a numeric value but got "+ currentToken.getValue()+" at "+message);
+			throw_assembler_exception("Expected a number but got " + currentToken.getValue(), AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 		}
 		else if(argument.equals(ArgumentType.MEMORY_LOCATION) && !isMemoryLocation(currentToken))
 		{
-			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber)+ " expected a memory location (represented -> <<number>>(<<register>>) example - 4($t3) ) but got "+ currentToken.getValue()+" at "+message);
+			throw_assembler_exception("Expected a memory location but got " + currentToken.getValue(), AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 		}
 		else if(argument.equals(ArgumentType.LABEL_LITERAL) && !isLabel(currentToken))
 		{
-			throw new AssemblerException("Line Number: "+Integer.toString(lineNumber) + " expected a label but got "+ currentToken.getValue()+" at "+ message);
+			throw_assembler_exception("Expected a label but got " + currentToken.getValue(), AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 		}
 		else
 		{
@@ -1371,13 +1440,13 @@ public class MIPSAssembler implements Assembler
 	
 	private void ensureTokenEquality(String message, MIPSTokenType compareTo) throws AssemblerException
 	{
-		String sMessage = "Line Number: " +Integer.toString(lineNumber) + " " + message + currentToken.getValue();
+		String sMessage = message + "Got token type - " + currentToken.getValue();
 		
 		if (compareTo.equals(MIPSTokenType.INSTRUCTION))
 		{
 			if(!isInstruction(currentToken))
 			{
-				throw new AssemblerException(sMessage);
+				throw_assembler_exception(sMessage, AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 			}
 			return;
 		}
@@ -1385,7 +1454,7 @@ public class MIPSAssembler implements Assembler
 		{
 			if(!isLabel(currentToken))
 			{
-				throw new AssemblerException(sMessage);
+				throw_assembler_exception(sMessage, AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 			}
 			
 			return;
@@ -1394,7 +1463,7 @@ public class MIPSAssembler implements Assembler
 		{
 			if(!isRegister(currentToken))
 			{
-				throw new AssemblerException(sMessage);
+				throw_assembler_exception(sMessage, AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 			}
 			
 			return;
@@ -1403,14 +1472,14 @@ public class MIPSAssembler implements Assembler
 		{
 			if(!isMemoryLocation(currentToken))
 			{
-				throw new AssemblerException(sMessage);
+				throw_assembler_exception(sMessage, AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 			}
 			
 			return;
 		}
 		
 		if (!currentToken.getTypeName().equals(compareTo.name()))
-			throw new AssemblerException(sMessage);
+			throw_assembler_exception(sMessage, AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 		
 	}
 	
@@ -1418,7 +1487,7 @@ public class MIPSAssembler implements Assembler
 	private void ensureTokenEquality(String message,
 			MIPSTokenType... compareTo) throws AssemblerException
 	{
-		String sMessage = "Line Number: " +Integer.toString(lineNumber) + " " + message + currentToken.getValue();
+		String sMessage = message + "Got token type = " + currentToken.getValue();
 		for (MIPSTokenType comparison : compareTo)
 		{
 			if (comparison.equals(MIPSTokenType.INSTRUCTION))
@@ -1442,7 +1511,7 @@ public class MIPSAssembler implements Assembler
 				return;
 		}
 		
-		throw new AssemblerException(sMessage);
+		throw_assembler_exception(sMessage, AssemblerException.TOKEN_NOT_MATCHING_ERROR);
 	}
 	
 	private boolean isMemoryLocation(Token token)

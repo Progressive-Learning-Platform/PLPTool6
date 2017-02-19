@@ -33,7 +33,7 @@ public class BTypeInstruction extends AbstractInstruction
 	}
 
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException {
+	protected int safeAssemble(Argument[] arguments) {
 		Argument r1RegisterArgument = arguments[0];
 		Argument r2RegisterArgument = arguments[1];
 		LabelLiteral labelArgument = (LabelLiteral)arguments[2];

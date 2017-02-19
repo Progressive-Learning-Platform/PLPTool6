@@ -27,7 +27,7 @@ public class RJTypeInstruction extends AbstractInstruction
 	}
 	
 	@Override
-	protected int safeAssemble(Argument[] arguments) throws ParseException
+	protected int safeAssemble(Argument[] arguments)
 	{
 		Argument rdArgument = arguments[0];
 		
