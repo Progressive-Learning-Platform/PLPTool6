@@ -40,7 +40,7 @@ import javafx.util.Pair;
 
 public class MIPSAssembler implements Assembler
 {
-	private InstructionMap plpInstructions;
+	private InstructionMap mipsInstructions;
 	private HashMap<String, AssemblerDirectiveStep> directiveMap;
 	private HashMap<String, Byte> registerMap;
 	private HashMap<String, AssemblerDirectiveStep> pseudoOperationMap;
@@ -93,14 +93,14 @@ public class MIPSAssembler implements Assembler
 		lineNumAndAsmFileMap = new HashMap<>();//map every instruction to line number between differing files
 
 		
-		loadPLPInstructionsMap();//ties user insturctions to ISA functionality
-		loadPLPAssemblerDirectivesMap();
-		loadPLPPseudoOperationsMap();
+		loadMIPSInstructionsMap();//ties user insturctions to ISA functionality
+		loadMIPSAssemblerDirectivesMap();
+		loadMIPSPseudoOperationsMap();
 		loadRegisterMap();
 		
 	}
 	
-	private void loadPLPAssemblerDirectivesMap()
+	private void loadMIPSAssemblerDirectivesMap()
 	{
 		directiveMap = new HashMap<>();
 		
@@ -117,7 +117,7 @@ public class MIPSAssembler implements Assembler
 		
 	}
 	
-	private void loadPLPPseudoOperationsMap()
+	private void loadMIPSPseudoOperationsMap()
 	{
 		pseudoOperationMap = new HashMap<>();
 		pseudoOperationMap.put("nop", this::nopOperation);
@@ -150,46 +150,46 @@ public class MIPSAssembler implements Assembler
 	}
 	
 	
-	private void loadPLPInstructionsMap()
+	private void loadMIPSInstructionsMap()
 	{
-		plpInstructions = new InstructionMap();
+		mipsInstructions = new InstructionMap();
 		
-		plpInstructions.addRTypeInstruction("addu", 0x21);
-		plpInstructions.addRTypeInstruction("subu", 0x23);
-		plpInstructions.addRTypeInstruction("and", 0x24);
-		plpInstructions.addRTypeInstruction("or", 0x25);
-		plpInstructions.addRTypeInstruction("nor", 0x27);
-		plpInstructions.addRTypeInstruction("slt", 0x2a);
-		plpInstructions.addRTypeInstruction("sltu", 0x2b);
-		plpInstructions.addRTypeInstruction("mullo", 0x10);
-		plpInstructions.addRTypeInstruction("mulhi", 0x11);
-		plpInstructions.addRTypeInstruction("sllv", 0x01);
-		plpInstructions.addRTypeInstruction("slrv", 0x03);
+		mipsInstructions.addRTypeInstruction("addu", 0x21);
+		mipsInstructions.addRTypeInstruction("subu", 0x23);
+		mipsInstructions.addRTypeInstruction("and", 0x24);
+		mipsInstructions.addRTypeInstruction("or", 0x25);
+		mipsInstructions.addRTypeInstruction("nor", 0x27);
+		mipsInstructions.addRTypeInstruction("slt", 0x2a);
+		mipsInstructions.addRTypeInstruction("sltu", 0x2b);
+		mipsInstructions.addRTypeInstruction("mullo", 0x10);
+		mipsInstructions.addRTypeInstruction("mulhi", 0x11);
+		mipsInstructions.addRTypeInstruction("sllv", 0x01);
+		mipsInstructions.addRTypeInstruction("slrv", 0x03);
 		
-		plpInstructions.addRITypeInstruction("sll", 0x00);
-		plpInstructions.addRITypeInstruction("srl", 0x02);
+		mipsInstructions.addRITypeInstruction("sll", 0x00);
+		mipsInstructions.addRITypeInstruction("srl", 0x02);
 		
-		plpInstructions.addRJTypeInstruction("jr", 0x08);
+		mipsInstructions.addRJTypeInstruction("jr", 0x08);
 		
-		plpInstructions.addJRRTypeInstruction("jalr", 0x09);
+		mipsInstructions.addJRRTypeInstruction("jalr", 0x09);
 		
-		plpInstructions.addITypeInstruction("addiu", 0x09);
-		plpInstructions.addITypeInstruction("andi", 0x0c);
-		plpInstructions.addITypeInstruction("ori", 0x0d);
-		plpInstructions.addITypeInstruction("slti", 0x0a);
-		plpInstructions.addITypeInstruction("sltiu", 0x0b);
+		mipsInstructions.addITypeInstruction("addiu", 0x09);
+		mipsInstructions.addITypeInstruction("andi", 0x0c);
+		mipsInstructions.addITypeInstruction("ori", 0x0d);
+		mipsInstructions.addITypeInstruction("slti", 0x0a);
+		mipsInstructions.addITypeInstruction("sltiu", 0x0b);
 		
-		plpInstructions.addRIUTypeInstruction("lui", 0x0f);
+		mipsInstructions.addRIUTypeInstruction("lui", 0x0f);
 		
-		plpInstructions.addRLTypeInstruction("lw", 0x23);
-		plpInstructions.addRLTypeInstruction("sw", 0x2B);
+		mipsInstructions.addRLTypeInstruction("lw", 0x23);
+		mipsInstructions.addRLTypeInstruction("sw", 0x2B);
 		
 		
-		plpInstructions.addBTypeInstruction("bne", 0x05);
-		plpInstructions.addBTypeInstruction("beq", 0x04);
+		mipsInstructions.addBTypeInstruction("bne", 0x05);
+		mipsInstructions.addBTypeInstruction("beq", 0x04);
 		
-		plpInstructions.addJTypeInstruction("j", 0x02);
-		plpInstructions.addJTypeInstruction("jal", 0x03);
+		mipsInstructions.addJTypeInstruction("j", 0x02);
+		mipsInstructions.addJTypeInstruction("jal", 0x03);
 		
 		
 	}
@@ -528,7 +528,7 @@ public class MIPSAssembler implements Assembler
 	
 	private MIPSDisassembly process(String instructionName, Argument[] arguments)
 	{
-		MIPSInstruction instruction = plpInstructions.get(instructionName);
+		MIPSInstruction instruction = mipsInstructions.get(instructionName);
 		int codedInstruction = instruction.assemble(arguments);
 		//long address = programLocation+;
 		MIPSDisassembly disassembly = new MIPSDisassembly(programLocation, codedInstruction);
@@ -1320,7 +1320,7 @@ public class MIPSAssembler implements Assembler
 		String strFirstArgument = "", strSecondArgument = "";
 		
 		
-		MIPSInstruction instruction = plpInstructions.get(strInstruction);
+		MIPSInstruction instruction = mipsInstructions.get(strInstruction);
 		
 		preprocessedInstruction += strInstruction;
 		
@@ -1571,7 +1571,7 @@ public class MIPSAssembler implements Assembler
 	
 	private boolean isInstruction(Token token)
 	{
-		if(token.getTypeName() == MIPSTokenType.INSTRUCTION.name() && plpInstructions.containsKey(token.getValue()))
+		if(token.getTypeName() == MIPSTokenType.INSTRUCTION.name() && mipsInstructions.containsKey(token.getValue()))
 			return true;
 		else
 			return false;
