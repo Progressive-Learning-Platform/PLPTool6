@@ -163,8 +163,13 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRTypeInstruction("sltu", 0x2b);
 		mipsInstructions.addRTypeInstruction("mullo", 0x10);
 		mipsInstructions.addRTypeInstruction("mulhi", 0x11);
-		mipsInstructions.addRTypeInstruction("sllv", 0x01);
-		mipsInstructions.addRTypeInstruction("slrv", 0x03);
+
+		//changed these funcCodes
+		/*mipsInstructions.addRTypeInstruction("sllv", 0x01);
+		mipsInstructions.addRTypeInstruction("slrv", 0x03);*/
+		
+		mipsInstructions.addRTypeInstruction("sllv", 0x04);
+		mipsInstructions.addRTypeInstruction("slrv", 0x06);
 		
 		mipsInstructions.addRITypeInstruction("sll", 0x00);
 		mipsInstructions.addRITypeInstruction("srl", 0x02);
