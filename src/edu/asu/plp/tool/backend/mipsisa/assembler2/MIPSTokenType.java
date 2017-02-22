@@ -10,7 +10,8 @@ public enum MIPSTokenType
 	//TODO make label colon have nothing after it
 	LABEL_COLON("\\b([a-zA-Z]([a-zA-Z]|_|[0-9])*([a-zA-Z]|[0-9])+):\\B"),
 	//INSTRUCTION("\\b(addu|subu|mullo|mulhi|and|andi|or|ori|slt|slti|sltu|sltiu|sll|sllv|srl|srlv|bne|jal|jr|jalr|lw|sw)\\b"),
-	INSTRUCTION("\\b(addiu|beq|j|lui|nor)"),
+	INSTRUCTION("\\b(addu|subu|addiu|and|andi|or|ori|nor|slt|slti|sltu|sltiu|sll|sllv|srl|srlv|beq|bne|j|jal|jr|jalr|lw|sw)\\b"),
+	//INSTRUCTION("\\b(addiu|beq|j|lui|nor)"),
 	LABEL_PLAIN("\\b([a-zA-Z]([a-zA-Z]|_|[0-9])*([a-zA-Z]|[0-9])+)\\b"),
 	ADDRESS("\\$([a-zA-Z]|[0-9])+"),
 	COMMENT("#.*$"),

@@ -100,6 +100,7 @@ public class MIPSAssembler implements Assembler
 		
 	}
 	
+	//TODO have not been verified as the correct assembler directives
 	private void loadMIPSAssemblerDirectivesMap()
 	{
 		directiveMap = new HashMap<>();
@@ -117,6 +118,7 @@ public class MIPSAssembler implements Assembler
 		
 	}
 	
+	//TODO need to ask Sohoni which pseudo-ops he wants us to keep. 
 	private void loadMIPSPseudoOperationsMap()
 	{
 		pseudoOperationMap = new HashMap<>();
@@ -512,7 +514,7 @@ public class MIPSAssembler implements Assembler
 				}
 				else
 				{
-					throw_assembler_exception(currentToken.getValue() + ":" + currentToken.getTypeName(), AssemblerException.EXTRA_TOKEN_ERROR);
+					throw_assembler_exception(currentToken.getValue() + " : " + currentToken.getTypeName(), AssemblerException.EXTRA_TOKEN_ERROR);
 				}	
 				
 			}
