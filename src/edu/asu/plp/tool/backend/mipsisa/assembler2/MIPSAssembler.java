@@ -105,6 +105,7 @@ public class MIPSAssembler implements Assembler
 	{
 		directiveMap = new HashMap<>();
 		
+		//TODO add directives http://students.cs.tamu.edu/tanzir/csce350/reference/assembler_dir.html
 		directiveMap.put(".org", this::orgDirective);
 		directiveMap.put(".word", this::wordDirective);
 		directiveMap.put(".space", this::spaceDirective);
@@ -141,7 +142,7 @@ public class MIPSAssembler implements Assembler
 		registerMap = new HashMap<>();
 		String[] registers = { "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
 				"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", 
-				"$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$i0", "$i1",
+				"$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$k0", "$k1",
 				"$gp", "$sp", "$s8", "$ra" };
 		
 		for (int index = 0; index < registers.length; index++)
