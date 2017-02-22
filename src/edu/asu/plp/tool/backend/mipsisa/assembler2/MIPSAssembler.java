@@ -161,21 +161,23 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRTypeInstruction("nor", 0x27);
 		mipsInstructions.addRTypeInstruction("slt", 0x2a);
 		mipsInstructions.addRTypeInstruction("sltu", 0x2b);
-		mipsInstructions.addRTypeInstruction("mullo", 0x10);
-		mipsInstructions.addRTypeInstruction("mulhi", 0x11);
+		//mipsInstructions.addRTypeInstruction("mullo", 0x10);
+		//mipsInstructions.addRTypeInstruction("mulhi", 0x11);
+		//REPLACED BY MULT
 
 		//changed these funcCodes
 		/*mipsInstructions.addRTypeInstruction("sllv", 0x01);
 		mipsInstructions.addRTypeInstruction("slrv", 0x03);*/
 		
 		mipsInstructions.addRTypeInstruction("sllv", 0x04);
-		mipsInstructions.addRTypeInstruction("slrv", 0x06);
+		mipsInstructions.addRTypeInstruction("srlv", 0x06);
 		
 		mipsInstructions.addRITypeInstruction("sll", 0x00);
 		mipsInstructions.addRITypeInstruction("srl", 0x02);
-		
+
+		mipsInstructions.addJTypeInstruction("j", 0x02);
+		mipsInstructions.addJTypeInstruction("jal", 0x03);
 		mipsInstructions.addRJTypeInstruction("jr", 0x08);
-		
 		mipsInstructions.addJRRTypeInstruction("jalr", 0x09);
 		
 		mipsInstructions.addITypeInstruction("addiu", 0x09);
@@ -184,7 +186,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addITypeInstruction("slti", 0x0a);
 		mipsInstructions.addITypeInstruction("sltiu", 0x0b);
 		
-		mipsInstructions.addRIUTypeInstruction("lui", 0x0f);
+		//mipsInstructions.addRIUTypeInstruction("lui", 0x0f);
 		
 		mipsInstructions.addRLTypeInstruction("lw", 0x23);
 		mipsInstructions.addRLTypeInstruction("sw", 0x2B);
@@ -192,11 +194,6 @@ public class MIPSAssembler implements Assembler
 		
 		mipsInstructions.addBTypeInstruction("bne", 0x05);
 		mipsInstructions.addBTypeInstruction("beq", 0x04);
-		
-		mipsInstructions.addJTypeInstruction("j", 0x02);
-		mipsInstructions.addJTypeInstruction("jal", 0x03);
-		
-		
 	}
 	
 	@Override
