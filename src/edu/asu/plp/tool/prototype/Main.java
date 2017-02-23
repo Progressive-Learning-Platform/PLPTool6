@@ -353,8 +353,8 @@ public class Main extends Application implements Controller
 		instructionsRType.addEntry("add $rd, $rs, $rt" , "rd = rs + rt (Overflow Trap)");
 		instructionsRType.addEntry("addu $rd, $rs, $rt", "rd = rs + rt");
 		instructionsRType.addEntry("and $rd, $rs, $rt",	"rd = rs & rt");
-		instructionsRType.addEntry("div $rs, $rt", "$LO = rs / rt; $HI = rs % rt");
-		instructionsRType.addEntry("divu $rs, $rt", "$LO = rs / rt; $HI = rs % rt(Unsigned)");
+		instructionsRType.addEntry("div $rd, $rs, $rt", "$LO = rs / rt; $HI = rs % rt");
+		instructionsRType.addEntry("divu $rd, $rs, $rt", "$LO = rs / rt; $HI = rs % rt(Unsigned)");
 		instructionsRType.addEntry("jr $rs", "PC = rs");
 		instructionsRType.addEntry("mfhi $rd", "rd = $HI");
 		instructionsRType.addEntry("mflo $rd", "rd = $LO");
@@ -363,9 +363,6 @@ public class Main extends Application implements Controller
 		instructionsRType.addEntry("nor $rd, $rs, $rt", "rd = !(rs | rt)");
 		instructionsRType.addEntry("xor $rd, $rs, $rt", "rd = rs ⊕ rt");
 		instructionsRType.addEntry("or $rd, $rs, $rt", "rd = rs | rt");
-		/*
-		 * TODO: Verify QR formatting of instructions and descriptions.
-		 */
 		instructionsRType.addEntry("slt $rd, $rs, $rt", "if (rs < rt) rd = 1 : rd = 0");
 		instructionsRType.addEntry("sltu $rd, $rs, $rt", "if (rs < rt) rd = 1 : rd = 0 (Unisgned)");
 		instructionsRType.addEntry("sll $rd, $rt, Imm", "rd = rt << Imm");
@@ -384,27 +381,36 @@ public class Main extends Application implements Controller
 		instructionsIType.addEntry("andi $rt, $rs, imm", "rt = rs & ZeroExtend(imm)");
 		instructionsIType.addEntry("beq $rs, $rt, label", "if(rs == rt) PC = Label : PC += 4");
 		instructionsIType.addEntry("bne $rs, $rt, label", "if(rs != rt) PC = Label : PC += 4");
+		instructionsIType.addEntry("blez $rs, label", "if(rs <= 0) PC = label : PC += 4");
+		instructionsIType.addEntry("bgez $rs, label", "if(rs >= 0) PC = label : PC += 4");
+		instructionsIType.addEntry("beqz $rs, label", "if(rs == 0) PC = label : PC += 4");
+		instructionsIType.addEntry("bltz $rs, label", "if(rs < 0) PC = label : PC += 4");
+		instructionsIType.addEntry("bgtz $rs, label", "if(rs > 0) PC = label : PC += 4");
+		instructionsIType.addEntry("bnez $rs, label", "if(rs != 0) PC = label : PC += 4");
 		instructionsIType.addEntry("lbu $rt, offset($rs) ", "rt = MEM_8[rs + offset] (Unsigned)");
 		instructionsIType.addEntry("lhu $rt, offset($rs)", "rt = MEM_16[rs + offset] (Unisgned)");
-		instructionsIType.addEntry("lui $rt, Imm", "rt = Imm");
+		instructionsIType.addEntry("lui $rt, imm", "rt = imm[31:16]");
 		instructionsIType.addEntry("lw $rt, offset($rs)", "rt = MEM_32[rs + offset]");
 		instructionsIType.addEntry("ori $rt, $rs, imm", "rt = rs | ZeroExtend(imm)");
 		instructionsIType.addEntry("sb $rt, offset($rs)", "MEM[rs + offset] = (0xff rt");
-		instructionsIType.addEntry("slti $rt, $rs, Imm", "if (rs < Imm) rt = 1 : rt = 0");
-		instructionsIType.addEntry("sltiu $rt, $rs, Imm", "if (rs < Unsigned Imm) rt = 1 : rt = 0");
-		instructionsIType.addEntry("sw $rt, offset($rs)", "");
+		instructionsIType.addEntry("slti $rt, $rs, imm", "if (rs < Imm) rt = 1 : rt = 0");
+		instructionsIType.addEntry("sltiu $rt, $rs, imm", "if (rs < Unsigned imm) rt = 1 : rt = 0");
+		instructionsIType.addEntry("sw $rs, offset($rt)", "rt[offset] = rs");
 		
 		
 		QuickViewSection instructionsJType = new QuickViewSection("J-Type Instruction");
-		instructionsJType.addEntry("","");
+		instructionsJType.addEntry("j label","PC = label");
+		instructionsJType.addEntry("jal label","ra = PC += 8; PC = label");
+		
 		/*
 		 *TODO: Find remaining MIPS pseudo-instructions 
 		 */
+		
 		QuickViewSection instructionsPsuedo = new QuickViewSection("Pseudo-Operations");
-		instructionsPsuedo.addEntry("move $rt, $rs", "");
-		instructionsPsuedo.addEntry("li $rs, imm", "");
-		instructionsPsuedo.addEntry("la $rs, addr", "");
-		instructionsPsuedo.addEntry("lw $rt ", "");
+		instructionsPsuedo.addEntry("move $rt, $rs", " add $rt, $rs, $0");
+		instructionsPsuedo.addEntry("li $rs, imm", "lui $rt, imm[31:16]; ori $rd, $rd, imm[15:0]");
+		instructionsPsuedo.addEntry("la $rs, addr", "lui $rt, addr[31:16]; ori $rd, $rd, addr[15:0]");
+		
 		
 		
 		QuickViewSection directives = new QuickViewSection("Assembler Directive");
@@ -412,21 +418,21 @@ public class Main extends Application implements Controller
 		directives.addEntry(".ascii \"string\"", "Store a string in memory");
 		directives.addEntry(".asciiz \"string\"", "Store null-terminated string in memory");
 		directives.addEntry(".byte b1,...,bn", "Store values b1 through bn in successive bytes of memory");
-		directives.addEntry(".data <address>", "store data items in data segment,"
-				+ "\n If optional <address> is present, items are stored at beginning of <address>");
+		directives.addEntry(".data <address>", "store data items in data segment. If optional <address> is present,"
+				+ " items are stored at beginning of <address>");
 		directives.addEntry(".double d1,...,dn", "Store double values d1 through dn in successive memory locations");
 		directives.addEntry(".extern sym size", "declare datum sotred in sym is size "
-				+ "bytes larger and is global. \nAccessed via register $gp");
+				+ "bytes larger and is global. Accessed via register $gp");
 		directives.addEntry(".float f1,...,fn","Store floating point values f1 through fn in successive memory locations");
 		directives.addEntry(".globl sym", "declare that symbol sym is global and can be referenced from other files");
 		directives.addEntry(".half h1,...,hn", "Store 16-bit values h1 through hn in successive memory locations");
 		directives.addEntry(".kdata <address>" , "store the data in the kernal data segment."
-				+ "\n Optional <address> to start storage at beginning of <address>");
+				+ " Optional <address> to start storage at beginning of <address>");
 		directives.addEntry(".ktext <address>","Store the data in the kernel text segment."
-				+ "\n Optional <address> to start storage at beginning of <address>");
+				+ " Optional <address> to start storage at beginning of <address>");
 		directives.addEntry(".space n","Allocate n bytes of space in currecnt data segment");
 		directives.addEntry(".text <address>","Store items in user text segment."
-				+ "\n Optional <address> to start storage at beginning of <address>");
+				+ " Optional <address> to start storage at beginning of <address>");
 		directives.addEntry(".word wq,...,wn","Store 32-bit words w1 through wn in successive memory ");
 		
 		
@@ -1769,7 +1775,8 @@ public class Main extends Application implements Controller
 		
 		// TODO: remove hard-coded numbers. Where did these even come from?
 		// TODO account for different quick references, such as MIPs, x86, etc
-		Scene scene = new Scene(plpQuickRef(), 888, 500);
+		
+		Scene scene = new Scene(mipsQuickRef(), 888, 500);
 		stage.setTitle("Quick Reference");
 		stage.setScene(scene);
 		stage.show();
