@@ -48,6 +48,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -700,6 +701,12 @@ public class Main extends Application implements Controller
 		// Activate the specified tab
 		openProjectsPanel.getSelectionModel().select(tab);
 	}
+
+	/*private void printFile(ASMFile file)
+	{
+		
+		System.out.println("selected file: " + file.getName());
+	}*/
 	
 	@Override
 	public void editCopy()
@@ -964,10 +971,13 @@ public class Main extends Application implements Controller
 	 */
 	private ProjectExplorerTree createProjectTree()
 	{
+		
+		
 		projects = FXCollections.observableArrayList();
 		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
+		
 		
 		return projectExplorer;
 	}
@@ -1772,11 +1782,28 @@ public class Main extends Application implements Controller
 	public void showQuickReference()
 	{
 		Stage stage = new Stage();
+		Scene scene = null;
 		
 		// TODO: remove hard-coded numbers. Where did these even come from?
 		// TODO account for different quick references, such as MIPs, x86, etc
 		
-		Scene scene = new Scene(mipsQuickRef(), 888, 500);
+		String selection = projectExplorer.getActiveSelection().toString(); //returns a long string of the entire classpath
+																			//starting at edu.asu.plp.....
+		String projectType = selection.split("\\.")[6];						//Index 6 is where the actual project type is specified
+		
+		/*if(selection == null)
+		{
+			console.println("NO PROJECT TYPE DETECTED, PLEASE SELECT A PROJECT\nOR ASMFILE");
+			return;
+		}*/
+		
+		if(projectType.charAt(0) == 'P')
+			scene = new Scene(plpQuickRef(), 888, 500);
+		
+		else if(projectType.charAt(0) == 'M')
+			scene = new Scene(mipsQuickRef(), 900, 500);
+		
+		
 		stage.setTitle("Quick Reference");
 		stage.setScene(scene);
 		stage.show();
