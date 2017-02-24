@@ -31,7 +31,10 @@ public enum MIPSInstruction
 	OR_IMMEDIATE("ori", "opcode", 0x0D, 4),
 	//LOAD_UPPER_IMMEDIATE("lui", "opcode", 0x0F, 5),
 	LOAD_WORD("lw", "opcode", 0x23, 6),
-	STORE_WORD("sw", "opcode", 0x2B, 6);
+	STORE_WORD("sw", "opcode", 0x2B, 6),
+	
+	//MIPS ONLY
+	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0);
 	
 	private String identifier;
 	private String type;

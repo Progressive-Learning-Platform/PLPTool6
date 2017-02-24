@@ -197,6 +197,9 @@ public class MIPSAssembler implements Assembler
 		
 		mipsInstructions.addBTypeInstruction("bne", 0x05);
 		mipsInstructions.addBTypeInstruction("beq", 0x04);
+		
+		//MIPS ONLY
+		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 	}
 	
 	@Override

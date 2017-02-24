@@ -9,6 +9,7 @@ import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RIUTypeInstructi
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RJTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RLTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.AccRTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.BTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.JTypeInstruction;
 
@@ -29,6 +30,12 @@ public class InstructionMap extends HashMap<String, MIPSInstruction>
 	public void addRJTypeInstruction(String name, int functCode)
 	{
 		RJTypeInstruction instruction = new RJTypeInstruction(functCode);
+		this.put(name, instruction);
+	}
+	
+	public void addAccRTypeInstruction(String name, int functCode)
+	{
+		AccRTypeInstruction instruction = new AccRTypeInstruction(functCode);
 		this.put(name, instruction);
 	}
 	
@@ -79,7 +86,7 @@ public class InstructionMap extends HashMap<String, MIPSInstruction>
 	{
 		if (this.containsKey(name))
 		{
-			String message = "PLPInstructionMap cannot contain multiple instructions "
+			String message = "MIPSInstructionMap cannot contain multiple instructions "
 					+ "with the same name (" + name + ")";
 			throw new IllegalArgumentException(message);
 		}
