@@ -402,6 +402,10 @@ public class MIPSSimulator implements Simulator
 					//regFile.write(rd, pcplus4 + 4, false);
 				}
 			}
+			else if (funct == 0x19) //multu
+			{
+				System.out.println("YOU ARE DOING MULTU");
+			}
 			else
 			{
 				alu_result = alu.evaluate(s, t, instruction);

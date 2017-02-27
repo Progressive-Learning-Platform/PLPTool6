@@ -98,11 +98,11 @@ public class InstructionExtractor
 	{
 		byte extractedByteCode = extractByteCode(instruction);
 		
-		for(MIPSInstruction plpInstruction : MIPSInstruction.values())
+		for(MIPSInstruction mipsInstruction : MIPSInstruction.values())
 		{
-			if(plpInstruction.getByteCode() == extractedByteCode)
+			if(mipsInstruction.getByteCode() == extractedByteCode)
 			{
-				return plpInstruction.getInstructionType();
+				return mipsInstruction.getInstructionType();
 			}
 		}
 		
@@ -117,6 +117,7 @@ public class InstructionExtractor
 		String ret = mnemonic(instruction);
 		int instrType = instructionType(instruction);
 		
+		//TODO: add a case for the LO and HI ones (maybe). Could use a static map to handle them. (HOW TO GET HI and LO TO WORK ON RECIEVING END THO?)
 		switch (instrType)
 		{
 			case 0:
