@@ -1787,15 +1787,17 @@ public class Main extends Application implements Controller
 		// TODO: remove hard-coded numbers. Where did these even come from?
 		// TODO account for different quick references, such as MIPs, x86, etc
 		
-		String selection = projectExplorer.getActiveSelection().toString(); //returns a long string of the entire classpath
+		Pair selection = projectExplorer.getActiveSelection(); 				//returns a long string of the entire classpath
 																			//starting at edu.asu.plp.....
-		String projectType = selection.split("\\.")[6];						//Index 6 is where the actual project type is specified
-		
-		/*if(selection == null)
+		if(selection == null)
 		{
-			console.println("NO PROJECT TYPE DETECTED, PLEASE SELECT A PROJECT\nOR ASMFILE");
+			console.println("NO PROJECT TYPE DETECTED, PLEASE SELECT A PROJECT OR ASMFILE");
 			return;
-		}*/
+		}
+		
+		String selectionStr = selection.toString();
+		String projectType = selectionStr.split("\\.")[6];					//Index 6 is where the actual project type is specified
+		
 		
 		if(projectType.charAt(0) == 'P')
 			scene = new Scene(plpQuickRef(), 888, 500);
