@@ -1800,13 +1800,16 @@ public class Main extends Application implements Controller
 		
 		
 		if(projectType.charAt(0) == 'P')
+		{
 			scene = new Scene(plpQuickRef(), 888, 500);
-		
+			stage.setTitle("PLP_XX Quick Reference"); //TODO: place version number here
+		}
 		else if(projectType.charAt(0) == 'M')
+		{
 			scene = new Scene(mipsQuickRef(), 900, 500);
+			stage.setTitle("MIPS32 Quick Reference");
+		}
 		
-		
-		stage.setTitle("Quick Reference");
 		stage.setScene(scene);
 		stage.show();
 	}
