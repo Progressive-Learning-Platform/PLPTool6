@@ -33,12 +33,11 @@ public class AccRTypeInstruction extends AbstractInstruction
 	{
 		Argument rsRegisterArgument = arguments[0];
 		Argument rtRegisterArgument = arguments[1];
-		Argument loRegisterArgument = new RegisterArgument("$s8");
 		
-		return assembleEncodings(loRegisterArgument.encode(), rsRegisterArgument.encode(), rtRegisterArgument.encode());
+		return assembleEncodings(rsRegisterArgument.encode(), rtRegisterArgument.encode());
 	}
 	
-	private int assembleEncodings(int encodedRDArgument, int encodedRSArgument, int encodedRTArgument)
+	private int assembleEncodings(int encodedRSArgument, int encodedRTArgument)
 	{
 		
 		//Argument loRegisterArgument = new RegisterArgument("$LO");
@@ -46,7 +45,6 @@ public class AccRTypeInstruction extends AbstractInstruction
 		int encodedBitString = 0;
 		encodedBitString |= (encodedRSArgument & MASK_5BIT) << RS_POSITION;
 		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_POSITION;
-		encodedBitString |= (encodedRDArgument & MASK_5BIT) << RD_POSITION;
 		encodedBitString |= (functCode & MASK_6BIT) << FUNCT_CODE_POSITION;
 		
 		return encodedBitString;

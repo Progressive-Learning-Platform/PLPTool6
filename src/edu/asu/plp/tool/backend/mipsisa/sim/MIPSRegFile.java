@@ -19,9 +19,9 @@ import javafx.beans.property.SimpleLongProperty;
  */
 public class MIPSRegFile implements RegisterFile {
 	/***
-	 * Total number of registers present in PLP processor
+	 * Total number of registers present in MIPS processor
 	 */
-	public static final int NUMBER_OF_REGISTERS = 32;
+	public static final int NUMBER_OF_REGISTERS = 34;
 	
 	/***
 	 * The default value stored in register
@@ -103,25 +103,30 @@ public class MIPSRegFile implements RegisterFile {
 		map.put("t5", 13);
 		map.put("t6", 14);
 		map.put("t7", 15);
-		map.put("t8", 16);
-		map.put("t9", 17);
 		
-		map.put("s0", 18);
-		map.put("s1", 19);
-		map.put("s2", 20);
-		map.put("s3", 21);
-		map.put("s4", 22);
-		map.put("s5", 23);
-		map.put("s6", 24);
-		map.put("s7", 25);
+		map.put("s0", 16);
+		map.put("s1", 17);
+		map.put("s2", 18);
+		map.put("s3", 19);
+		map.put("s4", 20);
+		map.put("s5", 21);
+		map.put("s6", 22);
+		map.put("s7", 23);
 		
-		map.put("i0", 26);
-		map.put("i1", 27);
-		map.put("iv", 28);
+		map.put("t8", 24);
+		map.put("t9", 25);
+		
+		map.put("k0", 26);
+		map.put("k1", 27);
+		map.put("gp", 28);
 		map.put("sp", 29);
-		map.put("ir", 30);
+		map.put("s8", 30);
 		
 		map.put("ra", 31);
+		
+		//pseudo-registers
+		map.put("lo", 32);
+		map.put("hi", 33);
 		return map;
 	}
 	
@@ -256,7 +261,16 @@ public class MIPSRegFile implements RegisterFile {
 		registers[address].set(value);
 		//registers[address].
 		regInstructions[address].set(isInstruction);
-		
+	}
+	
+	/**
+	 * This function will write the value to the registers of $lo and $hi
+	 * @param value to be stored in $hi
+	 * @param value to stored in $lo
+	 */
+	public void write(long valueLO, long valueHI) {
+		registers[32].set(valueLO);
+		registers[33].set(valueHI);
 	}
 	
 	/**
