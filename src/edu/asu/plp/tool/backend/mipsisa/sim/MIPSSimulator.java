@@ -402,11 +402,21 @@ public class MIPSSimulator implements Simulator
 					//regFile.write(rd, pcplus4 + 4, false);
 				}
 			}
+			else if (funct == 0x12 || funct == 0x10) //mflo or mfhi
+			{
+				boolean lo = true;
+				boolean hi = false;
+				if (funct == 0x12) {
+					regFile.write(rd, lo);
+				} else {
+					regFile.write(rd, hi);
+				}
+			}
 			else if (funct == 0x19) //multu
 			{
 				alu_result = alu.evaluate(s, t, instruction);
 				long loResult = alu_result & 0xffffffffL;
-				long hiResult = (alu_result & 0xffffffff00000000L) << 32;
+				long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
 				
 				regFile.write(loResult, hiResult);
 			}

@@ -285,6 +285,22 @@ public class MIPSRegFile implements RegisterFile {
 	}
 	
 	/**
+	 * This function will write the value of $lo or $hi to a given register
+	 * @param address index of the register where data needs to be written
+	 * @param value data to be written to register
+	 */
+	public void write(int address, boolean lo)
+	{
+		validateAddress(address);
+		if (lo) {
+			registers[address].set(registers[32].get());
+		} else {
+			registers[address].set(registers[33].get());
+		}
+		
+	}
+	
+	/**
 	 * Checks if the register indicated by the address holds an instruction or not
 	 * @param address index of the register whose instruction verification needs to be done
 	 * @return true if data stored is an instruciton else false

@@ -34,7 +34,9 @@ public enum MIPSInstruction
 	STORE_WORD("sw", "opcode", 0x2B, 6),
 	
 	//MIPS ONLY
-	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0);
+	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0),
+	MOVE_FROM_LOW("mflo", "function", 0x12, 0),
+	MOVE_FROM_HIGH("mfhi", "function", 0x10, 0);
 	
 	private String identifier;
 	private String type;

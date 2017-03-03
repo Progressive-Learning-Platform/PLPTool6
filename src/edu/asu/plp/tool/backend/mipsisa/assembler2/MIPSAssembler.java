@@ -199,6 +199,9 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addBTypeInstruction("beq", 0x04);
 		
 		//MIPS ONLY
+		mipsInstructions.addRMTypeInstruction("mflo", 0x12);
+		mipsInstructions.addRMTypeInstruction("mfhi", 0x10);
+		
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 	}
 	
@@ -741,6 +744,26 @@ public class MIPSAssembler implements Assembler
 		
 		addRegionAndIncrementAddress();
 		return "or " + destinationRegister + ", $0," + startingRegister;
+	}
+	
+	
+	/**
+	 * Copy Register. Copy $lo to $rd
+	 * 
+	 * mflo $rd
+	 * 
+	 * equivalent to: or $rd, $0, $lo 
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String mfloOperation() throws AssemblerException
+	{
+		expectedNextToken("It needs a to register");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		addRegionAndIncrementAddress();
+		return "addu " + destinationRegister + ", $0, " + "$lo";
 	}
 	
 	
