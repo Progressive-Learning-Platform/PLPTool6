@@ -37,6 +37,10 @@ public class ALU
 					case 0x01: return a << b;
                     case 0x03: return a >> b;
 					case 0x19: return a * b;
+					case 0x1B: 
+						long value = a % b;
+						value = value << 32;
+						return (value & 0xffffffff00000000L) | (a / b & 0x00000000ffffffffL);
 				}
 			case 0x04: return (a - b == 0) ? 1 : 0;
             case 0x05: return (a - b == 0) ? 0 : 1;

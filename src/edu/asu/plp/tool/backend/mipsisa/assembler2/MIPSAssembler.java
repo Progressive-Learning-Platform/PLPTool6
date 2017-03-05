@@ -203,6 +203,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRMTypeInstruction("mfhi", 0x10);
 		
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
+		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);
 	}
 	
 	@Override

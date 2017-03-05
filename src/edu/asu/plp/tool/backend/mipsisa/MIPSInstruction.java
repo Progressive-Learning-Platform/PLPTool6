@@ -35,6 +35,7 @@ public enum MIPSInstruction
 	
 	//MIPS ONLY
 	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0),
+	DIVIDE_UNSIGNED("divu", "function", 0x1B, 0),
 	MOVE_FROM_LOW("mflo", "function", 0x12, 0),
 	MOVE_FROM_HIGH("mfhi", "function", 0x10, 0);
 	

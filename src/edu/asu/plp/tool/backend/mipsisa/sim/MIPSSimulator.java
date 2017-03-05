@@ -412,12 +412,11 @@ public class MIPSSimulator implements Simulator
 					regFile.write(rd, hi);
 				}
 			}
-			else if (funct == 0x19) //multu
+			else if (funct == 0x19 || funct == 0x1B) //multu, divu
 			{
 				alu_result = alu.evaluate(s, t, instruction);
 				long loResult = alu_result & 0xffffffffL;
 				long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
-				
 				regFile.write(loResult, hiResult);
 			}
 			else
