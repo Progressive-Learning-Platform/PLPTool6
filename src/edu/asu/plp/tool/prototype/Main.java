@@ -132,6 +132,7 @@ public class Main extends Application implements Controller
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
 	private Simulator activeSimulator;
+	private Thread simRunThread;
 	private Stage stage;
 	private TabPane openProjectsPanel;
 	private BidiMap<ASMFile, Tab> openFileTabs;
@@ -1563,7 +1564,16 @@ public class Main extends Application implements Controller
 		if (!details.isDirty())
 		{
 			activeSimulator.loadProgram(details.getAssembledImage());
-			performIfActive(activeSimulator::run);
+			//performIfActive(activeSimulator::run);
+			
+			simRunThread = new Thread(new Runnable(){
+				public void run()
+				{
+					activeSimulator.run();
+				}
+			});
+			simRunThread.start();
+			
 		}
 		else
 		{
@@ -1584,7 +1594,13 @@ public class Main extends Application implements Controller
 	{
 		performIfActive(activeSimulator::pause);
 		performIfActive(activeSimulator::reset);
+		if(simRunThread != null)
+		{
+			simRunThread.interrupt();
+			simRunThread = null;
+		}
 		activeSimulator = null;
+		
 		// TODO: deactivate simulation views (e.g. Emulation Window)
 	}
 	

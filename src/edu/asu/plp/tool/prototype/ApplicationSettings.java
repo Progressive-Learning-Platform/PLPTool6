@@ -395,6 +395,8 @@ public class ApplicationSettings
 		//Simulator
 		builder.append("\t\"Simulator\" : {" + newLine);
 		builder.append("\t\t\"speed\" : \"100\"," + newLine);
+		builder.append("\t\t\"cycles per step\" : \"1\"," + newLine);
+		builder.append("\t\t\"simulation run delay per step\" : \"100\","+newLine);
 		builder.append("\t\t\"allow execution of non instruction memory\" : \"true\"," + newLine);
 		builder.append("\t\t\"assume zero on reads from uninitialized memory\" : \"true\"" + newLine);
 		builder.append("\t}" + newLine);

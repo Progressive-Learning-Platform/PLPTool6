@@ -24,6 +24,7 @@
   },
   "Simulator" : {
     "speed" : "100",
+    "cycles per step" : "1",
     "allow execution of non instruction memory" : "true",
     "assume zero on reads from uninitialized memory" : "true"
   },

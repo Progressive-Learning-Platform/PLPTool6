@@ -15,6 +15,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
+import edu.asu.plp.tool.prototype.ApplicationSettings;
 import javafx.beans.property.LongProperty;
 import javafx.util.Pair;
 
@@ -86,9 +87,37 @@ public class PLPSimulator implements Simulator
 	}
 	
 	@Override
-	public boolean run()
+	public void run()
 	{	
-		while(instructionsIssued < assembledImage.getDisassemblyInfo().size()){
+		//boolean bExecute = true;
+		int nStepsperCycle = 1;
+		int nSleepperCycle = 100;
+		
+		statusManager.isSimulationRunning = true;
+		
+		try
+		{
+		
+			while(statusManager.isSimulationRunning == true)
+			{
+				//TODO: Read from the application settings
+				//ApplicationSettings.getSetting("");
+				for(int i = 0; i < nStepsperCycle; i++)
+				{
+					step();
+					//TODO: Check for breakpoint, if so make
+					//bExecute = false
+					
+				}
+				
+				Thread.sleep(nSleepperCycle);
+			}
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		/*while(instructionsIssued < assembledImage.getDisassemblyInfo().size()){
 		if(breakpoints.hasBreakpoint()){
 			if(breakpoints.isBreakpoint(asmInstructionAddress)){ // asmInstructionAddress ?
 				statusManager.isSimulationRunning = false;
@@ -98,7 +127,7 @@ public class PLPSimulator implements Simulator
 			}
 		}
 		}
-		return false;
+		return false;*/
 	}
 	
 	
@@ -714,9 +743,10 @@ public class PLPSimulator implements Simulator
 	}
 	
 	@Override
-	public boolean pause()
+	public void pause()
 	{
-		return false;
+		//return false;
+		statusManager.isSimulationRunning = false;
 	}
 	
 	@Override

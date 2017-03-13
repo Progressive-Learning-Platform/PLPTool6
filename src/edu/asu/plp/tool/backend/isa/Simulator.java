@@ -4,7 +4,7 @@ public interface Simulator
 {
 	boolean isRunning();
 	
-	boolean run();
+	void run();
 	
 	boolean step();
 	
@@ -12,7 +12,7 @@ public interface Simulator
 	
 	boolean isPaused();
 	
-	boolean pause();
+	void pause();
 	
 	boolean isSimModeEnabled();
 	

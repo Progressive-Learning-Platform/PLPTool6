@@ -10,42 +10,75 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
 
 public class MainToolbar extends BorderPane
 {
+	ImageButton newProjectButton = null;
+	ImageButton newFileButton = null;
+	ImageButton openButton = null;
+	ImageButton saveButton = null;
+	ImageButton assembleButton = null;
+	ImageButton simulateButton = null;
+	ImageButton programBoardButton = null;
+	ImageButton stepButton = null;
+	ImageButton runButton = null;
+	ImageButton emulationButton = null;
+	ImageButton resetButton = null;
+	ImageButton cpuViewButton = null;
+	
+	ObservableList<Node> buttons = null;
+	boolean enabledSimulation = false;
+	
 	public MainToolbar(Controller controller)
 	{
 		HBox toolbar = new HBox();
-		Set<ImageButton> runButtons = new HashSet<>();
-		Set<ImageButton> simButtons = new HashSet<>();
+		//Set<ImageButton> runButtons = new HashSet<>();
+		//Set<ImageButton> simButtons = new HashSet<>();
 		toolbar.setPadding(new Insets(1.5, 0, 1, 5));
 		toolbar.setSpacing(5);
-		ObservableList<Node> buttons = toolbar.getChildren();
+		buttons = toolbar.getChildren();
 		
-		ImageButton newProjectButton = new ImageButton("toolbar_new.png");
+		newProjectButton = new ImageButton("toolbar_new.png");
 		newProjectButton.setOnMouseClicked((e) -> controller.createNewProject());
 		buttons.add(newProjectButton);
 		
-		ImageButton newFileButton = new ImageButton("menu_new.png");
+		newFileButton = new ImageButton("menu_new.png");
 		newFileButton.setOnMouseClicked((e) -> controller.createNewASM());
 		buttons.add(newFileButton);
 
-		ImageButton openButton = new ImageButton("toolbar_open.png");
+		openButton = new ImageButton("toolbar_open.png");
 		openButton.setOnMouseClicked((e) -> controller.openProject());
 		buttons.add(openButton);
 		
 		buttons.add(new Separator(Orientation.VERTICAL));
 		
-		ImageButton saveButton = new ImageButton("toolbar_save.png");
+		saveButton = new ImageButton("toolbar_save.png");
 		saveButton.setOnMouseClicked((e) -> controller.saveActiveProject());
 		buttons.add(saveButton);
 		
 		ImageButton assembleButton = new ImageButton("toolbar_assemble.png");
+		ImageButton simulateButton = new ImageButton("toolbar_simulate.png", "toolbar_simulate - On.png");
 		assembleButton.setOnMouseClicked((event) -> {
-			simButtons.forEach(MainToolbar::toggleDisabled);
+			//simButtons.forEach(MainToolbar::toggleDisabled);
+			if(enabledSimulation == true)
+			{
+				
+				buttons.remove(stepButton);
+				buttons.remove(runButton);
+				buttons.remove(resetButton);
+				buttons.remove(cpuViewButton);
+				buttons.remove(emulationButton);
+				buttons.remove(programBoardButton);
+				//simulateButton.toggleImage();
+				simulateButton.setImage(new Image("toolbar_simulate.png"));
+				enabledSimulation = false;
+				controller.stopSimulation();
+				
+			}
 			controller.assembleActiveProject();
 		});
 		buttons.add(assembleButton);
@@ -53,13 +86,45 @@ public class MainToolbar extends BorderPane
 		assembleTooltip.setText("Once Assembled, the Simulate Project button will become enabled.");
 		Tooltip.install(assembleButton, assembleTooltip);
 		
-		ImageButton simulateButton = new ImageButton("toolbar_simulate.png", "toolbar_simulate_grey.png");
+		//ImageButton simulateButton = new ImageButton("toolbar_simulate.png", "toolbar_simulate - On.png");
 		simulateButton.setOnMouseClicked((event) -> {
-			controller.simulateActiveProject();
-			runButtons.forEach(MainToolbar::toggleDisabled);
+			
+			if(enabledSimulation == true)
+			{
+				controller.stopSimulation();
+				buttons.remove(stepButton);
+				buttons.remove(runButton);
+				buttons.remove(resetButton);
+				buttons.remove(cpuViewButton);
+				buttons.remove(emulationButton);
+				buttons.remove(programBoardButton);
+				//simulateButton.toggleImage();
+				simulateButton.setImage(new Image("toolbar_simulate.png"));
+				
+				
+				enabledSimulation = false;
+				
+			}
+			else
+			{
+				buttons.add(stepButton);
+				buttons.add(runButton);
+				buttons.add(resetButton);
+				buttons.add(cpuViewButton);
+				buttons.add(emulationButton);
+				buttons.add(programBoardButton);
+				//simulateButton.toggleImage();
+				simulateButton.setImage(new Image("toolbar_simulate - On.png"));
+				enabledSimulation = true;
+				controller.assembleActiveProject();
+				controller.simulateActiveProject();
+			}
+			
+			
+			//runButtons.forEach(MainToolbar::toggleDisabled);
 		});
 		buttons.add(simulateButton);
-		simButtons.add(simulateButton);
+		//simButtons.add(simulateButton);
 		Tooltip simTooltip = new Tooltip();
 		simTooltip.setText("Once the Sim button is clicked, the Run and Emulator buttons will enable.");
 		Tooltip.install(simulateButton, simTooltip);
@@ -70,40 +135,40 @@ public class MainToolbar extends BorderPane
 		 *
 		 *Probably not included in our scope.
 		 */
-		ImageButton programBoardButton = new ImageButton("toolbar_program.png");
+		programBoardButton = new ImageButton("toolbar_program.png");
 		programBoardButton.setOnMouseClicked((e) -> controller.downloadActiveProjectToBoard());
-		buttons.add(programBoardButton);
+		//buttons.add(programBoardButton);
 		
-		buttons.add(new Separator(Orientation.VERTICAL));
+		//buttons.add(new Separator(Orientation.VERTICAL));
 		
-		ImageButton stepButton = new ImageButton("toolbar_step.png", "toolbar_step_grey.png");		
+		stepButton = new ImageButton("toolbar_step.png", "toolbar_step_grey.png");		
 		stepButton.setOnMouseClicked((e) -> controller.stepSimulation());
-		buttons.add(stepButton);
-		runButtons.add(stepButton);
+		//buttons.add(stepButton);
+		//runButtons.add(stepButton);
 		
-		ImageButton runButton = new ImageButton("toolbar_run.png", "toolbar_run_grey.png");
+		runButton = new ImageButton("toolbar_run.png", "toolbar_run_grey.png");
 		runButton.setOnMouseClicked((e) -> controller.runSimulation());
-		buttons.add(runButton);
-		runButtons.add(runButton);
+		//buttons.add(runButton);
+		//runButtons.add(runButton);
 		
-		ImageButton resetButton = new ImageButton("toolbar_reset.png", "toolbar_reset_grey.png");
+		resetButton = new ImageButton("toolbar_reset.png", "toolbar_reset_grey.png");
 		resetButton.setOnMouseClicked((e) -> controller.resetSimulation());
-		buttons.add(resetButton);
-		runButtons.add(resetButton);
+		//buttons.add(resetButton);
+		//runButtons.add(resetButton);
 		
-		buttons.add(new Separator(Orientation.VERTICAL));
+		//buttons.add(new Separator(Orientation.VERTICAL));
 		
-		ImageButton emulationButton = new ImageButton("toolbar_watcher.png");
+		emulationButton = new ImageButton("toolbar_watcher.png");
 		emulationButton.setOnMouseClicked((e) -> controller.showEmulationWindow());
-		buttons.add(emulationButton);
-		runButtons.add(emulationButton);
+		//buttons.add(emulationButton);
+		//runButtons.add(emulationButton);
 		
-		ImageButton cpuViewButton = new ImageButton("toolbar_cpu.png");
+		cpuViewButton = new ImageButton("toolbar_cpu.png");
 		cpuViewButton.setOnMouseClicked((e) -> controller.openCpuViewWindow());
-		buttons.add(cpuViewButton);
+		//buttons.add(cpuViewButton);
 
-		simButtons.forEach(MainToolbar::toggleDisabled);
-		runButtons.forEach(MainToolbar::toggleDisabled);
+		//simButtons.forEach(MainToolbar::toggleDisabled);
+		//runButtons.forEach(MainToolbar::toggleDisabled);
 		this.setCenter(toolbar);
 		
 	}
