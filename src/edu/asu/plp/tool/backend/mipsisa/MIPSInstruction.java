@@ -37,7 +37,8 @@ public enum MIPSInstruction
 	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0),
 	DIVIDE_UNSIGNED("divu", "function", 0x1B, 0),
 	MOVE_FROM_LOW("mflo", "function", 0x12, 0),
-	MOVE_FROM_HIGH("mfhi", "function", 0x10, 0);
+	MOVE_FROM_HIGH("mfhi", "function", 0x10, 0),
+	EXCLUSIVE_OR("xor", "function", 0x26, 0);
 	
 	private String identifier;
 	private String type;

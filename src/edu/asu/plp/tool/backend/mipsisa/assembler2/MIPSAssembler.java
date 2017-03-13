@@ -126,9 +126,11 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("nop", this::nopOperation);
 		pseudoOperationMap.put("b", this::branchOperation);
 		pseudoOperationMap.put("move", this::moveOperation);
+		pseudoOperationMap.put("li", this::liOperation);
+		
+		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
 		pseudoOperationMap.put("pop", this::popOperation);
-		pseudoOperationMap.put("li", this::liOperation);
 		pseudoOperationMap.put("call", this::callOperation);
 		pseudoOperationMap.put("return", this::returnOperation);
 		pseudoOperationMap.put("save", this::saveOperation);
@@ -189,7 +191,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addITypeInstruction("slti", 0x0a);
 		mipsInstructions.addITypeInstruction("sltiu", 0x0b);
 		
-		//mipsInstructions.addRIUTypeInstruction("lui", 0x0f);
+		mipsInstructions.addRIUTypeInstruction("lui", 0x0f);
 		
 		mipsInstructions.addRLTypeInstruction("lw", 0x23);
 		mipsInstructions.addRLTypeInstruction("sw", 0x2B);
@@ -204,6 +206,7 @@ public class MIPSAssembler implements Assembler
 		
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);
+		mipsInstructions.addRTypeInstruction("xor", 0x26);
 	}
 	
 	@Override
