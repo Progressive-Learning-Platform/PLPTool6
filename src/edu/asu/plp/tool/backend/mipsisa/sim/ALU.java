@@ -47,6 +47,7 @@ public class ALU
             case 0x05: return (a - b == 0) ? 0 : 1;
             case 0x0c: return a & b;
             case 0x0d: return a | b;
+            case 0x0e: return a ^ b;
             case 0x0f: return b << 16;
             case 0x0A:
                 int aSigned = (int) a;

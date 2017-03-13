@@ -207,6 +207,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);
 		mipsInstructions.addRTypeInstruction("xor", 0x26);
+		mipsInstructions.addITypeInstruction("xori", 0x0e);
 	}
 	
 	@Override

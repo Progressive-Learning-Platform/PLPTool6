@@ -486,7 +486,7 @@ public class MIPSSimulator implements Simulator
 				regFile.write(31,  (int)pcplus4 + 4, false);
 			}
 		}
-		else if(opcode == 0x0C || opcode == 0x0D) //ori, andi
+		else if(opcode == 0x0C || opcode == 0x0D || opcode == 0x0E) //ori, andi, xori
 		{
 			alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
 			//TODO memory write
