@@ -289,13 +289,21 @@ public class MIPSRegFile implements RegisterFile {
 	 * @param address index of the register where data needs to be written
 	 * @param value data to be written to register
 	 */
-	public void write(int address, boolean lo)
+	public void write(int address, boolean lo, boolean from)
 	{
 		validateAddress(address);
 		if (lo) {
-			registers[address].set(registers[32].get());
+			if (from) {
+				registers[address].set(registers[32].get());
+			} else { //to low
+				registers[32].set(registers[address].get());
+			}
 		} else {
-			registers[address].set(registers[33].get());
+			if (from) {
+				registers[address].set(registers[33].get());
+			} else { //to high
+				registers[33].set(registers[address].get());
+			}
 		}
 		
 	}

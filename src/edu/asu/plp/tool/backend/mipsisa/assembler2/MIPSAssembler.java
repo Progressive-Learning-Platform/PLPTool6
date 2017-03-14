@@ -203,6 +203,8 @@ public class MIPSAssembler implements Assembler
 		//MIPS ONLY
 		mipsInstructions.addRMTypeInstruction("mflo", 0x12);
 		mipsInstructions.addRMTypeInstruction("mfhi", 0x10);
+		mipsInstructions.addRMTypeInstruction("mtlo", 0x13);
+		mipsInstructions.addRMTypeInstruction("mthi", 0x11);
 		
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);

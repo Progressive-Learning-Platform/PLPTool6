@@ -402,14 +402,20 @@ public class MIPSSimulator implements Simulator
 					//regFile.write(rd, pcplus4 + 4, false);
 				}
 			}
-			else if (funct == 0x12 || funct == 0x10) //mflo or mfhi
+			else if (funct == 0x12 || funct == 0x10 || funct == 0x11 || funct == 0x13) //mflo, mfhi, mtlo, mthi
 			{
 				boolean lo = true;
 				boolean hi = false;
+				boolean from  = true;
+				boolean to = false;
 				if (funct == 0x12) {
-					regFile.write(rd, lo);
+					regFile.write(rd, lo, from);
+				} else if (funct == 0x10) {
+					regFile.write(rd, hi, from);
+				} else if (funct == 0x13) {
+					regFile.write(rd, lo, to);
 				} else {
-					regFile.write(rd, hi);
+					regFile.write(rd, hi, to);					
 				}
 			}
 			else if (funct == 0x19 || funct == 0x1B) //multu, divu
