@@ -49,7 +49,7 @@ public class SetupDevicesandMemory {
 		
 	}
 	
-	private String getKeyName(ArrayList lst)
+	/*private String getKeyName(ArrayList lst)
 	{
 		String key = "";
 		for(Object str:lst)
@@ -61,7 +61,7 @@ public class SetupDevicesandMemory {
 		key = key.replaceFirst("_", "");
 		
 		return key;
-	}
+	}*/
 	
 	public void setup()
 	{
@@ -87,17 +87,17 @@ public class SetupDevicesandMemory {
 			keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.mainMemoryKey);
 			keys.add(SetupDevicesandMemory.startAddressKey);
-			String startAddress = getKeyName(keys);
+			String startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 			keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.mainMemoryKey);
 			keys.add(SetupDevicesandMemory.sizeKey);
-			String size = getKeyName(keys);
+			String size = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 			keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.mainMemoryKey);
 			keys.add(SetupDevicesandMemory.alignedKey);
-			String aligned = getKeyName(keys);
+			String aligned = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 	        PLPToolMainMemory mem = new PLPToolMainMemory(Long.decode(ApplicationSettings.getSetting(startAddress).get()),Long.decode(ApplicationSettings.getSetting(size).get()), Boolean.getBoolean(ApplicationSettings.getSetting(aligned).get()));
 	        SetupDevicesandMemory.MAIN_MEMORY_INDEX =  sim.getAddressBus().add(mem);
@@ -106,7 +106,7 @@ public class SetupDevicesandMemory {
 	        keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.ledKey);
 			keys.add(SetupDevicesandMemory.startAddressKey);
-			startAddress = getKeyName(keys);
+			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 			
 	        LEDArray led = new LEDArray(Long.decode(ApplicationSettings.getSetting(startAddress).get()));
@@ -115,7 +115,7 @@ public class SetupDevicesandMemory {
 	        keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.switchKey);
 			keys.add(SetupDevicesandMemory.startAddressKey);
-			startAddress = getKeyName(keys);
+			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 	        Switches swit = new Switches(Long.decode(ApplicationSettings.getSetting(startAddress).get()));
 	        SetupDevicesandMemory.SWITCH_INDEX = sim.getAddressBus().add(swit);
@@ -126,7 +126,7 @@ public class SetupDevicesandMemory {
 	        keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.uartKey);
 			keys.add(SetupDevicesandMemory.startAddressKey);
-			startAddress = getKeyName(keys);
+			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 	        UART uart = new UART(Long.decode(ApplicationSettings.getSetting(startAddress).get()), sim);
 	        SetupDevicesandMemory.UART_INDEX = sim.getAddressBus().add(uart);
@@ -134,7 +134,7 @@ public class SetupDevicesandMemory {
 	        keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
 			keys.add(SetupDevicesandMemory.sevenSegmentKey);
 			keys.add(SetupDevicesandMemory.startAddressKey);
-			startAddress = getKeyName(keys);
+			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 	        SevenSegmentDisplay segDisplay = new SevenSegmentDisplay(Long.decode(ApplicationSettings.getSetting(startAddress).get()));
 	        SetupDevicesandMemory.SEVEN_SEGMENT_INDEX = sim.getAddressBus().add(segDisplay);

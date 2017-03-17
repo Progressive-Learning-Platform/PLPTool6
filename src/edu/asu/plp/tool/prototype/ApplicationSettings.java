@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -117,6 +118,20 @@ public class ApplicationSettings
 	public static Optional<String> getSetting( Setting setting )
 	{
 		return getSetting(setting.toString());
+	}
+	
+	public static String getKeyName(ArrayList lst)
+	{
+		String key = "";
+		for(Object str:lst)
+		{
+			String k = (String)str;
+			key += ("_"+k);
+		}
+		
+		key = key.replaceFirst("_", "");
+		
+		return key;
 	}
 
 	/**

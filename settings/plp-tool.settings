@@ -28,6 +28,83 @@
     "allow execution of non instruction memory" : "true",
     "assume zero on reads from uninitialized memory" : "true"
   },
+  "ErrorMessageSystem" : {
+  	"ASSEMBLER_DIRECTIVE_ERROR": {
+  		"MISSING_TOKEN_ERROR": {
+  			"Description":"This error is caused due to incomplete assembler directive. Instruction is missing some information.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#assembler-directives",
+  			"Examples":"BEFORE CORRECTION: .word\nAFTER CORRECTION: .word 4\n\nBEFORE CORRECTION: .org\nAFTER CORRECTION:.org 0x12345678"
+  		},
+  		"INVALID_TOKEN_ERROR": {
+  			"Description":"This error is caused due to wrong information provided in the instruction. Here assembler directive was expecting some other value.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#assembler-directives",
+  			"Examples":"BEFORE CORRECTION: .word main\nAFTER CORRECTION: .word 4\n\nBEFORE CORRECTION: .ascii 45\nAFTER CORRECTION: .ascii \"enter number\""
+  		}
+  	},
+  	"DUPLICATE_LABEL_ERROR": {
+  		"DUPLICATE_LABEL_ERROR":{
+  			"Description":"This error is caused due to multiple usage of same label. A name once used for label cannot be used to create one more label.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#control-flow-operations",
+  			"Examples":"BEFORE CORRECTION: main:\naddu $t1, $t2, $t3\nj main\nmain:\nsubu $t1,$t2,$t3\n\nAFTER CORRECTION: main:\naddu $t1, $t2, $t3\nj main\n"
+  		}
+  	},
+  	"INVALID_TOKEN_ERROR":{
+  		"INVALID_INSTRUCTION_ERROR":{
+  			"Description":"This error is caused due to wrong instruction name. PLP does not have an instruction as mentioned in the code.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#operations",
+  			"Examples":"BEFORE CORRECTION: sub $t1, $t2, $t3\nAFTER CORRECTION: subu $t1, $t2, $t3\n\nBEFORE CORRECTION: add $t1, $t2, 34\nAFTER CORRECTION: addiu $t1, $t2, 34"
+  		},
+  		"INVALID_LABEL_ERROR":{
+  			"Description":"This error is caused due to missing colon \":\" after label name.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#labels",
+  			"Examples":"BEFORE CORRECTION: addition\naddu $t1,$t2,$t3\n\nAFTER CORRECTION: addition:\naddu $t1, $t2, $t3"
+  		}
+  	},
+  	"INVALID_LABEL_TARGET_ERROR":{
+  		"INVALID_JUMP_TARGET_ERROR":{
+  			"Description":"Here the label mentioned in the instruction is not yet defined in the program. Please define the the label before using it in the instruction",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#unconditional-jump",
+  			"Examples":"BEFORE CORRECTION: j add\naddition:\naddu $t1, $t2, $t3\n\nAFTER CORRECTION: j addition\naddition:\naddu $t1,$t2,$t3\n"
+  		},
+  		"INVALID_BRANCH_TARGET_ERROR":{
+  			"Description":"Here the label mentioned in the instruction is not yet defined in the program. Please define the the label before using it in the instruction",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#conditional-branch",
+  			"Examples":"BEFORE CORRECTION: beq $s0, $0, add\naddition:\naddu $t1, $t2, $t3\n\nAFTER CORRECTION: beq $s0, $0, addition\naddition:\naddu $t1,$t2,$t3\n"
+  		}
+  	},
+  	"INVALID_NUMBER_OF_TOKENS_ERROR": {
+  		"MISSING_TOKENS_ERROR":{
+  			"Description":"This error is caused due to incomplete instruction.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#operations",
+  			"Examples":""
+  		},
+  		"EXTRA_TOKENS_ERROR":{
+  			"Description":"This error is caused due to extra operands are provided with the instruction.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#operations",
+  			"Examples":""
+  		},
+  		"NOT_MATCHING_ERROR":{
+  			"Description":"",
+  			"Links":"",
+  			"Examples":""
+  		}
+  	},
+  	"INVALID_REGISTER_ERROR": {
+  		"NOT_REGISTER_ERROR" : {
+  			"Description":"Register used is not recognized by the PLP.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html#registers-names-and-conventions",
+  			"Examples":"BEFORE CORRECTION: addu $t1, $t2, $a4\nAFTER CORRECTION: addu $t1, $t2, $a3"
+  		}
+  	},
+  	"INVALID_NUMBER_ERROR": {
+  		"NOT_A_NUMBER_ERROR" : {
+  			"Description":"Expected a number in the instruction. But found something else.",
+  			"Links":"http://progressive-learning-platform.github.io/instructions.html",
+  			"Examples":"BEFORE CORRECTION: addiu $t1, $t2, $t3\nAFTER CORRECTION: addiu $t1, $t2, 40\n\nBEFORE CORRECTION:li $a1, $t3\nAFTER CORRECTION: li $a1, 200"
+  		}
+  	}
+  	
+  },
   "DevicesandMemory" : {
 	  "MainMemory": {
 	    "start address": "0x10000000",
