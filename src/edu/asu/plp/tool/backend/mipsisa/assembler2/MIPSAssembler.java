@@ -127,6 +127,7 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("b", this::branchOperation);
 		pseudoOperationMap.put("move", this::moveOperation);
 		pseudoOperationMap.put("li", this::liOperation);
+		pseudoOperationMap.put("la", this::laOperation);
 		
 		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
@@ -1046,6 +1047,53 @@ public class MIPSAssembler implements Assembler
 		
 		preprocessedInstructions = preprocessedInstructions + "addiu $sp, $sp, " + ((registerMap.size() / 2) - 2)* 4;
 		addRegionAndIncrementAddress(registerCount, registerCount * 4);
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Load Address
+	 * 
+	 * Load a 32-bit number to $rd Load the address of a label to a register to be used as
+	 * a pointer.
+	 * 
+	 * <p>
+	 * la $rd, address
+	 * </p>
+	 * <p>
+	 * la $rd, label
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: addiu $rd, address
+	 * </p>
+	 * 
+	 * Alternate representation
+	 * <p>
+	 * equivalent to: lui $rd, (imm & 0xff00) >> 16; ori $rd, imm & 0x00ff
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String laOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("It needs register and an address which needs to be loaded");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by value which needs to be loaded to register " + targetRegister);
+		ensureTokenEquality("Expected a comma after " + targetRegister,
+				MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a comma followed by an address which needs to be loaded to register " + targetRegister);
+		String addressOrLabel = currentToken.getValue();
+		ensureTokenEquality("Expected an address or label", 
+				MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
+		
+		
+		preprocessedInstructions = String.format("lui %s, %s", targetRegister,ASM__HIGH__ + addressOrLabel) + "\n" +
+				String.format("ori %s, %s, %s", targetRegister,targetRegister, ASM__LOW__ + addressOrLabel);
+		addRegionAndIncrementAddress(2, 8);
 		return preprocessedInstructions;
 	}
 	
