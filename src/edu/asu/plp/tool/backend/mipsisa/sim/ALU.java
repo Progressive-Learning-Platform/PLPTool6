@@ -58,6 +58,26 @@ public class ALU
             case 0x09:
             case 0x23:
             case 0x2B: return a + b;
+            case 0x1C:
+            	switch (InstructionExtractor.funct(instruction)) {
+            		case 0x20:
+            			int n = 0;
+            		    if (a <= 0x0000ffff) { n += 16; a <<= 16; }
+            		    if (a <= 0x00ffffff) { n +=  8; a <<= 8; }
+            		    if (a <= 0x0fffffff) { n +=  4; a <<= 4; }
+            		    if (a <= 0x3fffffff) { n +=  2; a <<= 2; }
+            		    if (a <= 0x7fffffff) n ++;
+            		    return n;
+            		case 0x21:
+            			int n1 = 0;
+            			
+            			if (a >= 0xffff0000) { n1 += 16; a >>= 16; }
+            			if (a >= 0xff000000) { n1 +=  8; a >>= 8; }
+            		    if (a >= 0xf0000000) { n1 +=  4; a >>= 4; }
+            		    if (a >= 0x70000000) { n1 +=  2; a >>= 2; }
+            		    if (a >= 0x30000000) n1 ++;
+            		    return n1;
+            	}
 		}
 		//@formatter:on
 		return -1;

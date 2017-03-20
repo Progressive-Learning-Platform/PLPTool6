@@ -41,7 +41,9 @@ public enum MIPSInstruction
 	MOVE_TO_LOW("mtlo", "function", 0x13, 0),
 	MOVE_TO_HIGH("mthi", "function", 0x11, 0),
 	EXCLUSIVE_OR("xor", "function", 0x26, 0),
-	EXCLUSIVE_OR_IMMEDIATE("xori", "opcode", 0x0E, 4);
+	EXCLUSIVE_OR_IMMEDIATE("xori", "opcode", 0x0E, 4),
+	COUNT_LEADING_ZEROES("clz", "opcode", 0x1C, 9), //IS 9 RIGHT?
+	COUNT_LEADING_ONES("clo", "opcode", 0x1C, 9); //IS 9 RIGHT?
 	
 	private String identifier;
 	private String type;

@@ -201,15 +201,21 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addBTypeInstruction("beq", 0x04);
 		
 		//MIPS ONLY
+		//LO and HI
 		mipsInstructions.addRMTypeInstruction("mflo", 0x12);
 		mipsInstructions.addRMTypeInstruction("mfhi", 0x10);
 		mipsInstructions.addRMTypeInstruction("mtlo", 0x13);
 		mipsInstructions.addRMTypeInstruction("mthi", 0x11);
 		
+		//Opcode 0x1c
+		mipsInstructions.addRCTypeInstruction("clz", 0x1c, 0x20);
+		mipsInstructions.addRCTypeInstruction("clo", 0x1c, 0x21);
+		
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);
 		mipsInstructions.addRTypeInstruction("xor", 0x26);
 		mipsInstructions.addITypeInstruction("xori", 0x0e);
+		
 	}
 	
 	@Override
