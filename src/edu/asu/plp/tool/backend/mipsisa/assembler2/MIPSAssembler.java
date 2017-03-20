@@ -212,6 +212,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRCTypeInstruction("clz", 0x1c, 0x20);
 		mipsInstructions.addRCTypeInstruction("clo", 0x1c, 0x21);
 		
+		mipsInstructions.addRTypeInstruction("add", 0x20);
 		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
 		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);
 		mipsInstructions.addRTypeInstruction("xor", 0x26);

@@ -20,6 +20,7 @@ public class ALU
 					case 0x25: return a | b;
 					case 0x26: return a ^ b;
 					case 0x27: return ~(a | b);
+					case 0x20: //OVERFLOW HERE if a+b overflows
 					case 0x21: return a + b;
 					case 0x23: return a - b;
 					case 0x2A:

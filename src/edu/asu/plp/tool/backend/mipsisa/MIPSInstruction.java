@@ -34,6 +34,7 @@ public enum MIPSInstruction
 	STORE_WORD("sw", "opcode", 0x2B, 6),
 	
 	//MIPS ONLY
+	ADD("add", "function", 0x20, 0),
 	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0),
 	DIVIDE_UNSIGNED("divu", "function", 0x1B, 0),
 	MOVE_FROM_LOW("mflo", "function", 0x12, 0),
