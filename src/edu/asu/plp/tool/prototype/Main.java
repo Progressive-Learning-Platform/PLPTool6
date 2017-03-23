@@ -1577,7 +1577,12 @@ public class Main extends Application implements Controller
 			simRunThread = new Thread(new Runnable(){
 				public void run()
 				{
-					activeSimulator.run();
+					try {
+						activeSimulator.run();
+					} catch (SimulatorException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			});
 			simRunThread.start();

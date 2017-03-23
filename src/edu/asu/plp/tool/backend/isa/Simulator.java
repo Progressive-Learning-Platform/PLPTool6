@@ -6,7 +6,7 @@ public interface Simulator
 {
 	boolean isRunning();
 	
-	void run();
+	void run() throws SimulatorException;
 	
 	boolean step() throws SimulatorException;
 	
