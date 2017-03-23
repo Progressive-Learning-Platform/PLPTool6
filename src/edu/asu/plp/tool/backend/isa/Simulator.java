@@ -1,12 +1,14 @@
 package edu.asu.plp.tool.backend.isa;
 
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
+
 public interface Simulator
 {
 	boolean isRunning();
 	
 	void run();
 	
-	boolean step();
+	boolean step() throws SimulatorException;
 	
 	void reset();
 	
