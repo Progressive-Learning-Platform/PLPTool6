@@ -82,6 +82,7 @@ import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.core.ISAModule;
@@ -1702,7 +1703,14 @@ public class Main extends Application implements Controller
 	@Override
 	public void stepSimulation()
 	{
-		performIfActive(activeSimulator::step);
+		performIfActive(() -> {
+			try {
+				activeSimulator.step();
+			} catch (SimulatorException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 	}
 	
 	private void performIfActive(Subroutine subroutine)
