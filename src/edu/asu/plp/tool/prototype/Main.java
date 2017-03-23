@@ -1707,8 +1707,7 @@ public class Main extends Application implements Controller
 			try {
 				activeSimulator.step();
 			} catch (SimulatorException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				console.println(e.getMessage());
 			}
 		});
 	}
@@ -1747,7 +1746,15 @@ public class Main extends Application implements Controller
 		if (!details.isDirty())
 		{
 			activeSimulator.loadProgram(details.getAssembledImage());
-			performIfActive(activeSimulator::run);
+			performIfActive(() -> {
+				try {
+					activeSimulator.run();
+				} catch (SimulatorException e) {
+					// pause on exception
+					activeSimulator.pause();
+					console.println(e.getMessage());
+				}
+			});
 		}
 		else
 		{
