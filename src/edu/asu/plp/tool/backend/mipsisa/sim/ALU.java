@@ -93,6 +93,13 @@ public class ALU
             		    if (a >= 0x30000000) n1 ++;
             		    return n1;
             	}
+            case 0x1F:
+            	switch(InstructionExtractor.funct(instruction)) {
+            		case 0x18:
+            			return (long) (short) (a & 0xffff);
+            		case 0x10:
+            			return (long) (char) (a & 0xff);
+            	}
 		}
 		//@formatter:on
 		return -1;
