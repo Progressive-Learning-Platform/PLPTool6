@@ -8,6 +8,7 @@ import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.assembler.PLPAssembler;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPSimulator;
 import edu.asu.plp.tool.backend.util.FileUtil;
@@ -49,7 +50,12 @@ public class SimulatorConsole
 			System.exit(-1);
 		}
 		
-		simulator.step();
+		try {
+			simulator.step();
+		} catch (SimulatorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		long endTime = System.nanoTime();
 		

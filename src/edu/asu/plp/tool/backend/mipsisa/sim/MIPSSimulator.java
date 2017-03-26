@@ -8,6 +8,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.mipsisa.MIPSASMImage;
 import edu.asu.plp.tool.backend.mipsisa.sim.stages.ExecuteStage;
@@ -86,7 +87,7 @@ public class MIPSSimulator implements Simulator
 	}
 
 	@Override
-	public boolean run()
+	public boolean run() throws SimulatorException
 	{
 		while(instructionsIssued < assembledImage.getDisassemblyInfo().size()){
 		if(breakpoints.hasBreakpoint()){
@@ -113,7 +114,7 @@ public class MIPSSimulator implements Simulator
 	}
 
 	@Override
-	public boolean step()
+	public boolean step() throws SimulatorException
 	{
 		statusManager.advanceFlags();
 		instructionsIssued++;
@@ -334,11 +335,13 @@ public class MIPSSimulator implements Simulator
 			return fetch();
 	}
 
-	private boolean stepFunctional()
+	private boolean stepFunctional() throws SimulatorException
 	{
 		programCounter.clock();
-		fetch(); // get the instruction
-
+		// get the instruction
+		boolean validInstruction = fetch();
+		
+		// execute
 		long instruction = instructionDecodeStage.getState().nextInstruction;
 
 		//fill a nop for our interrupts jalr branch delay slot
@@ -371,184 +374,202 @@ public class MIPSSimulator implements Simulator
 			programCounter.write(branchDestination);
 			isBranched = false;
 		}
-
-		//decode instruction
-		int opcode = InstructionExtractor.opcode(instruction);
-		byte rs = InstructionExtractor.rs(instruction);
-		byte rd = InstructionExtractor.rd(instruction);
-		byte rt = InstructionExtractor.rt(instruction);
-		byte funct = InstructionExtractor.funct(instruction);
-		long imm = InstructionExtractor.imm(instruction);
-		long jaddr = InstructionExtractor.jaddr(instruction);
-
-		//TODO memory read
-		long s = regFile.read(rs);	//0; //regFile.read(rs)
-		long t = regFile.read(rt);	//0; //regFile.read(rt)
-		long s_imm = (short) imm & 0xffffffffL;
-		long alu_result;
-
-		//execute
-		if(opcode == 0)
-		{
-			if(funct == 0x08 || funct == 0x09) //JR
+		
+		// skip over decoding invalid instruction, but keep incrementing PC
+		if (validInstruction) {
+			//decode instruction
+			int opcode = InstructionExtractor.opcode(instruction);
+			byte rs = InstructionExtractor.rs(instruction);
+			byte rd = InstructionExtractor.rd(instruction);
+			byte rt = InstructionExtractor.rt(instruction);
+			byte funct = InstructionExtractor.funct(instruction);
+			long imm = InstructionExtractor.imm(instruction);
+			long jaddr = InstructionExtractor.jaddr(instruction);
+	
+			//TODO memory read
+			long s = regFile.read(rs);	//0; //regFile.read(rs)
+			long t = regFile.read(rt);	//0; //regFile.read(rt)
+			long s_imm = (short) imm & 0xffffffffL;
+			long alu_result;
+	
+			// execute, catching all possible SimulatorExceptions
+			try 
 			{
-				isBranched = true;
-				branchDestination = s;
-
-				if(funct  == 0x09) //jalr
+				if(opcode == 0)
 				{
+					if(funct == 0x08 || funct == 0x09) //JR
+					{
+						isBranched = true;
+						branchDestination = s;
+		
+						if(funct  == 0x09) //jalr
+						{
+							//TODO memory write
+							regFile.write(rd, (int)pcplus4 + 4, false);
+							//regFile.write(rd, pcplus4 + 4, false);
+						}
+					}
+					else if (funct == 0x12 || funct == 0x10 || funct == 0x11 || funct == 0x13) //mflo, mfhi, mtlo, mthi
+					{
+						boolean lo = true;
+						boolean hi = false;
+						boolean from  = true;
+						boolean to = false;
+						if (funct == 0x12) {
+							regFile.write(rd, lo, from);
+						} else if (funct == 0x10) {
+							regFile.write(rd, hi, from);
+						} else if (funct == 0x13) {
+							regFile.write(rd, lo, to);
+						} else {
+							regFile.write(rd, hi, to);					
+						}
+					}
+					else if (funct == 0x19 || funct == 0x1B) //multu, divu
+					{
+						alu_result = alu.evaluate(s, t, instruction);
+						long loResult = alu_result & 0xffffffffL;
+						long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
+						regFile.write(loResult, hiResult);
+					}
+					else
+					{
+						alu_result = alu.evaluate(s, t, instruction);
+						alu_result &= 0xffffffffL;
+		
+						//TODO memory write
+						regFile.write(rd, (int)alu_result, false);
+						//regFile.write(rd, alu_result, false);
+					}
+				}
+				else if(opcode == 0x04) //beq
+				{
+					if(s == t)
+					{
+						isBranched = true;
+						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+					}
+				}
+				else if(opcode == 0x05) //bne
+				{
+					if(s != t)
+					{
+						isBranched = true;
+						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+					}
+				}
+				else if(opcode == 0x23) //lw
+				{
+					//TODO bus read
+					//Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
+					//Object odata = addressBus.read((s + s_imm) & 0xffffffffL);
+					Long data = (Long)addressBus.read((s + s_imm) & 0xffffffffL);
+					//Integer data = 0;
+					if(data == null)
+					{
+						System.out.println("Bus read error");
+						return false;
+					}
+		
 					//TODO memory write
-					regFile.write(rd, (int)pcplus4 + 4, false);
-					//regFile.write(rd, pcplus4 + 4, false);
+					//regFile.write(rt, data, false);
+					regFile.write(rt, data.longValue(), false);
 				}
-			}
-			else if (funct == 0x12 || funct == 0x10 || funct == 0x11 || funct == 0x13) //mflo, mfhi, mtlo, mthi
-			{
-				boolean lo = true;
-				boolean hi = false;
-				boolean from  = true;
-				boolean to = false;
-				if (funct == 0x12) {
-					regFile.write(rd, lo, from);
-				} else if (funct == 0x10) {
-					regFile.write(rd, hi, from);
-				} else if (funct == 0x13) {
-					regFile.write(rd, lo, to);
-				} else {
-					regFile.write(rd, hi, to);					
+				else if(opcode == 0x2B) //sw
+				{
+					//TODO bus write
+					//int ret = bus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
+					int ret = addressBus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
+		
+					if(ret > 0)
+					{
+						System.out.println("Bus write error");
+						return false;
+					}
 				}
-			}
-			else if (funct == 0x19 || funct == 0x1B) //multu, divu
-			{
-				alu_result = alu.evaluate(s, t, instruction);
-				long loResult = alu_result & 0xffffffffL;
-				long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
-				regFile.write(loResult, hiResult);
-			}
-			else if (funct == 0x0A) //movz
-			{
-				if (t == 0) {
-					regFile.write(rd, s, false);
+				else if(opcode == 0x02 || opcode == 0x03) // j
+				{
+					isBranched = true;
+					branchDestination = jaddr << 2 | (pcplus4 & 0xf0000000L);
+		
+					if(opcode == 0x03) //jal
+					{
+						//TODO memory write
+						//regFile.write(31, pcplus4 + 4, false);
+						regFile.write(31,  (int)pcplus4 + 4, false);
+					}
 				}
-			}
-			else if (funct == 0x0B) //movn
-			{
-				if (t != 0) {
-					regFile.write(rd, s, false);
+				else if(opcode == 0x0C || opcode == 0x0D || opcode == 0x0E) //ori, andi, xori
+				{
+					alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
+					//TODO memory write
+					//regFile.write(rt, alu_result, false);
+					regFile.write(rt, alu_result, false);
 				}
-			}
-			else
+				else if(opcode == 0x1c || opcode == 0x1f) //clz, clo; seh, seb
+				{
+					alu_result = alu.evaluate(s, 0, instruction);
+					regFile.write(rd, alu_result);
+				}
+				else if (funct == 0x0A) //movz
+				{
+					if (t == 0) {
+						regFile.write(rd, s, false);
+					}
+				}
+				else if (funct == 0x0B) //movn
+				{
+					if (t != 0) {
+						regFile.write(rd, s, false);
+					}
+				}
+				else
+				{
+					alu_result = alu.evaluate(s, s_imm, instruction);
+		
+					if(alu_result == -1)
+					{
+						System.out.println("Unhandled instruction: invalid op-code");
+						return false;
+					}
+		
+					alu_result &= 0xffffffffL;
+					//TODO memory write
+					//regFile.write(rt, alu_result, false);
+					regFile.write(rt, (int)alu_result, false);
+				}
+			} 
+			catch (SimulatorException e) 
 			{
-				alu_result = alu.evaluate(s, t, instruction);
-				alu_result &= 0xffffffffL;
-
-				//TODO memory write
-				regFile.write(rd, (int)alu_result, false);
-				//regFile.write(rd, alu_result, false);
+				// log exceptions
+				System.out.println(e.getLocalizedMessage());
+				// update message with instruction address
+				String message = String.format("%s at 0x%08X", e.getMessage(), programCounter.evaluate());
+				// throw new exception for Main to catch
+				throw new SimulatorException(message);
 			}
-		}
-		else if(opcode == 0x04) //beq
-		{
-			if(s == t)
+	
+			//TODO Bus actions
+			//bus.eval();
+			addressBus.eval();
+	
+			//Evaluate interrupt controller again to see if anything raised an irq
+			//(PLP sim bus evaluates modules from index 0 upwards)
+			//bus.eval(0);
+			addressBus.eval(0);
+	
+			//We have an irq waiting, set ack so the controller wont set another
+			//request while we process this one
+			if(interruptRequestStateMachine == 3)
 			{
-				isBranched = true;
-				branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+				interruptAcknowledge = 1;
 			}
+	
+			return true;
+		} else {
+			// invalid instruction memory
+			return false;
 		}
-		else if(opcode == 0x05) //bne
-		{
-			if(s != t)
-			{
-				isBranched = true;
-				branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
-			}
-		}
-		else if(opcode == 0x23) //lw
-		{
-			//TODO bus read
-			//Long data = (Long) 0L; //bus.read((s + s_imm) & 0xffffffffL)
-			//Object odata = addressBus.read((s + s_imm) & 0xffffffffL);
-			Long data = (Long)addressBus.read((s + s_imm) & 0xffffffffL);
-			//Integer data = 0;
-			if(data == null)
-			{
-				System.out.println("Bus read error");
-				return false;
-			}
-
-			//TODO memory write
-			//regFile.write(rt, data, false);
-			regFile.write(rt, data.longValue(), false);
-		}
-		else if(opcode == 0x2B) //sw
-		{
-			//TODO bus write
-			//int ret = bus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
-			int ret = addressBus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
-
-			if(ret > 0)
-			{
-				System.out.println("Bus write error");
-				return false;
-			}
-		}
-		else if(opcode == 0x02 || opcode == 0x03) // j
-		{
-			isBranched = true;
-			branchDestination = jaddr << 2 | (pcplus4 & 0xf0000000L);
-
-			if(opcode == 0x03) //jal
-			{
-				//TODO memory write
-				//regFile.write(31, pcplus4 + 4, false);
-				regFile.write(31,  (int)pcplus4 + 4, false);
-			}
-		}
-		else if(opcode == 0x0C || opcode == 0x0D || opcode == 0x0E) //ori, andi, xori
-		{
-			alu_result = alu.evaluate(s, imm, instruction) & 0xffffffffL;
-			//TODO memory write
-			//regFile.write(rt, alu_result, false);
-			regFile.write(rt, alu_result, false);
-		}
-		else if(opcode == 0x1c || opcode == 0x1f) //clz, clo; seh, seb
-		{
-			alu_result = alu.evaluate(s, 0, instruction);
-			regFile.write(rd, alu_result);
-		}
-		else
-		{
-			alu_result = alu.evaluate(s, s_imm, instruction);
-
-			if(alu_result == -1)
-			{
-				System.out.println("Unhandled instruction: invalid op-code");
-				return false;
-			}
-
-			alu_result &= 0xffffffffL;
-			//TODO memory write
-			//regFile.write(rt, alu_result, false);
-			regFile.write(rt, (int)alu_result, false);
-		}
-
-		//TODO Bus actions
-		//bus.eval();
-		addressBus.eval();
-
-		//Evaluate interrupt controller again to see if anything raised an irq
-		//(PLP sim bus evaluates modules from index 0 upwards)
-		//bus.eval(0);
-		addressBus.eval(0);
-
-		//We have an irq waiting, set ack so the controller wont set another
-		//request while we process this one
-		if(interruptRequestStateMachine == 3)
-		{
-			interruptAcknowledge = 1;
-		}
-
-		return true;
 	}
 
 	/**

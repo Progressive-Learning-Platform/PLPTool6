@@ -3,6 +3,7 @@ package edu.asu.plp.tool.backend.mipsisa.sim.stages;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.mipsisa.MIPSInstruction;
 import edu.asu.plp.tool.backend.mipsisa.sim.ALU;
@@ -142,7 +143,14 @@ public class ExecuteStage implements Stage
 
 		state.dataY = (state.ct1Alusrc == 1) ? state.dataImmediateSignextended : state.dataEffY;
 
-		state.internalAluOut = alu.evaluate(state.dataX, state.dataY, state.ct1Aluop) & (((long) 0xfffffff << 4) | 0xf);
+		try 
+		{
+			state.internalAluOut = alu.evaluate(state.dataX, state.dataY, state.ct1Aluop) & (((long) 0xfffffff << 4) | 0xf);
+		}
+		catch (SimulatorException e) 
+		{
+			// eat exception
+		}
 
 		postMemoryStageState.nextForwardDataAluResult = state.internalAluOut;
 

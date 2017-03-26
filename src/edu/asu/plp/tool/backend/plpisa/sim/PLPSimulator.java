@@ -8,6 +8,7 @@ import com.google.common.eventbus.EventBus;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.ExecuteStage;
@@ -113,7 +114,7 @@ public class PLPSimulator implements Simulator
 	}
 	
 	@Override
-	public boolean step()
+	public boolean step() throws SimulatorException
 	{
 		statusManager.advanceFlags();
 		instructionsIssued++;

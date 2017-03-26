@@ -1,14 +1,18 @@
 package edu.asu.plp.tool.backend.mipsisa.sim;
 
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.mipsisa.InstructionExtractor;
 
 public class ALU
 {
+	// 32-bit overflow mask
+	private static long ARITHMETIC_OVERFLOW_VALUE = 0x7fffffff;
+	
 	public ALU()
 	{
 	}
 	
-	public long evaluate(long a, long b, long instruction)
+	public long evaluate(long a, long b, long instruction) throws SimulatorException
 	{
 		//@formatter:off
 		switch (InstructionExtractor.opcode(instruction))
@@ -20,7 +24,17 @@ public class ALU
 					case 0x25: return a | b;
 					case 0x26: return a ^ b;
 					case 0x27: return ~(a | b);
-					case 0x20: //OVERFLOW HERE if a+b overflows
+					case 0x20: 
+						//OVERFLOW HERE if a+b overflows
+						long temp = a + b;
+						// if temp is +, compare to largest value
+						// OR
+						// if temp is -, negate and compare to largest value + 1
+						if (temp > ARITHMETIC_OVERFLOW_VALUE || -temp > ARITHMETIC_OVERFLOW_VALUE + 1)
+						{
+							throw new SimulatorException("Arithematic Overflow");
+						}
+						return temp;
 					case 0x21: return a + b;
 					case 0x23: return a - b;
 					case 0x2A:
