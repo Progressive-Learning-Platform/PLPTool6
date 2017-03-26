@@ -220,6 +220,8 @@ public class MIPSAssembler implements Assembler
 		
 		mipsInstructions.addRCTypeInstruction("seh", 0x1f, 0x18);
 		mipsInstructions.addRCTypeInstruction("seb", 0x1f, 0x10);
+		mipsInstructions.addRTypeInstruction("movz", 0x0a);
+		mipsInstructions.addRTypeInstruction("movn", 0x0b);
 		
 		
 	}

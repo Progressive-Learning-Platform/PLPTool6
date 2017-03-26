@@ -425,6 +425,18 @@ public class MIPSSimulator implements Simulator
 				long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
 				regFile.write(loResult, hiResult);
 			}
+			else if (funct == 0x0A) //movz
+			{
+				if (t == 0) {
+					regFile.write(rd, s, false);
+				}
+			}
+			else if (funct == 0x0B) //movn
+			{
+				if (t != 0) {
+					regFile.write(rd, s, false);
+				}
+			}
 			else
 			{
 				alu_result = alu.evaluate(s, t, instruction);
