@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import edu.asu.plp.tool.prototype.devices.SevenSegmentDisplay;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,7 +24,6 @@ public class SevenSegmentPanel extends BorderPane
 	private static final int HORIZONTAL_SEGMENT_LENGTH = 4;
 	private static final int VERTICAL_SEGMENT_LENGTH = 3;
 	
-	private SevenSegmentDisplay displayBackend = null;
 	private HBox hbox = null;
 	
 	public SevenSegmentPanel(IOMemoryModule memModule)
@@ -32,12 +32,35 @@ public class SevenSegmentPanel extends BorderPane
 		hbox.getChildren().addAll(new Segment(), new Segment(), new Segment(), new Segment());
 		this.setCenter(hbox);
 		
-		displayBackend = (SevenSegmentDisplay)memModule;
-	}
-	
-	public void update_display()
-	{
-		displayBackend.gui_eval(this);
+		((SevenSegmentDisplay)memModule).addListener(new IOEvent() {
+			
+			@Override
+			public void recevieUpdateEvent(long value) {
+				Object ar[] = hbox.getChildren().toArray();
+				ArrayList<SevenSegmentPanel.Segment> segments = new ArrayList<SevenSegmentPanel.Segment>();
+				for(Object ob: ar)
+				{
+					segments.add((SevenSegmentPanel.Segment)ob);
+				}
+
+				int maskValue = 0x000000FF;
+				int nCount = 0;
+				for(SevenSegmentPanel.Segment seg: segments)
+				{
+					int afterMaskValue = (int) (maskValue & value);
+					int temp = nCount;
+					while(temp > 0)
+					{
+						afterMaskValue = afterMaskValue >> 8;
+						temp--;
+					}
+					//String str = Integer.toBinaryString(afterMaskValue);
+					seg.setState(afterMaskValue);
+					maskValue = maskValue<<8;
+					nCount++;
+				}
+			}
+		});;
 	}
 	
 	public static class Segment extends HBox
