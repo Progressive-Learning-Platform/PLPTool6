@@ -36,6 +36,13 @@ public class ALU
 						}
 						return temp;
 					case 0x21: return a + b;
+					case 0x22:
+						long tempSub = a - b;
+						if (tempSub > ARITHMETIC_OVERFLOW_VALUE || -tempSub > ARITHMETIC_OVERFLOW_VALUE + 1)
+						{
+							throw new SimulatorException("Arithematic Overflow");
+						}
+						return tempSub;
 					case 0x23: return a - b;
 					case 0x2A:
 						int aSigned = (int) a;
@@ -69,10 +76,16 @@ public class ALU
                 int bSigned = (int) b;
                 return (aSigned < bSigned) ? 1 : 0;
             case 0x0B: return (a < b) ? 1 : 0;
-            case 0x08:
             case 0x09:
             case 0x23:
             case 0x2B: return a + b;
+            case 0x08:
+            	long temp = a + b;
+				if (temp > ARITHMETIC_OVERFLOW_VALUE || -temp > ARITHMETIC_OVERFLOW_VALUE + 1)
+				{
+					throw new SimulatorException("Arithematic Overflow");
+				}
+				return temp;
             case 0x1C:
             	switch (InstructionExtractor.funct(instruction)) {
             		case 0x20:

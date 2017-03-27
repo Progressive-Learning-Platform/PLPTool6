@@ -35,6 +35,8 @@ public enum MIPSInstruction
 	
 	//MIPS ONLY
 	ADD("add", "function", 0x20, 0),
+	ADD_IMMEDIATE("addi", "opcode", 0x08, 4),
+	SUBTRACT("sub", "function", 0x22, 0),
 	MULTIPLY_UNSIGNED("multu", "function", 0x19, 0),
 	DIVIDE_UNSIGNED("divu", "function", 0x1B, 0),
 	MOVE_FROM_LOW("mflo", "function", 0x12, 0),
