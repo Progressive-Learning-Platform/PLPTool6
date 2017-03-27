@@ -61,13 +61,11 @@ public class EmulationWindow extends BorderPane
 		this.setCenter(demoGrid);
 	}
 	
+	//TODO: GXY-Redo all update event.
 	public void updateEmulationComponents()
 	{
 		//watcher.update_values();
 		watcher.update_display();
-		ledDisplay.update_display();
-		sevenSegDisplay.update_display();
-		
 	}
 	
 	private GridPane createDemo()
