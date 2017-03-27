@@ -1,13 +1,11 @@
 package edu.asu.plp.tool.prototype.devices;
 
-import java.util.Iterator;
 import java.util.TreeMap;
 
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
 import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
-import plptool.Constants;
 import plptool.Text;
 
 public abstract class PLPToolIOMemoryModule extends Thread implements IOMemoryModule{

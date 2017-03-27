@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
-import edu.asu.plp.tool.prototype.EmulationWindow;
 import javafx.beans.property.LongProperty;
 import plptool.Constants;
 /**
