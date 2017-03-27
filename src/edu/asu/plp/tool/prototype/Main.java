@@ -1503,8 +1503,6 @@ public class Main extends Application implements Controller
 			
 			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
 			
-			activeSimulator.getAddressBus().setEmulationWindow(emulationWindow);
-			
 			
 		}
 		else
