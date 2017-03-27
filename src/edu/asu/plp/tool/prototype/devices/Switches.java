@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.prototype.devices;
 
+import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import plptool.Constants;
 
 /**
@@ -30,16 +31,6 @@ public class Switches extends PLPToolIOMemoryModule
 	 */
 	@Override
 	public int eval() {
-		
-		return Constants.PLP_OK;
-	}
-
-	/**
-	 * we are not doing any specific activity on this device every clock cycle
-	 * @return success
-	 */
-	@Override
-	public int gui_eval(Object x) {
 		
 		return Constants.PLP_OK;
 	}
@@ -77,6 +68,12 @@ public class Switches extends PLPToolIOMemoryModule
 	public synchronized void enable() {
 		super.enable();
 		writeRegister(startAddress(), (long)0, false);
+		
+	}
+
+	@Override
+	public void addListener(IOEvent toAdd) {
+		// TODO Auto-generated method stub
 		
 	}
 	
