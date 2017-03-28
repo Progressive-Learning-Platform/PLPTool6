@@ -79,6 +79,7 @@ import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
+import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
@@ -1521,7 +1522,14 @@ public class Main extends Application implements Controller
 	@Override
 	public void stepSimulation()
 	{
-		performIfActive(activeSimulator::step);
+		performIfActive(() -> {
+			try {
+				activeSimulator.step();
+			} catch (SimulatorException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 	}
 	
 	private void performIfActive(Subroutine subroutine)
@@ -1563,7 +1571,12 @@ public class Main extends Application implements Controller
 			simRunThread = new Thread(new Runnable(){
 				public void run()
 				{
-					activeSimulator.run();
+					try {
+						activeSimulator.run();
+					} catch (SimulatorException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			});
 			simRunThread.start();
