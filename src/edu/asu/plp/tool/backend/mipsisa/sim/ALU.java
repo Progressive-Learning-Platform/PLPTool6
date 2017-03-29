@@ -65,8 +65,16 @@ public class ALU
 						return ((long)(int) a * (long)(int)b) & 0xffffffffL;
 					case 0x11:
 						return (((long)(int) a * (long)(int)b) & 0xffffffff00000000L) >> 32;
-					case 0x01: return a << b;
-                    case 0x03: return a >> b;
+					case 0x04: return a << b;
+                    case 0x06: 
+                    	if (InstructionExtractor.sa(instruction) == 1) { //rotrv
+							long temp1 = a >>> b;
+							long temp2 = a << (32 - b);
+							temp2 &= 0xffffffffL;
+							return temp1 | temp2;
+                    	} else { //srlv
+                    		return a >> b;
+                    	}
 					case 0x18:
 					case 0x19: return a * b;
 					case 0x1A:

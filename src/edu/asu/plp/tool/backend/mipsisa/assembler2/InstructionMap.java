@@ -10,6 +10,7 @@ import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RJTypeInstructio
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RLTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RMTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RTypeInstruction;
+import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.RVTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.AccRTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.BTypeInstruction;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.instructions.JTypeInstruction;
@@ -75,6 +76,11 @@ public class InstructionMap extends HashMap<String, MIPSInstruction>
 	public void addRIUTypeInstruction(String name, int opCode)
 	{
 		RIUTypeInstruction instruction = new RIUTypeInstruction(opCode);
+		this.put(name, instruction);
+	}
+	
+	public void addRVTypeInstruction(String name, int functCode, int r_value) {
+		RVTypeInstruction instruction = new RVTypeInstruction(functCode, r_value);
 		this.put(name, instruction);
 	}
 	

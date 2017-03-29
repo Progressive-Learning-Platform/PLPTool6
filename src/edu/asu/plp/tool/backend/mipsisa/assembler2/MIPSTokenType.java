@@ -11,7 +11,7 @@ public enum MIPSTokenType
 	LABEL_COLON("\\b([a-zA-Z]([a-zA-Z]|_|[0-9])*([a-zA-Z]|[0-9])+):\\B"),
 	//INSTRUCTION("\\b(addu|subu|mullo|mulhi|and|andi|or|ori|slt|slti|sltu|sltiu|sll|sllv|srl|srlv|bne|jal|jr|jalr|lw|sw)\\b"),
 	INSTRUCTION("\\b(add|addi|addu|sub|subu|addiu|and|andi|or|ori|nor|slt|slti|sltu|sltiu|sll|sllv|srl|srlv|beq|bne|j|jal|jr|jalr|lw|sw|"
-			+ "mul|mult|multu|div|divu|madd|maddu|msub|msubu|mflo|mfhi|mtlo|mthi|xor|xori|seh|seb|clz|clo|movn|movz|rotr)\\b"),
+			+ "mul|mult|multu|div|divu|madd|maddu|msub|msubu|mflo|mfhi|mtlo|mthi|xor|xori|seh|seb|clz|clo|movn|movz|rotr|rotrv)\\b"),
 	//INSTRUCTION("\\b(addiu|beq|j|lui|nor)"),
 	LABEL_PLAIN("\\b([a-zA-Z]([a-zA-Z]|_|[0-9])*([a-zA-Z]|[0-9])+)\\b"),
 	ADDRESS("\\$([a-zA-Z]|[0-9])+"),
