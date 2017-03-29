@@ -35,9 +35,9 @@ public class InstructionMap extends HashMap<String, MIPSInstruction>
 		this.put(name, instruction);
 	}
 	
-	public void addAccRTypeInstruction(String name, int functCode)
+	public void addAccRTypeInstruction(String name, int opcode, int functCode)
 	{
-		AccRTypeInstruction instruction = new AccRTypeInstruction(functCode);
+		AccRTypeInstruction instruction = new AccRTypeInstruction(opcode, functCode);
 		this.put(name, instruction);
 	}
 	

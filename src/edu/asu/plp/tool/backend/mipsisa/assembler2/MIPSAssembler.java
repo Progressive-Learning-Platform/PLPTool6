@@ -211,12 +211,17 @@ public class MIPSAssembler implements Assembler
 		//Opcode 0x1c
 		mipsInstructions.addRCTypeInstruction("clz", 0x1c, 0x20);
 		mipsInstructions.addRCTypeInstruction("clo", 0x1c, 0x21);
+		mipsInstructions.addAccRTypeInstruction("madd", 0x1c, 0x00);
+		mipsInstructions.addAccRTypeInstruction("maddu", 0x1c, 0x01);
+		mipsInstructions.addAccRTypeInstruction("msub", 0x1c, 0x04);
+		mipsInstructions.addAccRTypeInstruction("msubu", 0x1c, 0x05);
 		
 		mipsInstructions.addRTypeInstruction("add", 0x20);
 		mipsInstructions.addITypeInstruction("addi", 0x08);
 		mipsInstructions.addRTypeInstruction("sub", 0x22);
-		mipsInstructions.addAccRTypeInstruction("multu", 0x19);
-		mipsInstructions.addAccRTypeInstruction("divu", 0x1B);
+		
+		mipsInstructions.addAccRTypeInstruction("multu", 0x00, 0x19);
+		mipsInstructions.addAccRTypeInstruction("divu", 0x00, 0x1B);
 		mipsInstructions.addRTypeInstruction("xor", 0x26);
 		mipsInstructions.addITypeInstruction("xori", 0x0e);
 		

@@ -14,6 +14,7 @@ public class AccRTypeInstruction extends AbstractInstruction
 	
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
+	public static final int OP_CODE_POSITION = 26;
 	public static final int RS_POSITION = 21;
 	public static final int RT_POSITION = 16;
 	public static final int RD_POSITION = 11;
@@ -21,11 +22,13 @@ public class AccRTypeInstruction extends AbstractInstruction
 	public static final int FUNCT_CODE_POSITION = 0;
 	
 	private int functCode;
+	private int opcode;
 	
-	public AccRTypeInstruction(int functCode)
+	public AccRTypeInstruction(int opcode, int functCode)
 	{
 		super(new ArgumentType[] { REGISTER, REGISTER });
 		this.functCode = functCode;
+		this.opcode = opcode;
 	}
 	
 	@Override
@@ -43,6 +46,7 @@ public class AccRTypeInstruction extends AbstractInstruction
 		//Argument loRegisterArgument = new RegisterArgument("$LO");
 		
 		int encodedBitString = 0;
+		encodedBitString |= (opcode & MASK_6BIT) << OP_CODE_POSITION;
 		encodedBitString |= (encodedRSArgument & MASK_5BIT) << RS_POSITION;
 		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_POSITION;
 		encodedBitString |= (functCode & MASK_6BIT) << FUNCT_CODE_POSITION;

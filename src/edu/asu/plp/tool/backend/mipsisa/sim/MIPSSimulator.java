@@ -432,6 +432,18 @@ public class MIPSSimulator implements Simulator
 						long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
 						regFile.write(loResult, hiResult);
 					}
+					else if (funct == 0x0A) //movz
+					{
+						if (t == 0) {
+							regFile.write(rd, s, false);
+						}
+					}
+					else if (funct == 0x0B) //movn
+					{
+						if (t != 0) {
+							regFile.write(rd, s, false);
+						}
+					}
 					else
 					{
 						alu_result = alu.evaluate(s, t, instruction);
@@ -506,22 +518,20 @@ public class MIPSSimulator implements Simulator
 					//regFile.write(rt, alu_result, false);
 					regFile.write(rt, alu_result, false);
 				}
-				else if(opcode == 0x1c || opcode == 0x1f) //clz, clo; seh, seb
+				else if(opcode == 0x1f || (opcode == 0x1c && (funct == 0x21 || funct == 0x20))) //clz, clo; seh, seb;
 				{
 					alu_result = alu.evaluate(s, 0, instruction);
 					regFile.write(rd, alu_result);
 				}
-				else if (funct == 0x0A) //movz
+				else if(opcode == 0x1c) //madd, maddu, msub, msubu
 				{
-					if (t == 0) {
-						regFile.write(rd, s, false);
-					}
-				}
-				else if (funct == 0x0B) //movn
-				{
-					if (t != 0) {
-						regFile.write(rd, s, false);
-					}
+					long addedValue = (regFile.read(33) << 32) + regFile.read(32);
+					System.out.println("S " + s + " T " + t + " addedVal " + addedValue);
+					alu_result = alu.evaluate(s*t, addedValue, instruction);
+					System.out.println(alu_result);
+					long loResult = alu_result & 0xffffffffL;
+					long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
+					regFile.write(loResult, hiResult);
 				}
 				else
 				{

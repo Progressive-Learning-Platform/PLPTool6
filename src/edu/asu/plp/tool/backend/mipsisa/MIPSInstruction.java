@@ -50,7 +50,11 @@ public enum MIPSInstruction
 	MOVE_IF_ZERO("movz", "function", 0x0a, 4),
 	MOVE_IF_NOT_ZERO("movn", "function", 0x0b, 4),
 	COUNT_LEADING_ZEROES("clz", "opcode", 0x1C, 9),
-	COUNT_LEADING_ONES("clo", "opcode", 0x1C, 9);
+	COUNT_LEADING_ONES("clo", "opcode", 0x1C, 9),
+	MULTIPLY_ADD("madd", "opcode", 0x1C, 0),
+	MULTIPLY_ADD_UNSIGNED("maddu", "opcode", 0x1C, 0),
+	MULTIPLY_SUB("msub", "opcode", 0x1C, 0),
+	MULTIPLY_SUB_UNSIGNED("msubu", "opcode", 0x1C, 0);
 	
 	private String identifier;
 	private String type;

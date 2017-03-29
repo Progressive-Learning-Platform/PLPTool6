@@ -105,6 +105,16 @@ public class ALU
             		    if (a >= 0x70000000) { n1 +=  2; a >>= 2; }
             		    if (a >= 0x30000000) n1 ++;
             		    return n1;
+            		case 0x00:
+            			//OVERFLOW??
+            		case 0x01:
+            			System.out.println("PRINTING A " + a + "PRINTING B " + b);
+            			return a + b;
+            		case 0x04:
+            			//OVERFLOW??
+            		case 0x05:
+            			return b - a; //ACC value - multiplied result
+            			
             	}
             case 0x1F:
             	switch(InstructionExtractor.funct(instruction)) {
