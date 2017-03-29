@@ -444,6 +444,11 @@ public class MIPSSimulator implements Simulator
 							regFile.write(rd, s, false);
 						}
 					}
+					else if (funct == 0x02) {
+						alu_result = alu.evaluate(rs, t, instruction);
+						alu_result &= 0xffffffffL;
+						regFile.write(rd, (int)alu_result, false);
+					}
 					else
 					{
 						alu_result = alu.evaluate(s, t, instruction);

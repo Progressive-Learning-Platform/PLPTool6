@@ -51,6 +51,7 @@ public enum MIPSInstruction
 	SIGN_EXTEND_BYTE("seb", "opcode", 0x1F, 9),
 	MOVE_IF_ZERO("movz", "function", 0x0a, 4),
 	MOVE_IF_NOT_ZERO("movn", "function", 0x0b, 4),
+	ROTATE_RIGHT("rotr", "function", 0x02, 1),
 	COUNT_LEADING_ZEROES("clz", "opcode", 0x1C, 9),
 	COUNT_LEADING_ONES("clo", "opcode", 0x1C, 9),
 	MULTIPLY_32BIT("mul", "opcode", 0x1C, 4),

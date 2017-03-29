@@ -24,9 +24,9 @@ public class InstructionMap extends HashMap<String, MIPSInstruction>
 		this.put(name, instruction);
 	}
 	
-	public void addRITypeInstruction(String name, int functCode)
+	public void addRITypeInstruction(String name, int functCode, int r_value)
 	{
-		RITypeInstruction instruction = new RITypeInstruction(functCode);
+		RITypeInstruction instruction = new RITypeInstruction(functCode, r_value);
 		this.put(name, instruction);
 	}
 	

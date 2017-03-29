@@ -178,8 +178,8 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRTypeInstruction("sllv", 0x04);
 		mipsInstructions.addRTypeInstruction("srlv", 0x06);
 		
-		mipsInstructions.addRITypeInstruction("sll", 0x00);
-		mipsInstructions.addRITypeInstruction("srl", 0x02);
+		mipsInstructions.addRITypeInstruction("sll", 0x00, 0);
+		mipsInstructions.addRITypeInstruction("srl", 0x02, 0);
 
 		mipsInstructions.addJTypeInstruction("j", 0x02);
 		mipsInstructions.addJTypeInstruction("jal", 0x03);
@@ -227,6 +227,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRTypeInstruction("xor", 0x26);
 		mipsInstructions.addITypeInstruction("xori", 0x0e);
 		
+		mipsInstructions.addRITypeInstruction("rotr", 0x02, 1);
 		mipsInstructions.addRCTypeInstruction("seh", 0x1f, 0x18);
 		mipsInstructions.addRCTypeInstruction("seb", 0x1f, 0x10);
 		mipsInstructions.addRTypeInstruction("movz", 0x0a);

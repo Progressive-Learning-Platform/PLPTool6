@@ -12,21 +12,25 @@ public class RITypeInstruction extends AbstractInstruction
 {
 	//sll $rd, $rt, shamt
 	//srl $rd, $rt, shamt
+	//rotr $rd, $rt, shamt
 	//Type 1
 	
 	private int functCode;
+	private int r_value;
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
-	public static final int RS_POSITION = 21;
+	//public static final int RS_POSITION = 21;
+	public static final int R_VALUE_POSITION = 21;
 	public static final int RT_POSITION = 16;
 	public static final int RD_POSITION = 11;
 	public static final int SHAMT_POSITION = 6;
 	public static final int FUNCT_CODE_POSITION = 0;
 	
-	public RITypeInstruction(int functCode)
+	public RITypeInstruction(int functCode, int r_value)
 	{
 		super(new ArgumentType[] { REGISTER, REGISTER, NUMBER_LITERAL });
 		this.functCode = functCode;
+		this.r_value = r_value;
 	}
 	
 	@Override
@@ -45,6 +49,7 @@ public class RITypeInstruction extends AbstractInstruction
 	{
 		int encodedBitString = 0;
 		encodedBitString |= (encodedShamtArgument & MASK_5BIT) << SHAMT_POSITION;
+		encodedBitString |= (r_value & MASK_5BIT) << R_VALUE_POSITION;
 		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_POSITION;
 		encodedBitString |= (encodedRDArgument & MASK_5BIT) << RD_POSITION;
 		encodedBitString |= (functCode & MASK_6BIT) << FUNCT_CODE_POSITION;

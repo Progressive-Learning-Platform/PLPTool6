@@ -52,7 +52,15 @@ public class ALU
 					case 0x00: 
 						return b << InstructionExtractor.sa(instruction);
 					case 0x02:
-						return b >>> InstructionExtractor.sa(instruction);
+						if (a == 1) { //rotr
+							int shamt = InstructionExtractor.sa(instruction);
+							long temp1 = b >>> shamt;
+							long temp2 = b << (32 - shamt);
+							temp2 &= 0xffffffffL;
+							return temp1 | temp2;
+						} else { //srl
+							return b >>> InstructionExtractor.sa(instruction);
+						}
 					case 0x10:
 						return ((long)(int) a * (long)(int)b) & 0xffffffffL;
 					case 0x11:
