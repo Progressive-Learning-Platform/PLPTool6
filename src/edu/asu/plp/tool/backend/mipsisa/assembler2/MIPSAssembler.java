@@ -106,6 +106,7 @@ public class MIPSAssembler implements Assembler
 		directiveMap = new HashMap<>();
 		
 		//TODO add directives http://students.cs.tamu.edu/tanzir/csce350/reference/assembler_dir.html
+		//MIPS/PLP Shared directives
 		directiveMap.put(".org", this::orgDirective);
 		directiveMap.put(".word", this::wordDirective);
 		directiveMap.put(".space", this::spaceDirective);
@@ -117,6 +118,11 @@ public class MIPSAssembler implements Assembler
 		directiveMap.put(".data", this::dataDirective);
 		directiveMap.put(".equ", this::equDirective);
 		
+		//--------------------------MIPS Directives---------------------------//
+		directiveMap.put(".align", this::alignDirective);
+		directiveMap.put(".extern", this::externDirective);
+		directiveMap.put(".globl", this::globlDirective);
+		directiveMap.put(".half", this::halfDirective);
 	}
 	
 	//TODO need to ask Sohoni which pseudo-ops he wants us to keep. 
@@ -324,8 +330,6 @@ public class MIPSAssembler implements Assembler
 			e.printStackTrace();
 		}
 	}
-	
-	
 	
 	private void assembleFile(String content, String asmFileName) throws AssemblerException
 	{
@@ -1181,6 +1185,8 @@ public class MIPSAssembler implements Assembler
 	{
 		
 		Token directiveToken = currentToken;
+		//System.out.println("This is " + directiveToken);
+		
 		boolean wordAligned = directiveToken.getValue().equals(".asciiw");
 		StringBuilder preInstruction = new StringBuilder();
 		preInstruction.append("");
@@ -1423,6 +1429,54 @@ public class MIPSAssembler implements Assembler
 		return "";
 	}
 	
+	
+	
+	//------------------------------MIPS Directives-------------------------------------//
+	private String alignDirective() throws AssemblerException
+	{
+		
+		Token directiveToken = currentToken;
+		
+		expectedNextToken("expected an alignment size");
+		alignSize(currentToken);
+		
+		ensureTokenEquality("Expected an alignment size", MIPSTokenType.NUMERIC);
+		return "";
+	}
+	
+	//Research C definition of extern 
+	private String externDirective() throws AssemblerException
+	{
+		Token directiveToken = currentToken;
+		System.out.println("This is " + directiveToken);
+		
+		expectedNextToken("it needs globally defined data label to reference");
+		ensureTokenEquality("Expected an glodal data reference label", MIPSTokenType.DIRECTIVE);
+		
+		return "";
+	}
+	
+	//Research C definitions of global
+	private String globlDirective() throws AssemblerException
+	{
+		Token directiveToken = currentToken;
+		System.out.println("This is " + directiveToken);
+		
+		expectedNextToken("it a needs label to define as a global reference");
+		ensureTokenEquality("Expected a label to set as global reference", MIPSTokenType.DIRECTIVE);
+		return "";
+	}
+	
+	private String halfDirective() throws AssemblerException
+	{
+		Token directiveToken = currentToken;
+		System.out.println("This is " + directiveToken);
+		
+		expectedNextToken("it needs 16 bit quantities to store");
+		ensureTokenEquality("Expected n number of 16 bit quantities, separated by commas", MIPSTokenType.DIRECTIVE);
+		return "";
+	}
+	
 	private String preprocessNormalInstruction() throws AssemblerException
 	{
 		String preprocessedInstruction = "";
@@ -1550,7 +1604,7 @@ public class MIPSAssembler implements Assembler
 	
 	private void ensureTokenEquality(String message, MIPSTokenType compareTo) throws AssemblerException
 	{
-		String sMessage = message + "Got token type - " + currentToken.getValue();
+		String sMessage = message + " Got token type - " + currentToken.getValue();
 		
 		if (compareTo.equals(MIPSTokenType.INSTRUCTION))
 		{
@@ -1719,6 +1773,47 @@ public class MIPSAssembler implements Assembler
 			return false;
 	}
 	
+	//------part of .align directive-----//
+	private void alignSize(Token Token) {
+		int transform = 0;
+		String paramInt = Token.getValue();
+		System.out.println("param is " + paramInt + " length " + paramInt.length());
+		
+		if(checkNonDecimal(paramInt)){
+			if(paramInt.charAt(1) == 'x')
+				transform = Integer.parseInt(paramInt.substring(2), 16); 	//converts hex string to decimal integer
+			
+			else if(paramInt.charAt(1) == 'b')
+				transform = Integer.parseInt(paramInt.substring(2), 2);		//converts binary string to decimal integer
+			
+			else//TODO: make this go to PLP console
+				System.out.println("Not a valid alignment");
+		}
+		
+		if(paramInt.compareTo("2") == 0 || transform == 2)
+			System.out.println("Align size 4");
+	
+		else if(paramInt.compareTo("3") == 0 || transform == 3)
+			System.out.println("Align size 8");
+	
+		else if (paramInt.compareTo("4") == 0 || transform == 4)
+			System.out.println("Align size 16");
+		
+		
+		else//TODO: make this go to PLP console
+			System.out.println("Not an appropriate alignment");
+	}
+	private boolean checkNonDecimal(String paramInt) {
+		boolean result = false;
+		if(paramInt.length() == 1)
+			return result;
+		
+		if(paramInt.charAt(1) == 'x' || paramInt.charAt(1) == 'b')
+			result = true;
+		
+		return result;
+	}
+
 	private void addRegionAndIncrementAddress(int timesToAddCurrentRegion,
 			int currentAddressIncrementSize)
 	{
