@@ -8,9 +8,9 @@ import edu.asu.plp.tool.backend.mipsisa.assembler2.Argument;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.ArgumentType;
 import edu.asu.plp.tool.backend.mipsisa.assembler2.arguments.RegisterArgument;
 
-public class RCTypeInstruction extends AbstractInstruction
+public class RCCTypeInstruction extends AbstractInstruction
 {
-	//clz $rd, $rs
+	//mul $rd, $rs, $rt
 	
 	public static final int MASK_5BIT = 0b011111;
 	public static final int MASK_6BIT = 0b111111;
@@ -24,9 +24,9 @@ public class RCTypeInstruction extends AbstractInstruction
 	private int opCode;
 	private int functCode;
 	
-	public RCTypeInstruction(int opCode, int functCode)
+	public RCCTypeInstruction(int opCode, int functCode)
 	{
-		super(new ArgumentType[] { REGISTER, REGISTER });
+		super(new ArgumentType[] { REGISTER, REGISTER, REGISTER });
 		this.opCode = opCode;
 		this.functCode = functCode;
 	}
@@ -34,17 +34,19 @@ public class RCTypeInstruction extends AbstractInstruction
 	@Override
 	protected int safeAssemble(Argument[] arguments)
 	{
+		Argument rtRegisterArgument = arguments[2];
 		Argument rsRegisterArgument = arguments[1];
 		Argument rdRegisterArgument = arguments[0];
 		
-		return assembleEncodings(rsRegisterArgument.encode(), rdRegisterArgument.encode());
+		return assembleEncodings(rtRegisterArgument.encode(), rsRegisterArgument.encode(), rdRegisterArgument.encode());
 	}
 	
-	private int assembleEncodings(int encodedRSArgument, int encodedRDArgument)
+	private int assembleEncodings(int encodedRTArgument, int encodedRSArgument, int encodedRDArgument)
 	{
 		int encodedBitString = 0;
 		encodedBitString |= (opCode & MASK_6BIT) << OP_CODE_POSITION;
 		encodedBitString |= (encodedRSArgument & MASK_5BIT) << RS_POSITION;
+		encodedBitString |= (encodedRTArgument & MASK_5BIT) << RT_POSITION;
 		encodedBitString |= (encodedRDArgument & MASK_5BIT) << RD_POSITION;
 		encodedBitString |= (functCode & MASK_6BIT) << FUNCT_CODE_POSITION;
 		System.out.println(encodedBitString);

@@ -59,7 +59,9 @@ public class ALU
 						return (((long)(int) a * (long)(int)b) & 0xffffffff00000000L) >> 32;
 					case 0x01: return a << b;
                     case 0x03: return a >> b;
+					case 0x18:
 					case 0x19: return a * b;
+					case 0x1A:
 					case 0x1B: 
 						long value = a % b;
 						value = value << 32;
@@ -106,14 +108,15 @@ public class ALU
             		    if (a >= 0x30000000) n1 ++;
             		    return n1;
             		case 0x00:
-            			//OVERFLOW??
+            			//OVERFLOW?? does not overflow.
             		case 0x01:
-            			System.out.println("PRINTING A " + a + "PRINTING B " + b);
             			return a + b;
             		case 0x04:
-            			//OVERFLOW??
+            			//OVERFLOW?? does not overflow.
             		case 0x05:
             			return b - a; //ACC value - multiplied result
+            		case 0x02:
+            			return (a * b) & 0xffffffffL;
             			
             	}
             case 0x1F:

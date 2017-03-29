@@ -425,7 +425,7 @@ public class MIPSSimulator implements Simulator
 							regFile.write(rd, hi, to);					
 						}
 					}
-					else if (funct == 0x19 || funct == 0x1B) //multu, divu
+					else if (funct == 0x18 || funct == 0x19 || funct == 0x1A || funct == 0x1B) //mult, multu, div, divu
 					{
 						alu_result = alu.evaluate(s, t, instruction);
 						long loResult = alu_result & 0xffffffffL;
@@ -518,20 +518,33 @@ public class MIPSSimulator implements Simulator
 					//regFile.write(rt, alu_result, false);
 					regFile.write(rt, alu_result, false);
 				}
-				else if(opcode == 0x1f || (opcode == 0x1c && (funct == 0x21 || funct == 0x20))) //clz, clo; seh, seb;
+				else if(opcode == 0x1f) //seh, seb;
 				{
 					alu_result = alu.evaluate(s, 0, instruction);
 					regFile.write(rd, alu_result);
 				}
-				else if(opcode == 0x1c) //madd, maddu, msub, msubu
+				else if(opcode == 0x1c) 
 				{
-					long addedValue = (regFile.read(33) << 32) + regFile.read(32);
-					System.out.println("S " + s + " T " + t + " addedVal " + addedValue);
-					alu_result = alu.evaluate(s*t, addedValue, instruction);
-					System.out.println(alu_result);
-					long loResult = alu_result & 0xffffffffL;
-					long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
-					regFile.write(loResult, hiResult);
+					if (funct == 0x21 || funct == 0x20) //clo, clz
+					{
+						alu_result = alu.evaluate(s, 0, instruction);
+						regFile.write(rd, alu_result);
+					} 
+					else if (funct == 0x02) //mul
+					{
+						alu_result = alu.evaluate(s, t, instruction);
+						regFile.write(rd, alu_result);
+					}
+					else //madd, maddu, msub, msubu
+					{
+						long addedValue = (regFile.read(33) << 32) + regFile.read(32);
+						System.out.println("S " + s + " T " + t + " addedVal " + addedValue);
+						alu_result = alu.evaluate(s*t, addedValue, instruction);
+						System.out.println(alu_result);
+						long loResult = alu_result & 0xffffffffL;
+						long hiResult = (alu_result & 0xffffffff00000000L) >> 32;
+						regFile.write(loResult, hiResult);
+					}
 				}
 				else
 				{

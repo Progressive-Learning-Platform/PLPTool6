@@ -219,8 +219,10 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRTypeInstruction("add", 0x20);
 		mipsInstructions.addITypeInstruction("addi", 0x08);
 		mipsInstructions.addRTypeInstruction("sub", 0x22);
-		
+		mipsInstructions.addRCCTypeInstruction("mul", 0x1c, 0x02);
+		mipsInstructions.addAccRTypeInstruction("mult", 0x00, 0x18);
 		mipsInstructions.addAccRTypeInstruction("multu", 0x00, 0x19);
+		mipsInstructions.addAccRTypeInstruction("div", 0x00, 0x1A);
 		mipsInstructions.addAccRTypeInstruction("divu", 0x00, 0x1B);
 		mipsInstructions.addRTypeInstruction("xor", 0x26);
 		mipsInstructions.addITypeInstruction("xori", 0x0e);
