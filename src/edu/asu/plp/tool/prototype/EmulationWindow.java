@@ -21,11 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import edu.asu.plp.tool.backend.isa.AddressBus;
-import edu.asu.plp.tool.backend.isa.RegisterFile;
 import edu.asu.plp.tool.backend.isa.Simulator;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPMemoryModule;
-import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
@@ -59,15 +55,6 @@ public class EmulationWindow extends BorderPane
 		
 		this.setTop(topBar);
 		this.setCenter(demoGrid);
-	}
-	
-	public void updateEmulationComponents()
-	{
-		//watcher.update_values();
-		watcher.update_display();
-		ledDisplay.update_display();
-		sevenSegDisplay.update_display();
-		
 	}
 	
 	private GridPane createDemo()

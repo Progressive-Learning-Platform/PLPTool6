@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.backend.isa;
 
+import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import javafx.beans.property.LongProperty;
 
 public interface IOMemoryModule {
@@ -23,11 +24,9 @@ public interface IOMemoryModule {
 	boolean isAddressWithModule(long addr);
 	String introduce();
 	void reset();
-	int gui_eval(Object x);
 	int eval();
 	boolean isPhantom();
 	boolean isThreaded();
 	LongProperty getMemoryValueProperty(long address);
-	
-
+	void addListener(IOEvent toAdd);
 }

@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.backend.isa;
 
-import edu.asu.plp.tool.prototype.EmulationWindow;
 import javafx.beans.property.LongProperty;
 
 public interface AddressBus {
@@ -20,7 +19,6 @@ public interface AddressBus {
 	boolean isEnabled(int index);
 	void reset();
 	boolean validateAddress(long address);
-	void setEmulationWindow(EmulationWindow window);
 	long getModuleStartAddress(int index);
 	long getModuleEndAddress(int index);
 	IOMemoryModule getModule(int index);

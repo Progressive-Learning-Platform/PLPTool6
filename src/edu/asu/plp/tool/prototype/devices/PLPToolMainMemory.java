@@ -1,6 +1,7 @@
 package edu.asu.plp.tool.prototype.devices;
 
 
+import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import plptool.Constants;
 import plptool.Text;
 
@@ -33,14 +34,6 @@ public class PLPToolMainMemory extends PLPToolIOMemoryModule
 	{
 		return Constants.PLP_OK;
 	}
-	
-	/**
-	 * This function is not used here. Main memory doesn't have gui evaluation. It can only read and write to particular memory address
-	 */
-	@Override
-	public int gui_eval(Object x) {
-		return Constants.PLP_OK;
-	}
 
 	/**
 	 * This will clear all the contents from the main memory. As actual storage in parent class it will call
@@ -58,6 +51,12 @@ public class PLPToolMainMemory extends PLPToolIOMemoryModule
 	@Override
 	public String introduce() {
 		return "Main Memory Module " + Text.versionString;
+	}
+
+	@Override
+	public void addListener(IOEvent toAdd) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
