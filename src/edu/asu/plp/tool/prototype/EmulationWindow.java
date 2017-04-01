@@ -41,7 +41,6 @@ public class EmulationWindow extends BorderPane
 	SwitchesDisplay switchesDisplay;
 	private boolean isActive;
 	private Simulator sim;
-	private SetupDevicesandMemory deviceSetup;
 	
 	public WatcherWindow getWatcherWindow()
 	{
@@ -50,10 +49,9 @@ public class EmulationWindow extends BorderPane
 	
 	//public 
 	
-	public EmulationWindow(Simulator sim, SetupDevicesandMemory deviceSetup)
+	public EmulationWindow(Simulator sim)
 	{
 		this.sim = sim;
-		this.deviceSetup = deviceSetup;
 		GridPane demoGrid = createDemo();
 		HBox topBar = createTopBar();
 		
@@ -90,11 +88,11 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		ledDisplay = new LEDDisplay(sim.getAddressBus().getModule(deviceSetup.LED_INDEX));
+		ledDisplay = new LEDDisplay(sim.getAddressBus().getModule(SetupDevicesandMemory.LED_INDEX));
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule( deviceSetup.SWITCH_INDEX));
+		switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule(SetupDevicesandMemory.SWITCH_INDEX));
 		switchesDisplay.setPadding(new Insets(10));
 		switchesDisplay.setStyle("-fx-background-color: grey;");
 		
@@ -107,7 +105,7 @@ public class EmulationWindow extends BorderPane
 		watcher.setPadding(new Insets(10));
 		watcher.setStyle("-fx-background-color: grey;");
 		
-		sevenSegDisplay = new SevenSegmentPanel(sim.getAddressBus().getModule(deviceSetup.SEVEN_SEGMENT_INDEX));
+		sevenSegDisplay = new SevenSegmentPanel(sim.getAddressBus().getModule(SetupDevicesandMemory.SEVEN_SEGMENT_INDEX));
 		sevenSegDisplay.setStyle("-fx-background-color: grey;");
 		
 		Label ledLabel = label("LEDs");

@@ -1,6 +1,5 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,9 +15,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
-import edu.asu.plp.tool.prototype.ApplicationSettings;
-import javafx.beans.property.LongProperty;
-import javafx.util.Pair;
+import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 
 /**
  * Port of old PLP-Tool simulator with minor improvements
@@ -726,9 +723,9 @@ public class PLPSimulator implements Simulator
 		
 		alu = new ALU();
 		
-		/*SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
+		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
-		addressBus.enable_allmodules();*/
+		addressBus.enable_allmodules();
 	}
 	
 	@Override

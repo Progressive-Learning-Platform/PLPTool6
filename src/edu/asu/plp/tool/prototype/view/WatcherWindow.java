@@ -51,8 +51,6 @@ public class WatcherWindow extends BorderPane
 	private Map<String, Function<Long, String>> valueDisplayOptions;
 	private ObjectProperty<Function<Long, String>> registerDisplayFunction;
 	private ObjectProperty<Function<Long, String>> memoryDisplayFunction;
-	private AddressBus memory;
-	private RegisterFile regs;
 	private TableView<RegisterRow> watchedRegisters;
 	private TableView<MemoryRow> watchedAddresses;
 	

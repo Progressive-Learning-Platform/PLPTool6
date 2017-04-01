@@ -147,7 +147,6 @@ public class Main extends Application implements Controller
 	
 	private ApplicationThemeManager applicationThemeManager;
 	private OutlineView outlineView;
-	private SetupDevicesandMemory devicesSetup = null;
 	
 	public static void main(String[] args)
 	{
@@ -1493,14 +1492,7 @@ public class Main extends Application implements Controller
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
 			
-			if(devicesSetup == null)
-			{
-				devicesSetup = new SetupDevicesandMemory(activeSimulator);
-				devicesSetup.setup();
-				activeSimulator.getAddressBus().enable_allmodules();
-			}
-			
-			emulationWindow = new EmulationWindow(activeSimulator, devicesSetup);
+			emulationWindow = new EmulationWindow(activeSimulator);
 			
 			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
 			
