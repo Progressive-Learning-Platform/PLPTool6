@@ -1,5 +1,6 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,7 +16,10 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
+import edu.asu.plp.tool.prototype.ApplicationSettings;
 import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
+import javafx.beans.property.LongProperty;
+import javafx.util.Pair;
 
 /**
  * Port of old PLP-Tool simulator with minor improvements
@@ -206,7 +210,7 @@ public class PLPSimulator implements Simulator
 		// Evaluate interrupt controller again to see if anything raised an IRQ
 		// (PLPSimBus evaluates modules from index 0 upwards)
 		// bus.eval(0);
-		addressBus.eval(0);
+		addressBus.eval(SetupDevicesandMemory.IC_INDEX);
 		
 		/*
 		 * STALL ROUTINES
@@ -526,7 +530,7 @@ public class PLPSimulator implements Simulator
 		//Evaluate interrupt controller again to see if anything raised an irq
 		//(PLP sim bus evaluates modules from index 0 upwards)
 		//bus.eval(0);
-		addressBus.eval(0);
+		addressBus.eval(SetupDevicesandMemory.IC_INDEX);
 		
 		//We have an irq waiting, set ack so the controller wont set another
 		//request while we process this one
@@ -723,9 +727,9 @@ public class PLPSimulator implements Simulator
 		
 		alu = new ALU();
 		
-		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
+		/*SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
-		addressBus.enable_allmodules();
+		addressBus.enable_allmodules();*/
 	}
 	
 	@Override
