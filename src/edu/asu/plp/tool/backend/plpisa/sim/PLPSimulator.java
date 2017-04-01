@@ -727,9 +727,9 @@ public class PLPSimulator implements Simulator
 		
 		alu = new ALU();
 		
-		/*SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
+		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
-		addressBus.enable_allmodules();*/
+		addressBus.enable_allmodules();
 	}
 	
 	@Override
