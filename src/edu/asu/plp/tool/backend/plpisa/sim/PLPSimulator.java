@@ -210,7 +210,7 @@ public class PLPSimulator implements Simulator
 		// Evaluate interrupt controller again to see if anything raised an IRQ
 		// (PLPSimBus evaluates modules from index 0 upwards)
 		// bus.eval(0);
-		addressBus.eval(SetupDevicesandMemory.IC_INDEX);
+		//addressBus.eval(SetupDevicesandMemory.IC_INDEX);
 		
 		/*
 		 * STALL ROUTINES
@@ -530,7 +530,7 @@ public class PLPSimulator implements Simulator
 		//Evaluate interrupt controller again to see if anything raised an irq
 		//(PLP sim bus evaluates modules from index 0 upwards)
 		//bus.eval(0);
-		addressBus.eval(SetupDevicesandMemory.IC_INDEX);
+		//addressBus.eval(SetupDevicesandMemory.IC_INDEX);
 		
 		//We have an irq waiting, set ack so the controller wont set another
 		//request while we process this one
