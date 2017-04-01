@@ -3,7 +3,6 @@ package edu.asu.plp.tool.prototype.devices;
 import java.util.TreeMap;
 
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import plptool.Text;
@@ -298,8 +297,5 @@ public abstract class PLPToolIOMemoryModule extends Thread implements IOMemoryMo
 
 	@Override
 	abstract public int eval();
-	
-	@Override
-	abstract public void addListener(IOEvent toAdd);
 
 }

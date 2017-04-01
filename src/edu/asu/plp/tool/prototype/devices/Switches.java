@@ -4,7 +4,6 @@ import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.events.DeviceInputEvent;
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import plptool.Constants;
 
 /**
@@ -75,12 +74,6 @@ public class Switches extends PLPToolIOMemoryModule
 	public synchronized void enable() {
 		super.enable();
 		writeRegister(startAddress(), (long)0, false);
-		
-	}
-
-	@Override
-	public void addListener(IOEvent toAdd) {
-		// TODO Auto-generated method stub
 		
 	}
 	

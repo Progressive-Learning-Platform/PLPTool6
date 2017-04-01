@@ -1,8 +1,9 @@
 package edu.asu.plp.tool.prototype.view;
 
-import edu.asu.plp.tool.backend.isa.IOMemoryModule;
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
-import edu.asu.plp.tool.prototype.devices.LEDArray;
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.backend.isa.events.DeviceOutputEvent;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -37,11 +38,13 @@ public class LEDDisplay extends BorderPane
 	 * display)
 	 */
 	private LED[] ledNodes;
+	private String deviceName;
 	
-	public LEDDisplay(IOMemoryModule memLed)
+	public LEDDisplay(String deviceName)
 	{
 		GridPane grid = new GridPane();
 		ledNodes = new LED[NUMBER_OF_LEDS];
+		this.deviceName = deviceName;
 		for (int index = 0; index < NUMBER_OF_LEDS; index++)
 		{
 			LED led = createLED(index);
@@ -52,18 +55,7 @@ public class LEDDisplay extends BorderPane
 			grid.add(led, position, 0);
 		}
 		
-		((LEDArray)memLed).addListener(new IOEvent() {
-
-			@Override
-			public void recevieUpdateEvent(long value) {
-				for(int i = 7; i >= 0; i--) {
-					if((value & (long) Math.pow(2, i)) == (long) Math.pow(2, i))
-						setLEDState(i, true);
-					else
-						setLEDState(i, false);
-				}
-			}
-		});;
+		startListening();
 		
 		setCenter(grid);
 		
@@ -139,5 +131,24 @@ public class LEDDisplay extends BorderPane
 	{
 		boolean newState = !getLEDState(ledIndex);
 		setLEDState(ledIndex, newState);
+	}
+	
+	@Subscribe
+	public void outputFromDevice(DeviceOutputEvent e) {
+		if (e.getDeviceName() != this.deviceName)
+			return;
+		
+		long value = (long)(e.getDeviceData());
+		
+		for(int i = 7; i >= 0; i--) {
+			if((value & (long) Math.pow(2, i)) == (long) Math.pow(2, i))
+				setLEDState(i, true);
+			else
+				setLEDState(i, false);
+		}
+	}
+	
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 }

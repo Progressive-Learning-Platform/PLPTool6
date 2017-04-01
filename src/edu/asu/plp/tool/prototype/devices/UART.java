@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import plptool.Constants;
 import edu.asu.plp.tool.backend.isa.Simulator;
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
 
 /**
  * This class is the working model of UART in our PLPTool.
@@ -188,11 +187,4 @@ public class UART extends PLPToolIOMemoryModule {
 		
 		return Constants.PLP_OK;
 	}
-
-	@Override
-	public void addListener(IOEvent toAdd) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

@@ -1,7 +1,6 @@
 package edu.asu.plp.tool.prototype.devices;
 
 
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import plptool.Constants;
 import plptool.Text;
 
@@ -52,13 +51,4 @@ public class PLPToolMainMemory extends PLPToolIOMemoryModule
 	public String introduce() {
 		return "Main Memory Module " + Text.versionString;
 	}
-
-	@Override
-	public void addListener(IOEvent toAdd) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
-
 }

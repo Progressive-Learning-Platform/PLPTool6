@@ -110,7 +110,8 @@ public class SetupDevicesandMemory {
 			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
 			
-	        LEDArray led = new LEDArray(Long.decode(ApplicationSettings.getSetting(startAddress).get()));
+	        LEDArray led = new LEDArray(SetupDevicesandMemory.ledKey,
+	        							Long.decode(ApplicationSettings.getSetting(startAddress).get()));
 	        SetupDevicesandMemory.LED_INDEX =  sim.getAddressBus().add(SetupDevicesandMemory.ledKey, led);
 	        //obj = (JSONObject)jobj.get("Switches");
 	        keys.add(SetupDevicesandMemory.DevicesAndMemoryKey);
@@ -138,7 +139,8 @@ public class SetupDevicesandMemory {
 			keys.add(SetupDevicesandMemory.startAddressKey);
 			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
-	        SevenSegmentDisplay segDisplay = new SevenSegmentDisplay(Long.decode(ApplicationSettings.getSetting(startAddress).get()));
+	        SevenSegmentDisplay segDisplay = new SevenSegmentDisplay(SetupDevicesandMemory.sevenSegmentKey,
+	        													Long.decode(ApplicationSettings.getSetting(startAddress).get()));
 	        SetupDevicesandMemory.SEVEN_SEGMENT_INDEX = sim.getAddressBus().add(SetupDevicesandMemory.sevenSegmentKey, segDisplay);
 	        //obj = (JSONObject)jobj.get("General Purpose IO");
 	        

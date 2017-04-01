@@ -75,7 +75,7 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		ledDisplay = new LEDDisplay(sim.getAddressBus().getModule(SetupDevicesandMemory.LED_INDEX));
+		ledDisplay = new LEDDisplay(SetupDevicesandMemory.LED_INDEX);
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
@@ -92,7 +92,7 @@ public class EmulationWindow extends BorderPane
 		watcher.setPadding(new Insets(10));
 		watcher.setStyle("-fx-background-color: grey;");
 		
-		sevenSegDisplay = new SevenSegmentPanel(sim.getAddressBus().getModule(SetupDevicesandMemory.SEVEN_SEGMENT_INDEX));
+		sevenSegDisplay = new SevenSegmentPanel(SetupDevicesandMemory.SEVEN_SEGMENT_INDEX);
 		sevenSegDisplay.setStyle("-fx-background-color: grey;");
 		
 		Label ledLabel = label("LEDs");

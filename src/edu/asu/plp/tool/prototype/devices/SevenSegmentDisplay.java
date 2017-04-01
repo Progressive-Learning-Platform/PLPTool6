@@ -1,18 +1,17 @@
 package edu.asu.plp.tool.prototype.devices;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.backend.isa.events.DeviceOutputEvent;
 import plptool.Constants;
 
 
 public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
 	
-	private List<IOEvent> listeners = new ArrayList<IOEvent>();
+	private String deviceName;
 	
-    public SevenSegmentDisplay(long addr) {
+    public SevenSegmentDisplay(String deviceName, long addr) {
         super(addr, addr, true);
+        this.deviceName = deviceName;
     }
 
     public int eval() {
@@ -26,9 +25,7 @@ public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
 
         int value = super.read(super.startAddress).intValue();
         // No need to eval every cycle
-        for (IOEvent hl : listeners) {
-            hl.recevieUpdateEvent((long)value);
-        }
+        EventRegistry.getGlobalRegistry().post(new DeviceOutputEvent(deviceName, value));
         return Constants.PLP_OK;
     }
 
@@ -50,10 +47,5 @@ public class SevenSegmentDisplay extends PLPToolIOMemoryModule {
 		super.enable();
 		writeRegister(startAddress(), (long)0, false);
 		
-	}
-
-	@Override
-	public void addListener(IOEvent toAdd) {
-		listeners.add(toAdd);
 	}
 }
