@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -77,10 +78,6 @@ public class WatcherWindow extends BorderPane
 		Node memoryControlPanel = createMemoryControlPanel();
 		
 		
-
-		registerDisplayFunction.addListener(updateOnChangeEvent(registers));
-		memoryDisplayFunction.addListener(updateOnChangeEvent(memoryAddresses));
-		
 		GridPane center = new GridPane();
 		center.add(watchedRegisters, 0, 0);
 		center.add(registerControlPanel, 0, 1);
@@ -102,37 +99,6 @@ public class WatcherWindow extends BorderPane
 		center.getRowConstraints().add(rowConstraint);
 		
 		this.setCenter(center);
-	}
-	
-	private <T, G> ChangeListener<G> updateOnChangeEvent(ObservableList<T> model)
-	{
-		
-		return (value, current, old) -> {
-			ObservableList<T> temp = FXCollections.observableArrayList();
-			temp.addAll(model);
-			model.removeAll(model);
-			model.addAll(temp);
-		};
-	}
-	
-	public void update_display()
-	{
-		int i = 0;
-		
-		
-		for(RegisterRow row: registers)
-		{
-			watchedRegisters.getColumns().get(0).setVisible(false);
-			watchedRegisters.getColumns().get(0).setVisible(true);
-			i++;
-		}
-		i = 0;
-		for(MemoryRow row: memoryAddresses)
-		{
-			watchedAddresses.getColumns().get(0).setVisible(false);
-			watchedAddresses.getColumns().get(0).setVisible(true);
-			i++;
-		}
 	}
 	
 	private void populateDisplayOptions()
@@ -285,6 +251,14 @@ public class WatcherWindow extends BorderPane
 		
 		String id = regs.getRegisterID(registerName);
 		LongProperty register = regs.getRegisterValueProperty(registerName);
+		register.addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				watchedRegisters.refresh();
+			}
+			
+		});
 		RegisterRow row = new RegisterRow(registerName, id, register);
 		registers.add(row);
 	}
@@ -307,6 +281,13 @@ public class WatcherWindow extends BorderPane
 		
 		
 		LongProperty value = (LongProperty)memory.getMemoryValueProperty(address);//memory.getMemoryValueProperty(address);
+		value.addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				watchedAddresses.refresh();
+			}
+			
+		});
 		MemoryRow row = new MemoryRow(address, value);
 		memoryAddresses.add(row);
 	}

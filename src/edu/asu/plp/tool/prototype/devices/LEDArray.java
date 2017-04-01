@@ -1,22 +1,22 @@
 package edu.asu.plp.tool.prototype.devices;
 
 
-import edu.asu.plp.tool.prototype.view.LEDDisplay;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import plptool.Constants;
 
 
 public class LEDArray extends PLPToolIOMemoryModule {
+
+    private List<IOEvent> listeners = new ArrayList<IOEvent>();
 
     public LEDArray(long addr) {
         super(addr, addr, true);
     }
 
     public int eval() {
-        // No need to eval every cycle
-        return Constants.PLP_OK;
-    }
-
-    public int gui_eval(Object x) {
         if(!enabled)
             return Constants.PLP_OK;
 
@@ -26,15 +26,10 @@ public class LEDArray extends PLPToolIOMemoryModule {
         }
         
         long value = super.read(super.startAddress);
-
-        // Combinational logic
-        for(int i = 7; i >= 0; i--) {
-            if((value & (long) Math.pow(2, i)) == (long) Math.pow(2, i))
-                ((LEDDisplay)x).setLEDState(i, true);
-            else
-                ((LEDDisplay)x).setLEDState(i, false);
+        for (IOEvent hl : listeners) {
+            hl.recevieUpdateEvent((long)value);
         }
-
+        // No need to eval every cycle
         return Constants.PLP_OK;
     }
 
@@ -56,5 +51,10 @@ public class LEDArray extends PLPToolIOMemoryModule {
 		super.enable();
 		writeRegister(startAddress(), (long)0, false);
 		
+	}
+
+	@Override
+	public void addListener(IOEvent toAdd) {
+		listeners.add(toAdd);
 	}
 }

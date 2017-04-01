@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
-import edu.asu.plp.tool.prototype.EmulationWindow;
 import javafx.beans.property.LongProperty;
 import plptool.Constants;
 /**
@@ -21,8 +20,6 @@ public class PLPAddressBus implements AddressBus{
 	 * This list contains all I/O module attached with this bus
 	 */
 	private ArrayList<IOMemoryModule> modules;
-	
-	private EmulationWindow window;
 	
 	public PLPAddressBus()
 	{
@@ -256,8 +253,6 @@ public class PLPAddressBus implements AddressBus{
 			ret += mod.eval();
 		}
 		
-		window.updateEmulationComponents();
-		
 		//window.getWatcherWindow().update_values();
 		
 		return ret;
@@ -272,26 +267,6 @@ public class PLPAddressBus implements AddressBus{
 	{
 		// There is a possiblity of error here - index not in range
 		return modules.get(index).eval();
-	}
-	
-	/**
-	 * This method will execute or evaluate the module indicated by the index.
-	 * @param index modules index in the Bus
-	 * @param x gui frame of that module
-	 * @return OK for success else error
-	 */
-	public int gui_eval(int index, Object x)
-	{
-		//There is a possiblity of error here - index not in range
-		if(modules.get(index).isThreaded())
-			return modules.get(index).gui_eval(x);
-		else
-		{
-			modules.get(index).notify();
-			return Constants.PLP_OK;
-		}
-		
-		
 	}
 	
 	@Override
@@ -461,15 +436,6 @@ public class PLPAddressBus implements AddressBus{
 		//Index out of range possibility
 		return modules.get(index).endAddress();
 	}
-
-	@Override
-	public void setEmulationWindow(EmulationWindow window) {
-		// TODO Auto-generated method stub
-		this.window = window;
-		
-	}
-
-
 	
 	
 	
