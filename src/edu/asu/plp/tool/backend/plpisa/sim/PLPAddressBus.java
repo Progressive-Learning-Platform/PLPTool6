@@ -2,8 +2,14 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 
 import java.util.HashMap;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.backend.isa.events.MemWatchRequestEvent;
+import edu.asu.plp.tool.backend.isa.events.MemWatchResponseEvent;
+import edu.asu.plp.tool.prototype.util.LongUtils;
 import javafx.beans.property.LongProperty;
 import plptool.Constants;
 /**
@@ -24,6 +30,8 @@ public class PLPAddressBus implements AddressBus{
 	public PLPAddressBus()
 	{
 		modules = new HashMap<String, IOMemoryModule>();
+		
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	/**
@@ -106,9 +114,13 @@ public class PLPAddressBus implements AddressBus{
 		return value;
 	}
 	
-	@Override
-	public LongProperty getMemoryValueProperty(long address)
-	{
+	@Subscribe
+	public void receivedWatchRequest(MemWatchRequestEvent e) {
+		long address = e.getMemoryAddress();
+		
+		if (!validateAddress(address))
+			return;
+		
 		LongProperty valueProperty = null;
 		
 		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
@@ -130,7 +142,7 @@ public class PLPAddressBus implements AddressBus{
 			
 		}
 		
-		return valueProperty;
+		EventRegistry.getGlobalRegistry().post(new MemWatchResponseEvent(true, address, valueProperty));
 	}
 	
 	/**
