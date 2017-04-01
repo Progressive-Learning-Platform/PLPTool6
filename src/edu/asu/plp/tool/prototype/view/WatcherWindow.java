@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.google.common.eventbus.Subscribe;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
@@ -35,8 +37,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.RegisterFile;
+import edu.asu.plp.tool.backend.isa.events.MemWatchRequestEvent;
+import edu.asu.plp.tool.backend.isa.events.MemWatchResponseEvent;
+import edu.asu.plp.tool.backend.isa.events.RegWatchRequestEvent;
+import edu.asu.plp.tool.backend.isa.events.RegWatchResponseEvent;
 import edu.asu.plp.tool.backend.plpisa.sim.MemoryModule32Bit;
 import edu.asu.plp.tool.backend.plpisa.sim.PLPRegFile;
 //import edu.asu.plp.tool.prototype.util.IntegerUtils;
@@ -52,16 +59,11 @@ public class WatcherWindow extends BorderPane
 	private Map<String, Function<Long, String>> valueDisplayOptions;
 	private ObjectProperty<Function<Long, String>> registerDisplayFunction;
 	private ObjectProperty<Function<Long, String>> memoryDisplayFunction;
-	private AddressBus memory;
-	private RegisterFile regs;
 	private TableView<RegisterRow> watchedRegisters;
 	private TableView<MemoryRow> watchedAddresses;
 	
-	public WatcherWindow(AddressBus memory, RegisterFile reg)
+	public WatcherWindow()
 	{
-		this.memory = memory;
-		this.regs = reg;
-
 		Function<Long, String> defaultDisplay = (value) -> Long.toString(value);
 		registerDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
 		memoryDisplayFunction = new SimpleObjectProperty<>(defaultDisplay);
@@ -101,6 +103,8 @@ public class WatcherWindow extends BorderPane
 		center.getRowConstraints().add(rowConstraint);
 		
 		this.setCenter(center);
+		
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	private void populateDisplayOptions()
@@ -247,12 +251,18 @@ public class WatcherWindow extends BorderPane
 		if (registerName.length() == 0)
 			return;
 		// The memory module is responsible for equating the names "0" "$0" and "$zero"
-		if (!regs.hasRegister(registerName))
+		EventRegistry.getGlobalRegistry().post(new RegWatchRequestEvent(registerName));
+	}
+	
+	@Subscribe
+	public void registerWatchResult(RegWatchResponseEvent e) {
+		if (!e.isSuccess())
 			throw new IllegalArgumentException("There isn't a register with the name "
-					+ registerName);
+					+ e.getRegisterName());
 		
-		String id = regs.getRegisterID(registerName);
-		LongProperty register = regs.getRegisterValueProperty(registerName);
+		String id = e.getRegisterID();
+		String registerName = e.getRegisterName();
+		LongProperty register = e.getRegObject();
 		register.addListener(new ChangeListener<Number>() {
 
 			@Override
@@ -275,23 +285,7 @@ public class WatcherWindow extends BorderPane
 	
 	private void watchMemoryAddress(long address)
 	{
-		//memory.isAddressWithModule(address);
-		//memory.validateAddress(address);
-		memory.validateAddress(address);
-		//long newValue = (long)memory.read(address);
-		//Integer tempvalue = (Integer)memory.read(address);
-		
-		
-		LongProperty value = (LongProperty)memory.getMemoryValueProperty(address);//memory.getMemoryValueProperty(address);
-		value.addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				watchedAddresses.refresh();
-			}
-			
-		});
-		MemoryRow row = new MemoryRow(address, value);
-		memoryAddresses.add(row);
+		EventRegistry.getGlobalRegistry().post(new MemWatchRequestEvent(address));
 	}
 	
 	private void watchMemoryRange(String from, String to)
@@ -314,6 +308,25 @@ public class WatcherWindow extends BorderPane
 			watchMemoryAddress(address);
 		}
 	}
+	
+	@Subscribe
+	public void memoryWatchResult(MemWatchResponseEvent e) {
+		if (!e.isSuccess())
+			return;
+		
+		long address = e.getWatchedAddress();
+		LongProperty value = e.getMemObject();
+		value.addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				watchedAddresses.refresh();
+			}
+			
+		});
+		MemoryRow row = new MemoryRow(address, value);
+		memoryAddresses.add(row);
+	}
+	
 	
 	private TableView<RegisterRow> createRegisterTable()
 	{

@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.google.common.eventbus.EventBus;
 
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
@@ -17,6 +19,7 @@ import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
 import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
 import edu.asu.plp.tool.prototype.ApplicationSettings;
+import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import javafx.beans.property.LongProperty;
 import javafx.util.Pair;
 
@@ -209,7 +212,7 @@ public class PLPSimulator implements Simulator
 		// Evaluate interrupt controller again to see if anything raised an IRQ
 		// (PLPSimBus evaluates modules from index 0 upwards)
 		// bus.eval(0);
-		addressBus.eval(0);
+		//addressBus.eval(SetupDevicesandMemory.IC_INDEX);
 		
 		/*
 		 * STALL ROUTINES
@@ -529,7 +532,7 @@ public class PLPSimulator implements Simulator
 		//Evaluate interrupt controller again to see if anything raised an irq
 		//(PLP sim bus evaluates modules from index 0 upwards)
 		//bus.eval(0);
-		addressBus.eval(0);
+		//addressBus.eval(SetupDevicesandMemory.IC_INDEX);
 		
 		//We have an irq waiting, set ack so the controller wont set another
 		//request while we process this one
@@ -726,9 +729,9 @@ public class PLPSimulator implements Simulator
 		
 		alu = new ALU();
 		
-		/*SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
+		SetupDevicesandMemory setup = new SetupDevicesandMemory(this);
 		setup.setup();
-		addressBus.enable_allmodules();*/
+		addressBus.enable_allmodules();
 	}
 	
 	@Override
@@ -794,6 +797,36 @@ public class PLPSimulator implements Simulator
 		return this.externalInterrupt;
 	}
 	
+	@Override
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
+	}
 	
+	@Override
+	public void stopListening() {
+		EventRegistry.getGlobalRegistry().unregister(this);
+	}
+
+	@Override
+	public void receiveCommand(SimulatorControlEvent e) {
+		switch (e.getCommand()) {
+		case "load":
+			this.loadProgram((ASMImage)e.getSimulatorData());
+			break;
+		case "step":
+			try {
+				this.step();
+			} catch (SimulatorException e1) {
+				e1.printStackTrace();
+			}
+			break;
+		case "reset":
+			this.reset();
+			break;
+		case "pause":
+			this.pause();
+			break;
+		}
+	}
 	
 }

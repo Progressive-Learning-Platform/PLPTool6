@@ -3,7 +3,12 @@ package edu.asu.plp.tool.backend.plpisa.sim;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.RegisterFile;
+import edu.asu.plp.tool.backend.isa.events.RegWatchRequestEvent;
+import edu.asu.plp.tool.backend.isa.events.RegWatchResponseEvent;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -59,6 +64,7 @@ public class PLPRegFile implements RegisterFile {
 			
 		
 		this.namedRegisters = buildNamedRegistersMap();
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	/**
@@ -179,18 +185,23 @@ public class PLPRegFile implements RegisterFile {
 		return index >= 0 && index < registers.length;
 	}
 	
-	/**
-	 * This gets the value of the given register. It actually gives the property so we can bind to any other object
-	 * @param registerName Register whose value property needs to be fetched
-	 * @return returns the registers value propery.
-	 */
-	public LongProperty getRegisterValueProperty(String registerName)
-	{
+	@Subscribe
+	public void receivedWatchRequest(RegWatchRequestEvent e) {
+		String registerName = e.getRegisterName();
+		
+		if (!hasRegister(registerName)) {
+			EventRegistry.getGlobalRegistry().post(new RegWatchResponseEvent(false, null, registerName, null));
+			return;
+		}
+		
 		int index = convertNameToIndex(registerName);
-		if (registerIndexIsValid(index))
-			return registers[index];
-		else
-			return null;
+		if (!registerIndexIsValid(index)) {
+			EventRegistry.getGlobalRegistry().post(new RegWatchResponseEvent(false, null, registerName, null));
+			return;
+		}
+		
+		String registerID = getRegisterID(registerName);
+		EventRegistry.getGlobalRegistry().post(new RegWatchResponseEvent(true, registerID, registerName, registers[index]));
 	}
 	
 	/**

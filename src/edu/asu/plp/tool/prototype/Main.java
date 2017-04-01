@@ -78,11 +78,11 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Assembler;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
-import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -143,7 +143,7 @@ public class Main extends Application implements Controller
 	
 	private ApplicationThemeManager applicationThemeManager;
 	private OutlineView outlineView;
-	private SetupDevicesandMemory devicesSetup = null;
+	private boolean isSimulationRunning;
 	
 	public static void main(String[] args)
 	{
@@ -1488,18 +1488,13 @@ public class Main extends Application implements Controller
 		{
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
+			activeSimulator.startListening();
 			
-			if(devicesSetup == null)
-			{
-				devicesSetup = new SetupDevicesandMemory(activeSimulator);
-				devicesSetup.setup();
-				activeSimulator.getAddressBus().enable_allmodules();
-			}
+			emulationWindow = new EmulationWindow();
 			
-			emulationWindow = new EmulationWindow(activeSimulator, devicesSetup);
-			
-			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
-			
+			EventRegistry.getGlobalRegistry().post(
+								new SimulatorControlEvent("load", 
+														getAssemblyDetailsFor(activeProject).getAssembledImage()));
 			
 		}
 		else
@@ -1523,12 +1518,8 @@ public class Main extends Application implements Controller
 	public void stepSimulation()
 	{
 		performIfActive(() -> {
-			try {
-				activeSimulator.step();
-			} catch (SimulatorException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			EventRegistry.getGlobalRegistry().post(
+								new SimulatorControlEvent("step", null));
 		});
 	}
 	
@@ -1554,7 +1545,7 @@ public class Main extends Application implements Controller
 	@Override
 	public void resetSimulation()
 	{
-		performIfActive(activeSimulator::reset);
+		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", null));
 	}
 	
 	@Override
@@ -1565,17 +1556,20 @@ public class Main extends Application implements Controller
 		ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject);
 		if (!details.isDirty())
 		{
-			activeSimulator.loadProgram(details.getAssembledImage());
+			//activeSimulator.loadProgram(details.getAssembledImage());
+			EventRegistry.getGlobalRegistry().post(
+					new SimulatorControlEvent("load", details.getAssembledImage()));
 			//performIfActive(activeSimulator::run);
-			
+			isSimulationRunning = true;
 			simRunThread = new Thread(new Runnable(){
 				public void run()
 				{
-					try {
-						activeSimulator.run();
-					} catch (SimulatorException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					while (isSimulationRunning) {
+						EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("step", null));
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+						}
 					}
 				}
 			});
@@ -1599,15 +1593,16 @@ public class Main extends Application implements Controller
 	@Override
 	public void stopSimulation()
 	{
-		performIfActive(activeSimulator::pause);
-		performIfActive(activeSimulator::reset);
+		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("pause", null));
+		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", null));
+		isSimulationRunning = false;
 		if(simRunThread != null)
 		{
 			simRunThread.interrupt();
 			simRunThread = null;
 		}
-		activeSimulator = null;
 		
+		activeSimulator.stopListening();
 		// TODO: deactivate simulation views (e.g. Emulation Window)
 	}
 	
@@ -1742,7 +1737,7 @@ public class Main extends Application implements Controller
 		Stage stage = new Stage();
 		// TODO: pass active memory module and register File to WatcherWindow
 		//WatcherWindow watcherWindow = new WatcherWindow(new , new PLPRegFile());
-		watcher = new WatcherWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());//emulationWindow.getWatcherWindow();
+		watcher = emulationWindow.getWatcherWindow();
 		
 		Scene scene = new Scene(watcher, 888, 500);
 		stage.setTitle("Watcher Window");

@@ -1,9 +1,15 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.AddressBus;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.backend.isa.events.MemWatchRequestEvent;
+import edu.asu.plp.tool.backend.isa.events.MemWatchResponseEvent;
+import edu.asu.plp.tool.prototype.util.LongUtils;
 import javafx.beans.property.LongProperty;
 import plptool.Constants;
 /**
@@ -19,11 +25,13 @@ public class PLPAddressBus implements AddressBus{
 	/**
 	 * This list contains all I/O module attached with this bus
 	 */
-	private ArrayList<IOMemoryModule> modules;
+	private HashMap<String, IOMemoryModule> modules;
 	
 	public PLPAddressBus()
 	{
-		modules = new ArrayList<IOMemoryModule>();
+		modules = new HashMap<String, IOMemoryModule>();
+		
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	/**
@@ -31,30 +39,18 @@ public class PLPAddressBus implements AddressBus{
 	 * @param mod PLPIOMemoryModule to be added
 	 * @return returns the index of the module after adding
 	 */
-	public int add(IOMemoryModule mod)
+	@Override
+	public String add(String deviceName, IOMemoryModule mod)
 	{
-		modules.add(mod);
-		return modules.indexOf(mod);
+		modules.put(deviceName, mod);
+		return deviceName;
 	}
 	
 	@Override
-	public int remove(IOMemoryModule rmmod) {
+	public int remove(String rmmod) {
 		modules.remove(rmmod);
 		
 		return 0;
-	}
-
-	
-	/**
-	 * This method removes the module form the bus. 
-	 * @param index position where module has been added
-	 * @return ok if no error else error code
-	 */
-	public int remove(int index)
-	{
-		//Index out of range possibility
-		modules.remove(index);
-		return Constants.PLP_OK;
 	}
 	
 	@Override
@@ -62,8 +58,9 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean isValid = false;
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(address))
 			{
 				isValid = true;
@@ -83,8 +80,9 @@ public class PLPAddressBus implements AddressBus{
 	{
 		Long value = null;
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(addr))
 			{
 				if(!mod.isPhantom())
@@ -116,13 +114,18 @@ public class PLPAddressBus implements AddressBus{
 		return value;
 	}
 	
-	@Override
-	public LongProperty getMemoryValueProperty(long address)
-	{
+	@Subscribe
+	public void receivedWatchRequest(MemWatchRequestEvent e) {
+		long address = e.getMemoryAddress();
+		
+		if (!validateAddress(address))
+			return;
+		
 		LongProperty valueProperty = null;
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(address))
 			{
 				if(!mod.isPhantom())
@@ -139,7 +142,7 @@ public class PLPAddressBus implements AddressBus{
 			
 		}
 		
-		return valueProperty;
+		EventRegistry.getGlobalRegistry().post(new MemWatchResponseEvent(true, address, valueProperty));
 	}
 	
 	/**
@@ -154,8 +157,9 @@ public class PLPAddressBus implements AddressBus{
 		int ret = Constants.PLP_SIM_UNMAPPED_MEMORY_ACCESS;
 		
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(addr))
 			{
 				ret = mod.write(addr, data, isInstr);
@@ -166,9 +170,9 @@ public class PLPAddressBus implements AddressBus{
 		return ret;
 	}
 	
-	public IOMemoryModule getModule(int index)
+	public IOMemoryModule getModule(String moduleName)
 	{
-		return modules.get(index);
+		return modules.get(moduleName);
 	}
 	
 	/**
@@ -180,7 +184,9 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean bInitialized = false;
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
+		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(addr))
 			{
 				if(mod.isInitialized(addr))
@@ -190,7 +196,7 @@ public class PLPAddressBus implements AddressBus{
 				break;
 					
 			}
-		
+		}
 		return bInitialized;
 	}
 	
@@ -203,8 +209,9 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean bMapped = false;
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(addr))
 			{
 				if(mod.checkAlignment(addr))
@@ -228,8 +235,9 @@ public class PLPAddressBus implements AddressBus{
 	{
 		boolean bInstr = false;
 		
-		for(IOMemoryModule mod : modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(addr))
 			{
 				if(mod.isInstruction(addr))
@@ -248,8 +256,9 @@ public class PLPAddressBus implements AddressBus{
 	public synchronized int eval()
 	{
 		int ret = Constants.PLP_OK;
-		for(IOMemoryModule mod: modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			ret += mod.eval();
 		}
 		
@@ -263,16 +272,19 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index position where the module is installed in bus
 	 * @return Ok for success else error
 	 */
-	public int eval(int index)
+	public int eval(String moduleName)
 	{
 		// There is a possiblity of error here - index not in range
-		return modules.get(index).eval();
+		return modules.get(moduleName).eval();
 	}
 	
 	@Override
 	public synchronized int enable_allmodules() {
-		for (IOMemoryModule mod: modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
+		{
+			IOMemoryModule mod = entry.getValue();
 			mod.enable();
+		}
 		
 		return Constants.PLP_OK;
 		
@@ -280,8 +292,11 @@ public class PLPAddressBus implements AddressBus{
 
 	@Override
 	public synchronized int disable_allmodules() {
-		for(IOMemoryModule mod: modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
+		{
+			IOMemoryModule mod = entry.getValue();
 			mod.disable();
+		}
 		return Constants.PLP_OK;
 	}
 	
@@ -291,10 +306,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module in the bus
 	 * @return true if enabled else false
 	 */
-	public synchronized boolean isEnabled(int index)
+	public synchronized boolean isEnabled(String moduleName)
 	{
 		//Index out of range possibility
-		return modules.get(index).isEnabled();
+		return modules.get(moduleName).isEnabled();
 	}
 	
 	/**
@@ -302,10 +317,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module in the bus
 	 * @return OK for success else error
 	 */
-	public synchronized int enableModule(int index)
+	public synchronized int enableModule(String moduleName)
 	{
 		//Index out of range possibility
-		modules.get(index).enable();
+		modules.get(moduleName).enable();
 		return Constants.PLP_OK;
 	}
 	
@@ -314,10 +329,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module in the bus
 	 * @return OK for success else error
 	 */
-	public synchronized int disableModule(int index)
+	public synchronized int disableModule(String moduleName)
 	{
 		//Index out of range possibility
-		modules.get(index).disable();
+		modules.get(moduleName).disable();
 		return Constants.PLP_OK;
 	}
 	
@@ -326,10 +341,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module in bus
 	 * @return Okay for success else error
 	 */
-	public int clearModuleRegisters(int index)
+	public int clearModuleRegisters(String moduleName)
 	{
 		//Index out of range possibility
-		modules.get(index).clear();
+		modules.get(moduleName).clear();
 		return Constants.PLP_OK;
 	}
 	
@@ -338,10 +353,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module in the bus
 	 * @return string describing module
 	 */
-	public String introduceModule(int index)
+	public String introduceModule(String moduleName)
 	{
 		//Index out of range possibility
-		return modules.get(index).introduce();
+		return modules.get(moduleName).introduce();
 	}
 	
 	@Override
@@ -361,8 +376,9 @@ public class PLPAddressBus implements AddressBus{
 	public synchronized Object uncheckedRead(long addr)
 	{
 		Object value = null;
-		for(IOMemoryModule mod: modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
 		{
+			IOMemoryModule mod = entry.getValue();
 			if(mod.isAddressWithModule(addr))
 			{
 				value = mod.read(addr);
@@ -377,17 +393,20 @@ public class PLPAddressBus implements AddressBus{
 	 */
 	public void reset()
 	{
-		for(IOMemoryModule mod: modules)
+		for(HashMap.Entry<String, IOMemoryModule> entry : modules.entrySet())
+		{
+			IOMemoryModule mod = entry.getValue();
 			mod.reset();
+		}
 	}
 	
 	/**
 	 * This method will put zeroes in the registers of that module
 	 * @param index module location in the bus
 	 */
-	public synchronized void issueZeroes(int index)
+	public synchronized void issueZeroes(String moduleName)
 	{
-		IOMemoryModule mod = modules.get(index);
+		IOMemoryModule mod = modules.get(moduleName);
 		
 		for(int i = 0; i < mod.size(); i++)
 		{
@@ -400,10 +419,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module as installed in the bus
 	 * @return Object of module
 	 */
-	public synchronized IOMemoryModule getReferenceModule(int index)
+	public synchronized IOMemoryModule getReferenceModule(String moduleName)
 	{
 		//Index out of range possibility
-		return modules.get(index);
+		return modules.get(moduleName);
 	}
 	
 	/**
@@ -420,10 +439,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module installed in bus
 	 * @return start address of the module
 	 */
-	public synchronized long getModuleStartAddress(int index)
+	public synchronized long getModuleStartAddress(String moduleName)
 	{
 		//Index out of range possibility
-		return modules.get(index).startAddress();
+		return modules.get(moduleName).startAddress();
 	}
 	
 	/**
@@ -431,13 +450,10 @@ public class PLPAddressBus implements AddressBus{
 	 * @param index location of the module installed in the bus
 	 * @return end address of the module
 	 */
-	public synchronized long getModuleEndAddress(int index)
+	public synchronized long getModuleEndAddress(String moduleName)
 	{
 		//Index out of range possibility
-		return modules.get(index).endAddress();
+		return modules.get(moduleName).endAddress();
 	}
-	
-	
-	
 
 }

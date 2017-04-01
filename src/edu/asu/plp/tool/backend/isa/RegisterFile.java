@@ -1,7 +1,5 @@
 package edu.asu.plp.tool.backend.isa;
 
-import javafx.beans.property.LongProperty;
-
 public interface RegisterFile {
 	void reset();
 	boolean hasRegister(String registerName);
@@ -11,6 +9,5 @@ public interface RegisterFile {
 	void write(int address, long value, boolean isInstruction);
 	void validateAddress(int address);
 	String getRegisterID(String registerName);
-	LongProperty getRegisterValueProperty(String registerName);
 
 }

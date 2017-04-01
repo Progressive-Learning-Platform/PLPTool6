@@ -1,7 +1,5 @@
 package edu.asu.plp.tool.prototype.devices;
 
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
-
 public class InterruptController extends PLPToolIOMemoryModule
 {
 
@@ -22,11 +20,4 @@ public class InterruptController extends PLPToolIOMemoryModule
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-	@Override
-	public void addListener(IOEvent toAdd) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

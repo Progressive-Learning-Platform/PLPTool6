@@ -3,8 +3,11 @@ package edu.asu.plp.tool.prototype.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
-import edu.asu.plp.tool.backend.isa.events.IOEvent;
+import edu.asu.plp.tool.backend.isa.events.DeviceOutputEvent;
 import edu.asu.plp.tool.prototype.devices.SevenSegmentDisplay;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,44 +28,53 @@ public class SevenSegmentPanel extends BorderPane
 	private static final int VERTICAL_SEGMENT_LENGTH = 3;
 	
 	private HBox hbox = null;
+	private String deviceName;
 	
-	public SevenSegmentPanel(IOMemoryModule memModule)
+	public SevenSegmentPanel(String deviceName)
 	{
 		hbox = new HBox();
 		hbox.getChildren().addAll(new Segment(), new Segment(), new Segment(), new Segment());
 		this.setCenter(hbox);
-		
-		((SevenSegmentDisplay)memModule).addListener(new IOEvent() {
-			
-			@Override
-			public void recevieUpdateEvent(long value) {
-				Object ar[] = hbox.getChildren().toArray();
-				ArrayList<SevenSegmentPanel.Segment> segments = new ArrayList<SevenSegmentPanel.Segment>();
-				for(Object ob: ar)
-				{
-					segments.add((SevenSegmentPanel.Segment)ob);
-				}
-
-				int maskValue = 0x000000FF;
-				int nCount = 0;
-				for(SevenSegmentPanel.Segment seg: segments)
-				{
-					int afterMaskValue = (int) (maskValue & value);
-					int temp = nCount;
-					while(temp > 0)
-					{
-						afterMaskValue = afterMaskValue >> 8;
-						temp--;
-					}
-					//String str = Integer.toBinaryString(afterMaskValue);
-					seg.setState(afterMaskValue);
-					maskValue = maskValue<<8;
-					nCount++;
-				}
-			}
-		});;
+		this.deviceName = deviceName;
+		startListening();
 	}
 	
+	@Subscribe
+	public void outputFromDevice(DeviceOutputEvent e) {
+		if (e.getDeviceName() != this.deviceName)
+			return;
+		
+		int value = (int)(e.getDeviceData());
+
+		Object ar[] = hbox.getChildren().toArray();
+		ArrayList<SevenSegmentPanel.Segment> segments = new ArrayList<SevenSegmentPanel.Segment>();
+		for(Object ob: ar)
+		{
+			segments.add((SevenSegmentPanel.Segment)ob);
+		}
+
+		int maskValue = 0x000000FF;
+		int nCount = 0;
+		for(SevenSegmentPanel.Segment seg: segments)
+		{
+			int afterMaskValue = (int) (maskValue & value);
+			int temp = nCount;
+			while(temp > 0)
+			{
+				afterMaskValue = afterMaskValue >> 8;
+				temp--;
+			}
+			//String str = Integer.toBinaryString(afterMaskValue);
+			seg.setState(afterMaskValue);
+			maskValue = maskValue<<8;
+			nCount++;
+		}
+	}
+	
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
+	}
+
 	public static class Segment extends HBox
 	{
 		List<Parent> segments;

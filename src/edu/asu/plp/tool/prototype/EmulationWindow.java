@@ -21,7 +21,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
@@ -36,8 +35,6 @@ public class EmulationWindow extends BorderPane
 	private SevenSegmentPanel sevenSegDisplay;
 	SwitchesDisplay switchesDisplay;
 	private boolean isActive;
-	private Simulator sim;
-	private SetupDevicesandMemory deviceSetup;
 	
 	public WatcherWindow getWatcherWindow()
 	{
@@ -46,10 +43,8 @@ public class EmulationWindow extends BorderPane
 	
 	//public 
 	
-	public EmulationWindow(Simulator sim, SetupDevicesandMemory deviceSetup)
+	public EmulationWindow()
 	{
-		this.sim = sim;
-		this.deviceSetup = deviceSetup;
 		GridPane demoGrid = createDemo();
 		HBox topBar = createTopBar();
 		
@@ -77,11 +72,11 @@ public class EmulationWindow extends BorderPane
 		DropShadow backgroundColor = new DropShadow();
 		backgroundColor.setColor(Color.BLACK);
 		
-		ledDisplay = new LEDDisplay(sim.getAddressBus().getModule(deviceSetup.LED_INDEX));
+		ledDisplay = new LEDDisplay(SetupDevicesandMemory.LED_INDEX);
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule( deviceSetup.SWITCH_INDEX));
+		switchesDisplay = new SwitchesDisplay(SetupDevicesandMemory.SWITCH_INDEX);
 		switchesDisplay.setPadding(new Insets(10));
 		switchesDisplay.setStyle("-fx-background-color: grey;");
 		
@@ -90,11 +85,11 @@ public class EmulationWindow extends BorderPane
 		uartDisplay.setStyle("-fx-background-color: grey;");
 
 		// TODO: pass active memory module and register file to WatcherWindow
-		watcher = new WatcherWindow(sim.getAddressBus(), sim.getRegisterFile());//null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
+		watcher = new WatcherWindow();//null;//new WatcherWindow(new PLPMemoryModule(), new PLPRegFile());
 		watcher.setPadding(new Insets(10));
 		watcher.setStyle("-fx-background-color: grey;");
 		
-		sevenSegDisplay = new SevenSegmentPanel(sim.getAddressBus().getModule(deviceSetup.SEVEN_SEGMENT_INDEX));
+		sevenSegDisplay = new SevenSegmentPanel(SetupDevicesandMemory.SEVEN_SEGMENT_INDEX);
 		sevenSegDisplay.setStyle("-fx-background-color: grey;");
 		
 		Label ledLabel = label("LEDs");
