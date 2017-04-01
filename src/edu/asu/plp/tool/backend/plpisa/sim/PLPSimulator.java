@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.google.common.eventbus.EventBus;
 
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
@@ -795,6 +797,36 @@ public class PLPSimulator implements Simulator
 		return this.externalInterrupt;
 	}
 	
+	@Override
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
+	}
 	
+	@Override
+	public void stopListening() {
+		EventRegistry.getGlobalRegistry().unregister(this);
+	}
+
+	@Override
+	public void receiveCommand(SimulatorControlEvent e) {
+		switch (e.getCommand()) {
+		case "load":
+			this.loadProgram((ASMImage)e.getSimulatorData());
+			break;
+		case "step":
+			try {
+				this.step();
+			} catch (SimulatorException e1) {
+				e1.printStackTrace();
+			}
+			break;
+		case "reset":
+			this.reset();
+			break;
+		case "pause":
+			this.pause();
+			break;
+		}
+	}
 	
 }

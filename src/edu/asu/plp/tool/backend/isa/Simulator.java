@@ -1,5 +1,8 @@
 package edu.asu.plp.tool.backend.isa;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 
 public interface Simulator
@@ -30,4 +33,9 @@ public interface Simulator
 	
 	void setIRQ(long value);
 	void maskIRQ(long value);
+	
+	void startListening();
+	void stopListening();
+	@Subscribe
+	void receiveCommand(SimulatorControlEvent e);
 }
