@@ -1,7 +1,5 @@
 package edu.asu.plp.tool.backend.isa;
 
-import javafx.beans.property.LongProperty;
-
 public interface AddressBus {
 	String add(String moduleName, IOMemoryModule mod);
 	int remove(String moduleName);
@@ -22,5 +20,4 @@ public interface AddressBus {
 	long getModuleStartAddress(String moduleName);
 	long getModuleEndAddress(String moduleName);
 	IOMemoryModule getModule(String moduleName);
-	LongProperty getMemoryValueProperty(long addr);
 }
