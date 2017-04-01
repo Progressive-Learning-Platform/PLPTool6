@@ -1734,7 +1734,7 @@ public class Main extends Application implements Controller
 		Stage stage = new Stage();
 		// TODO: pass active memory module and register File to WatcherWindow
 		//WatcherWindow watcherWindow = new WatcherWindow(new , new PLPRegFile());
-		watcher = new WatcherWindow(activeSimulator.getAddressBus(), activeSimulator.getRegisterFile());//emulationWindow.getWatcherWindow();
+		emulationWindow.getWatcherWindow();
 		
 		Scene scene = new Scene(watcher, 888, 500);
 		stage.setTitle("Watcher Window");
