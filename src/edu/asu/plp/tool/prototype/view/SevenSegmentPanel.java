@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.eventbus.Subscribe;
 
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
 import edu.asu.plp.tool.backend.isa.events.DeviceOutputEvent;
 import edu.asu.plp.tool.prototype.devices.SevenSegmentDisplay;
@@ -35,6 +36,7 @@ public class SevenSegmentPanel extends BorderPane
 		hbox.getChildren().addAll(new Segment(), new Segment(), new Segment(), new Segment());
 		this.setCenter(hbox);
 		this.deviceName = deviceName;
+		startListening();
 	}
 	
 	@Subscribe
@@ -67,6 +69,10 @@ public class SevenSegmentPanel extends BorderPane
 			maskValue = maskValue<<8;
 			nCount++;
 		}
+	}
+	
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 
 	public static class Segment extends HBox
