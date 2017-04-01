@@ -79,7 +79,7 @@ public class EmulationWindow extends BorderPane
 		ledDisplay.setPadding(new Insets(10));
 		ledDisplay.setStyle("-fx-background-color: grey;");
 		
-		switchesDisplay = new SwitchesDisplay(sim.getAddressBus().getModule(SetupDevicesandMemory.SWITCH_INDEX));
+		switchesDisplay = new SwitchesDisplay(SetupDevicesandMemory.SWITCH_INDEX);
 		switchesDisplay.setPadding(new Insets(10));
 		switchesDisplay.setStyle("-fx-background-color: grey;");
 		

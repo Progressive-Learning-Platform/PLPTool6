@@ -118,7 +118,8 @@ public class SetupDevicesandMemory {
 			keys.add(SetupDevicesandMemory.startAddressKey);
 			startAddress = ApplicationSettings.getKeyName(keys);
 			keys.clear();
-	        Switches swit = new Switches(Long.decode(ApplicationSettings.getSetting(startAddress).get()));
+	        Switches swit = new Switches(SetupDevicesandMemory.switchKey, 
+	        							Long.decode(ApplicationSettings.getSetting(startAddress).get()));
 	        SetupDevicesandMemory.SWITCH_INDEX = sim.getAddressBus().add(SetupDevicesandMemory.switchKey, swit);
 	        //obj = (JSONObject)jobj.get("PLPID");
 	        //obj = (JSONObject)jobj.get("VGA");

@@ -1,7 +1,9 @@
 package edu.asu.plp.tool.prototype.view;
 
 
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.IOMemoryModule;
+import edu.asu.plp.tool.backend.isa.events.DeviceInputEvent;
 import edu.asu.plp.tool.prototype.devices.Switches;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
@@ -23,7 +25,7 @@ public class SwitchesDisplay extends BorderPane
 	private static final String INACTIVE_COLOR = "black";
 	private static final int DEFAULT_VALUE = 0;
 	
-	private Switches switchBackend;
+	private String deviceName = "";
 	
 	private static class Switch extends Button
 	{
@@ -40,10 +42,12 @@ public class SwitchesDisplay extends BorderPane
 	 */
 	private Switch[] switches;
 	
-	public SwitchesDisplay(IOMemoryModule switchBackend)
+	public SwitchesDisplay(String deviceName)
 	{
 		GridPane grid = new GridPane();
-		this.switchBackend = (Switches)switchBackend;
+		
+		this.deviceName = deviceName;
+
 		switches = new Switch[NUMBER_OF_SWITCHES];
 		for (int index = 0; index < NUMBER_OF_SWITCHES; index++)
 		{
@@ -129,11 +133,7 @@ public class SwitchesDisplay extends BorderPane
 			}
 		}
 		
-		if(switchBackend != null)
-		{
-			switchBackend.writeRegister(switchBackend.startAddress(), value, false);
-		}
-		
+		EventRegistry.getGlobalRegistry().post(new DeviceInputEvent(this.deviceName, value));
 	}
 	
 	private void updateSwitchStyle(Switch button)

@@ -1,5 +1,9 @@
 package edu.asu.plp.tool.prototype.devices;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.backend.isa.events.DeviceInputEvent;
 import edu.asu.plp.tool.backend.isa.events.IOEvent;
 import plptool.Constants;
 
@@ -13,14 +17,17 @@ import plptool.Constants;
  */
 public class Switches extends PLPToolIOMemoryModule
 {
+	private String deviceName = null;
 	/**
 	 * This is the constructor of Switches class
 	 * It takes the memory address mapped to this device
 	 * @param addr memory address mapped to this address
 	 */
-	public Switches(long addr)
+	public Switches(String deviceName, long addr)
 	{
 		super(addr, addr, true);
+		this.deviceName = deviceName;
+		startListening();
 		//writeRegister(addr, 0, false);
 	}
 	
@@ -77,6 +84,18 @@ public class Switches extends PLPToolIOMemoryModule
 		
 	}
 	
+	@Subscribe
+	public void inputFromGUI(DeviceInputEvent e) { 
+		if (e.getDeviceName() != this.deviceName)
+			return;
+		
+		long value = (long)(e.getDeviceData());
+		
+		writeRegister(this.startAddress(), value, false);
+	}
 	
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
+	}
 
 }
