@@ -1487,7 +1487,7 @@ public class Main extends Application implements Controller
 			ISAModule isa = module.get();
 			activeSimulator = isa.getSimulator();
 			
-			emulationWindow = new EmulationWindow(activeSimulator);
+			emulationWindow = new EmulationWindow();
 			
 			activeSimulator.loadProgram(getAssemblyDetailsFor(activeProject).getAssembledImage());
 			

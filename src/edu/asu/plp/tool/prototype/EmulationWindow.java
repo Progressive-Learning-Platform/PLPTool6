@@ -21,7 +21,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
 import edu.asu.plp.tool.prototype.view.LEDDisplay;
 import edu.asu.plp.tool.prototype.view.SevenSegmentPanel;
@@ -36,7 +35,6 @@ public class EmulationWindow extends BorderPane
 	private SevenSegmentPanel sevenSegDisplay;
 	SwitchesDisplay switchesDisplay;
 	private boolean isActive;
-	private Simulator sim;
 	
 	public WatcherWindow getWatcherWindow()
 	{
@@ -45,9 +43,8 @@ public class EmulationWindow extends BorderPane
 	
 	//public 
 	
-	public EmulationWindow(Simulator sim)
+	public EmulationWindow()
 	{
-		this.sim = sim;
 		GridPane demoGrid = createDemo();
 		HBox topBar = createTopBar();
 		
