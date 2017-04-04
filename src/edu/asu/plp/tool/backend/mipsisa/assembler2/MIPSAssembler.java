@@ -175,7 +175,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRTypeInstruction("sltu", 0x2b);
 		//mipsInstructions.addRTypeInstruction("mullo", 0x10);
 		//mipsInstructions.addRTypeInstruction("mulhi", 0x11);
-		//REPLACED BY MULT
+		//REPLACED BY MULT, MUL, and MULTU
 
 		//changed these funcCodes
 		/*mipsInstructions.addRTypeInstruction("sllv", 0x01);
@@ -202,7 +202,6 @@ public class MIPSAssembler implements Assembler
 		
 		mipsInstructions.addRLTypeInstruction("lw", 0x23);
 		mipsInstructions.addRLTypeInstruction("sw", 0x2B);
-		
 		
 		mipsInstructions.addBTypeInstruction("bne", 0x05);
 		mipsInstructions.addBTypeInstruction("beq", 0x04);
@@ -235,6 +234,8 @@ public class MIPSAssembler implements Assembler
 		
 		mipsInstructions.addRITypeInstruction("rotr", 0x02, 1);
 		mipsInstructions.addRVTypeInstruction("rotrv", 0x06, 1);
+		mipsInstructions.addRITypeInstruction("sra", 0x03, 0);
+		mipsInstructions.addRVTypeInstruction("srav", 0x07, 0);
 		mipsInstructions.addRCTypeInstruction("seh", 0x1f, 0x18);
 		mipsInstructions.addRCTypeInstruction("seb", 0x1f, 0x10);
 		mipsInstructions.addRTypeInstruction("movz", 0x0a);

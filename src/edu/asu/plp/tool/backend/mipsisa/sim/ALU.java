@@ -61,6 +61,8 @@ public class ALU
 						} else { //srl
 							return b >>> InstructionExtractor.sa(instruction);
 						}
+					case 0x03: return b >> InstructionExtractor.sa(instruction);
+					case 0x07: return a >> b;
 					case 0x10:
 						return ((long)(int) a * (long)(int)b) & 0xffffffffL;
 					case 0x11:
@@ -73,7 +75,7 @@ public class ALU
 							temp2 &= 0xffffffffL;
 							return temp1 | temp2;
                     	} else { //srlv
-                    		return a >> b;
+                    		return a >>> b; //because it's logical
                     	}
 					case 0x18:
 					case 0x19: return a * b;
