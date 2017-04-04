@@ -13,14 +13,18 @@ import java.util.ListIterator;
 
 import com.faeysoft.preceptor.lexer.Lexer;
 import com.faeysoft.preceptor.lexer.Token;
+import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.BiDirectionalOneToManyMap;
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.OrderedBiDirectionalOneToManyHashMap;
 import edu.asu.plp.tool.backend.isa.ASMDisassembly;
 import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 import edu.asu.plp.tool.backend.isa.ASMInstruction;
 import edu.asu.plp.tool.backend.isa.Assembler;
+import edu.asu.plp.tool.backend.isa.events.AssemblerControlEvent;
+import edu.asu.plp.tool.backend.isa.events.AssemblerResultEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
 import edu.asu.plp.tool.backend.plpisa.PLPAssemblyInstruction;
@@ -1933,5 +1937,26 @@ public class PLPAssembler implements Assembler
 	private void addRegionAndIncrementAddress()
 	{
 		addRegionAndIncrementAddress(1, 4);
+	}
+	
+	@Subscribe
+	public void receivedAssembleRequest(AssemblerControlEvent e) {
+		if (e.getCommand() == "assemble") {
+			ASMImage image = null;
+			try {
+				image = assemble(e.getAssemblerFiles());
+				System.out.println("Assembled!!!!");
+			} catch (AssemblerException e1) {
+				EventRegistry.getGlobalRegistry().post(new AssemblerResultEvent(
+						false, e1.getMessage(), e.getAssemblerFiles(), null));
+			}
+			EventRegistry.getGlobalRegistry().post(new AssemblerResultEvent(
+						true, "", e.getAssemblerFiles(), image));
+		}
+	}
+
+	@Override
+	public void startListening() {
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 }

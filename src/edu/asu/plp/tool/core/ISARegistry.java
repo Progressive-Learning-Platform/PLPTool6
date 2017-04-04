@@ -85,7 +85,9 @@ public class ISARegistry
 				Function<String, Boolean> supportsProjectType;
 				supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
 				Simulator simulator = new PLPSimulator();
+				simulator.startListening();
 				Assembler assembler = new PLPAssembler();
+				assembler.startListening();
 				ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
 				registeredModules.add(plp6Module);
 			}
@@ -95,7 +97,9 @@ public class ISARegistry
 			Function<String, Boolean> supportsProjectType;
 			supportsProjectType = (type) -> type.toLowerCase().startsWith("plp");
 			Simulator simulator = new PLPSimulator();
+			simulator.startListening();
 			Assembler assembler = new PLPAssembler();
+			assembler.startListening();
 			ISAModule plp6Module = new ISAModule(assembler, simulator, supportsProjectType);
 			registeredModules.add(plp6Module);
 		}

@@ -75,12 +75,9 @@ import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.ASMFile;
-import edu.asu.plp.tool.backend.isa.ASMImage;
-import edu.asu.plp.tool.backend.isa.Assembler;
-import edu.asu.plp.tool.backend.isa.Simulator;
+import edu.asu.plp.tool.backend.isa.events.AssemblerControlEvent;
+import edu.asu.plp.tool.backend.isa.events.AssemblerResultEvent;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
-import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
-import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
@@ -128,7 +125,6 @@ public class Main extends Application implements Controller
 	public static final int DEFAULT_WINDOW_WIDTH = 1280;
 	public static final int DEFAULT_WINDOW_HEIGHT = 720;
 	
-	private Simulator activeSimulator;
 	private Thread simRunThread;
 	private Stage stage;
 	private TabPane openProjectsPanel;
@@ -261,6 +257,7 @@ public class Main extends Application implements Controller
 		EventRegistry.getGlobalRegistry().post(new ThemeRequestEvent(themeName));
 		
 		primaryStage.show();
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	private Parent plpQuickRef()
@@ -862,33 +859,27 @@ public class Main extends Application implements Controller
 		return menuBar;
 	}
 	
+	@Subscribe
+	public void receivedAssembleResult(AssemblerResultEvent e) {
+		if (!e.getAssembleSuccess()) {
+			console.error(e.getErrorMessage());
+			return;
+		}
+		ProjectAssemblyDetails details = getAssemblyDetailsFor(e.getProjectName());
+		details.setAssembledImage(e.getAsmImage());
+	}
+	
 	private void assemble(Project project)
 	{
 		Optional<ISAModule> optionalISA = project.getISA();
 		if (optionalISA.isPresent())
 		{
-			ISAModule isa = optionalISA.get();
-			Assembler assembler = isa.getAssembler();
-			assemble(assembler, project);
+			EventRegistry.getGlobalRegistry().post(new AssemblerControlEvent("assemble", project.getName(), project));
 		}
 		else
 		{
 			// TODO: handle "no compatible ISA" case
 			throw new UnsupportedOperationException("Not yet implemented");
-		}
-	}
-	
-	private void assemble(Assembler assembler, Project project)
-	{
-		try
-		{
-			ASMImage assembledImage = assembler.assemble(project);
-			ProjectAssemblyDetails details = getAssemblyDetailsFor(project);
-			details.setAssembledImage(assembledImage);
-		}
-		catch (AssemblerException exception)
-		{
-			console.error(exception.getLocalizedMessage());
 		}
 	}
 	
@@ -1487,8 +1478,6 @@ public class Main extends Application implements Controller
 		if (module.isPresent())
 		{
 			ISAModule isa = module.get();
-			activeSimulator = isa.getSimulator();
-			activeSimulator.startListening();
 			
 			emulationWindow = new EmulationWindow();
 			
@@ -1601,8 +1590,6 @@ public class Main extends Application implements Controller
 			simRunThread.interrupt();
 			simRunThread = null;
 		}
-		
-		activeSimulator.stopListening();
 		// TODO: deactivate simulation views (e.g. Emulation Window)
 	}
 	
