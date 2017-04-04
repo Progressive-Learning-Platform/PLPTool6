@@ -9,11 +9,13 @@ public class AssemblerControlEvent {
 	
 	private String command;
 	private String projectName;
+	private String projectType;
 	private Project assemblerFiles;
 
-	public AssemblerControlEvent(String command, String projectName, Project assemblerFiles) {
+	public AssemblerControlEvent(String command, String projectName, String projectType, Project assemblerFiles) {
 		this.command = command;
 		this.projectName = projectName;
+		this.projectType = projectType;
 		this.assemblerFiles = assemblerFiles;
 	}
 
@@ -23,6 +25,10 @@ public class AssemblerControlEvent {
 
 	public String getProjectName() {
 		return projectName;
+	}
+
+	public String getProjectType() {
+		return projectType;
 	}
 
 	public Project getAssemblerFiles() {

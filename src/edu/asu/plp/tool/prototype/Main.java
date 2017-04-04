@@ -78,8 +78,6 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.events.AssemblerControlEvent;
 import edu.asu.plp.tool.backend.isa.events.AssemblerResultEvent;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
-import edu.asu.plp.tool.core.ISAModule;
-import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -871,10 +869,13 @@ public class Main extends Application implements Controller
 	
 	private void assemble(Project project)
 	{
-		Optional<ISAModule> optionalISA = project.getISA();
-		if (optionalISA.isPresent())
+		if (project.getISA().isPresent())
 		{
-			EventRegistry.getGlobalRegistry().post(new AssemblerControlEvent("assemble", project.getName(), project));
+			EventRegistry.getGlobalRegistry().post(
+									new AssemblerControlEvent("assemble", 
+															project.getName(), 
+															project.getType(),
+															project));
 		}
 		else
 		{
@@ -1472,24 +1473,20 @@ public class Main extends Application implements Controller
 	public void simulateActiveProject()
 	{
 		Project activeProject = getActiveProject();
-		String projectType = activeProject.getType();
-		Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(projectType);
 		
-		if (module.isPresent())
+		if (activeProject.getISA().isPresent())
 		{
-			ISAModule isa = module.get();
-			
 			emulationWindow = new EmulationWindow();
 			
 			EventRegistry.getGlobalRegistry().post(
-								new SimulatorControlEvent("load", 
+								new SimulatorControlEvent("load", activeProject.getType(),
 														getAssemblyDetailsFor(activeProject).getAssembledImage()));
 			
 		}
 		else
 		{
 			String message = "No simulator is available for the project type: ";
-			message += projectType;
+			message += activeProject.getType();
 			Dialogues.showAlertDialogue(new IllegalStateException(message));
 		}
 		
@@ -1508,7 +1505,7 @@ public class Main extends Application implements Controller
 	{
 		performIfActive(() -> {
 			EventRegistry.getGlobalRegistry().post(
-								new SimulatorControlEvent("step", null));
+								new SimulatorControlEvent("step", "", null));
 		});
 	}
 	
@@ -1534,7 +1531,7 @@ public class Main extends Application implements Controller
 	@Override
 	public void resetSimulation()
 	{
-		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", null));
+		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", "", null));
 	}
 	
 	@Override
@@ -1547,14 +1544,14 @@ public class Main extends Application implements Controller
 		{
 			//activeSimulator.loadProgram(details.getAssembledImage());
 			EventRegistry.getGlobalRegistry().post(
-					new SimulatorControlEvent("load", details.getAssembledImage()));
+					new SimulatorControlEvent("load", "", details.getAssembledImage()));
 			//performIfActive(activeSimulator::run);
 			isSimulationRunning = true;
 			simRunThread = new Thread(new Runnable(){
 				public void run()
 				{
 					while (isSimulationRunning) {
-						EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("step", null));
+						EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("step", "", null));
 						try {
 							Thread.sleep(100);
 						} catch (InterruptedException e) {
@@ -1582,8 +1579,8 @@ public class Main extends Application implements Controller
 	@Override
 	public void stopSimulation()
 	{
-		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("pause", null));
-		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", null));
+		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("pause", "", null));
+		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", "", null));
 		isSimulationRunning = false;
 		if(simRunThread != null)
 		{

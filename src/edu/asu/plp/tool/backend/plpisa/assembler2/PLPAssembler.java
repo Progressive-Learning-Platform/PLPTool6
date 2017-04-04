@@ -1945,7 +1945,6 @@ public class PLPAssembler implements Assembler
 			ASMImage image = null;
 			try {
 				image = assemble(e.getAssemblerFiles());
-				System.out.println("Assembled!!!!");
 			} catch (AssemblerException e1) {
 				EventRegistry.getGlobalRegistry().post(new AssemblerResultEvent(
 						false, e1.getMessage(), e.getAssemblerFiles(), null));
