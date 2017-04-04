@@ -238,6 +238,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRVTypeInstruction("srav", 0x07, 0);
 		mipsInstructions.addRCTypeInstruction("seh", 0x1f, 0x18);
 		mipsInstructions.addRCTypeInstruction("seb", 0x1f, 0x10);
+		mipsInstructions.addRCTypeInstruction("wsbh", 0x1f, 0x20);
 		mipsInstructions.addRTypeInstruction("movz", 0x0a);
 		mipsInstructions.addRTypeInstruction("movn", 0x0b);
 		

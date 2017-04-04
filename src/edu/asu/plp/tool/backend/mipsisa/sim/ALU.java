@@ -143,6 +143,12 @@ public class ALU
             			return (long) (short) (a & 0xffff);
             		case 0x10:
             			return (long) (char) (a & 0xff);
+            		case 0x20:
+            			long x = a & 0x00ff00ff;
+            			long y = a & 0xff00ff00;
+            			x = (int) (x << 8);
+            			y = (int) (y >>> 8);
+            			return x + y;
             	}
 		}
 		//@formatter:on
