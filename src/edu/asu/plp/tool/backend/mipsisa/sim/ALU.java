@@ -149,6 +149,23 @@ public class ALU
             			x = (int) (x << 8);
             			y = (int) (y >>> 8);
             			return x + y;
+            		case 0x00:
+            			int position = InstructionExtractor.sa(instruction);
+            			int size = (InstructionExtractor.rd(instruction) + 1 - position);
+            			long z = a << (32 - (position + size));
+            			z = z & 0xffffffff;
+            			z = z >>> (32 - position - 1);
+            			return z;
+            		case 0x04:
+            			int position1 = InstructionExtractor.sa(instruction);
+            			int size1 = (InstructionExtractor.rd(instruction) + 1 - position1);
+            			long temp1 = b >>> (position1 + size1);
+						long valToAdd = b - (temp1 << (position1 + size1));
+						temp1 = temp1 << size1;
+						temp1 |= a;
+						temp1 = temp1 << position1;
+						temp1 += valToAdd;
+						return temp1;
             	}
 		}
 		//@formatter:on

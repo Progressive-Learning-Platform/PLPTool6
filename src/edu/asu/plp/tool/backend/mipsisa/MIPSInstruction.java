@@ -50,6 +50,8 @@ public enum MIPSInstruction
 	SIGN_EXTEND_HALFWORD("seh", "opcode", 0x1F, 9),
 	SIGN_EXTEND_BYTE("seb", "opcode", 0x1F, 9),
 	WORD_SWAP_BYTE_HALFWORD("wsbh", "opcode", 0x1F, 9),
+	INSERT_BYTE_FIELD("ins", "opcode", 0x1F, 8),
+	EXTRACT_BYTE_FIELD("ext", "opcode", 0x1F, 8),
 	MOVE_IF_ZERO("movz", "function", 0x0a, 4),
 	MOVE_IF_NOT_ZERO("movn", "function", 0x0b, 4),
 	ROTATE_RIGHT("rotr", "function", 0x02, 1),

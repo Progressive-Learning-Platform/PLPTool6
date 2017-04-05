@@ -526,8 +526,13 @@ public class MIPSSimulator implements Simulator
 				}
 				else if(opcode == 0x1f) //seh, seb;
 				{
-					alu_result = alu.evaluate(s, 0, instruction);
-					regFile.write(rd, alu_result);
+					if (funct == 0x04 || funct == 0x00) {
+						alu_result = alu.evaluate(s, t, instruction);
+						regFile.write(rt, alu_result);
+					} else {
+						alu_result = alu.evaluate(s, 0, instruction);
+						regFile.write(rd, alu_result);
+					}
 				}
 				else if(opcode == 0x1c) 
 				{

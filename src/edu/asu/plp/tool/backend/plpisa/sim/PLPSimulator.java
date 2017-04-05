@@ -95,7 +95,12 @@ public class PLPSimulator implements Simulator
 				statusManager.isSimulationRunning = false;
 				
 			}else{
-				step();
+				try {
+					step();
+				} catch (SimulatorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		}

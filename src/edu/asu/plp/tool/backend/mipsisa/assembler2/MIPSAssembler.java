@@ -239,6 +239,8 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRCTypeInstruction("seh", 0x1f, 0x18);
 		mipsInstructions.addRCTypeInstruction("seb", 0x1f, 0x10);
 		mipsInstructions.addRCTypeInstruction("wsbh", 0x1f, 0x20);
+		mipsInstructions.addRIBTypeInstruction("ins", 0x1f, 0x04);
+		mipsInstructions.addRIBTypeInstruction("ext", 0x1f, 0x00);
 		mipsInstructions.addRTypeInstruction("movz", 0x0a);
 		mipsInstructions.addRTypeInstruction("movn", 0x0b);
 		
@@ -261,6 +263,7 @@ public class MIPSAssembler implements Assembler
 			currentFile = asmFile;
 			preprocessFile(asmFile.getContent(), asmFile);
 		}
+		
 		
 		programLocation = 0;
 		lstInstEncodings = new ArrayList<>();
@@ -394,7 +397,7 @@ public class MIPSAssembler implements Assembler
 						String[] argumentStrings = remainder.split(",\\s*");
 						
 						Argument[] arguments = parseArguments(argumentStrings);
-						
+					
 						MIPSDisassembly disassembly = process(subInstruction, arguments);
 						ASMInstruction key = new MIPSAssemblyInstruction(lineNumber, subSource, asmFileName);
 						assemblyToDisassemblyMap.put(key, disassembly);
@@ -1524,6 +1527,16 @@ public class MIPSAssembler implements Assembler
 						ensureArgumentEquality(strInstruction, lstArguments[2]);
 							
 						preprocessedInstruction += (" " + currentToken.getValue());
+						
+						if(lstArguments.length > 3)
+						{
+							expectedNextToken("");
+							ensureTokenEquality("Expected a comma after " + strSecondArgument, MIPSTokenType.COMMA);
+								
+							expectedNextToken("");
+							ensureArgumentEquality(strInstruction, lstArguments[2]);
+								
+						}
 					}
 				}
 			}
