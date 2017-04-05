@@ -162,6 +162,10 @@ public class ALU
             			long temp1 = b >>> (position1 + size1);
 						long valToAdd = b - (temp1 << (position1 + size1));
 						temp1 = temp1 << size1;
+						//Clearing a
+						a = a << (32 - size1);
+						a &= 0xffffffff;
+						a = a >>> (32 - size1);
 						temp1 |= a;
 						temp1 = temp1 << position1;
 						temp1 += valToAdd;
