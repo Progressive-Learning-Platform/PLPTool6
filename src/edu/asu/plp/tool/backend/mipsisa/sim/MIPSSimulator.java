@@ -478,8 +478,15 @@ public class MIPSSimulator implements Simulator
 				}
 				else if(opcode == 0x01) //bgez, bgezal
 				{
-					if (rt == 0x00) {
-						
+					if (rt == 0x00 || rt == 0x10) {
+						if(s < 0) { //bltz
+							isBranched = true;
+							branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+							if (rt == 0x10) //bltzal
+							{
+								regFile.write(31, (int)pcplus4 + 4, false);
+							}
+						}
 					} else {
 						if(s >= 0) { //bgez
 							isBranched = true;

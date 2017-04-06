@@ -68,7 +68,9 @@ public enum MIPSInstruction
 	BRANCH_GREATER_THAN_EQUAL_TO_ZERO("bgez", "opcode", 0x01, 10),
 	BRANCH_GREATER_THAN_EQUAL_TO_ZERO_AND_LINK("bgezal", "opcode", 0x01, 10),
 	BRANCH_GREATER_THAN_ZERO("bgtz", "opcode", 0x07, 10),
-	BRANCH_LESS_THAN_EQUAL_TO_ZERO("blez", "opcode", 0x06, 10);
+	BRANCH_LESS_THAN_EQUAL_TO_ZERO("blez", "opcode", 0x06, 10),
+	BRANCH_LESS_THAN_ZERO("bltz", "opcode", 0x01, 10),
+	BRANCH_LESS_THAN_ZERO_AND_LINK("bltzal", "opcode", 0x01, 10);
 	
 	private String identifier;
 	private String type;
