@@ -154,6 +154,8 @@ public class InstructionExtractor
 			case 8:
 				ret += "$" + rt(instruction) + ", $" + rs(instruction) + "," + rd(instruction) + "," + sa(instruction);
 				break;
+			case 10:
+				ret += "$" + rs(instruction) + ", 0x" + String.format("%x", imm(instruction));
 		}
 		
 		return ret;

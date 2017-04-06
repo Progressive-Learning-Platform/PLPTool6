@@ -476,6 +476,29 @@ public class MIPSSimulator implements Simulator
 						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
 					}
 				}
+				else if(opcode == 0x01) //bgez, bgezal +++
+				{
+					if (rt == 0x00) {
+						
+					} else {
+						if(s >= 0) { //bgez
+							isBranched = true;
+							branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+							if (rt == 0x11) //bgezal
+							{
+								regFile.write(31, (int)pcplus4 + 4, false);
+							}
+						}
+					}
+				}
+				else if(opcode == 0x07)
+				{
+					if (s > 0)
+					{
+						isBranched = true;
+						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+					}
+				}
 				else if(opcode == 0x23) //lw
 				{
 					//TODO bus read

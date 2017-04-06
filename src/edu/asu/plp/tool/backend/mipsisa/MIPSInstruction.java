@@ -64,7 +64,10 @@ public enum MIPSInstruction
 	MULTIPLY_ADD("madd", "opcode", 0x1C, 0),
 	MULTIPLY_ADD_UNSIGNED("maddu", "opcode", 0x1C, 0),
 	MULTIPLY_SUB("msub", "opcode", 0x1C, 0),
-	MULTIPLY_SUB_UNSIGNED("msubu", "opcode", 0x1C, 0);
+	MULTIPLY_SUB_UNSIGNED("msubu", "opcode", 0x1C, 0),
+	BRANCH_GREATER_THAN_EQUAL_TO_ZERO("bgez", "opcode", 0x01, 10),
+	BRANCH_GREATER_THAN_EQUAL_TO_ZERO_AND_LINK("bgezal", "opcode", 0x01, 10),
+	BRANCH_GREATER_THAN_ZERO("bgtz", "opcode", 0x07, 10);
 	
 	private String identifier;
 	private String type;
