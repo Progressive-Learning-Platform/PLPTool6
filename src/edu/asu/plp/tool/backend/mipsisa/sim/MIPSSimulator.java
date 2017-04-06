@@ -476,7 +476,7 @@ public class MIPSSimulator implements Simulator
 						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
 					}
 				}
-				else if(opcode == 0x01) //bgez, bgezal +++
+				else if(opcode == 0x01) //bgez, bgezal
 				{
 					if (rt == 0x00) {
 						
@@ -491,9 +491,17 @@ public class MIPSSimulator implements Simulator
 						}
 					}
 				}
-				else if(opcode == 0x07)
+				else if(opcode == 0x07) //bgtz
 				{
 					if (s > 0)
+					{
+						isBranched = true;
+						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;
+					}
+				}
+				else if(opcode == 0x06) //blez
+				{
+					if (s <= 0)
 					{
 						isBranched = true;
 						branchDestination = (pcplus4 + (s_imm << 2)) & 0xffffffffL;

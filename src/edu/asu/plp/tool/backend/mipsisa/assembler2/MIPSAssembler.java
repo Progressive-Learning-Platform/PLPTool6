@@ -210,6 +210,7 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addBRTypeInstruction("bgez", 0x01, 0x01);
 		mipsInstructions.addBRTypeInstruction("bgezal", 0x01, 0x11);
 		mipsInstructions.addBRTypeInstruction("bgtz", 0x07, 0x00);
+		mipsInstructions.addBRTypeInstruction("blez", 0x06, 0x00);
 		
 		//LO and HI
 		mipsInstructions.addRMTypeInstruction("mflo", 0x12);
