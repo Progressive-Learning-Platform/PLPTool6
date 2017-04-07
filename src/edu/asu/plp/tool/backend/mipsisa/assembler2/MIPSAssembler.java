@@ -134,6 +134,9 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("move", this::moveOperation);
 		pseudoOperationMap.put("li", this::liOperation);
 		pseudoOperationMap.put("la", this::laOperation);
+		pseudoOperationMap.put("bal", this::balOperation);
+		pseudoOperationMap.put("beqz", this::beqzOperation);
+		pseudoOperationMap.put("bnez", this::bnezOperation);
 		
 		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
@@ -763,6 +766,96 @@ public class MIPSAssembler implements Assembler
 		return "beq $0, $0, " + currentToken.getValue();
 	}
 	
+	/**
+	 * Branch and link always to label
+	 * 
+	 * bal label
+	 * 
+	 * equivalent to: bgezal $0, label
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String balOperation() throws AssemblerException
+	{
+		expectedNextToken("It needs a target label");
+		
+		ensureTokenEquality("Expected a target label to branch", MIPSTokenType.LABEL_PLAIN);
+		
+		addRegionAndIncrementAddress();//Steps through program
+		return "bgezal $0, " + currentToken.getValue();
+	}
+	
+	/**
+	 * Branch if equal to 0
+	 * 
+	 * Branches when the given register value is equal to 0.
+	 * 
+	 * <p>
+	 * beqz $rs, label
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: beq $0, $rs, label
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String beqzOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("It needs register and an address which needs branched to");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by value which is the label we'll branch to if 0 = register " + targetRegister);
+		ensureTokenEquality("Expected a comma after " + targetRegister,
+				MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a comma followed by an address which needs to be loaded to register " + targetRegister);
+		String label = currentToken.getValue();
+		ensureTokenEquality("Expected an immediate value or label", MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
+		
+		
+		preprocessedInstructions = "beq $0, " + targetRegister + ", " + label;
+		addRegionAndIncrementAddress();
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Branch if not equal to 0
+	 * 
+	 * Branches when the given register value is anything except 0.
+	 * 
+	 * <p>
+	 * bnez $rs, label
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: bne $0, $rs, label
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String bnezOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("It needs register and an address which needs to be loaded");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by value which needs to be loaded to register " + targetRegister);
+		ensureTokenEquality("Expected a comma after " + targetRegister,
+				MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a comma followed by an address which needs to be loaded to register " + targetRegister);
+		String label = currentToken.getValue();
+		ensureTokenEquality("Expected an immediate value or label", MIPSTokenType.NUMERIC, MIPSTokenType.LABEL_PLAIN);
+		
+		
+		preprocessedInstructions = String.format("bne $0, %s, %s", targetRegister, label);
+		addRegionAndIncrementAddress();
+		return preprocessedInstructions;
+	}
 	
 	/**
 	 * Copy Register. Copy $rs to $rd
@@ -792,26 +885,6 @@ public class MIPSAssembler implements Assembler
 		
 		addRegionAndIncrementAddress();
 		return "or " + destinationRegister + ", $0," + startingRegister;
-	}
-	
-	
-	/**
-	 * Copy Register. Copy $lo to $rd
-	 * 
-	 * mflo $rd
-	 * 
-	 * equivalent to: or $rd, $0, $lo 
-	 * 
-	 * @throws AssemblerException
-	 */
-	private String mfloOperation() throws AssemblerException
-	{
-		expectedNextToken("It needs a to register");
-		String destinationRegister = currentToken.getValue();
-		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
-		
-		addRegionAndIncrementAddress();
-		return "addu " + destinationRegister + ", $0, " + "$lo";
 	}
 	
 	
