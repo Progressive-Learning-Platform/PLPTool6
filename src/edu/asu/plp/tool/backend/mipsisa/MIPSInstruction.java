@@ -70,7 +70,9 @@ public enum MIPSInstruction
 	BRANCH_GREATER_THAN_ZERO("bgtz", "opcode", 0x07, 10),
 	BRANCH_LESS_THAN_EQUAL_TO_ZERO("blez", "opcode", 0x06, 10),
 	BRANCH_LESS_THAN_ZERO("bltz", "opcode", 0x01, 10),
-	BRANCH_LESS_THAN_ZERO_AND_LINK("bltzal", "opcode", 0x01, 10);
+	BRANCH_LESS_THAN_ZERO_AND_LINK("bltzal", "opcode", 0x01, 10),
+	LOAD_BYTE("lb", "opcode", 0x20, 6),
+	LOAD_BYTE_UNSIGNED("lbu", "opcode", 0x24, 6);
 	
 	private String identifier;
 	private String type;
