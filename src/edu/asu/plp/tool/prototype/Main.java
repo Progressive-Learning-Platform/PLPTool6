@@ -1231,14 +1231,7 @@ public class Main extends Application implements Controller
 		File importTarget = showImportDialogue();
 		try
 		{
-			String content = FileUtils.readFileToString(importTarget);
-			Project activeProject = projectManager.getActiveProject();
-			String name = importTarget.getName();
-			
-			ASMFile asmFile = new SimpleASMFile(activeProject, name);
-			asmFile.setContent(content);
-			activeProject.add(asmFile);
-			activeProject.save();
+			projectManager.importASM(importTarget.getAbsolutePath());
 		}
 		catch (Exception exception)
 		{
