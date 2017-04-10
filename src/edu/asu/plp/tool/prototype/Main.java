@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -534,18 +535,10 @@ public class Main extends Application implements Controller
 		if (tab == null)
 		{
 			// Create new tab
-			CodeEditor content = createCodeEditor();
+			CodeEditor content = new CodeEditor(file.getProject().getName(),
+												fileName, str);
 			tab = addTab(openProjectsPanel, fileName, content);
 			openFileTabs.put(file, tab);
-			
-			// Set content
-			if (file.getContent() != null)
-				content.setText(file.getContent());
-			else
-				content.setText("");
-			
-			// Bind content
-			file.contentProperty().bind(content);
 		}
 		
 		// Activate the specified tab
@@ -713,10 +706,6 @@ public class Main extends Application implements Controller
 		}
 	}
 	
-	private CodeEditor createCodeEditor()
-	{
-		return new CodeEditor();
-	}
 	
 	private Tab addTab(TabPane panel, String projectName, Node contentPanel)
 	{

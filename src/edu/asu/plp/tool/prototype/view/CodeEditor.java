@@ -9,6 +9,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.input.Clipboard;
@@ -19,6 +20,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
+import edu.asu.plp.tool.backend.EventRegistry;
+import edu.asu.plp.tool.backend.isa.events.UpdateASMEvent;
 import edu.asu.plp.tool.prototype.model.AceEditor;
 
 import java.util.ArrayList;
@@ -49,12 +52,18 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 	private StringProperty codeBodyProperty;
 	private StringProperty acePageContentsProperty;
 	
-	public CodeEditor()
+	public CodeEditor(String projectName, String fileName, String fileContent)
 	{
 		webView = new WebView();
 		aceEditor = new AceEditor();
 		
 		codeBodyProperty = aceEditor.getBodyProperty();
+		
+		if (fileContent != null)
+			this.setText(fileContent);
+		else
+			this.setText("");
+
 		acePageContentsProperty = aceEditor.getPage();
 		
 		initializeEngineEvents();
@@ -89,6 +98,14 @@ public class CodeEditor extends BorderPane implements ObservableStringValue
 
 		setCenter(webView);
 		this.accessibleRoleProperty().set(AccessibleRole.TEXT_AREA);
+		codeBodyProperty.addListener(new ChangeListener<String> (){
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				EventRegistry.getGlobalRegistry().post(new UpdateASMEvent(projectName, fileName, newValue));
+			}
+			
+		});
 	}
 
 	public void updateTextFromJavascript(String text)

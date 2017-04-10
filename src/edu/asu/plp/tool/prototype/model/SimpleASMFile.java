@@ -8,7 +8,11 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.eventbus.Subscribe;
+
+import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.backend.isa.events.UpdateASMEvent;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -25,6 +29,7 @@ public class SimpleASMFile implements ASMFile
 		this.project = project;
 		this.nameProperty = new SimpleStringProperty(name);
 		this.contentProperty = new SimpleStringProperty();
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	public SimpleASMFile(Project project, String name, String content)
@@ -32,6 +37,7 @@ public class SimpleASMFile implements ASMFile
 		this.project = project;
 		this.nameProperty = new SimpleStringProperty(name);
 		this.contentProperty = new SimpleStringProperty(content);
+		EventRegistry.getGlobalRegistry().register(this);
 	}
 	
 	
@@ -164,5 +170,14 @@ public class SimpleASMFile implements ASMFile
 	public Project getProject()
 	{
 		return project;
+	}
+	
+	@Subscribe
+	public void UpdatingFileContent(UpdateASMEvent e) {
+		if (e.getProjectName().equals(this.project.getName()) &&
+			e.getAsmFileName().equals(this.nameProperty.getValue())) {
+			System.out.println("\nReceive updates");
+			this.contentProperty.set(e.getFileContent());
+		}
 	}
 }
