@@ -3,16 +3,15 @@ package edu.asu.plp.tool.backend.isa.events;
 import java.util.List;
 
 import edu.asu.plp.tool.backend.isa.ASMFile;
-import edu.asu.plp.tool.prototype.model.Project;
 
 public class AssemblerControlEvent {
 	
 	private String command;
 	private String projectName;
 	private String projectType;
-	private Project assemblerFiles;
+	private List<ASMFile> assemblerFiles;
 
-	public AssemblerControlEvent(String command, String projectName, String projectType, Project assemblerFiles) {
+	public AssemblerControlEvent(String command, String projectName, String projectType, List<ASMFile> assemblerFiles) {
 		this.command = command;
 		this.projectName = projectName;
 		this.projectType = projectType;
@@ -31,7 +30,7 @@ public class AssemblerControlEvent {
 		return projectType;
 	}
 
-	public Project getAssemblerFiles() {
+	public List<ASMFile> getAssemblerFiles() {
 		return assemblerFiles;
 	}
 

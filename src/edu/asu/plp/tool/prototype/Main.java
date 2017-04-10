@@ -78,6 +78,8 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.events.AssemblerControlEvent;
 import edu.asu.plp.tool.backend.isa.events.AssemblerResultEvent;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
+import edu.asu.plp.tool.exceptions.ProjectAlreadyOpenException;
+import edu.asu.plp.tool.exceptions.ProjectNameConflictException;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -128,8 +130,9 @@ public class Main extends Application implements Controller
 	private TabPane openProjectsPanel;
 	private BidiMap<ASMFile, Tab> openFileTabs;
 	private ObservableList<PLPLabel> activeNavigationItems;
-	private ObservableList<Project> projects;
-	private Map<Project, ProjectAssemblyDetails> assemblyDetails;
+	private ProjectManager projectManager;
+
+	private Map<String, ProjectAssemblyDetails> assemblyDetails;
 	private ProjectExplorerTree projectExplorer;
 	private ConsolePane console;
 	private WatcherWindow watcher = null;
@@ -191,6 +194,7 @@ public class Main extends Application implements Controller
 		
 		applicationThemeManager = new ApplicationThemeManager();
 		
+		this.projectManager = new ProjectManager();
 		this.assemblyDetails = new HashMap<>();
 		this.openFileTabs = new DualHashBidiMap<>();
 		this.openProjectsPanel = new TabPane();
@@ -431,7 +435,7 @@ public class Main extends Application implements Controller
 	
 	private void addProject(Project project)
 	{
-		Project existingProject = getProjectByName(project.getName());
+		Project existingProject = projectManager.getProjectByName(project.getName());
 		if (existingProject != null)
 		{
 			if (existingProject.getPath().equals(project.getPath()))
@@ -464,7 +468,12 @@ public class Main extends Application implements Controller
 		}
 		else
 		{
-			projects.add(project);
+			try {
+				projectManager.addProject(project);
+			} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
+				// TODO GXY: Alert to user. Or check existing before create
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -492,19 +501,6 @@ public class Main extends Application implements Controller
 		}
 		
 		return false;
-	}
-	
-	private Project getProjectByName(String name)
-	{
-		for (Project project : projects)
-		{
-			String projectName = project.getName();
-			boolean namesAreNull = (projectName == null && name == null);
-			if (namesAreNull || name.equals(projectName))
-				return project;
-		}
-		
-		return null;
 	}
 	
 	private void navigateToLabel(PLPLabel label)
@@ -801,7 +797,12 @@ public class Main extends Application implements Controller
 		{
 			PLPProject project;
 			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
-			projects.add(project);
+			try {
+				projectManager.addProject(project);
+			} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
+				// TODO GXY: Alert to user. Or check existing before create
+				e.printStackTrace();
+			}
 		}
 		catch (IOException e)
 		{
@@ -825,8 +826,7 @@ public class Main extends Application implements Controller
 	 */
 	private ProjectExplorerTree createProjectTree()
 	{
-		projects = FXCollections.observableArrayList();
-		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projects);
+		ProjectExplorerTree projectExplorer = new ProjectExplorerTree(projectManager.getProjectLists());
 		
 		projectExplorer.setOnFileDoubleClicked(this::openFile);
 		
@@ -884,14 +884,15 @@ public class Main extends Application implements Controller
 		}
 	}
 	
-	private ProjectAssemblyDetails getAssemblyDetailsFor(Project activeProject)
+	private ProjectAssemblyDetails getAssemblyDetailsFor(String projectName)
 	{
-		ProjectAssemblyDetails details = assemblyDetails.get(activeProject);
-		
+		ProjectAssemblyDetails details = assemblyDetails.get(projectName);
+		Project activeProject = getActiveProject();
 		if (details == null)
 		{
 			details = new ProjectAssemblyDetails(activeProject);
-			assemblyDetails.put(activeProject, details);
+			System.out.println("GXY debug: " + activeProject.getName());
+			assemblyDetails.put(activeProject.getName(), details);
 		}
 		
 		return details;
@@ -947,6 +948,7 @@ public class Main extends Application implements Controller
 	private ASMCreationPanel createASMMenu()
 	{
 		ASMCreationPanel createASMMenu = new ASMCreationPanel(this::createASM);
+		List<Project> projects = projectManager.getProjectLists();
 		for (Project project : projects)
 		{
 			String projectName = project.getName();
@@ -960,7 +962,7 @@ public class Main extends Application implements Controller
 		String projectName = details.getProjectName();
 		String fileName = details.getFileName();
 		
-		Project project = getProjectByName(projectName);
+		Project project = projectManager.getProjectByName(projectName);
 		if (project != null)
 		{
 			SimpleASMFile createASM = new SimpleASMFile(project, fileName);
@@ -1006,7 +1008,12 @@ public class Main extends Application implements Controller
 		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::saveLegacy);
-		projects.add(project);
+		try {
+			projectManager.addProject(project);
+		} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
+			// TODO GXY: Alert to user. Or check existing before create
+			e.printStackTrace();
+		}
 		openFile(sourceFile);
 	}
 	
@@ -1019,7 +1026,12 @@ public class Main extends Application implements Controller
 		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::save);
-		projects.add(project);
+		try {
+			projectManager.addProject(project);
+		} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
+			// TODO GXY: Alert to user. Or check existing before create
+			e.printStackTrace();
+		}
 		openFile(sourceFile);
 	}
 	
@@ -1237,7 +1249,7 @@ public class Main extends Application implements Controller
 	@Override
 	public void createNewASM()
 	{
-		if (projects.isEmpty())
+		if (projectManager.isEmpty())
 		{
 			Dialogues
 					.showInfoDialogue("There are not projects open, please create a project first.");
@@ -1480,7 +1492,7 @@ public class Main extends Application implements Controller
 			
 			EventRegistry.getGlobalRegistry().post(
 								new SimulatorControlEvent("load", activeProject.getType(),
-														getAssemblyDetailsFor(activeProject).getAssembledImage()));
+														getAssemblyDetailsFor(activeProject.getName()).getAssembledImage()));
 			
 		}
 		else
@@ -1539,7 +1551,7 @@ public class Main extends Application implements Controller
 	{
 		Project activeProject = getActiveProject();
 		
-		ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject);
+		ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject.getName());
 		if (!details.isDirty())
 		{
 			//activeSimulator.loadProgram(details.getAssembledImage());
@@ -1735,13 +1747,9 @@ public class Main extends Application implements Controller
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("The method is not implemented yet.");
 	}
-	
+
 	@Override
-	public void saveAll()
-	{
-		for (Project project : projects)
-		{
-			tryAndReport(project::save);
-		}
+	public void saveAll() {
+		tryAndReport(projectManager::saveAll);
 	}
 }

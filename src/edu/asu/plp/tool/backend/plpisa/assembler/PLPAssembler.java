@@ -29,10 +29,10 @@ public class PLPAssembler implements Assembler
 				image = assemble(e.getAssemblerFiles());
 			} catch (AssemblerException e1) {
 				EventRegistry.getGlobalRegistry().post(new AssemblerResultEvent(
-						false, e1.getMessage(), e.getAssemblerFiles(), null));
+						false, e1.getMessage(), e.getProjectName(), null));
 			}
 			EventRegistry.getGlobalRegistry().post(new AssemblerResultEvent(
-						true, "", e.getAssemblerFiles(), image));
+						true, "", e.getProjectName(), image));
 		}
 	}
 

@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.apache.commons.io.FileUtils;
@@ -34,10 +35,14 @@ public class ProjectManager
 	private ObjectProperty<Project> activeProjectProperty;
 	private ObservableList<ProjectType> supportedProjectTypes;
 	
-	public ProjectManager(ObservableList<Project> projects)
+	public ProjectManager()
 	{
-		this.projects = projects;
+		this.projects = FXCollections.observableArrayList();
 		this.activeProjectProperty = new SimpleObjectProperty<>();
+	}
+	
+	public boolean isEmpty() {
+		return projects.isEmpty();
 	}
 	
 	public void addProject(Project project) throws ProjectAlreadyOpenException,
@@ -70,6 +75,10 @@ public class ProjectManager
 		return null;
 	}
 	
+	public ObservableList<Project> getProjectLists() {
+		return projects;
+	}
+	
 	public void openProjectFromFile(File file) throws ProjectAlreadyOpenException,
 			ProjectNameConflictException, FileNotFoundException,
 			UnsupportedFileExtensionException
@@ -80,6 +89,12 @@ public class ProjectManager
 		ProjectType type = getType(file);
 		Project project = type.load(file);
 		this.addProject(project);
+	}
+	
+	public void saveAll() throws IOException {
+		for (Project project : projects) {
+			project.save();
+		}
 	}
 	
 	public void saveActiveProject() throws UnsupportedProjectTypeException

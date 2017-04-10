@@ -1,17 +1,16 @@
 package edu.asu.plp.tool.backend.isa.events;
 
 import edu.asu.plp.tool.backend.isa.ASMImage;
-import edu.asu.plp.tool.prototype.model.Project;
 
 public class AssemblerResultEvent {
 
 	private boolean assembleSuccess;
 	private String errorMessage;
-	private Project projectName;
+	private String projectName;
 	private ASMImage asmImage;
 	
 	public AssemblerResultEvent(boolean assembleSuccess, String errorMessage,
-			Project projectName, ASMImage asmImage) {
+			String projectName, ASMImage asmImage) {
 		this.assembleSuccess = assembleSuccess;
 		this.errorMessage = errorMessage;
 		this.projectName = projectName;
@@ -26,7 +25,7 @@ public class AssemblerResultEvent {
 		return errorMessage;
 	}
 	
-	public Project getProjectName() {
+	public String getProjectName() {
 		return projectName;
 	}
 
