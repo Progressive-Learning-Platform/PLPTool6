@@ -1,7 +1,5 @@
 package edu.asu.plp.tool.prototype;
 
-import static edu.asu.plp.tool.prototype.Main.findDiskObjectForASM;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -226,7 +224,7 @@ public class ProjectManager
 			throw new IllegalArgumentException("No file was specified");
 		
 		ASMFile activeFile = getASMByName(asmName);
-		File removalTarget = findDiskObjectForASM(activeFile);
+		File removalTarget = findDiskObjectForASM(asmName);
 		
 		Project activeProject = activeFile.getProject();
 		activeProject.remove(activeFile);
@@ -283,6 +281,17 @@ public class ProjectManager
 			throw new IllegalStateException("Project {" + activeProject.getName()
 					+ "} contains duplicate file names.");
 		}
+	}
+	
+	public File findDiskObjectForASM(String asmName)
+	{
+		ASMFile activeFile = getASMByName(asmName);
+		Project project = activeFile.getProject();
+		String path = project.getPathFor(activeFile);
+		if (path == null)
+			return null;
+		
+		return new File(path);
 	}
 	
 	public void setMainASMFile(String asmName)

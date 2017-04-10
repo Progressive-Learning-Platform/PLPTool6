@@ -6,9 +6,11 @@ import static edu.asu.plp.tool.prototype.util.Dialogues.showInfoDialogue;
 import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,8 +80,10 @@ import edu.asu.plp.tool.backend.isa.ASMFile;
 import edu.asu.plp.tool.backend.isa.events.AssemblerControlEvent;
 import edu.asu.plp.tool.backend.isa.events.AssemblerResultEvent;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
+import edu.asu.plp.tool.exceptions.DiskOperationFailedException;
 import edu.asu.plp.tool.exceptions.ProjectAlreadyOpenException;
 import edu.asu.plp.tool.exceptions.ProjectNameConflictException;
+import edu.asu.plp.tool.exceptions.UnexpectedFileTypeException;
 import edu.asu.plp.tool.prototype.model.ApplicationSetting;
 import edu.asu.plp.tool.prototype.model.ApplicationThemeManager;
 import edu.asu.plp.tool.prototype.model.OptionSection;
@@ -145,16 +149,6 @@ public class Main extends Application implements Controller
 	public static void main(String[] args)
 	{
 		launch(args);
-	}
-	
-	public static File findDiskObjectForASM(ASMFile activeFile)
-	{
-		Project project = activeFile.getProject();
-		String path = project.getPathFor(activeFile);
-		if (path == null)
-			return null;
-		
-		return new File(path);
 	}
 	
 	private void onTabActivation(ObservableValue<? extends Tab> value, Tab old,
@@ -357,11 +351,11 @@ public class Main extends Application implements Controller
 		return fileChooser.showOpenDialog(stage);
 	}
 	
-	private File showExportDialogue(ASMFile exportItem)
+	private File showExportDialogue(String defaultName)
 	{
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Export");
-		fileChooser.setInitialFileName(exportItem.getName() + ".asm");
+		fileChooser.setInitialFileName(defaultName + ".asm");
 		
 		String plp6Extension = "*" + PLPProject.FILE_EXTENSION;
 		fileChooser.getExtensionFilters().addAll(
@@ -470,8 +464,8 @@ public class Main extends Application implements Controller
 		{
 			try {
 				projectManager.addProject(project);
+				projectManager.setActiveProject(project.getName());
 			} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
-				// TODO GXY: Alert to user. Or check existing before create
 				e.printStackTrace();
 			}
 		}
@@ -614,7 +608,7 @@ public class Main extends Application implements Controller
 		projTextField.setPrefWidth(200);
 		
 		Label selectedProject = new Label();
-		selectedProject.setText("Save Project: \"" + getActiveProject().getName()
+		selectedProject.setText("Save Project: \"" + projectManager.getActiveProject().getName()
 				+ "\" as :");
 		selectedProject.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
 		
@@ -663,7 +657,7 @@ public class Main extends Application implements Controller
 				}
 				else
 				{
-					Project activeProject = getActiveProject();
+					Project activeProject = projectManager.getActiveProject();
 					try
 					{
 						activeProject.saveAs(projectLocation);
@@ -745,8 +739,10 @@ public class Main extends Application implements Controller
 			public void handle(Event event)
 			{
 				ASMFile activeFile = openFileTabs.getKey(tab);
-				if (activeFile != null)
+				if (activeFile != null) {
 					projectExplorer.setActiveFile(activeFile);
+					projectManager.setActiveProject(activeFile.getProject().getName());
+				}
 			}
 		});
 		panel.getTabs().add(tab);
@@ -882,7 +878,7 @@ public class Main extends Application implements Controller
 	private ProjectAssemblyDetails getAssemblyDetailsFor(String projectName)
 	{
 		ProjectAssemblyDetails details = assemblyDetails.get(projectName);
-		Project activeProject = getActiveProject();
+		Project activeProject = projectManager.getActiveProject();
 		if (details == null)
 		{
 			details = new ProjectAssemblyDetails(activeProject);
@@ -891,21 +887,6 @@ public class Main extends Application implements Controller
 		}
 		
 		return details;
-	}
-	
-	private Project getActiveProject()
-	{
-		ASMFile activeFile = getActiveFile();
-		if (activeFile == null)
-			return null;
-		else
-			return activeFile.getProject();
-	}
-	
-	private ASMFile getActiveFileInTabPane()
-	{
-		Tab selectedTab = openProjectsPanel.getSelectionModel().getSelectedItem();
-		return openFileTabs.getKey(selectedTab);
 	}
 	
 	private CodeEditor getActiveCodeEditor()
@@ -921,23 +902,14 @@ public class Main extends Application implements Controller
 			return null;
 	}
 	
-	private ASMFile getActiveFileInProjectExplorer()
+	private String getActiveFileInProjectExplorer()
 	{
 		Pair<Project, ASMFile> selection = projectExplorer.getActiveSelection();
 		if (selection == null)
 			return null;
 		
 		ASMFile selectedFile = selection.getValue();
-		return selectedFile;
-	}
-	
-	private ASMFile getActiveFile()
-	{
-		ASMFile selectedFile = getActiveFileInTabPane();
-		if (selectedFile == null)
-			return getActiveFileInProjectExplorer();
-		else
-			return selectedFile;
+		return selectedFile.getName();
 	}
 	
 	private ASMCreationPanel createASMMenu()
@@ -1199,7 +1171,7 @@ public class Main extends Application implements Controller
 	@Override
 	public void saveActiveProject()
 	{
-		Project activeProject = getActiveProject();
+		Project activeProject = projectManager.getActiveProject();
 		tryAndReport(activeProject::save);
 	}
 	
@@ -1260,7 +1232,7 @@ public class Main extends Application implements Controller
 		try
 		{
 			String content = FileUtils.readFileToString(importTarget);
-			Project activeProject = getActiveProject();
+			Project activeProject = projectManager.getActiveProject();
 			String name = importTarget.getName();
 			
 			ASMFile asmFile = new SimpleASMFile(activeProject, name);
@@ -1278,8 +1250,8 @@ public class Main extends Application implements Controller
 	public void exportASM()
 	{
 		// XXX: Consider moving this to a component
-		ASMFile activeFile = getActiveFile();
-		if (activeFile == null)
+		String activeFileName = getActiveFileInProjectExplorer();
+		if (activeFileName == null)
 		{
 			// XXX: possible feature: select file from a list or dropdown
 			String message = "No file is selected! Open the file you wish to export, or select it in the ProjectExplorer.";
@@ -1287,14 +1259,14 @@ public class Main extends Application implements Controller
 			return;
 		}
 		
-		File exportTarget = showExportDialogue(activeFile);
+		File exportTarget = showExportDialogue(activeFileName);
 		if (exportTarget == null)
 			return;
 		
 		if (exportTarget.isDirectory())
 		{
 			String exportPath = exportTarget.getAbsolutePath()
-					+ activeFile.constructFileName();
+					+ activeFileName;
 			exportTarget = new File(exportPath);
 			
 			String message = "File will be exported to " + exportPath;
@@ -1319,22 +1291,27 @@ public class Main extends Application implements Controller
 			}
 		}
 		
-		String fileContents = activeFile.getContent();
-		try
-		{
-			FileUtils.write(exportTarget, fileContents);
+		try {
+			projectManager.exportASM(activeFileName, exportTarget.getAbsolutePath(), true);
+		} catch (FileAlreadyExistsException | DiskOperationFailedException e) {
+			e.printStackTrace();
 		}
-		catch (Exception exception)
-		{
-			Dialogues.showAlertDialogue(exception, "Failed to export asm");
-		}
+//		String fileContents = activeFile.getContent();
+//		try
+//		{
+//			FileUtils.write(exportTarget, fileContents);
+//		}
+//		catch (Exception exception)
+//		{
+//			Dialogues.showAlertDialogue(exception, "Failed to export asm");
+//		}
 	}
 	
 	@Override
 	public void removeASM()
 	{
-		ASMFile activeFile = getActiveFile();
-		if (activeFile == null)
+		String activeFileName = getActiveFileInProjectExplorer();
+		if (activeFileName == null)
 		{
 			// XXX: possible feature: select file from a list or dropdown
 			String message = "No file is selected! Select the file you wish to remove in the ProjectExplorer, then click remove.";
@@ -1342,19 +1319,22 @@ public class Main extends Application implements Controller
 			return;
 		}
 		
-		File removalTarget = findDiskObjectForASM(activeFile);
+		File removalTarget = projectManager.findDiskObjectForASM(activeFileName);
 		if (removalTarget == null)
 		{
 			// XXX: show a confirmation dialogue to confirm removal
 			String message = "Unable to locate file on disk. "
 					+ "The asm \""
-					+ activeFile.getName()
+					+ activeFileName
 					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName()
+					+ projectManager.getActiveProject().getName()
 					+ "\" but it is suggested that you verify the deletion from disk manually.";
 			Dialogues.showInfoDialogue(message);
-			Project activeProject = activeFile.getProject();
-			activeProject.remove(activeFile);
+			try {
+				projectManager.removeASM(activeFileName);
+			} catch (FileNotFoundException | UnexpectedFileTypeException | DiskOperationFailedException e) {
+				e.printStackTrace();
+			}
 			return;
 		}
 		
@@ -1363,9 +1343,9 @@ public class Main extends Application implements Controller
 			// XXX: show a confirmation dialogue to confirm removal
 			String message = "The path specified is a directory, but should be a file. "
 					+ "The asm \""
-					+ activeFile.getName()
+					+ activeFileName
 					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName()
+					+ projectManager.getActiveProject().getName()
 					+ "\" but it is suggested that you verify the deletion from disk manually.";
 			Exception exception = new IllegalStateException(
 					"The path to the specified ASMFile is a directory, but should be a file.");
@@ -1374,9 +1354,9 @@ public class Main extends Application implements Controller
 		}
 		else
 		{
-			String message = "The asm \"" + activeFile.getName()
+			String message = "The asm \"" + activeFileName
 					+ "\" will be removed from the project \""
-					+ activeFile.getProject().getName() + "\" and the file at \""
+					+ projectManager.getActiveProject().getName() + "\" and the file at \""
 					+ removalTarget.getAbsolutePath() + "\" will be deleted.";
 			Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
 			
@@ -1412,23 +1392,22 @@ public class Main extends Application implements Controller
 	@Override
 	public void setMainASMFile()
 	{
-		ASMFile activeFile = getActiveFile();
-		if (activeFile == null)
+		String activeFileName = getActiveFileInProjectExplorer();
+		if (activeFileName == null)
 		{
 			Dialogues.showActionFailedDialogue("No file is selected!");
 			return;
 		}
 		
-		Project activeProject = activeFile.getProject();
-		String message = "The file \"" + activeFile.getName()
+
+		String message = "The file \"" + activeFileName
 				+ "\" will be used as the main file for the project \""
-				+ activeProject.getName() + "\"";
+				+ projectManager.getActiveProject().getName() + "\"";
 		Optional<ButtonType> result = Dialogues.showConfirmationDialogue(message);
 		
 		if (result.get() == ButtonType.OK)
 		{
-			int index = activeProject.indexOf(activeFile);
-			Collections.swap(activeProject, 0, index);
+			projectManager.setMainASMFile(activeFileName);
 		}
 	}
 	
@@ -1462,14 +1441,14 @@ public class Main extends Application implements Controller
 	@Override
 	public void assembleActiveProject()
 	{
-		Project activeProject = getActiveProject();
+		Project activeProject = projectManager.getActiveProject();
 		assemble(activeProject);
 	}
 	
 	@Override
 	public void simulateActiveProject()
 	{
-		Project activeProject = getActiveProject();
+		Project activeProject = projectManager.getActiveProject();
 		
 		if (activeProject.getISA().isPresent())
 		{
@@ -1534,7 +1513,7 @@ public class Main extends Application implements Controller
 	@Override
 	public void runSimulation()
 	{
-		Project activeProject = getActiveProject();
+		Project activeProject = projectManager.getActiveProject();
 		
 		ProjectAssemblyDetails details = getAssemblyDetailsFor(activeProject.getName());
 		if (!details.isDirty())
