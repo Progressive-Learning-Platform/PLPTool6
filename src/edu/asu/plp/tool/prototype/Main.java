@@ -797,12 +797,7 @@ public class Main extends Application implements Controller
 		{
 			PLPProject project;
 			project = new PLPProject(new File("examples/PLP Projects/memtest.plp"));
-			try {
-				projectManager.addProject(project);
-			} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
-				// TODO GXY: Alert to user. Or check existing before create
-				e.printStackTrace();
-			}
+			addProject(project);
 		}
 		catch (IOException e)
 		{
@@ -1008,12 +1003,7 @@ public class Main extends Application implements Controller
 		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::saveLegacy);
-		try {
-			projectManager.addProject(project);
-		} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
-			// TODO GXY: Alert to user. Or check existing before create
-			e.printStackTrace();
-		}
+		addProject(project);
 		openFile(sourceFile);
 	}
 	
@@ -1026,12 +1016,7 @@ public class Main extends Application implements Controller
 		SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 		project.add(sourceFile);
 		tryAndReport(project::save);
-		try {
-			projectManager.addProject(project);
-		} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {
-			// TODO GXY: Alert to user. Or check existing before create
-			e.printStackTrace();
-		}
+		addProject(project);
 		openFile(sourceFile);
 	}
 	
