@@ -19,7 +19,7 @@ public class PLP5ProjectParser
 	private PLPProject project;
 	private TarArchiveInputStream inputStream;
 	
-	public PLPProject parse(File projectFile) throws IOException
+	public void parse(PLPProject project, File projectFile) throws IOException
 	{
 		String name = projectFile.getName();
 		name = FilenameUtils.removeExtension(name);
@@ -31,10 +31,12 @@ public class PLP5ProjectParser
 			directory.mkdir();
 		String path = directory.getPath();
 
-		project = new PLPProject(name, type, path);
-		
+		project.setName(name);
+		project.setType(type);
+		project.setPath(path);
+		this.project = project;
+
 		extract(projectFile);
-		return project;
 	}
 
 	private void extract(File projectFile) throws IOException

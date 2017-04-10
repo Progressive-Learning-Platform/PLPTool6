@@ -420,7 +420,7 @@ public class Main extends Application implements Controller
 	{
 		try
 		{
-			Project project = PLPProject.load(file);
+			Project project = new PLPProject(file);
 			addProject(project);
 		}
 		catch (IOException e)
@@ -796,7 +796,7 @@ public class Main extends Application implements Controller
 		try
 		{
 			PLPProject project;
-			project = PLPProject.load(new File("examples/PLP Projects/memtest.plp"));
+			project = new PLPProject(new File("examples/PLP Projects/memtest.plp"));
 			try {
 				projectManager.addProject(project);
 			} catch (ProjectAlreadyOpenException | ProjectNameConflictException e) {

@@ -8,28 +8,28 @@ import edu.asu.plp.tool.prototype.model.PLPProject;
 
 public class PLP5Porting {
 	private static String absPath;
-	private static PLPProject project;
 	
-	public static PLPProject loadProject(File projectFile)throws IOException
+	public static void loadProject(PLPProject project, File projectFile)throws IOException
 	{
 		PLP5ProjectParser parser = new PLP5ProjectParser();
-		return parser.parse(projectFile);
+		parser.parse(project, projectFile);
 	}
 	
-	public static void traverseDirectory(File directory) throws IOException{
+	public static void traverseDirectory(PLPProject project, File directory) throws IOException{
 		for (File subEntry : directory.listFiles()){
 			if (!subEntry.isDirectory()){
-				project = loadProject(subEntry);
+				loadProject(project, subEntry);
 				project.saveLegacy();
 			}
 			else{
-				traverseDirectory(subEntry);
+				traverseDirectory(project, subEntry);
 			}
 		}
 	}
 	
 	public static void main(String args[])
 	{
+		PLPProject project = new PLPProject();
 		try{
 			System.out.println("Enter the absolute path:");
 			Scanner input = new Scanner(System.in);
@@ -38,7 +38,7 @@ public class PLP5Porting {
 			if(!f.exists() || !f.isDirectory())
 				System.out.println("Invalid path or directory\n");
 			
-			traverseDirectory(f);
+			traverseDirectory(project, f);
 			input.close();
 		}
 		catch(Exception e){
