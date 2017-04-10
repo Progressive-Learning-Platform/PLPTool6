@@ -564,6 +564,35 @@ public class MIPSSimulator implements Simulator
 					data &= 0xffL; //then masks
 					regFile.write(rt, data.longValue(), false);
 				}
+				else if(opcode == 0x21) //lh
+				{
+					if (((s + s_imm) % 2) != 0) {
+						//System.out.println("Incorrect address. Address must be halfword aligned.");
+						//return false;
+						throw new SimulatorException("Incorrect address. Address must be halfword aligned.");
+					}
+					Long data = (Long) (addressBus.read((s + s_imm) & 0xffffffffL) & 0xffffL); //masks, then sign extends
+					if(data == null)
+					{
+						System.out.println("Bus read error");
+						return false;
+					}
+					regFile.write(rt, data.longValue(), false);
+				}
+				else if(opcode == 0x25) //lhu
+				{
+					if (((s + s_imm) % 2) != 0) {
+						throw new SimulatorException("Incorrect address. Address must be halfword aligned.");
+					}
+					Long data = (Long) addressBus.read((s + s_imm) & 0xffffffffL); //sign extends
+					if(data == null)
+					{
+						System.out.println("Bus read error");
+						return false;
+					}
+					data &= 0xffffL; //then masks
+					regFile.write(rt, data.longValue(), false);
+				}
 				else if(opcode == 0x02 || opcode == 0x03) // j
 				{
 					isBranched = true;
