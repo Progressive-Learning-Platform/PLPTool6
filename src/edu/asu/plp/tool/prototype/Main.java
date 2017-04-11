@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -71,7 +70,6 @@ import moore.util.Subroutine;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.io.FileUtils;
 
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
@@ -155,17 +153,14 @@ public class Main extends Application implements Controller
 	private void onTabActivation(ObservableValue<? extends Tab> value, Tab old,
 			Tab current)
 	{
-		ASMFile previousASM = openFileTabs.getKey(current);
-		if (previousASM != null)
-			previousASM.contentProperty().removeListener(this::updateOutline);
+		if (old != null)
+			((CodeEditor) old.getContent()).removeListener(this::updateOutline);
 		
-		ASMFile asmFile = openFileTabs.getKey(current);
-		if (asmFile != null)
-		{
-			String content = asmFile.getContent();
+		if (current != null) {
+			String content = ((CodeEditor) current.getContent()).getValue();
 			List<PLPLabel> labels = PLPLabel.scrape(content);
 			outlineView.setModel(FXCollections.observableArrayList(labels));
-			asmFile.contentProperty().addListener(this::updateOutline);
+			((CodeEditor) current.getContent()).addListener(this::updateOutline);
 		}
 	}
 	
@@ -524,7 +519,7 @@ public class Main extends Application implements Controller
 	 */
 	private void openFile(ASMFile file)
 	{
-		file.contentProperty().addListener(this::updateOutline);
+
 		String fileName = file.getName();
 		
 		System.out.println("Opening " + fileName);
@@ -538,6 +533,7 @@ public class Main extends Application implements Controller
 			CodeEditor content = new CodeEditor(file.getProject().getName(),
 												fileName, str);
 			tab = addTab(openProjectsPanel, fileName, content);
+			content.addListener(this::updateOutline);
 			openFileTabs.put(file, tab);
 		}
 		
@@ -700,27 +696,22 @@ public class Main extends Application implements Controller
 			return Collections.emptyList();
 		else
 		{
-			ASMFile activeASM = openFileTabs.getKey(selectedTab);
-			String content = activeASM.getContent();
+			String content = ((CodeEditor) selectedTab.getContent()).getValue();
 			return PLPLabel.scrape(content);
 		}
 	}
 	
 	
-	private Tab addTab(TabPane panel, String projectName, Node contentPanel)
+	private Tab addTab(TabPane panel, String fileName, CodeEditor contentPanel)
 	{
 		Tab tab = new Tab();
-		tab.setText(projectName);
+		tab.setText(fileName);
 		tab.setContent(contentPanel);
 		tab.setOnClosed(new EventHandler<Event>() {
 			@Override
 			public void handle(Event event)
 			{
-				ASMFile asmFile = openFileTabs.removeValue(tab);
-				if (asmFile != null)
-				{
-					asmFile.contentProperty().removeListener(Main.this::updateOutline);
-				}
+				contentPanel.removeListener(Main.this::updateOutline);
 			}
 		});
 		tab.setOnSelectionChanged(new EventHandler<Event>() {
