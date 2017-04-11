@@ -74,7 +74,9 @@ public enum MIPSInstruction
 	LOAD_BYTE("lb", "opcode", 0x20, 6),
 	LOAD_BYTE_UNSIGNED("lbu", "opcode", 0x24, 6),
 	LOAD_HALFWORD("lh", "opcode", 0x21, 6),
-	LOAD_HALFWORD_UNSIGNED("lhu", "opcode", 0x25, 6);
+	LOAD_HALFWORD_UNSIGNED("lhu", "opcode", 0x25, 6),
+	LOAD_WORD_LEFT("lwl", "opcode", 0x22, 6),
+	LOAD_WORD_RIGHT("lwr", "opcode", 0x26, 6);
 	
 	private String identifier;
 	private String type;

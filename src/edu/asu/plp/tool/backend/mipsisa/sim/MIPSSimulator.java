@@ -593,6 +593,33 @@ public class MIPSSimulator implements Simulator
 					data &= 0xffffL; //then masks
 					regFile.write(rt, data.longValue(), false);
 				}
+				else if(opcode == 0x22) //lwl
+				{
+					Long currentValue = regFile.read(rt) & 0xffffL;
+					Long data = (Long) addressBus.read((s + s_imm) & 0xffffffffL);
+					if(data == null)
+					{
+						System.out.println("Bus read error");
+						return false;
+					}
+					data &= 0xffffL;
+					data = data << 16;
+					data = data | currentValue;
+					regFile.write(rt, data.longValue(), false);
+				}
+				else if(opcode == 0x26) //lwr
+				{
+					Long currentValue = regFile.read(rt) & 0xffff0000L;
+					Long data = (Long) addressBus.read((s + s_imm) & 0xffffffffL);
+					if(data == null)
+					{
+						System.out.println("Bus read error");
+						return false;
+					}
+					data &= 0xffffL;
+					data = data | currentValue;
+					regFile.write(rt, data.longValue(), false);
+				}
 				else if(opcode == 0x02 || opcode == 0x03) // j
 				{
 					isBranched = true;
