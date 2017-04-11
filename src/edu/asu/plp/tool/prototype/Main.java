@@ -711,6 +711,7 @@ public class Main extends Application implements Controller
 			@Override
 			public void handle(Event event)
 			{
+				openFileTabs.removeValue(tab);
 				contentPanel.removeListener(Main.this::updateOutline);
 			}
 		});
