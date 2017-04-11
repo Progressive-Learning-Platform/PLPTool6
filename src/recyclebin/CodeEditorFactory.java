@@ -9,7 +9,7 @@ public class CodeEditorFactory
 {
 	public CodeEditor createEditorWithSyntaxHighlighting()
 	{
-		CodeEditor editor = new CodeEditor();
+		CodeEditor editor = new CodeEditor(null, null, null);
 		return editor;
 	}
 }

@@ -15,7 +15,11 @@ public class ModuleObjectCreator
 		
 		Function<String, Boolean> supportsProjectType;
 		supportsProjectType = (type) -> type.toLowerCase().startsWith(ModuleObjectCreator.ISA_NAME);
-		return new PLPISAModule(new PLPAssembler(), new PLPSimulator(), supportsProjectType);
+		PLPAssembler assembler = new PLPAssembler();
+		assembler.startListening();
+		PLPSimulator simulator = new PLPSimulator();
+		simulator.startListening();
+		return new PLPISAModule(assembler, simulator, supportsProjectType);
 		
 		//return isaMod;
 	}

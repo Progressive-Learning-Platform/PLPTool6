@@ -70,16 +70,16 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @throws IOException
 	 *             if an IO problem occurs while opening the specified file.
 	 */
-	public static PLPProject load(File file)
+	public PLPProject(File file)
 			throws IOException
 	{
-		
+		this();
 		if (file.isFile())
-			return loadLegacy(file);
+			loadLegacy(file);
 		else
-			return loadCurrent(file);
+			loadCurrent(file);
 	}
-	
+
 	/**
 	 * Reads the asm file content. It is used while creating the asm file object and associating to PLPProject.{@link #AsmFileContent()}
 	 * @param fileName
@@ -87,7 +87,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @return A String object containing the asm file contents.
 	 * @throws IOException
 	 */
-	private static String AsmFileContent(String fileName) throws IOException
+	private String AsmFileContent(String fileName) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		try
@@ -121,7 +121,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *         directory.
 	 * @throws IOException
 	 */
-	private static PLPProject loadCurrent(File projectDirectory) throws IOException
+	private void loadCurrent(File projectDirectory) throws IOException
 	{
 		validateProjectDirectory(projectDirectory);
 		File projectFile = validateAndFilizeProjectFile(projectDirectory);
@@ -143,15 +143,17 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		File sourceDirectory = sourcePath.toFile();
 		
 		//PLPProject project = new PLPProject(name, type);
-		PLPProject project = new PLPProject(name, type, projectPath.toString());
+		nameProperty.set(name);
+		pathProperty.set(projectPath.toString());
+		typeProperty.set(type);
 		
 		for (String fileName : listFiles)
 		{
 			String fullPath = FilenameUtils.concat(sourceDirectory.getAbsolutePath(), fileName);
 			String sourceName = FilenameUtils.removeExtension(fileName);
 			
-			SimpleASMFile sourceFile = new SimpleASMFile(project, fileName, AsmFileContent(fullPath));
-			project.add(sourceFile);
+			SimpleASMFile sourceFile = new SimpleASMFile(this, fileName, AsmFileContent(fullPath));
+			this.add(sourceFile);
 		}
 		
 		/*for (File file : sourceDirectory.listFiles())
@@ -166,28 +168,6 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 			//SimpleASMFile sourceFile = new SimpleASMFile(project, sourceName);
 			project.add(sourceFile);
 		}*/
-		
-		return project;
-	}
-	
-	/**
-	 * Loads a {@link PLPProject} from the given project file. This method calls
-	 * {@link #load(File)}, which auto-detects the project version, and is therefore
-	 * capable of loading both PLP6 and legacy (PLP5 and prior) projects.
-	 * 
-	 * @param filePath
-	 *            Path to the specified file; may be relative or absolute
-	 * @return A {@link PLPProject} representative of the information stored in the given
-	 *         file.
-	 * @throws IOException
-	 *             if an IO problem occurs while opening the specified file.
-	 * @see #load(File)
-	 */
-	public static Project load(String filePath)
-			throws IOException
-	{
-		File file = new File(filePath);
-		return load(file);
 	}
 	
 	/**
@@ -204,10 +184,10 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @returnA {@link PLPProject} representative of the information stored in the given
 	 *          file.
 	 */
-	private static PLPProject loadLegacy(File file) throws IOException
+	private void loadLegacy(File file) throws IOException
 	{
 		PLP5ProjectParser parser = new PLP5ProjectParser();
-		return parser.parse(file);
+		parser.parse(this, file);
 	}
 	
 	/**
@@ -217,7 +197,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 * @param projectDirectory
 	 *            File to validate
 	 */
-	private static void validateProjectDirectory(File projectDirectory)
+	private void validateProjectDirectory(File projectDirectory)
 	{
 		if (projectDirectory == null)
 		{
@@ -255,7 +235,7 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 	 *            The root directory containing the project
 	 * @return A File representing the project file for the given project directory
 	 */
-	private static File validateAndFilizeProjectFile(File projectDirectory)
+	private File validateAndFilizeProjectFile(File projectDirectory)
 	{
 		if (projectDirectory == null)
 		{
@@ -279,6 +259,12 @@ public class PLPProject extends ArrayListProperty<ASMFile> implements Project
 		pathProperty = new SimpleStringProperty();
 		nameProperty = new SimpleStringProperty();
 		typeProperty = new SimpleStringProperty();
+	}
+	
+	public PLPProject(PLPProject copy_from) {
+		this.nameProperty = copy_from.nameProperty;
+		this.pathProperty = copy_from.pathProperty;
+		this.typeProperty = copy_from.typeProperty;
 	}
 	
 	public PLPProject(String name, String type)

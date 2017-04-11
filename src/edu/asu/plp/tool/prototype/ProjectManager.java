@@ -1,7 +1,5 @@
 package edu.asu.plp.tool.prototype;
 
-import static edu.asu.plp.tool.prototype.Main.findDiskObjectForASM;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,6 +11,7 @@ import java.util.function.Predicate;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.apache.commons.io.FileUtils;
@@ -34,10 +33,14 @@ public class ProjectManager
 	private ObjectProperty<Project> activeProjectProperty;
 	private ObservableList<ProjectType> supportedProjectTypes;
 	
-	public ProjectManager(ObservableList<Project> projects)
+	public ProjectManager()
 	{
-		this.projects = projects;
+		this.projects = FXCollections.observableArrayList();
 		this.activeProjectProperty = new SimpleObjectProperty<>();
+	}
+	
+	public boolean isEmpty() {
+		return projects.isEmpty();
 	}
 	
 	public void addProject(Project project) throws ProjectAlreadyOpenException,
@@ -70,6 +73,10 @@ public class ProjectManager
 		return null;
 	}
 	
+	public ObservableList<Project> getProjectLists() {
+		return projects;
+	}
+	
 	public void openProjectFromFile(File file) throws ProjectAlreadyOpenException,
 			ProjectNameConflictException, FileNotFoundException,
 			UnsupportedFileExtensionException
@@ -80,6 +87,12 @@ public class ProjectManager
 		ProjectType type = getType(file);
 		Project project = type.load(file);
 		this.addProject(project);
+	}
+	
+	public void saveAll() throws IOException {
+		for (Project project : projects) {
+			project.save();
+		}
 	}
 	
 	public void saveActiveProject() throws UnsupportedProjectTypeException
@@ -211,7 +224,7 @@ public class ProjectManager
 			throw new IllegalArgumentException("No file was specified");
 		
 		ASMFile activeFile = getASMByName(asmName);
-		File removalTarget = findDiskObjectForASM(activeFile);
+		File removalTarget = findDiskObjectForASM(asmName);
 		
 		Project activeProject = activeFile.getProject();
 		activeProject.remove(activeFile);
@@ -268,6 +281,17 @@ public class ProjectManager
 			throw new IllegalStateException("Project {" + activeProject.getName()
 					+ "} contains duplicate file names.");
 		}
+	}
+	
+	public File findDiskObjectForASM(String asmName)
+	{
+		ASMFile activeFile = getASMByName(asmName);
+		Project project = activeFile.getProject();
+		String path = project.getPathFor(activeFile);
+		if (path == null)
+			return null;
+		
+		return new File(path);
 	}
 	
 	public void setMainASMFile(String asmName)

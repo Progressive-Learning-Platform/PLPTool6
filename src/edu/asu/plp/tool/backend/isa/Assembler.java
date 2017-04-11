@@ -19,4 +19,6 @@ public interface Assembler
 		List<ASMFile> asmFiles = Collections.singletonList(asmFile);
 		return assemble(asmFiles);
 	}
+	
+	void startListening();
 }
