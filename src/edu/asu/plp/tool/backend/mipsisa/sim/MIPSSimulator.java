@@ -643,6 +643,46 @@ public class MIPSSimulator implements Simulator
 						//return false;
 					}
 				}
+				else if(opcode == 0x2A) //swl
+				{
+					
+					Long valToAdd;
+					try {
+						valToAdd = (Long) addressBus.read((s + s_imm) & 0xffffffffL) & 0x0000ffffL;
+					} catch (NullPointerException e) {
+						valToAdd = 0L;
+						e.printStackTrace();
+					}
+					Long data = regFile.read(rt) & 0xffff0000L;
+					int ret = addressBus.write((s + s_imm) & 0xffffffffL, data | valToAdd, false);
+		
+					if(ret > 0)
+					{
+						throw new SimulatorException("Bus write error");
+						//System.out.println("Bus write error");
+						//return false;
+					}
+				}
+				else if(opcode == 0x2E) //swr
+				{
+					Long valToAdd;
+					try {
+						valToAdd = (Long) addressBus.read((s + s_imm) & 0xffffffffL) & 0xffff0000L;
+						System.out.println(addressBus.read((s + s_imm) & 0xffffffffL));
+					} catch (NullPointerException e) {
+						valToAdd = 0L;
+						e.printStackTrace();
+					}
+					Long data = regFile.read(rt) & 0x0000ffffL;
+					int ret = addressBus.write((s + s_imm) & 0xffffffffL, data | valToAdd, false);
+		
+					if(ret > 0)
+					{
+						throw new SimulatorException("Bus write error");
+						//System.out.println("Bus write error");
+						//return false;
+					}
+				}
 				else if(opcode == 0x02 || opcode == 0x03) // j
 				{
 					isBranched = true;

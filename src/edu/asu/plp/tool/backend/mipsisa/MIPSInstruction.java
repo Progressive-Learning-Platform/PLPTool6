@@ -78,7 +78,9 @@ public enum MIPSInstruction
 	LOAD_WORD_LEFT("lwl", "opcode", 0x22, 6),
 	LOAD_WORD_RIGHT("lwr", "opcode", 0x26, 6),
 	STORE_BYTE("sb", "opcode", 0x28, 6),
-	STORE_HALFWORD("sh", "opcode", 0x29, 6);
+	STORE_HALFWORD("sh", "opcode", 0x29, 6),
+	STORE_WORD_LEFT("swl", "opcode", 0x2A, 6),
+	STORE_WORD_RIGHT("swr", "opcode", 0x2E, 6);
 	
 	private String identifier;
 	private String type;
