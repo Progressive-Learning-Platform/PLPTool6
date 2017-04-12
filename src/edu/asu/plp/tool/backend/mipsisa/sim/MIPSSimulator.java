@@ -536,6 +536,7 @@ public class MIPSSimulator implements Simulator
 					//TODO bus write
 					//int ret = bus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
 					int ret = addressBus.write((s + s_imm) & 0xffffffffL, regFile.read(rt), false);
+					System.out.println(ret);
 		
 					if(ret > 0)
 					{
@@ -619,6 +620,28 @@ public class MIPSSimulator implements Simulator
 					data &= 0xffffL;
 					data = data | currentValue;
 					regFile.write(rt, data.longValue(), false);
+				}
+				else if(opcode == 0x28) //sb
+				{
+					int ret = addressBus.write((s + s_imm) & 0xffffffffL, regFile.read(rt) & 0xffL, false);
+		
+					if(ret > 0)
+					{
+						throw new SimulatorException("Bus write error");
+						//System.out.println("Bus write error");
+						//return false;
+					}
+				}
+				else if(opcode == 0x29) //sh
+				{
+					int ret = addressBus.write((s + s_imm) & 0xffffffffL, regFile.read(rt) & 0xffffL, false);
+		
+					if(ret > 0)
+					{
+						throw new SimulatorException("Bus write error");
+						//System.out.println("Bus write error");
+						//return false;
+					}
 				}
 				else if(opcode == 0x02 || opcode == 0x03) // j
 				{

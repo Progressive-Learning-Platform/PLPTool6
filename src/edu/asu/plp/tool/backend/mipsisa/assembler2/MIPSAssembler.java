@@ -225,6 +225,8 @@ public class MIPSAssembler implements Assembler
 		mipsInstructions.addRLTypeInstruction("lhu", 0x25);
 		mipsInstructions.addRLTypeInstruction("lwl", 0x22);
 		mipsInstructions.addRLTypeInstruction("lwr", 0x26);
+		mipsInstructions.addRLTypeInstruction("sb", 0x28);
+		mipsInstructions.addRLTypeInstruction("sh", 0x29);
 		
 		
 		//LO and HI
