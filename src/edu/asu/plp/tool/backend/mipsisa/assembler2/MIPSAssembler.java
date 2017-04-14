@@ -137,6 +137,7 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("bal", this::balOperation);
 		pseudoOperationMap.put("beqz", this::beqzOperation);
 		pseudoOperationMap.put("bnez", this::bnezOperation);
+		pseudoOperationMap.put("negu", this::neguOperation);
 		
 		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
@@ -1216,6 +1217,36 @@ public class MIPSAssembler implements Assembler
 				String.format("ori %s, %s, %s", targetRegister,targetRegister, ASM__LOW__ + addressOrLabel);
 		addRegionAndIncrementAddress(2, 8);
 		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Negate (unsigned)
+	 * 
+	 * Puts a value into rd that is the same distance from 0 as the value of rs but in the opposite direction.
+	 * Negates the given value and stores the result in rd
+	 * 
+	 * negu $rd, $rs
+	 * 
+	 * equivalent to: subu $rd, $0, $rs
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String neguOperation() throws AssemblerException
+	{
+		expectedNextToken("It needs from and to register");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma and a register");
+		ensureTokenEquality("Expected a comma" + destinationRegister
+				+ " found: ", MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a from register");
+		String startingRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a source register", MIPSTokenType.ADDRESS);
+		
+		addRegionAndIncrementAddress();
+		return "subu " + destinationRegister + ", $0," + startingRegister;
 	}
 	
 	
