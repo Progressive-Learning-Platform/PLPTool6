@@ -138,6 +138,7 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("beqz", this::beqzOperation);
 		pseudoOperationMap.put("bnez", this::bnezOperation);
 		pseudoOperationMap.put("negu", this::neguOperation);
+		pseudoOperationMap.put("not", this::notOperation);
 		
 		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
@@ -1247,6 +1248,36 @@ public class MIPSAssembler implements Assembler
 		
 		addRegionAndIncrementAddress();
 		return "subu " + destinationRegister + ", $0," + startingRegister;
+	}
+	
+	/**
+	 * NOT
+	 * 
+	 * Puts a value into rd that is the same distance from 0 as the value of rs but in the opposite direction.
+	 * Negates the given value and stores the result in rd
+	 * 
+	 * not $rd, $rs
+	 * 
+	 * equivalent to: nor $rd, $rs, $0
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String notOperation() throws AssemblerException
+	{
+		expectedNextToken("It needs from and to register");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma and a register");
+		ensureTokenEquality("Expected a comma" + destinationRegister
+				+ " found: ", MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a from register");
+		String startingRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a source register", MIPSTokenType.ADDRESS);
+		
+		addRegionAndIncrementAddress();
+		return "nor " + destinationRegister + ", $0," + startingRegister;
 	}
 	
 	
