@@ -139,6 +139,8 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("bnez", this::bnezOperation);
 		pseudoOperationMap.put("negu", this::neguOperation);
 		pseudoOperationMap.put("not", this::notOperation);
+		pseudoOperationMap.put("ulw", this::ulwOperation);
+		pseudoOperationMap.put("usw", this::uswOperation);
 		
 		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
@@ -1278,6 +1280,94 @@ public class MIPSAssembler implements Assembler
 		
 		addRegionAndIncrementAddress();
 		return "nor " + destinationRegister + ", $0," + startingRegister;
+	}
+	
+	/**
+	 * Unaligned Load Word
+	 * 
+	 * Load a 32-bit value from the address given by offset(base) into the register provided.
+	 * 
+	 * <p>
+	 * ulw $rt, offset($rs)
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: lui $at, 0; addu $at, $at, $rs;
+	 * 				  lwl $rt, (imm + 3)($at); lwr $rt, imm($rs)
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String ulwOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("This needs a register and memory location");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a register to load values to", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by the memory location");
+		ensureTokenEquality("Expected a comma after " + targetRegister, MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a memory location from which register" + targetRegister + " value needs to be loaded. It must be an offset and a register");
+		String address = currentToken.getValue();
+		//System.out.println(immediateOrLabel);
+		//ensureTokenEquality("Expected an immediate value", MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected a register wrapped in parenthesis", MIPSTokenType.PARENTHESIS_ADDRESS);
+		String sourceRegister = address.split("[(.*?)]")[1];
+		String offset = address.split("[(.*?)]")[0];
+		System.out.println(sourceRegister);
+		
+		
+		preprocessedInstructions = "lui $at, 0" + "\n" +
+				String.format("addu $at, $at, %s", sourceRegister) + "\n" +
+				String.format("lwl %s, %s(%s)", targetRegister, (offset + 3), "$at") + "\n" +
+				String.format("lwr %s, %s(%s)", targetRegister, offset, sourceRegister);
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Unaligned Store Word
+	 * 
+	 * Load a 32-bit value from the register given into the address at offset(base).
+	 * 
+	 * <p>
+	 * ulw $rt, offset($rs)
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: lui $at, 0; addu $at, $at, $rs;
+	 * 				  swl $rt, (imm + 3)($at); swr $rt, imm($rs)
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String uswOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("This needs a register and memory location");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a register to load values to", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by the memory location");
+		ensureTokenEquality("Expected a comma after " + targetRegister, MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a memory location from which register" + targetRegister + " value needs to be loaded. It must be an offset and a register");
+		String address = currentToken.getValue();
+		//System.out.println(immediateOrLabel);
+		//ensureTokenEquality("Expected an immediate value", MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected a register wrapped in parenthesis", MIPSTokenType.PARENTHESIS_ADDRESS);
+		String sourceRegister = address.split("[(.*?)]")[1];
+		String offset = address.split("[(.*?)]")[0];
+		System.out.println(sourceRegister);
+		
+		
+		preprocessedInstructions = "lui $at, 0" + "\n" +
+				String.format("addu $at, $at, %s", sourceRegister) + "\n" +
+				String.format("swl %s, %s(%s)", targetRegister, (offset + 3), "$at") + "\n" +
+				String.format("swr %s, %s(%s)", targetRegister, offset, sourceRegister);
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
 	}
 	
 	
