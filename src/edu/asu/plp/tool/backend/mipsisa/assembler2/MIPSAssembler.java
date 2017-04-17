@@ -137,6 +137,10 @@ public class MIPSAssembler implements Assembler
 		pseudoOperationMap.put("bal", this::balOperation);
 		pseudoOperationMap.put("beqz", this::beqzOperation);
 		pseudoOperationMap.put("bnez", this::bnezOperation);
+		pseudoOperationMap.put("negu", this::neguOperation);
+		pseudoOperationMap.put("not", this::notOperation);
+		pseudoOperationMap.put("ulw", this::ulwOperation);
+		pseudoOperationMap.put("usw", this::uswOperation);
 		
 		//PLP Only (sponsor requested)
 		pseudoOperationMap.put("push", this::pushOperation);
@@ -1214,6 +1218,154 @@ public class MIPSAssembler implements Assembler
 		
 		preprocessedInstructions = String.format("lui %s, %s", targetRegister,ASM__HIGH__ + addressOrLabel) + "\n" +
 				String.format("ori %s, %s, %s", targetRegister,targetRegister, ASM__LOW__ + addressOrLabel);
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Negate (unsigned)
+	 * 
+	 * Puts a value into rd that is the same distance from 0 as the value of rs but in the opposite direction.
+	 * Negates the given value and stores the result in rd
+	 * 
+	 * negu $rd, $rs
+	 * 
+	 * equivalent to: subu $rd, $0, $rs
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String neguOperation() throws AssemblerException
+	{
+		expectedNextToken("It needs from and to register");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma and a register");
+		ensureTokenEquality("Expected a comma" + destinationRegister
+				+ " found: ", MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a from register");
+		String startingRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a source register", MIPSTokenType.ADDRESS);
+		
+		addRegionAndIncrementAddress();
+		return "subu " + destinationRegister + ", $0," + startingRegister;
+	}
+	
+	/**
+	 * NOT
+	 * 
+	 * Puts a value into rd that is the same distance from 0 as the value of rs but in the opposite direction.
+	 * Negates the given value and stores the result in rd
+	 * 
+	 * not $rd, $rs
+	 * 
+	 * equivalent to: nor $rd, $rs, $0
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String notOperation() throws AssemblerException
+	{
+		expectedNextToken("It needs from and to register");
+		String destinationRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a destination register", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma and a register");
+		ensureTokenEquality("Expected a comma" + destinationRegister
+				+ " found: ", MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a from register");
+		String startingRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a source register", MIPSTokenType.ADDRESS);
+		
+		addRegionAndIncrementAddress();
+		return "nor " + destinationRegister + ", $0," + startingRegister;
+	}
+	
+	/**
+	 * Unaligned Load Word
+	 * 
+	 * Load a 32-bit value from the address given by offset(base) into the register provided.
+	 * 
+	 * <p>
+	 * ulw $rt, offset($rs)
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: lui $at, 0; addu $at, $at, $rs;
+	 * 				  lwl $rt, (imm + 3)($at); lwr $rt, imm($rs)
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String ulwOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("This needs a register and memory location");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a register to load values to", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by the memory location");
+		ensureTokenEquality("Expected a comma after " + targetRegister, MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a memory location from which register" + targetRegister + " value needs to be loaded. It must be an offset and a register");
+		String address = currentToken.getValue();
+		//System.out.println(immediateOrLabel);
+		//ensureTokenEquality("Expected an immediate value", MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected a register wrapped in parenthesis", MIPSTokenType.PARENTHESIS_ADDRESS);
+		String sourceRegister = address.split("[(.*?)]")[1];
+		String offset = address.split("[(.*?)]")[0];
+		System.out.println(sourceRegister);
+		
+		
+		preprocessedInstructions = "lui $at, 0" + "\n" +
+				String.format("addu $at, $at, %s", sourceRegister) + "\n" +
+				String.format("lwl %s, %s(%s)", targetRegister, (offset + 3), "$at") + "\n" +
+				String.format("lwr %s, %s(%s)", targetRegister, offset, sourceRegister);
+		addRegionAndIncrementAddress(2, 8);
+		return preprocessedInstructions;
+	}
+	
+	/**
+	 * Unaligned Store Word
+	 * 
+	 * Load a 32-bit value from the register given into the address at offset(base).
+	 * 
+	 * <p>
+	 * ulw $rt, offset($rs)
+	 * </p>
+	 * 
+	 * <p>
+	 * equivalent to: lui $at, 0; addu $at, $at, $rs;
+	 * 				  swl $rt, (imm + 3)($at); swr $rt, imm($rs)
+	 * </p>
+	 * 
+	 * @throws AssemblerException
+	 */
+	private String uswOperation() throws AssemblerException
+	{
+		String preprocessedInstructions = "";
+		expectedNextToken("This needs a register and memory location");
+		String targetRegister = currentToken.getValue();
+		ensureTokenEquality("Expected a register to load values to", MIPSTokenType.ADDRESS);
+		
+		expectedNextToken("It needs a comma followed by the memory location");
+		ensureTokenEquality("Expected a comma after " + targetRegister, MIPSTokenType.COMMA);
+		
+		expectedNextToken("It needs a memory location from which register" + targetRegister + " value needs to be loaded. It must be an offset and a register");
+		String address = currentToken.getValue();
+		//System.out.println(immediateOrLabel);
+		//ensureTokenEquality("Expected an immediate value", MIPSTokenType.NUMERIC);
+		ensureTokenEquality("Expected a register wrapped in parenthesis", MIPSTokenType.PARENTHESIS_ADDRESS);
+		String sourceRegister = address.split("[(.*?)]")[1];
+		String offset = address.split("[(.*?)]")[0];
+		System.out.println(sourceRegister);
+		
+		
+		preprocessedInstructions = "lui $at, 0" + "\n" +
+				String.format("addu $at, $at, %s", sourceRegister) + "\n" +
+				String.format("swl %s, %s(%s)", targetRegister, (offset + 3), "$at") + "\n" +
+				String.format("swr %s, %s(%s)", targetRegister, offset, sourceRegister);
 		addRegionAndIncrementAddress(2, 8);
 		return preprocessedInstructions;
 	}

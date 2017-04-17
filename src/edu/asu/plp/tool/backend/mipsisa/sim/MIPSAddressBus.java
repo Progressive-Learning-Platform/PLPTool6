@@ -96,6 +96,7 @@ public class MIPSAddressBus implements AddressBus{
 				{
 					//verify: why are we even calling read of the module if not interested in its value
 					mod.read(addr);
+					System.out.println("Within module, but phantom");
 				}
 				
 				break;
@@ -106,11 +107,13 @@ public class MIPSAddressBus implements AddressBus{
 		
 		if(value == null && isMapped(addr))
 		{
+			System.out.println("No value, but mapped");
 			 //Constants.PLP_SIM_MODULE_NO_DATA_ON_READ;
 			return null;
 		}
 		else if(!isMapped(addr))
 		{
+			System.out.println("Not mapped");
 			//return Constants.PLP_SIM_UNMAPPED_MEMORY_ACCESS;
 			return null;
 		}
