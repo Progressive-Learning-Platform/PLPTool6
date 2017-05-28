@@ -1,6 +1,6 @@
 package edu.asu.plp.tool.backend.plpisa.assembler;
 
-import static org.junit.Assert.assertTrue;
+//import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -418,8 +418,10 @@ public class DisposablePLPAssembler
 			System.out.println(String.format("%-40s | 0x%05x", key, value));
 		});
 		
+		/*
 		assertTrue("Address Table length does not match object code length",
 				addressTable.length == objectCode.length);
+		*/
 		
 		outName = "Address Table (Hex) | Instruction (Object Code Hex)";
 		sideLength = Math.abs(totalLength - outName.length()) / 2;

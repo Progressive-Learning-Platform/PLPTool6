@@ -150,7 +150,7 @@ public class PLPAddressBus implements AddressBus{
 	 * @param addr address where data needs to be written
 	 * @param data data to be written to the address
 	 * @param isInstr whether data to be written is an instruction or not
-	 * @return
+	 * @return an integer value indicating a particular type of error
 	 */
 	public synchronized int write(long addr, long data, boolean isInstr)
 	{
@@ -269,7 +269,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This method will execute or evalute only a module indicated by index
-	 * @param index position where the module is installed in bus
+	 * @param moduleName name of the module which needs to be evaluated
 	 * @return Ok for success else error
 	 */
 	public int eval(String moduleName)
@@ -303,7 +303,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This method checks if a module indicated by index is enabled or not
-	 * @param index location of the module in the bus
+	 * @param moduleName name of the module which needs to be checked for enable or not
 	 * @return true if enabled else false
 	 */
 	public synchronized boolean isEnabled(String moduleName)
@@ -314,7 +314,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This method enables the module indicated by the index
-	 * @param index location of the module in the bus
+	 * @param moduleName name of the module which needs to be enabled in the bus
 	 * @return OK for success else error
 	 */
 	public synchronized int enableModule(String moduleName)
@@ -326,7 +326,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This method disables the module indicated by the index
-	 * @param index location of the module in the bus
+	 * @param moduleName name of the module which needs to be disabled in the bus
 	 * @return OK for success else error
 	 */
 	public synchronized int disableModule(String moduleName)
@@ -338,7 +338,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This will set all the modules content to zero??
-	 * @param index location of the module in bus
+	 * @param moduleName module which needs to be uninstalled from the address bus
 	 * @return Okay for success else error
 	 */
 	public int clearModuleRegisters(String moduleName)
@@ -350,7 +350,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This method returns the string describing that module as indicated by index
-	 * @param index location of the module in the bus
+	 * @param moduleName module name which needs to be installed in address bus
 	 * @return string describing module
 	 */
 	public String introduceModule(String moduleName)
@@ -402,7 +402,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * This method will put zeroes in the registers of that module
-	 * @param index module location in the bus
+	 * @param moduleName module whose addressed has to be initialised with 0
 	 */
 	public synchronized void issueZeroes(String moduleName)
 	{
@@ -416,7 +416,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * Returns the object of the module indicated by the index
-	 * @param index location of the module as installed in the bus
+	 * @param moduleName name of the module whose object needs to be returned
 	 * @return Object of module
 	 */
 	public synchronized IOMemoryModule getReferenceModule(String moduleName)
@@ -436,7 +436,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * Returns the starting address of the module indicated by the index
-	 * @param index location of the module installed in bus
+	 * @param moduleName module name whose starting address needs to returned
 	 * @return start address of the module
 	 */
 	public synchronized long getModuleStartAddress(String moduleName)
@@ -447,7 +447,7 @@ public class PLPAddressBus implements AddressBus{
 	
 	/**
 	 * Returns the end address of the module indicated by the index
-	 * @param index location of the module installed in the bus
+	 * @param moduleName name of the module whose end address needs to be returned
 	 * @return end address of the module
 	 */
 	public synchronized long getModuleEndAddress(String moduleName)
