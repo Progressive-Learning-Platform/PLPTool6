@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+    <link rel="stylesheet" href="JS/bower_components/jqwidgets/jqwidgets/styles/jqx.base.css" type="text/css" />
+    <link rel="stylesheet" href="JS/bower_components/bootstrap/dist/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="JS/bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" type="text/css" />
+
+    <script type="text/javascript" src="JS/bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jquery-ui/jquery-ui.min.js"></script>
+
+    <script src="JS/bower_components/angular/angular.min.js"></script>
+    <script src="JS/bower_components/angular-cookies/angular-cookies.min.js"></script>
+
+    <link rel="stylesheet" href="JS/bower_components/jqwidgets/jqwidgets/styles/jqx.base.css" type="text/css" />
+    <link rel="stylesheet" href="JS/bower_components/jqwidgets/jqwidgets/styles/jqx.windowsphone.css" type="text/css" />
+    <link rel="stylesheet" href="JS/bower_components/jqwidgets/jqwidgets/styles/jqx.blackberry.css" type="text/css" />
+    <link rel="stylesheet" href="JS/bower_components/jqwidgets/jqwidgets/styles/jqx.android.css" type="text/css" />
+    <link rel="stylesheet" href="JS/bower_components/jqwidgets/jqwidgets/styles/jqx.mobile.css" type="text/css" />
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxsplitter.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxsortable.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxtabs.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxchart.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxgrid.columnsresize.js"></script>
+    <script type="text/javascript" src="JS/bower_components/jqwidgets/jqwidgets/jqxgrid.selection.js"></script>
+
+    <script type="text/javascript" src="JS/sevenSeg.js"></script>
+    <script type="text/javascript" src="JS/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="JS/bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+    <script src="JS/bower_components/css-element-queries/src/ResizeSensor.js"></script>
+    <script src="JS/bower_components/css-element-queries/src/ElementQueries.js"></script>
+
+
+    <script src="JS/plpController.js"></script>
+
+    <link rel="stylesheet" href="CSS/ide.css"  type="text/css">
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            var rss = (function ($) {
+                var ht = $(window).height()*0.82;
+                console.log("ht is"+ht);
+                var createWidgets = function () {
+                    $('#mainSplitter').jqxSplitter({ width: '100%', height: ht, orientation: 'horizontal', panels: [{ size: '80%', collapsible: false }] });
+                    $('#firstNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'vertical', panels: [{ size: '12.5%', collapsible: false}] });
+                    $('#secondNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: '60%'}] });
+                    $('#thirdNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'vertical', panels: [{ size: '50%'}] });
+                    $('#fourthNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: 150, collapsible: false}] });
+                };
+                return {
+                    init: function () {
+                        createWidgets();
+                    }
+                }
+
+            } (jQuery));
+
+            rss.init();
+        });
+    </script>
+    <title>PLP IDE</title>
+</head>
+<body>
+    <div ng-app="PLP" ng-controller="idectrl" ng-init="register()">
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <img src="images/plptool.png" class="logo" style="float: left">
+                        <a class="navbar-brand" href="/#/">PLP Tool</a>
+                    </div>
+                    <div id="navbar" class="collapse navbar-collapse">
+                        <ul class="nav navbar-nav navbar-left">
+                            <li><a href="#/">Home</a></li>
+                            <li><a href="#/">Feedback</a></li>
+                            <li><a href="#/">Quick Reference</a></li>
+                            <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+
+                                    <li><a href="#/">Online Manual</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#/">Report Issue</a></li>
+                                    <li><a href="#/">Google code Issues</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#/">About PLP Tool</a></li>
+                                </ul>
+                            </li>
+                            <!--             <li><a href="javascript:window.open('','_self').close();">Close</a></li> -->
+                        </ul>
+
+                    </div><!--/.nav-collapse -->
+            </nav>
+            <br><br><br>
+       <!-- <nav class="navbar navbar-default">
+            &lt;!&ndash; Brand and toggle get grouped for better mobile display &ndash;&gt;
+            &lt;!&ndash;<div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Brand</a>
+            </div>&ndash;&gt;
+
+            &lt;!&ndash; Collect the nav links, forms, and other content for toggling &ndash;&gt;
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-left" style="width: 45%">
+                    <li><input type="file" id="upfile" style="height: 0; width: 0; visibility: hidden" ng-model="inFile" onchange="angular.element(this).scope().openFile()"></li>
+                    <li><button class="btn btn-default btn-sm" title="New">New<img src="images/toolbar_new.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Open" ng-click="uploadFile()"><img src="images/toolbar_open.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Save"><img src="images/toolbar_save.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Assemble"><img src="images/toolbar_assemble.png"></button></li>
+                    <li class="dropdown" style="padding-left: 8%"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Project<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#/">Program Listing</a></li>
+                            <li><a href="#/">Set New Project ISA...</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#/">Options</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#/">Serial Terminal</a></li>
+                            <li><a href="#/">Number Converter</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Simulation<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-submenu"><a href="" tabindex="-1">Cycles/Step</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#/">1</a></li>
+                                    <li><a href="#/">5</a></li>
+                                    <li><a href="#/">20</a></li>
+                                    <li><a href="#/">100</a></li>
+                                    <li><a href="#/">1000</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu"><a href="" tabindex="-1">Tools</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#/">I/O Registry</a></li>
+                                    <li><a href="#/">CPU Memory Visualizer</a></li>
+                                    <li><a href="#/">Bus Monitor Timing Diagram</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                    &lt;!&ndash;<li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>&ndash;&gt;
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><button class="btn btn-default btn-sm" title="Step"><img src="images/toolbar_step.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Run"><img src="images/toolbar_run.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Reset"><img src="images/toolbar_reset.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Remote"><img src="images/toolbar_remote.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="CPU"><img src="images/toolbar_cpu.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Watcher"><img src="images/toolbar_watcher.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation LEDs" ng-click="openLED()"><img src="images/toolbar_sim_leds.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation Switches" ng-click="openSwitches()"><img src="images/toolbar_sim_switches.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation 7-segment" ng-click="open7Segment()"><img src="images/toolbar_sim_7segments.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation UART" ng-click="openUART()"><img src="images/toolbar_sim_uart.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation VGA" ng-click="openVGA()"><img src="images/toolbar_sim_vga.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation PLP ID"><img src="images/toolbar_sim_plpid.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Simulation GPIO" ng-click="openGPIO()"><img src="images/toolbar_sim_gpio.png"></button></li>
+                    <li><button class="btn btn-default btn-sm" title="Exclamation"><img src="images/toolbar_exclamation.png"></button></li>
+                </ul>
+            </div>&lt;!&ndash; /.navbar-collapse &ndash;&gt;
+        </nav>-->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><input type="file" id="upfile" style="height: 0; width: 0; visibility: hidden" ng-model="inFile" onchange="angular.element(this).scope().openFile()"></li>
+                        <li><a data-toggle="modal" href="#newFileModal">New</a></li>
+                        <li><a href="#" ng-click="uploadFile()">Open</a></li>
+                        <li><a href="#/">Save</a></li>
+                        <li><a href="#/" ng-click="assembleFile()">Assemble</a></li>
+                        <li><a href="#/" ng-click="sim=!sim ; SimulateFile()">Simulate</a></li>
+                        <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Project<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#/">Program Listing</a></li>
+                                <li><a href="#/">Set New Project ISA...</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#/">Options</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#/">Serial Terminal</a></li>
+                                <li><a href="#/">Number Converter</a></li>
+                            </ul>
+                        </li>
+
+                        <!--<li><button class="btn btn-default btn-sm" title="CPU"><img src="images/toolbar_cpu.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Watcher"><img src="images/toolbar_watcher.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation LEDs" ng-click="openLED()"><img src="images/toolbar_sim_leds.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation Switches" ng-click="openSwitches()"><img src="images/toolbar_sim_switches.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation 7-segment" ng-click="open7Segment()"><img src="images/toolbar_sim_7segments.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation UART" ng-click="openUART()"><img src="images/toolbar_sim_uart.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation VGA" ng-click="openVGA()"><img src="images/toolbar_sim_vga.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation PLP ID"><img src="images/toolbar_sim_plpid.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Simulation GPIO" ng-click="openGPIO()"><img src="images/toolbar_sim_gpio.png"></button></li>
+                        <li><button class="btn btn-default btn-sm" title="Exclamation"><img src="images/toolbar_exclamation.png"></button></li>-->
+                    </ul>
+                    <div ng-show="sim">
+                        <ul class="nav navbar-nav navbar-left">
+                            <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Simulation<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-submenu"><a href="" tabindex="-1">Cycles/Step</a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="#/">1</a></li>
+                                            <li><a href="#/">5</a></li>
+                                            <li><a href="#/">20</a></li>
+                                            <li><a href="#/">100</a></li>
+                                            <li><a href="#/">1000</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu"><a href="" tabindex="-1">Tools</a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="#/">I/O Registry</a></li>
+                                            <li><a href="#/">CPU Memory Visualizer</a></li>
+                                            <li><a href="#/">Bus Monitor Timing Diagram</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a href="#/">Step</a></li>
+                            <li><a href="#/">Run</a></li>
+                            <li><a href="#/">Reset</a></button></li>
+                            <li><a href="#/">Remote</a></li>
+                            <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Components<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;LED's</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;Switches</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;7-Segment Display</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;UART</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;VGA</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;PLP ID</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;GPIO</a></li>
+                                    <li><a href="#/"><input type="checkbox"/>&nbsp;Interrupt</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+            <!--<div class="alert alert-warning" role="alert">
+                <b>Warning!</b> This is a Development environment, v1.1!
+            </div>-->
+            <!--<div id="toolbar" class="col-md-12">
+                <div id="inibar" style="float: left">
+                    <input type="file" id="upfile" style="height: 0; width: 0; visibility: hidden" ng-model="inFile" onchange="angular.element(this).scope().openFile()">
+                    <button type="btn btn-default btn-sm" title="New"><img src="images/toolbar_new.png"></button>
+                    <button type="btn btn-default btn-sm" title="Open" ng-click="uploadFile()"><img src="images/toolbar_open.png"></button>
+                    <button type="btn btn-default btn-sm" title="Save"><img src="images/toolbar_save.png"></button>
+                    <button type="btn btn-default btn-sm" title="Assemble"><img src="images/toolbar_assemble.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulate"><img src="images/toolbar_simulate.png"></button>
+                </div>
+                <div id="runbar" style="float: right">
+                    <button type="btn btn-default btn-sm" title="Step"><img src="images/toolbar_step.png"></button>
+                    <button type="btn btn-default btn-sm" title="Run"><img src="images/toolbar_run.png"></button>
+                    <button type="btn btn-default btn-sm" title="Reset"><img src="images/toolbar_reset.png"></button>
+                    <button type="btn btn-default btn-sm" title="Remote"><img src="images/toolbar_remote.png"></button>
+                    <button type="btn btn-default btn-sm" title="CPU"><img src="images/toolbar_cpu.png"></button>
+                    <button type="btn btn-default btn-sm" title="Watcher"><img src="images/toolbar_watcher.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation LEDs" ng-click="openLED()"><img src="images/toolbar_sim_leds.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation Switches" ng-click="openSwitches()"><img src="images/toolbar_sim_switches.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation 7-segment" ng-click="open7Segment()"><img src="images/toolbar_sim_7segments.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation UART" ng-click="openUART()"><img src="images/toolbar_sim_uart.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation VGA" ng-click="openVGA()"><img src="images/toolbar_sim_vga.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation PLP ID"><img src="images/toolbar_sim_plpid.png"></button>
+                    <button type="btn btn-default btn-sm" title="Simulation GPIO" ng-click="openGPIO()"><img src="images/toolbar_sim_gpio.png"></button>
+                    <button type="btn btn-default btn-sm" title="Exclamation"><img src="images/toolbar_exclamation.png"></button>
+                </div>
+            </div>-->
+        <div id='jqxWidget'>
+            <div id="mainSplitter">
+                <div>
+                    <div id="firstNested">
+                        <div>
+                            <div style="...">
+                                File Structure Goes Here
+                            </div>
+                        </div>
+                        <div>
+                            <div id="secondNested">
+                                <div style = "...">
+                                    <div id = "code" style="width: 99%; height: 98%; margin-right: 1%">
+                                        <div id="editor" style="width: 100%; height: 100%">
+.org 0x10000000
+nop
+lbl1:
+addiu $t1 $s0 13
+jal lbl1
+li $a1 0x110
+<script src="JS/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="JS/textAreaJS.js"></script>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div id = "thirdNested">
+                                        <div>
+                                            <div class="jqx-hideborder jqx-hidescrollbars" id="tabswidget">
+                                                <ul>
+                                                    <li style="margin-left: 30px;">Watcher Window</li>
+                                                    <li>CPU Window</li>
+                                                </ul>
+                                                <div>
+                                                    <!--<div style="border: none;" id='jqxgrid'>
+
+                                                    </div>-->
+                                                    <div class="col-xs-6">
+                                                        <div class="row">
+                                                            <div class="table-bordered">
+                                                                <table class="table">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th>Name</th>
+                                                                        <th>Register</th>
+                                                                        <th>Value</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    <tr>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                        <td>1</td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div><br><br>
+                                                        <div class="row">
+                                                            <div class="col-xs-12">
+                                                                <div class="form-group">
+                                                                    <label for="register" class="control-label col-xs-4">Watch Register:</label>
+                                                                    <div class="input-group">
+                                                                        <input type="text" class="form-control" id="register">
+                                                                        <span class="input-group-btn">
+                                                                            <button class="btn btn-secondary" type="button">Add</button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-6">
+                                                        <div class="table-bordered">
+                                                            <table class="table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Address</th>
+                                                                    <th>Value</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div> <br><br>
+                                                        <div class="col-xs-12">
+                                                            <div class="form-group">
+                                                                <label class="control-label col-xs-3">Display Value as:</label>
+                                                                <div class="dropdown">
+                                                                    <ul class="dropdown-menu">
+                                                                        <li><a href="#">Decimal</a></li>
+                                                                        <li><a href="#">Binary</a></li>
+                                                                        <li><a href="#">Hexa</a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div>Content 2</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div id = "window" style="overflow-y: auto;">
+                                                Components
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div id="fourthNested">
+                        <div>
+                            <span>Console Messages go here</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+           <!-- <div class="device-mobile-tablet">
+                <div class="device-mobile-tablet-container">
+                    <div id='jqxWidget'>
+                        <div id="mainSplitter">
+                            <div style="overflow-y: auto;">
+                                File Structure
+                            </div>
+                            &lt;!&ndash;////////////////////////&ndash;&gt;
+                            <div>
+                                <div id="simSplitter">
+                                    <div>
+                                        <div id="contentSplitter">
+                                            <div style="overflow-y: auto;">
+                                                <div id = "code" style="width: 99%; height: 98%; margin-right: 1%">
+                                                    <div id="editor" style="width: 100%; height: 100%">
+.org 0x10000000
+nop
+lbl1:
+addiu $t1 $s0 13
+jal lbl1
+li $a1 0x110
+<script src="JS/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="JS/textAreaJS.js"></script>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id = "console" style="overflow-y: auto;">
+                                                Console Messages go Here!!!!
+                                            </div>
+                                        </div>
+                                    </div>
+                                    &lt;!&ndash;////////////////////////&ndash;&gt;
+                                    <div id = "window" style="overflow-y: auto;">
+                                        &lt;!&ndash;Sim Stuff&ndash;&gt;
+                                        <div class="tabs">
+                                        </div>
+                                    </div>
+                                        &lt;!&ndash;1234567890&ndash;&gt;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+            <!--<script type="text/ng-template" id="/contact.html">
+                <div ng-include="'/views/contact.html'"></div>
+            </script>-->
+	<!-- Modal Information -->
+		<div id="newFileModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">New Project</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group row">
+							<label for="example-text-input" class="col-sm-4 col-form-label">Project Name:</label>
+							<div class="col-sm-4">
+								<input class="form-control" type="text" id="example-text-input">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="example-search-input" class="col-sm-4 col-form-label">File Name:</label>
+							<div class="col-sm-4">
+								<input class="form-control" id="example-search-input">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="example-email-input" class="col-sm-4 col-form-label">Location:</label>
+							<div class="col-sm-4">
+								<input type="file" webkitdirectory directory multiple/>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="example-url-input" class="col-sm-4 col-form-label">Targetted ISA:</label>
+							<div class="col-sm-4">
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select <span class="caret"></span></button>
+							        <ul class="dropdown-menu">
+							          <li><a href="#">PLP 5</a></li>
+							          <li><a href="#">PLP 6</a></li>
+							        </ul>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-success">Submit</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>
