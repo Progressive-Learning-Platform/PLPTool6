@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import edu.asu.plp.model.AssemblyInfo;
+import edu.asu.plp.model.WebASMFile;
 import edu.asu.plp.service.PLPUserDB;
 import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.*;
