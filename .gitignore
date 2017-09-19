@@ -10,5 +10,4 @@ hs_err_pid*
 
 # Intellij Stuff
 .idea/workspace.xml
-*.iml
 /target/
