@@ -9,6 +9,6 @@ bin/
 hs_err_pid*
 
 # Intellij Stuff
-.idea/
+.idea/workspace.xml
 *.iml
 /target/
