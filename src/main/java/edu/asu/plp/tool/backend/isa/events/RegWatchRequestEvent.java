@@ -1,16 +1,23 @@
 package edu.asu.plp.tool.backend.isa.events;
 
-// Class to watch register values
+/**
+ * Class to denote Register Request Event
+ */
 public class RegWatchRequestEvent {
 
 	private String registerName;
 
-	// Constructor with registerName as a parameter
+	/**
+	 * This is a constructor for which accepts registerName parameter
+	 * @param {String} registerName       - It takes the registerName parameter
+	 */
 	public RegWatchRequestEvent(String registerName) {
 		this.registerName = registerName;
 	}
 
-	// Function to get the register Name
+	/**
+	 * Function returns the name of the register
+	 */
 	public String getRegisterName() {
 		return registerName;
 	}
