@@ -3,32 +3,33 @@ package edu.asu.plp.tool.backend.isa.events;
 import javafx.beans.property.LongProperty;
 
 /**
- * Class to denote Register Response Event
+ * @brief Class to denote Register Response Event. It captures the response of the register.
+ * @brief It offers communication between the front-end and the back-end and provides response
  */
 public class RegWatchResponseEvent {
 
 	/**
-	 * Boolean Variable to store the status (True or False)
+	 * @brief Boolean Variable to store the status of the RegWatchResponseEvent(True or False)
 	 */
 	private boolean success;
 
 	/**
-	 * String variable to hold the registerID
+	 * @brief String variable to hold the registerID
 	 */
 	private String registerID;
 
 	/**
-	 * String variable to hold the registerName
+	 * @brief String variable to hold the registerName
 	 */
 	private String registerName;
 
 	/**
-	 * LongProperty class defines a Property wrapping a long value.
+	 * @brief LongProperty class defines a Property wrapping a long value.
 	 */
 	private LongProperty regObject;
 
 	/**
-	 * This is a constructor for which accepts Success, ErrorMessage, ProjectName and ASMImage parameters
+	 * @brief This is a constructor for which accepts Success, ErrorMessage, ProjectName and ASMImage parameters
 	 * @param {boolean} Success       - It takes the register watch success parameter
 	 * @param {String} registerID     - It takes the registerID parameter
 	 * @param {String} registerName   - It takes the name of the register as a parameter
@@ -42,28 +43,32 @@ public class RegWatchResponseEvent {
 	}
 
 	/**
-	 * Function returns success if the RegWatchResponseEvent is a success
+	 * @brief Function returns success if the RegWatchResponseEvent is a success
+	 * @return boolean (True or False)
 	 */
 	public boolean isSuccess() {
 		return success;
 	}
 
 	/**
-	 * Getter Function to return registerID
+	 * @brief This is a getter method used to get the RegisterID
+	 * @return registerID (in String)
 	 */
 	public String getRegisterID() {
 		return registerID;
 	}
 
 	/**
-	 * Getter Function to return RegisterName
+	 * @brief This is a getter method used to get the RegisterName
+	 * @return register Name (in String)
 	 */
 	public String getRegisterName() {
 		return registerName;
 	}
 
 	/**
-	 * Getter Function to return RegisterObject
+	 * @brief This is a getter method used to get the Register object
+	 * @return register object (in LongProperty)
 	 */
 	public LongProperty getRegObject() {
 		return regObject;
