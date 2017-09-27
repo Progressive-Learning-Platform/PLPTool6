@@ -3,8 +3,8 @@ package edu.asu.plp.tool.backend.isa.events;
 import edu.asu.plp.tool.backend.isa.ASMImage;
 
 /**
- ** This class is controls the assembler and manages the result
- **/
+ * This class is controls the assembler and manages the result
+ */
 public class AssemblerResultEvent {
 
 	private boolean assembleSuccess;
@@ -13,13 +13,14 @@ public class AssemblerResultEvent {
 	private ASMImage asmImage;
 
 	/**
-	 * This is a constructor for which accepts Success, ErrorMessage, ProjectName and ASMImage parameters
-	 * @param {String} Success        - It takes the assembler success parameter
-	 * @param {String} ErrorMessage   - It takes the error message parameter
-	 * @param {string} ProjectName    - It takes the name of the project
-	 * @param {string} ASMImage       - It takes the ASM Image
-	 * **/
-
+	 *
+	 * @param assembleSuccess	It takes the assembler success parameter. If the value is true then the program
+								assembled successfully otherwise not
+	 * @param errorMessage		It takes the error message parameter if any error is generated while assembling
+	 							the result
+	 * @param projectName		It takes the name of the project for which the assembler result is generated
+	 * @param asmImage			It takes the ASM Image of the assembled class
+	 */
 	public AssemblerResultEvent(boolean assembleSuccess, String errorMessage,
 			String projectName, ASMImage asmImage) {
 		this.assembleSuccess = assembleSuccess;
@@ -29,29 +30,33 @@ public class AssemblerResultEvent {
 	}
 
 	/**
-	 ** This is a function which return assemble success
-	 **/
+	 *
+	 * @return assemble success or not
+	 */
 	public boolean getAssembleSuccess() {
 		return assembleSuccess;
 	}
 
-    /**
-     ** This is a function which return error message to the screen
-     **/
+	/**
+	 *
+	 * @return error message to the screen
+	 */
 	public String getErrorMessage() {
 		return errorMessage;
 	}
 
-    /**
-     ** This is a function which return the project name
-     **/
+	/**
+	 *
+	 * @return the name of the project
+	 */
 	public String getProjectName() {
 		return projectName;
 	}
 
-    /**
-     ** This is a function which return ASM Image
-     **/
+	/**
+	 *
+	 * @return the ASM image
+	 */
 	public ASMImage getAsmImage() {
 		return asmImage;
 	}
