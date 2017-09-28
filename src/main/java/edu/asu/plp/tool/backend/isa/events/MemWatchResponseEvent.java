@@ -3,7 +3,7 @@ package edu.asu.plp.tool.backend.isa.events;
 import javafx.beans.property.LongProperty;
 
 /**
- * This class defines the response object for Memory watch event
+ * This class defines the response object for Memory watch event when the user requests for an address to be watched
  */
 public class MemWatchResponseEvent {
 	
@@ -13,9 +13,9 @@ public class MemWatchResponseEvent {
 
 	/**
 	 * Constructor for Memory watch response object
-	 * @param success
-	 * @param watchedAddress
-	 * @param memObject
+	 * @param success Memory watch request result, true is a success, otherwise a failure.
+	 * @param watchedAddress Address of the memory that is requested to be watched
+	 * @param memObject reference of the memory object at particular address
 	 */
 	public MemWatchResponseEvent(boolean success, long watchedAddress, LongProperty memObject) {
 		this.success = success;
@@ -24,7 +24,8 @@ public class MemWatchResponseEvent {
 	}
 
 	/**
-	 * getter for success flag
+	 * getter for successor flag which only when true the reference of the memory object is
+	 * fetched and the address is added to rows of memory addresses
 	 * @return
 	 */
 	public boolean isSuccess() {
@@ -33,15 +34,15 @@ public class MemWatchResponseEvent {
 
 	/**
 	 * getter for address that is watched
-	 * @return
+	 * @return a valid address when the watch request succeed, otherwise the address is invalid
 	 */
 	public long getWatchedAddress() {
 		return watchedAddress;
 	}
 
 	/**
-	 * getter for property of the memory at particular address
-	 * @return
+	 * Getter for the reference of the memory object at particular address.
+	 * @return the reference of the memory object at particular address.
 	 */
 	public LongProperty getMemObject() {
 		return memObject;

@@ -9,7 +9,7 @@ public class MemWatchRequestEvent {
 
 	/**
 	 * Constructor for Memory watch request object
-	 * @param memoryAddress
+	 * @param memoryAddress Address of the memory that is requested to be watched
 	 */
 	public MemWatchRequestEvent(long memoryAddress) {
 		this.memoryAddress = memoryAddress;
@@ -17,7 +17,7 @@ public class MemWatchRequestEvent {
 
 	/**
 	 * getter for address that is requested to be watched
-	 * @return
+	 * @return address that is requested to be watched
 	 */
 	public long getMemoryAddress() {
 		return memoryAddress;
