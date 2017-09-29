@@ -1,8 +1,8 @@
 package edu.asu.plp.tool.backend.isa.events;
 
 /**
- * Class to denote Register Request Event. It is used to retrieve the status and value of the register
- * It offers communication between the front-end and the back-end
+ * @brief Event to denote Register Watch Request. It is used to retrieve the status and value of the register
+ * 	      It offers communication between the front-end and the back-end
  */
 public class RegWatchRequestEvent {
 
@@ -13,8 +13,9 @@ public class RegWatchRequestEvent {
 
 	/**
 	 * @brief This is a constructor which accepts registerName parameter
-	 * @brief It is used to watch the register values and send it to the front-end
-	 * @param {String} registerName       - It takes the registerName parameter
+	 * 		  It is used to watch the register values and send it to the front-end
+	 * @param registerName       - It takes the registerName parameter
+	 * If the registerName is invalid, the response will indicate failed.
 	 */
 	public RegWatchRequestEvent(String registerName) {
 		this.registerName = registerName;
