@@ -29,19 +29,12 @@ public class RegWatchResponseEvent {
 	private LongProperty regObject;
 
 	/**
-<<<<<<< HEAD
-	 * @brief This is a constructor for which accepts Success, registerID, registerName and regObject
+	 * @brief This is a constructor which accepts Success, registerID, registerName and regObject
+	 * 			It is used to initialize the object
 	 * @param {boolean} Success       - It takes the register watch success parameter
 	 * @param {String} registerID     - It takes the registerID parameter
 	 * @param {String} registerName   - It takes the name of the register as a parameter
 	 * @param {String} regObject      - It takes the LongProperty object as a parameter
-=======
-	 * @brief This is a constructor for which accepts Success, ErrorMessage, ProjectName and ASMImage parameters
-	 * @param success       - It takes the register watch success parameter
-	 * @param registerID     - It takes the registerID parameter
-	 * @param registerName   - It takes the name of the register as a parameter
-	 * @param regObject      - It takes the LongProperty object as a parameter
->>>>>>> origin/refactor-Tushar
 	 */
 	public RegWatchResponseEvent(boolean success, String registerID, String registerName, LongProperty regObject) {
 		this.success = success;
