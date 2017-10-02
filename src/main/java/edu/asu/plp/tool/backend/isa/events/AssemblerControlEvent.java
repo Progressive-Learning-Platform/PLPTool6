@@ -16,7 +16,7 @@ public class AssemblerControlEvent {
 
 	/**
 	 *
-	 * @param command			It take the command for the assembler to process the request
+	 * @param command		It take the command for the assembler to process the request
 	 * @param projectName		The name of the project for which the control event should be generated
 	 * @param projectType		It was the project type indicating whether the project is PLP6 or legacy project
 	 * @param assemblerFiles	List of assembler files for the processing
