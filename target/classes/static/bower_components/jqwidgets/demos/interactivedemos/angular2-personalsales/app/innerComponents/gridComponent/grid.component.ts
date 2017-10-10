@@ -37,7 +37,7 @@ export class GridComponent implements AfterViewInit
         datafields: [
             { name: 'ShippedDate', type: 'date' },
             { name: 'ShipAddress' },
-            { name: 'Customer', type: 'string' },
+            { name: 'customer', type: 'string' },
             { name: 'Amount', type: 'number' }
         ],
         beforeprocessing: (data) =>
@@ -100,8 +100,8 @@ export class GridComponent implements AfterViewInit
             },
             {
                 width: '15%',
-                text: 'Customer',
-                datafield: 'Customer',
+                text: 'customer',
+                datafield: 'customer',
                 cellsalign: 'center'
             },
             {
