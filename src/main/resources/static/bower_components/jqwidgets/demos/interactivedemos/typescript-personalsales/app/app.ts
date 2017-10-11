@@ -152,7 +152,7 @@ function grid(): void
         datafields: [
             { name: 'ShippedDate', type: 'date' },
             { name: 'ShipAddress' },
-            { name: 'customer', type: 'string' },
+            { name: 'Customer', type: 'string' },
             { name: 'Amount', type: 'number' }
         ],
         beforeprocessing: (data: any): void =>
@@ -216,8 +216,8 @@ function grid(): void
                 },
                 {
                     width: '15%',
-                    text: 'customer',
-                    datafield: 'customer',
+                    text: 'Customer',
+                    datafield: 'Customer',
                     cellsalign: 'center'
                 },
                 {
@@ -366,7 +366,7 @@ function refreshPurchase(): void
         datafields: [
             { name: 'ShippedDate', type: 'date' },
             { name: 'ShipAddress' },
-            { name: 'customer', type: 'string' },
+            { name: 'Customer', type: 'string' },
             { name: 'Amount', type: 'number' }
         ],
         url: '../personalsales/data.php'

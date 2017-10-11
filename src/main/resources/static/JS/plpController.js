@@ -13,6 +13,7 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                 firstName: user.userAuthentication.details.given_name,
                 lastName: user.userAuthentication.details.family_name,
                 email: user.userAuthentication.details.email
+
             }
             $http({
                 method: 'POST',
