@@ -573,14 +573,24 @@ public class PLPSimulator implements Simulator
 		
 		if (val == null)
 		{
-			if (statusManager.willSimDumpTraceOnFailedEvaluation)
-			{
+			//if (statusManager.willSimDumpTraceOnFailedEvaluation)
+			//{
 				registersDump();
+			//TODO: This is not a right fix. Until pipeline stages are implemented this cannot be implemented in the right way.
+			instructionDecodeStage.getState().nextInstruction = 0;		//Inserting a NOP as we have reached the end of the program.
+			instructionDecodeStage.getState().nextInstructionAddress = address;
+			instructionDecodeStage.getState().nextCt1Pcplus4 = address + 4;
+
+			instructionDecodeStage.getState().hot = true;
+			instructionDecodeStage.getState().nextBubble = false;
+			instructionDecodeStage.getState().ifCount++;
+
+			asmInstructionAddress = address;
 				System.out.println(String.format("%s 0x%08x",
 						"fetch(): Unable to fetch next instruction from the bus. pc=",
 						address));
 				return false;
-			}
+			//}
 		}
 		
 		if (!addressBus.isInstruction(address))		//!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
