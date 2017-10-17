@@ -1,28 +1,30 @@
 package edu.asu.plp.controller;
-import java.security.Principal;
+
+import edu.asu.plp.service.UserService;
 import edu.asu.plp.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import edu.asu.plp.service.UserService;
+
+import java.security.Principal;
 
 @RestController
 public class UserController {
-	
-	@Autowired
-	UserService userService;
-	
-	@RequestMapping("/user")
-	public Principal userLogin(Principal principal){
+
+    @Autowired
+    UserService userService;
+
+    @RequestMapping("/user")
+    public Principal userLogin(Principal principal) {
         return principal;
-	}
+    }
 
     /**
-     * @brief This method checks if the database is configured properly or not
      * @return true if the database is configured properly otherwise false
+     * @brief This method checks if the database is configured properly or not
      */
-	@RequestMapping("/checkDBConnection")
+    @RequestMapping("/checkDBConnection")
     public boolean checkDBConnection() {
-	    return userService.isDatabaseConnected();
+        return userService.isDatabaseConnected();
     }
 
     /***
@@ -31,9 +33,10 @@ public class UserController {
      * @param user
      * @return success if the insertion is done otherwise error if exception encountered
      */
-    @RequestMapping(value="/saveUser", method=RequestMethod.POST, produces="text/plain")
-	public @ResponseBody String saveUser(@RequestBody User user){
-		String response = userService.saveUser(user);
-		return response.equals("success")?"success":"error";
-	}
+    @RequestMapping(value = "/saveUser", method = RequestMethod.POST, produces = "text/plain")
+    public @ResponseBody
+    String saveUser(@RequestBody User user) {
+        String response = userService.saveUser(user);
+        return response.equals("success") ? "success" : "error";
+    }
 }

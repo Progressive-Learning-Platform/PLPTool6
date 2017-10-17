@@ -1,4 +1,5 @@
 package edu.asu.plp.service;
+
 import edu.asu.plp.user.dao.UserDAO;
 import edu.asu.plp.user.model.User;
 import org.springframework.context.ApplicationContext;
@@ -18,7 +19,7 @@ public class UserService {
      * @param user
      * @return string as success or error
      */
-    public String saveUser(User user){
+    public String saveUser(User user) {
         return userDAO.saveUser(user);
     }
 
@@ -26,7 +27,7 @@ public class UserService {
      * @brief This method check if the database is configured properly or not
      * @return true if the database is configured properly otherwise false
      */
-    public boolean isDatabaseConnected(){
+    public boolean isDatabaseConnected() {
         return userDAO.isDatabaseConnected();
     }
 }
