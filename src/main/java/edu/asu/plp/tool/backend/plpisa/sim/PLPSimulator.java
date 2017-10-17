@@ -581,12 +581,28 @@ public class PLPSimulator implements Simulator
 						address));
 				return false;
 			}
+
 		}
 		
 		if (!addressBus.isInstruction(address))		//!statusManager.willSimAllowExecutionOfArbitaryMem) // !bus.isInstr(address) &&
 		{
 			System.out.println(String.format("%s %08x",
 					"fetch(): Attempted to fetch non-executable memory: pc=", address));
+
+			/*TODO: This is not the right way to fix the problem. But as pipeline stages implementation is not yet
+					complete, until that time this will act as an hack.
+					Basically once it fails to fetch the instruction, it will replace that instruction as nop (0)
+			*/
+			instructionDecodeStage.getState().nextInstruction = 0;
+			instructionDecodeStage.getState().nextInstructionAddress = address;
+			instructionDecodeStage.getState().nextCt1Pcplus4 = address + 4;
+
+			instructionDecodeStage.getState().hot = true;
+			instructionDecodeStage.getState().nextBubble = false;
+			instructionDecodeStage.getState().ifCount++;
+
+			asmInstructionAddress = address;
+
 			return false;
 		}
 		
