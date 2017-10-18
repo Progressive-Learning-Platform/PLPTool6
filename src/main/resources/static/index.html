@@ -87,6 +87,7 @@
         });
     </script>
     <title>PLP IDE</title>
+
 </head>
 
 <style>
@@ -101,6 +102,21 @@
 	width: 50px;
 	border-radius: 50%;
 }
+
+
+.decimalDropDown{
+    padding:0;
+}
+ .paddingMarginSet{
+    padding:0!important;
+    margin:0!important;
+ }
+
+ .watcherClass {
+    padding: 6px;
+    margin: 0 auto;
+ }
+
 </style>
 
 <body ng-app="PLP" ng-controller="idectrl" ng-init="register()" ng-cloak>
@@ -413,8 +429,8 @@ li $a1 x110
                                </div>
 
                                <div>
-                                   <div id = "thirdNested">
-                                       <div>
+                                   <div id = "thirdNested" class="col-md-12">
+                                       <div class="col-md-6">
                                            <div class="jqx-hideborder jqx-hidescrollbars" id="tabswidget">
                                                <ul>
                                                    <li style="margin-left: 30px;">Watcher Window</li>
@@ -424,8 +440,8 @@ li $a1 x110
                                                    <!--<div style="border: none;" id='jqxgrid'>
 
                                                    </div>-->
-                                                   <div class="col-xs-6">
-                                                       <div class="row">
+                                                   <div class="col-xs-12 col-md-6 watcherClass">
+                                                       <!--<div class="row watcherClass">-->
                                                            <div class="table-bordered">
                                                                <table class="table" id="registerTable">
                                                                    <thead>
@@ -439,9 +455,9 @@ li $a1 x110
 
                                                                    </tbody>
                                                                </table>
-                                                           </div>
+                                                           <!--</div>-->
                                                        </div><br><br>
-                                                       <div class="row">
+                                                       <div class="row paddingMarginSet">
                                                            <div class="col-xs-12">
                                                                <div class="form-group">
                                                                    <label for="register" class="control-label col-xs-4">Watch Register:</label>
@@ -454,11 +470,11 @@ li $a1 x110
                                                                </div>
                                                            </div>
                                                        </div>
-                                                       <div class="row">
+                                                       <div class="row paddingMarginSet">
                                                            <div class="col-xs-12">
                                                                <div class="form-group">
                                                                    <label for="display" class="control-label col-xs-4">Display Value As:</label>
-                                                                   <div class="form-group col-xs-8">
+                                                                   <div class="form-group col-xs-8 decimalDropDown">
                                                                        <select class="form-control" id="display">
                                                                            <option>Decimal</option>
                                                                            <option>Hex</option>
@@ -470,7 +486,7 @@ li $a1 x110
                                                            </div>
                                                        </div>
                                                    </div>
-                                                   <div class="col-xs-6">
+                                                   <div class="col-xs-12 col-md-6 watcherClass">
                                                        <div class="table-bordered">
                                                            <table class="table">
                                                                <thead>
@@ -517,7 +533,7 @@ li $a1 x110
                                                            <div class="col-xs-12">
                                                                <div class="form-group">
                                                                    <label for="addDisplay" class="control-label col-xs-4">Display Value As:</label>
-                                                                   <div class="form-group col-xs-8">
+                                                                   <div class="form-group col-xs-8 decimalDropDown">
                                                                        <select class="form-control" id="addDisplay">
                                                                            <option>Decimal</option>
                                                                            <option>Hex</option>
@@ -536,10 +552,7 @@ li $a1 x110
                                                <div>Content 2</div>
                                            </div>
                                        </div>
-                                       <div style="overflow-y: auto;">
-                                           <div id = "window" style="overflow-y: auto;">
-                                           </div>
-                                       </div>
+                                       <div class="col-md-6"></div>
                                    </div>
                                </div>
                            </div>
@@ -651,7 +664,7 @@ li $a1 x110
 
 			</div>
 		</div>
-		
+
 		<div id="profileModal" class="modal fade" role="dialog">
 			<div class="modal-dialog">
 
