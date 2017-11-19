@@ -10,10 +10,8 @@ import edu.asu.plp.tool.backend.isa.RegisterFile;
 import edu.asu.plp.tool.backend.isa.events.RegWatchRequestEvent;
 import edu.asu.plp.tool.backend.isa.events.RegWatchResponseEvent;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 
 /***
@@ -256,6 +254,9 @@ public class PLPRegFile implements RegisterFile {
 	 */
 	public void write(int address, long value, boolean isInstruction)
 	{
+		//Register 0 is readonly. It should have value 0 always.
+		if(address == 0)
+			throw new IllegalArgumentException("Register 0 is read only and always has value 0. It cannot be overwritten");
 		validateAddress(address);
 		registers[address].set(value);
 		//registers[address].
@@ -270,6 +271,9 @@ public class PLPRegFile implements RegisterFile {
 	 */
 	public void write(int address, long value)
 	{
+		//Register 0 is readonly. It should have value 0 always.
+		if(address == 0)
+			throw new IllegalArgumentException("Register 0 is read only and always has value 0. It cannot be overwritten");
 		validateAddress(address);
 		registers[address].set(value);
 	}
