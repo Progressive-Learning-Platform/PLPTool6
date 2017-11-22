@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http.Internal;
 
 namespace jQWidgets.AspNet.Core.Controllers
 {
-    public class JSONData
+    class JSONData
     {
         public List<SalesEmployee> Employees
         {
