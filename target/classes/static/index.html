@@ -53,8 +53,8 @@
                 var ht = $(window).height()*0.82;
                 console.log("ht is"+ht);
                 var createWidgets = function () {
-                    $('#mainSplitter').jqxSplitter({ width: '100%', height: ht, orientation: 'horizontal', panels: [{ size: '80%', collapsible: false }] });
-                    $('#firstNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'vertical', panels: [{ size: '12.5%', collapsible: false}] });
+                    $('#mainSplitter').jqxSplitter({height: ht, orientation: 'horizontal', panels: [{ size: '80%', collapsible: false }] });
+                    $('#firstNested').jqxSplitter({ height: '100%',  orientation: 'vertical', panels: [{ size: '12.5%', collapsible: false}] });
                     $('#secondNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: '60%'}] });
                     $('#thirdNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'vertical', panels: [{ size: '50%'}] });
                     $('#fourthNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: 150, collapsible: false}] });
@@ -117,6 +117,24 @@
     margin: 0 auto;
  }
 
+ .firstNestedInnerDiv{
+    padding:0px;
+
+ }
+
+ .firstNestedSecondInnerDiv{
+    left: 17%;
+    height: 100%;
+    width: inherit!important;
+ }
+
+.mainSplitterWidth{
+    width: auto!important;
+}
+
+.overFlowProject{
+    overflow: auto;
+}
 </style>
 
 <body ng-app="PLP" ng-controller="idectrl" ng-init="register()" ng-cloak>
@@ -379,12 +397,12 @@
                </div>
            </div>-->
        <div id='jqxWidget'>
-           <div id="mainSplitter">
-               <div>
-                   <div id="firstNested">
-                       <div>
+           <div id="mainSplitter" class="mainSplitterWidth">
+               <div class="col-md-12 col-xs-12 col-lg-12 col-sm-12">
+                   <div id="firstNested" class="col-md-12 col-xs-12 col-lg-12 col-sm-12">
+                       <div class="col-md-2 col-sm-12 col-xs-12 firstNestedInnerDiv">
                            <div style="...">
-                               <div id='jqxTree'>
+                               <div id='jqxTree' class="overFlowProject">
                                    <ul>
                                        <li item-expanded='true'>Project
                                            <ul id="fileTree">
@@ -396,7 +414,7 @@
                                </div>
                            </div>
                        </div>
-                       <div>
+                       <div class="firstNestedSecondInnerDiv col-md-10 col-sm-12 col-xs-12">
                            <div id="secondNested">
                                <div>
                                    <div class="jqx-hideborder jqx-hidescrollbars" id="tabswidget1">
@@ -433,7 +451,7 @@ li $a1 x110
                                        <div class="col-md-6">
                                            <div class="jqx-hideborder jqx-hidescrollbars" id="tabswidget">
                                                <ul>
-                                                   <li style="margin-left: 30px;">Watcher asd Window</li>
+                                                   <li style="margin-left: 30px;">Watcher Window</li>
                                                    <li>CPU Window</li>
                                                </ul>
                                                <div>
@@ -552,10 +570,6 @@ li $a1 x110
                                                <div>Content 2</div>
                                            </div>
                                        </div>
-                                       <!--<div style="overflow-y: auto;">-->
-                                           <!--<div id = "window" style="overflow-y: auto;">-->
-                                           <!--</div>-->
-                                       <!--</div>-->
                                        <div class="col-md-6"></div>
                                    </div>
                                </div>
@@ -695,5 +709,69 @@ li $a1 x110
 			</div>
 		</div>
 	</div>
+
 </body>
+<!-- Modal -->
+<div id="assembleError" class="modal fade assembleError" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+
+                <div> Please write some code before trying to assemble.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-error" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="simulateError" class="modal fade simulateError" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+
+                <div> Please successfully assemble the ASM file first.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-error" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="runError" class="modal fade simulateError" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+
+                <div> Please wirte the code first</div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-error" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 </html>

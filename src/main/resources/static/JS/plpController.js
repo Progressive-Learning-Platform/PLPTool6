@@ -1,4 +1,5 @@
 var app = angular.module('PLP', ['ngCookies']);
+//jQuery.noConflict();
 
 app.config([ '$httpProvider', function($httpProvider) {
 	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -77,7 +78,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
     };
 
     $scope.uploadFile = function() {
-        console.log("in uploadFile");
         fileIn = $('#upfile');
         fileIn.trigger('click');
         console.log("just before return");
@@ -85,7 +85,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
     };
 
     $scope.newFile = function() {
-        console.log("in newFile");
         $("#fileTree ul").append('<li>FileName.asm</li>');
     };
 
@@ -93,7 +92,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
         console.log("in openFile");
         if ((window.File!=null) && (window.FileReader!=null) && (window.FileList!=null) && (window.Blob!=null)) {
             // do your stuff!
-            console.log("in if");
             str = "Uploading ";
             fileIn = $('#upfile');
             var f = fileIn[0].files[0];
@@ -111,8 +109,10 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                 }
             })
                 .success(function (data, status){
+                    console.log(status);
                 })
                 .error(function(data, status) {
+                    console.log(status);
                 });
 
             if (f) {
@@ -155,7 +155,13 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
         	code.push(codeText2);
        
         if (!(/\S/.test(codeText))){
-            alert("Please write some code before trying to assemble.")	;
+
+                 $('#assembleError').modal({
+                                        backdrop: 'static',
+                                        keyboard: true,
+                                        show: true
+                                });
+
             return;
         }
         console.log(codeText);
@@ -210,7 +216,13 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                     if(response.data.simError == "no-asm"){
                         var errorMessage =  "NO ASM IMAGE FOUND!!"
                         $('#consoleBox').children('span').text(errorMessage);
-                        alert("Please successfully assemble the ASM file first.");
+//                        alert("Please successfully assemble the ASM file first.");
+                         $('#simulateError').modal({
+                                                                backdrop: 'static',
+                                                                keyboard: true,
+                                                                show: true
+                                                        });
+
                     }
                     else if(response.data.simError == "no-sim"){
                         var errorMessage =  "NO SIMULATOR FOUND!!"
@@ -242,7 +254,12 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                 else{
                     var errorMessage =  "Cannot run because project not simulated successfully!";
                     $('#consoleBox').children('span').text(errorMessage);
-                    alert("Error!");
+//                    alert("Error!");
+                      $('#runError').modal({
+                                              backdrop: 'static',
+                                              keyboard: true,
+                                              show: true
+                                              });
                 }
 
             });
