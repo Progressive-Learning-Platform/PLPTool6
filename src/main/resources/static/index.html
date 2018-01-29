@@ -135,24 +135,77 @@
 .overFlowProject{
     overflow: auto;
 }
+
+.widthAuto{
+    width: 100%!important
+}
+
+.paddingWebsiteSignIn{
+    padding: 15px 0px 10px 0px;
+}
 </style>
 
 <body ng-app="PLP" ng-controller="idectrl" ng-init="register()" ng-cloak>
 	<div class="container">
 	<!-- Login panel -->
-		<div class=" col-md-4 col-md-offset-4">
+
+
+
+		<div class=" col-md-4 col-md-offset-4" style="top:50px">
 			<div class="panel panel-default" ng-show="!user">
 				<div class="panel-heading">PLP Web IDE Login</div>
 				<div class="panel-body">
 					<div class="col-md-12">
+
+                        <div class="">
+                            <div class="row">
+                                <div class="form_bg">
+                                    <form>
+                                        <div class="form-group">
+                                            <input type="email" class="form-control widthAuto" id="userid" placeholder="User id">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control widthAuto" id="pwd" placeholder="Password" width="auto!important">
+                                        </div>
+                                        <div class="" style="padding-left: 38%;">
+                                            <button type="submit" class="btn btn-default" id="login">Login</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="paddingWebsiteSignIn">
 						<a class="btn btn-block btn-social btn-google" href="/google/login">
 							<span class="fa fa-google"></span>Sign In With Google
 						</a>
+                        </div>
+
+                        <div class="paddingWebsiteSignIn">
+                        <a class="btn btn-block btn-social btn-google" href="/google/login">
+                            <span class="fa fa-google"></span>Sign In With Facebook
+                        </a>
+                    </div>
+
+                        <div class="paddingWebsiteSignIn">
+                            <a class="btn btn-block btn-social btn-google" href="/google/login">
+                                <span class="fa fa-google"></span>Sign In With Yahoo
+                            </a>
+                        </div>
+
+                        <div class="form-group">
+                            <div class=""><span class="text-muted" style="padding-left: 38%;"><a href="signup.html">Sign Up?</a></span> </div>
+                        </div>
+
 					</div>
 				</div>
 			</div>
 			<!-- End Login panel -->
 		</div>
+
+
+
+
 	</div>
 	<div ng-show = "user">
 			<nav class="navbar navbar-inverse navbar-fixed-top">
