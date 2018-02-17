@@ -39,7 +39,7 @@ app.controller('idectrl', ['$scope', '$cookies', '$http', function ($scope, $coo
     var checkDatabaseConnection = function () {
         $http.get('/checkDBConnection').success(function (response) {
             if (!response) {
-                alert("Please configure the database first");
+                alert("Error occurred! Please contact the development team");
             }
             else getUser();
         });
