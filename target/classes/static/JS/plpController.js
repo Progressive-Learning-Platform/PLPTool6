@@ -8,22 +8,41 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 
 	var getUser = function() {
 		$http.get('/user').success(function(user) {
-			$scope.user = user;
-			console.log('Logged User : ', user);
-			var indata = {	firstName: user.userAuthentication.details.given_name,
-					  	  	lastName: user.userAuthentication.details.family_name,
-					  	  	email: user.userAuthentication.details.email }
-			$http({
-	            method: 'POST',
-	            url: 'http://localhost:8080/saveUser',
-	            headers: {'Content-Type': 'application/json'},
-	            data: indata,
-	        });
-		}).error(function(error) {
-			$scope.resource = error;
-		});
+            $scope.user = user;
+            var indata = {
+                firstName: user.userAuthentication.details.given_name,
+                lastName: user.userAuthentication.details.family_name,
+                email: user.userAuthentication.details.email
+            }
+            $http({
+                method: 'POST',
+                url: 'http://localhost:8080/saveUser',
+                headers: {'Content-Type': 'application/json'},
+                data: indata,
+            }).then(function(response){
+                if (response.data == "success")
+                    console.log("Success");
+                else
+                    console.log("Error");
+            }, function(response){
+                console.log("fail" + response);
+            });
+        });
 	};
-	getUser();
+
+    /***
+     * @brief This method checks if the database is configured properly or not
+     * If the database is not configured properly then the alert will be displayed otherwise user will be redirected
+     * to the main layout page
+     */
+	var checkDatabaseConnection = function () {
+        $http.get('/checkDBConnection').success(function(response) {
+            if(!response){
+                alert("Please configure the database first");
+            }
+            else getUser();
+        });
+    };
 
 	// method for logout
 	$scope.logout = function() {
@@ -35,6 +54,7 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 	};
 	
     $(document).ready(function () {
+        checkDatabaseConnection();
         $("#tabswidget").jqxTabs({  height: '100%', width: '100%' });
         $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
         var editor = ace.edit("editor");

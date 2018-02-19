@@ -1,18 +1,33 @@
 package edu.asu.plp.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import edu.asu.plp.user.dao.UserDAO;
+import edu.asu.plp.user.model.User;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
-
-import edu.asu.plp.dao.UserDao;
 
 @Service
 public class UserService {
-	
-	@Autowired
-	UserDao userDao;
-	
-	public void saveUser(String emailId, String firstName, String lastName){
-		userDao.saveUser(emailId, firstName, lastName);
-	}
 
+    ApplicationContext context =
+            new ClassPathXmlApplicationContext("spring-module.xml");
+
+    UserDAO userDAO = (UserDAO) context.getBean("userDAO");
+
+    /***
+     * @brief This method save the user information in the database
+     * @param user
+     * @return string as success or error
+     */
+    public String saveUser(User user) {
+        return userDAO.saveUser(user);
+    }
+
+    /***
+     * @brief This method check if the database is configured properly or not
+     * @return true if the database is configured properly otherwise false
+     */
+    public boolean isDatabaseConnected() {
+        return userDAO.isDatabaseConnected();
+    }
 }
