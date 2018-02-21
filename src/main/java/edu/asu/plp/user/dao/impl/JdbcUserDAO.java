@@ -2,19 +2,24 @@ package edu.asu.plp.user.dao.impl;
 
 import edu.asu.plp.user.dao.UserDAO;
 import edu.asu.plp.user.model.User;
-
+import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
+import org.springframework.security.core.context.SecurityContextHolder;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /***
  * This class is to perform database operations on the User object
  */
 public class JdbcUserDAO implements UserDAO {
     private DataSource dataSource;
-
+    static Logger log = Logger.getLogger(JdbcUserDAO.class);
+    public static final Map<Object, String> userEmailMap = new HashMap<>();
     /***
      * @brief This function sets the data source
      * @param dataSource
@@ -39,13 +44,19 @@ public class JdbcUserDAO implements UserDAO {
 
         try {
             conn = dataSource.getConnection();
+            Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            userEmailMap.put(o,user.getEmail());
+            MDC.put("username",userEmailMap.get(o));
             PreparedStatement preCheckPS = conn.prepareStatement(preCheck);
             preCheckPS.setString(1, user.getEmail());
             ResultSet rs = preCheckPS.executeQuery();
             rs.next();
             int count = rs.getInt("rowcount");
-            if (count == 1)
+            if (count == 1){
+                log.info("User already exist");
                 return "success";
+            }
+
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getFirstName());
@@ -54,12 +65,14 @@ public class JdbcUserDAO implements UserDAO {
             ps.close();
 
         } catch (SQLException e) {
+            log.error(e.getMessage());
             return e.getMessage();
         } finally {
             if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    log.error(e.getMessage());
                     return e.getMessage();
                 }
             }
