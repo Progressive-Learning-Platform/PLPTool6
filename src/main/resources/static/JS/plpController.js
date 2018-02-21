@@ -91,8 +91,6 @@ app.controller('idectrl', ['$scope', '$cookies', '$http', function ($scope, $coo
                 }
                 var sessKey1 = $cookies.get("sessionKey");
                 console.log("register Session key: " + sessKey1);
-
-
             });
 
     };
