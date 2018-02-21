@@ -23,7 +23,11 @@ import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler2.*;
 
+import edu.asu.plp.user.dao.impl.JdbcUserDAO;
+import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
 import org.json.JSONObject;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,7 +67,7 @@ import moore.util.Subroutine;
 
 
 /**
- * @author ngoel2, Sumeet Jain, Abhilash Malla
+ * @author ngoel2, Sumeet Jain, Abhilash Malla , Mukulsingh Jadhav
  *
  */
 
@@ -72,29 +76,25 @@ public class PLPWebController {
 	private final String PROJECT_TYPE = "plp";
 	String fileStoragePath = "files/";
 	HttpSession session;
-	//private boolean isSimulationRunning;
 	ASMImage image = null;
 	private Thread simRunThread;
-
 	private Stage stage;
 	private ConsolePane console;
-	//private PLPSimulator activeSimulator = new PLPSimulator();
-
 	private Simulator activeSimulator;
-	
-	//WebsocketServer websock = new WebsocketServer();
+    static Logger log = Logger.getLogger(PLPWebController.class);
 
-
+    /**
+     * This function register the new user or get the instance of existing user
+     * @param un This is the username of the new or existing user
+     * @param request This is the HTTPServletRequest object
+     * @return the response in JSON format as a success or failure along with the session key
+     */
 	@RequestMapping("/register")
 	@CrossOrigin
 	public String register(@RequestParam(value="un", defaultValue="guestUser") String un, HttpServletRequest request) {
 		String response = "";
 		String sessionKey;
 		Map<String, String> responseMap = new HashMap<String, String> ();
-		
-		
-		
-
 		session = request.getSession();
 		sessionKey = session.getId();
 		PLPUserDB.getInstance().registerNewUser(un, session, sessionKey	);
@@ -112,6 +112,11 @@ public class PLPWebController {
 		return response;
 	}
 
+    /**
+     * This function saves the file in the server
+     * @param request This is the HTTPServletRequest object
+     * @return the status as success or failed
+     */
 	@RequestMapping(value = "/uploadFile" , method = RequestMethod.POST)
 	@CrossOrigin
 	public String upload(HttpServletRequest request) {
@@ -147,7 +152,15 @@ public class PLPWebController {
 		return "{"+response+"}";
 	}
 
-
+    /***
+     * This function assembles the code
+     * @param assembly It has all the information of the assembly
+     * @param request This is the HTTPServletRequest object
+     * @param session This is the HTTPSession object
+     * @return the status as Ok or failed
+     * @throws AssemblerException
+     * @throws JsonProcessingException
+     */
 	@RequestMapping(value = "/assembleText" , method = RequestMethod.POST)
 	@CrossOrigin
 	public String assembleText(@RequestBody AssemblyInfo assembly, HttpServletRequest request, HttpSession session) throws AssemblerException, JsonProcessingException {
@@ -155,6 +168,8 @@ public class PLPWebController {
 		System.out.println("in assemble");
 		String response = "";
 		Map<String, String> responseMap = new HashMap<String, String> ();
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        MDC.put("username", JdbcUserDAO.userEmailMap.get(o));
 		try {
 			ApplicationSettings.initialize();
 			ApplicationSettings.loadFromFile("settings/plp-tool.settings");
@@ -173,41 +188,30 @@ public class PLPWebController {
 				asmFile.setContent(c);
 				listASM.add(asmFile);
 			}
-
-			
-
-			//Multiple asm
-			//	    	WebASMFile asmFile2 = new WebASMFile(code, "samm.asm");
-			//	    	asmFile2.setContent(code);
-			//	    	listASM.add(asmFile2);
-			//	    	
-
 			Assembler assembler = new PLPAssembler();
-			image = assembler.assemble(listASM);	    	
+			image = assembler.assemble(listASM);
 			System.out.println("ID: " + session.getId());
 			session.setAttribute("ASMImage", image);
 			responseMap.put("status", "ok");
-
+			log.info("Code assembled successfully!");
 		}
-		catch (AssemblerException exception)
+		catch (Exception exception)
 		{
+		    log.error("Error in assembling! : "+exception.getMessage());
 			responseMap.put("status", "failed");
 			responseMap.put("message", exception.getLocalizedMessage());
 			session.setAttribute("ASMImage", null);
-
 		}
-
 		try {
 			response = new ObjectMapper().writeValueAsString(responseMap);
 		} catch (JsonProcessingException e) {
 			System.out.println("JSON parsing Error.");
+            log.error("Error in assembling - JSON parsing! : " +e.getMessage());
 			e.printStackTrace();
 		}
 		System.out.println(response);
 		return response;
 	}
-
-
 
 	@RequestMapping(value = "/Simulator" , method = RequestMethod.POST)
 	@CrossOrigin
