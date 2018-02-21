@@ -5,9 +5,9 @@
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://localhost:3306/plp_database" />
-        <property name="username" value="root" />
-        <property name="password" value="root" />
+        <property name="url" value="jdbc:mysql://10.202.15.175:3306/plp_database" />
+        <property name="username" value="plp_admin" />
+        <property name="password" value="plp_admin" />
     </bean>
 
 </beans>
