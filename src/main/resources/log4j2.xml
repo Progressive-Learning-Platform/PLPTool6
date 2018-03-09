@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <CustomLevels>
-        <CustomLevel name="LOGIN" intLevel="410" />
         <CustomLevel name="ASSEMBLE" intLevel="410" />
-        <CustomLevel name="SIMULATE" intLevel="410" />
+        <CustomLevel name="ASSEMBLE_ERROR" intLevel="210" />
+        <CustomLevel name="SIMULATE" intLevel="420" />
+        <CustomLevel name="SIMULATE_ERROR" intLevel="220" />
     </CustomLevels>
     <Appenders>
         <JDBC name="MySQLDatabase" tableName="logs">
