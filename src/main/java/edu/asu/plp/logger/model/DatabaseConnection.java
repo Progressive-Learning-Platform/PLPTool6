@@ -1,5 +1,8 @@
 package edu.asu.plp.logger.model;
 
+/***
+ * This is a model containing attributes for the database connection.
+ */
 public class DatabaseConnection {
     private String Url;
     private String DriverClassName;
