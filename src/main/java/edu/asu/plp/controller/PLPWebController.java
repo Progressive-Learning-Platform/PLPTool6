@@ -3,67 +3,50 @@
  */
 package edu.asu.plp.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.eventbus.DeadEvent;
+import com.google.common.eventbus.Subscribe;
 import edu.asu.plp.model.AssemblyInfo;
 import edu.asu.plp.model.WebASMFile;
 import edu.asu.plp.service.PLPUserDB;
 import edu.asu.plp.tool.backend.EventRegistry;
-import edu.asu.plp.tool.backend.isa.*;
+import edu.asu.plp.tool.backend.isa.ASMFile;
+import edu.asu.plp.tool.backend.isa.ASMImage;
+import edu.asu.plp.tool.backend.isa.Assembler;
+import edu.asu.plp.tool.backend.isa.Simulator;
 import edu.asu.plp.tool.backend.isa.events.DeviceOutputEvent;
 import edu.asu.plp.tool.backend.isa.events.RegWatchRequestEvent;
 import edu.asu.plp.tool.backend.isa.events.RegWatchResponseEvent;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
-import edu.asu.plp.tool.backend.plpisa.assembler2.*;
-
-import edu.asu.plp.user.dao.impl.JdbcUserDAO;
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
-import org.json.JSONObject;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.eventbus.DeadEvent;
-import com.google.common.eventbus.Subscribe;
-
-import edu.asu.SimulatorFiles.*;
-import edu.asu.plp.tool.backend.plpisa.sim.*;
+import edu.asu.plp.tool.backend.plpisa.assembler2.PLPAssembler;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.ApplicationSettings;
-import edu.asu.plp.tool.prototype.EmulationWindow;
-import edu.asu.plp.tool.prototype.ProjectAssemblyDetails;
-import edu.asu.plp.tool.prototype.Main.ApplicationEventBusEventHandler;
-import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.Theme;
 import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
-import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
-import edu.asu.plp.tool.prototype.view.WatcherWindow.RegisterRow;
+import edu.asu.plp.user.dao.impl.JdbcUserDAO;
 import javafx.beans.property.LongProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-import moore.util.Subroutine;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.*;
 
 
 /**
@@ -81,7 +64,7 @@ public class PLPWebController {
 	private Stage stage;
 	private ConsolePane console;
 	private Simulator activeSimulator;
-    static Logger log = Logger.getLogger(PLPWebController.class);
+    private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(PLPWebController.class);
 
     /**
      * This function register the new user or get the instance of existing user
@@ -169,7 +152,7 @@ public class PLPWebController {
 		String response = "";
 		Map<String, String> responseMap = new HashMap<String, String> ();
         Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        MDC.put("username", JdbcUserDAO.userEmailMap.get(o));
+        ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 		try {
 			ApplicationSettings.initialize();
 			ApplicationSettings.loadFromFile("settings/plp-tool.settings");
@@ -190,14 +173,16 @@ public class PLPWebController {
 			}
 			Assembler assembler = new PLPAssembler();
 			image = assembler.assemble(listASM);
-			System.out.println("ID: " + session.getId());
-			session.setAttribute("ASMImage", image);
-			responseMap.put("status", "ok");
-			log.info("Code assembled successfully!");
+			if(image != null){
+				System.out.println("ID: " + session.getId());
+				session.setAttribute("ASMImage", image);
+				responseMap.put("status", "ok");
+				logger.log(Level.getLevel("ASSEMBLE"),"Code assembled successfully!");
+			}
 		}
 		catch (Exception exception)
 		{
-		    log.error("Error in assembling! : "+exception.getMessage());
+			logger.log(Level.getLevel("ASSEMBLE_ERROR"),"Error in assembling! : "+exception.getMessage());
 			responseMap.put("status", "failed");
 			responseMap.put("message", exception.getLocalizedMessage());
 			session.setAttribute("ASMImage", null);
@@ -206,7 +191,7 @@ public class PLPWebController {
 			response = new ObjectMapper().writeValueAsString(responseMap);
 		} catch (JsonProcessingException e) {
 			System.out.println("JSON parsing Error.");
-            log.error("Error in assembling - JSON parsing! : " +e.getMessage());
+			logger.log(Level.getLevel("ASSEMBLE_ERROR"),"Error in assembling - JSON parsing! : " +e.getMessage());
 			e.printStackTrace();
 		}
 		System.out.println(response);
@@ -234,7 +219,6 @@ public class PLPWebController {
 			responseMap.put("simError", "no-asm");
 			session.setAttribute("simulationSuccess", false);
 			session.setAttribute("simulationError", "no-asm");
-
 		}
 		else{
 			Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(PROJECT_TYPE);
@@ -249,23 +233,25 @@ public class PLPWebController {
 				EventRegistry.getGlobalRegistry().post(
 						new SimulatorControlEvent("load","", image));
 				session.setAttribute("simulationSuccess", true);
-
+                logger.log(Level.getLevel("SIMULATE"),"Code simulated successfully!");
 			}
 			else
-			{	responseMap.put("status", "failed");
-			responseMap.put("simError", "no-sim");
-			String message = "No simulator is available for the project type: ";
-			System.out.println(message);
-			//Dialogues.showAlertDialogue(new IllegalStateException(message));
-			session.setAttribute("simulationSuccess", false);
-			session.setAttribute("simulationError", "no-sim");
+			{
+			    responseMap.put("status", "failed");
+                responseMap.put("simError", "no-sim");
+                String message = "No simulator is available for the project type: ";
+                System.out.println(message);
+                //Dialogues.showAlertDialogue(new IllegalStateException(message));
+                session.setAttribute("simulationSuccess", false);
+                session.setAttribute("simulationError", "no-sim");
+                logger.log(Level.getLevel("SIMULATE_ERROR"),message);
 			}
 		}
-
 		try {
 			response = new ObjectMapper().writeValueAsString(responseMap);
 		} catch (JsonProcessingException e) {
 			System.out.println("JSON parsing Error.");
+            logger.log(Level.getLevel("SIMULATE_ERROR"),"JSON parsing error in Simulate function");
 			e.printStackTrace();
 		}
 		return response;
