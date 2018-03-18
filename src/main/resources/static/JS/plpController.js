@@ -35,17 +35,17 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 		});
 	};
 	
-    $(document).ready(function () {
-        $("#tabswidget").jqxTabs({  height: '100%', width: '100%' });
-        $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
-        var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/tomorrow");
-        editor.getSession().setMode("ace/mode/plp");
-
-        var editor2 = ace.edit("editor2");
-        editor2.setTheme("ace/theme/tomorrow");
-        editor2.getSession().setMode("ace/mode/plp");
-    });
+//    $(document).ready(function () {
+//        $("#tabswidget").jqxTabs({  height: '100%', width: '100%' });
+//        $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
+//        var editor = ace.edit("editor");
+//        editor.setTheme("ace/theme/tomorrow");
+//        editor.getSession().setMode("ace/mode/plp");
+//
+//        var editor2 = ace.edit("editor2");
+//        editor2.setTheme("ace/theme/tomorrow");
+//        editor2.getSession().setMode("ace/mode/plp");
+//    });
 
     $scope.inFile = null;
 

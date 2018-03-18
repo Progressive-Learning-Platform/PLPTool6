@@ -42,7 +42,7 @@
     <script src="JS/bower_components/css-element-queries/src/ElementQueries.js"></script>
 
 
-    <script src="JS/plpController.js"></script>
+    <!--<script src="JS/plpController.js"></script>-->
 
     <link rel="stylesheet" href="CSS/ide.css"  type="text/css">
 
@@ -104,11 +104,11 @@
                     <div class="col-md-12">
 
                         <div class="form-group">
-                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+                            <input type="email" class="form-control" name="emailid" id="emailid" placeholder="Enter your Email ID" value="" >
                         </div>
 
                         <div class="form-group">
-                            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+                            <input type="password" class="form-control" name="pwd" id="pwd" placeholder="Enter your Password" value="">
                         </div>
 
                         <div class="checkbox">
@@ -116,7 +116,7 @@
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" class="btn btn-default">Submit</button>
+                            <button type="submit" class="btn btn-default" onclick="SignIn()">Sign In</button>
                         </div>
 
                         <div class="form-group">
@@ -178,8 +178,8 @@
           if (authResult && authResult.idTokenPayload) {
            console.log(authResult);
             window.location.hash = '';
-            alert('your user_id is: ' + authResult.idTokenPayload.name);
-            //window.location.href = 'homepage.html';
+            <!--alert('your user_id is: ' + authResult.idTokenPayload.name);-->
+            window.location.href = 'homepage.html';
             localStorage.Name = authResult.idTokenPayload.name;
             localStorage.ImageURL = authResult.idTokenPayload.picture;
             localStorage.Email = authResult.idTokenPayload.name;
@@ -209,8 +209,6 @@
           localStorage.Name = profile.getName();
           localStorage.ImageURL = profile.getImageUrl();
           localStorage.Email = profile.getEmail();
-
-
       }
       else{
         console.log("error");
@@ -227,8 +225,31 @@
                 localStorage.removeItem("ImageURL");
                 localStorage.removeItem("Email");
             });
-}
+    }
+
+
 </script>
+    <script src="JS/index.js"></script>
+
 </body>
+
+<div id="errorModel" class="modal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <div class="errorMsg"> Please enter a valid value </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn" id="ok_button" data-dismiss="modal" value="Ok"/>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 </html>
