@@ -60,7 +60,9 @@ input.upload {
     color:#333333;
 }
 
-
+.entry-title{
+    text-align: center;
+}
 
 
 
@@ -69,9 +71,11 @@ input.upload {
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-md-8">
-            <section>
-                <h1 class="entry-title"><span>PLP - Sign Up</span> </h1>
+        <div class="col-md-12">
+            <h1 class="entry-title"><span>Progressive Learning Platform - Sign Up</span> </h1>
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <section>
                 <hr>
                 <form class="form-horizontal form-group" method="post" name="signup" id="signup" onsubmit="return(validate());" enctype="multipart\form-data">
                     <div class="form-group">
@@ -199,6 +203,8 @@ input.upload {
                 </form>
             </section>
         </div>
+            <div class="col-md-2"></div>
+        </div>
     </div>
 </div>
 
@@ -213,18 +219,19 @@ input.upload {
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Error</h4>
+                <h4 class="modal-title">ERROR</h4>
             </div>
             <div class="modal-body">
                 <div class="errorMsg"> Please enter a valid value </div>
             </div>
             <div class="modal-footer">
-                <input type="button" class="btn" id="ok_button" data-dismiss="modal" value="Ok"/>
+                <input type="button" class="btn btn-success" id="ok_button" data-dismiss="modal" value="Ok"/>
 
             </div>
         </div>
     </div>
 </div>
+
 
 <script type="text/javascript" src="JS/bower_components/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="JS/bower_components/jquery-ui/jquery-ui.min.js"></script>
