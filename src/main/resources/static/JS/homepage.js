@@ -4,7 +4,6 @@
          $("#profileImage").attr("src",localStorage.ImageURL);
             var rss = (function ($) {
                 var ht = $(window).height()*0.82;
-//                console.log("ht is"+ht);
                 console.log(localStorage);
                 var createWidgets = function () {
                     $('#mainSplitter').jqxSplitter({ width: '100%', height: ht, orientation: 'horizontal', panels: [{ size: '80%', collapsible: false }] });
@@ -21,15 +20,7 @@
 
             } (jQuery));
             rss.init();
-
-
-
         });
-
-    function signOut() {
-
-    }
-
 
 // Log out menu
 
@@ -54,12 +45,21 @@ window.onclick = function(event) {
 
 function logout(){
     var auth2 = gapi.auth2.getAuthInstance();
-
+    localStorage["auth"] = auth2;
     auth2.signOut().then(function () {
-    console.log('User signed out.');
-    window.location.href = 'index.html';
+        console.log('User signed out.');
+        localStorage.removeItem("Name");
+        localStorage.removeItem("ImageURL");
+        localStorage.removeItem("Email");
+        localStorage.removeItem("editProfileFlag");
+        window.location.href = 'index.html';
     });
 
+}
+
+function editProfile(){
+    localStorage.editProfileFlag = 0;
+    window.location.href = 'signup.html';
 }
 
 

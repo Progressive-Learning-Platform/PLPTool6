@@ -1,5 +1,54 @@
 //Form validation code will come here.
 
+$(document).ready(function(){
+    var item = localStorage.editProfileFlag;
+    if(item == 0){
+        $('.signUpLabel').text("EDIT PROFILE");
+        $('.submitBtn').val('Submit');
+
+    }else if(item == 1){
+        $('.signUpLabel').text("PLEASE COMPLETE YOUR PROFILE");
+    }
+});
+
+$(document).ready(function (){
+         $("#profileImage").attr("src",localStorage.ImageURL);
+
+});
+
+// Log out menu
+
+function dropDownToggle() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
+function logout(){
+     localStorage.removeItem("Name");
+     localStorage.removeItem("ImageURL");
+     localStorage.removeItem("Email");
+     localStorage.removeItem("editProfileFlag");
+     window.location = "https://mail.google.com/mail/u/0/?logout&hl=en";
+     window.location.href = 'index.html';
+
+
+}
+
+
 function validate()
 {
  if(document.signup.emailid.value == "" )

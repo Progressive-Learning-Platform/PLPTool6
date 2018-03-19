@@ -102,16 +102,27 @@
     border: 0.1px solid white;
 }
 
-.dropdown a:hover {background-color: #ddd}
+.dropdown a:hover {
+    background-color: #ddd
+    cursor: pointer;
+    }
+
 
 .show {
     display:block;
     right: 1px;
     top: 50px;
     background-color: black;
+    cursor: pointer;
 }
 
 .dropdown{float:right;}
+
+<!--.menuHover {-->
+    <!--background-color: yellow;-->
+<!--}-->
+
+
 
     </style>
 
@@ -153,8 +164,8 @@
                                     <div class="dropdown">
                                         <img id="profileImage" src="images/blank_profile.png" alt="image not found" border="0" class="dropbtn profileImage" onclick="dropDownToggle()"/>
                                         <div id="myDropdown" class="dropdown-content">
-                                            <a onclick="window.location.href = 'signup.html';">Edit Profile</a>
-                                            <a id="dialog-confirm" title="Log Out?" onclick="logout();">Sign Out
+                                            <a class="menuHover" onclick="editProfile()">Edit Profile</a>
+                                            <a class="menuHover" id="dialog-confirm" title="Log Out?" onclick="logout();">Sign Out
                                                 <!--<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Are you sure that you want to log out?-->
                                             </a>
                                         </div>
