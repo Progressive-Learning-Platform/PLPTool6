@@ -147,3 +147,11 @@ function validate()
  return( true );
 }
 
+function agreement(){
+    alert(1);
+    $('#termsAndConditions').modal({
+                              show: true,
+                              backdrop: 'static',
+                              keyboard: true,
+                              });
+}
