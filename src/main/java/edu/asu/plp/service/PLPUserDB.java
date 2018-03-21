@@ -25,7 +25,7 @@ public class PLPUserDB {
 	/*
 	 * 
 	 */
-	public void registerNewUser(String un, HttpSession session, String sessionKey){
+	public void registerUserSession(String un, HttpSession session, String sessionKey){
 //		Random random = new Random();
 //		int sessionKey =  random.nextInt(Integer.MAX_VALUE);
 //		while (sessionKey >= 0 && userSessionInfo.containsKey(sessionKey)){
@@ -39,7 +39,16 @@ public class PLPUserDB {
 			//return sessionKey;
 		//}
 	}
-	
+
+	public void removeUserSession(String sessionKey){
+		if(userSessionInfo.containsKey(sessionKey)){
+			userSessionInfo.remove(sessionKey);
+		}
+	}
+
+	public boolean userSessionPresent(String sessionKey){
+		return userSessionInfo.containsKey(sessionKey);
+	}
 	/*
 	 * 
 	 */

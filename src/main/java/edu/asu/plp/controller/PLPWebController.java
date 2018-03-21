@@ -97,7 +97,7 @@ public class PLPWebController {
 
 		session = request.getSession();
 		sessionKey = session.getId();
-		PLPUserDB.getInstance().registerNewUser(un, session, sessionKey	);
+		PLPUserDB.getInstance().registerUserSession(un, session, sessionKey	);
 		responseMap.put("status", "success");
 		responseMap.put("session_key", sessionKey);
 

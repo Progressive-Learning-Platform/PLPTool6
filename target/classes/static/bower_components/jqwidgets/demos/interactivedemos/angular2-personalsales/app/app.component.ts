@@ -76,7 +76,7 @@ export class AppComponent
             datafields: [
                 { name: 'ShippedDate', type: 'date' },
                 { name: 'ShipAddress' },
-                { name: 'customer', type: 'string' },
+                { name: 'Customer', type: 'string' },
                 { name: 'Amount', type: 'number' }
             ],
             url: '../personalsales/data.php'
