@@ -127,6 +127,10 @@ public class UserController {
 
             if(session != null && PLPUserDB.getInstance().userSessionPresent(session.getId())){
                 responseDB = userService.updateUserInformation(uInfoOld, uInfoNew);
+
+                if(responseDB.equalsIgnoreCase("success")){
+                    PLPUserDB.getInstance().registerUserSession(uInfoNew.getEmail(), session, session.getId());
+                }
             }
 
 
