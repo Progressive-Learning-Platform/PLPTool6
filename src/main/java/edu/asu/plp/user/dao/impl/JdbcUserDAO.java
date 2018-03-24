@@ -67,6 +67,13 @@ public class JdbcUserDAO implements UserDAO {
         return "success";
     }
 
+    /*
+     * @brief: this method uses the provided user information object and user credential object and inserts this information
+     * into the database using a stored procedure insert_user
+     * @params: uInfo user Information
+     * @params: uCred user Credential
+     * @return: success or failure depending on whether insertion was completed
+     */
     @Override
     public String registerUser(UserInfo uInfo, UserCred uCred) {
         String result = "failure";
@@ -107,8 +114,15 @@ public class JdbcUserDAO implements UserDAO {
         return result;
     }
 
+    /*
+     * @brief: this method uses the provided old and new user information objects and updates the new information
+     * into the database using a stored procedure edit_user
+     * @params: uInfoOld old user Information (email important!)
+     * @params: uInfoNew new user Information
+     * @return: success or failure depending on whether update was completed
+     */
     @Override
-    public String updateUser(UserInfo uInfoOld, UserInfo uInforNew) {
+    public String updateUser(UserInfo uInfoOld, UserInfo uInfoNew) {
         String result = "failure";
         Connection conn = null;
         try {
@@ -116,14 +130,14 @@ public class JdbcUserDAO implements UserDAO {
             CallableStatement cStmt = conn.prepareCall("{call edit_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
 
             cStmt.setString(1, uInfoOld.getEmail());
-            cStmt.setString(2, uInforNew.getName());
-            cStmt.setString(3, uInforNew.getEmail());
-            cStmt.setString(4, uInforNew.getOrg_school());
-            cStmt.setString(5, uInforNew.getGender());
-            cStmt.setString(6, uInforNew.getDateOfBirth());
-            cStmt.setString(7, uInforNew.getContact_no());
-            cStmt.setString(8, uInforNew.getAlt_no());
-            cStmt.setString(9, uInforNew.getProfile_photo());
+            cStmt.setString(2, uInfoNew.getName());
+            cStmt.setString(3, uInfoNew.getEmail());
+            cStmt.setString(4, uInfoNew.getOrg_school());
+            cStmt.setString(5, uInfoNew.getGender());
+            cStmt.setString(6, uInfoNew.getDateOfBirth());
+            cStmt.setString(7, uInfoNew.getContact_no());
+            cStmt.setString(8, uInfoNew.getAlt_no());
+            cStmt.setString(9, uInfoNew.getProfile_photo());
             cStmt.registerOutParameter(10, Types.VARCHAR);
 
             cStmt.execute();
@@ -144,6 +158,12 @@ public class JdbcUserDAO implements UserDAO {
 
     }
 
+    /*
+     * @brief: this method retrieves the user information using the email address in the passed user information object
+     * @params: uInfo user Information
+     * @return: success or failure depending on whether retrieval is worked (user information object is update
+     * with retrieved user information from the database)
+     */
     @Override
     public String getUserInfo(UserInfo uInfo) {
         Connection conn = null;
@@ -182,6 +202,12 @@ public class JdbcUserDAO implements UserDAO {
         return "success";
     }
 
+    /*
+     * @brief: checks if the user is authentic and updates the password with the new one if he/she is
+     * @params: uCredOld old user Credential (email important!)
+     * @params: uCredNew new user Credential
+     * @return: success or failure depending on whether update was completed
+     */
     @Override
     public String changePassword(UserCred uCredOld, UserCred uCredNew) {
         String result = "failure";
@@ -217,6 +243,11 @@ public class JdbcUserDAO implements UserDAO {
         return result;
     }
 
+    /*
+     * @brief: checks if the user is authentic using the credentials passed
+     * @params: uCred user Credential
+     * @return: true or false depending on whether user was authenticated
+     */
     @Override
     public boolean authenticateUser(UserCred uCred) {
         ResultSet rs = null;
@@ -250,7 +281,11 @@ public class JdbcUserDAO implements UserDAO {
         }
         return (res == 1);
     }
-
+    /*
+     * @brief: retrieves the salt of the particular user
+     * @params: uCred user Credential (email important!)
+     * @return: retrieved salt in String format
+    */
     private String getUserSalt(UserCred uCred){
         ResultSet rs = null;
         Connection conn = null;

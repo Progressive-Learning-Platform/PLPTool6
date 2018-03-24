@@ -16,7 +16,7 @@ public class UserSession {
 	private long userLastUsedTime;
 	/**
 	 * @param userName
-	 * @param sessionKey
+	 * @param session
 	 * @param userLastUsedTime
 	 */
 	public UserSession(String userName, HttpSession session, long userLastUsedTime) {

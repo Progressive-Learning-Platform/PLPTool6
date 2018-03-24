@@ -53,6 +53,14 @@ public class UserController {
         return response.equals("success") ? "success" : "error";
     }
 
+    /*
+     * @brief This method takes the user information and user credentials from request body json and
+     * creates a user information object and user credential object.
+     * This information is inserted in the database
+     * once the entry is done successfully in the database, session id is created and maintained
+     * @param request body json, request object, response object
+     * @return success json if the insertion is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/registerUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String registerUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -96,6 +104,14 @@ public class UserController {
         }
     }
 
+    /*
+     * @brief This method takes the new and old user information from request body json and
+     * creates two user information objects.
+     * This information is updated in the database
+     * once the entry is updated successfully in the database, session id is updated and maintained
+     * @param request body json, request object, response object
+     * @return success json if the update is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String updateUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -145,6 +161,12 @@ public class UserController {
         }
     }
 
+    /*
+     * @brief This is the get method that returns the user information of the user whose email id is
+     * passed in the query parameter
+     * @param query parameter user email, request object, response object
+     * @return user information json if the email is valid otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET, produces = "text/plain")
     public @ResponseBody String getUserInfo(@RequestParam("email") String email, HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -172,6 +194,11 @@ public class UserController {
         }
     }
 
+    /*
+     * @brief This is method updates the users password by checking if he is a valid user through his old password first
+     * @param request body json, request object, response object
+     * @return success json if the update is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/changePassword", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String changePassword(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -208,6 +235,11 @@ public class UserController {
         }
     }
 
+    /*
+     * @brief This method authenticates the user by parsing the request body json and using the database to authenticate
+     * @param request body json, request object, response object
+     * @return success json if the authentication is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/authenticateUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String authenticateUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         boolean responseDB = false;
@@ -240,6 +272,11 @@ public class UserController {
         }
     }
 
+    /*
+     * @brief This is logs out the user by invalidating their session and
+     * @param request body json, request object, response object
+     * @return success json if the update is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = "text/plain")
     public @ResponseBody String logout(HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -254,7 +291,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
-            return responseDB ;
+            return "{status : "+ responseDB +"}";
         }
     }
 }

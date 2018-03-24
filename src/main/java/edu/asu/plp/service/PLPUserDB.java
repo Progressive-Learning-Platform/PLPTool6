@@ -23,7 +23,12 @@ public class PLPUserDB {
 	}
 	
 	/*
-	 * 
+	 * @brief: Creates a userSession object and inserts into the session map, which is later used to verify if the
+	 * appropriate user has requested a functionality
+	 * @params: un username
+	 * @params: session object
+	 * @params: String sessionKey
+	 * @return: null
 	 */
 	public void registerUserSession(String un, HttpSession session, String sessionKey){
 //		Random random = new Random();
@@ -40,25 +45,37 @@ public class PLPUserDB {
 		//}
 	}
 
+	/*
+	 * @brief: removes the user session object form the maintained map
+	 * @params: String sessionKey
+	 * @return: null
+	 */
 	public void removeUserSession(String sessionKey){
 		if(userSessionInfo.containsKey(sessionKey)){
 			userSessionInfo.remove(sessionKey);
 		}
 	}
 
+	/*
+	 * @brief: checks if a session is registered in the map
+	 * @params: String sessionKey
+	 * @ return: true if the User Session is present
+	 */
 	public boolean userSessionPresent(String sessionKey){
 		return userSessionInfo.containsKey(sessionKey);
 	}
+
 	/*
-	 * 
+	 * @brief: retrieves the User session object from the map if present
+	 * @params: String sessionKey
+	 * @return: User Session Object
 	 */
 	public UserSession getUser(String sessionKey){
 		return userSessionInfo.get(sessionKey);
-		
 	}
 	
 	/*
-	 * 
+	 * deprecated
 	 */
 	public String assembleCode(int sessionKey){
 		// TODO: add all the relevant info required to assemble code
@@ -68,12 +85,11 @@ public class PLPUserDB {
 	}
 
 	/*
-	 * 
+	 * returns the singleton instance f PLPUserDB
 	 */
 	public static PLPUserDB getInstance(){
 		if(instance == null){
 			instance = new PLPUserDB();
-			
 		}
 		return instance;
 		

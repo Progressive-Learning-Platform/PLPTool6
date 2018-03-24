@@ -8,6 +8,9 @@ import java.security.spec.*;
 import java.util.Arrays;
 import java.util.Random;
 
+/*
+ * This class has utility methods to generate password salts and hashed passwords
+ */
 public class PasswordUtil {
     private static final Random RANDOM = new SecureRandom();
     private static final int ITERATIONS = 10000;
@@ -29,6 +32,11 @@ public class PasswordUtil {
         return salt;
     }
 
+    /**
+     * Returns a hashed password.
+     *
+     * @return a hashed password in byte array format
+     */
     private static byte[] hash(char[] password, byte[] salt) {
         PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
         Arrays.fill(password, Character.MIN_VALUE);
@@ -42,6 +50,11 @@ public class PasswordUtil {
         }
     }
 
+    /**
+     * Returns true if the given password character array when hashed is equal to hashed password in the database.
+     *
+     * @return a true if equal
+     */
     private static boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
         byte[] pwdHash = hash(password, salt);
         Arrays.fill(password, Character.MIN_VALUE);
@@ -52,14 +65,29 @@ public class PasswordUtil {
         return true;
     }
 
+    /**
+     * Returns a hashed password.
+     *
+     * @return a hashed password in String format
+     */
     public static String hash(String password, String salt){
         return new String(hash(password.toCharArray(), salt.getBytes(StandardCharsets.UTF_8)));
     }
 
+    /**
+     * Returns true if the given password when hashed is equal to hashed password in the database.
+     *
+     * @return a true if equal
+     */
     public static boolean isExpectedPassword(String password, String salt, String expectedHash){
         return isExpectedPassword( password.toCharArray(), salt.getBytes(StandardCharsets.UTF_8), expectedHash.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Returns a random salt to be used to hash a password.
+     *
+     * @return a string random salt
+     */
     public static String getRandomSalt(){
         return new String(getNextSalt());
     }
