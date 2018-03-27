@@ -100,7 +100,7 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
@@ -114,7 +114,7 @@ public class UserController {
      */
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String updateUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
-        String responseDB = "failure";
+        String responseDB = "Unable to update User";
         try {
 
             ObjectMapper mapper = new ObjectMapper();
@@ -157,7 +157,7 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
@@ -169,20 +169,20 @@ public class UserController {
      */
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET, produces = "text/plain")
     public @ResponseBody String getUserInfo(@RequestParam("email") String email, HttpServletRequest request, HttpServletResponse response) {
-        String responseDB = "failure";
+        String responseDB = "User not logged in";
         ObjectMapper mapper = new ObjectMapper();
         try {
 
             UserInfo uInfo = new UserInfo();
             uInfo.setEmail(email);
 
-            responseDB = userService.getUserInfo(uInfo);
-
             HttpSession session = request.getSession(false);
-
             if(session != null && PLPUserDB.getInstance().userSessionPresent(session.getId())) {
-                responseDB = responseDB.equalsIgnoreCase("success") ? mapper.writeValueAsString(uInfo) : "{status : " + responseDB + "}";
+                responseDB = userService.getUserInfo(uInfo);
+
             }
+            responseDB = responseDB.equalsIgnoreCase("success") ? mapper.writeValueAsString(uInfo) : "{\"status\" : \"" + responseDB + "\"}";
+
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -201,7 +201,7 @@ public class UserController {
      */
     @RequestMapping(value = "/changePassword", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String changePassword(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
-        String responseDB = "failure";
+        String responseDB = "Invalid Username or Password";
         try {
 
             ObjectMapper mapper = new ObjectMapper();
@@ -212,12 +212,12 @@ public class UserController {
             map = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
 
             UserCred uCredOld = new UserCred();
-            uCredOld.setUsername((String)map.getOrDefault("email", "guest"));
-            uCredOld.setPassword((String)map.getOrDefault("old_password", "guest"));
+            uCredOld.setUsername((String)map.getOrDefault("email", ""));
+            uCredOld.setPassword((String)map.getOrDefault("old_password", ""));
 
             UserCred uCredNew = new UserCred();
-            uCredNew.setUsername((String)map.getOrDefault("email", "guest"));
-            uCredNew.setPassword((String)map.getOrDefault("new_password", "guest"));
+            uCredNew.setUsername((String)map.getOrDefault("email", ""));
+            uCredNew.setPassword((String)map.getOrDefault("new_password", ""));
 
             HttpSession session = request.getSession(false);
 
@@ -231,7 +231,7 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
@@ -268,7 +268,7 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
@@ -291,7 +291,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+ responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 }
