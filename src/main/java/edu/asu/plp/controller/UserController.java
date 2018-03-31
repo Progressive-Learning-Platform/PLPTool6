@@ -53,6 +53,14 @@ public class UserController {
         return response.equals("success") ? "success" : "error";
     }
 
+    /*
+     * @brief This method takes the user information and user credentials from request body json and
+     * creates a user information object and user credential object.
+     * This information is inserted in the database
+     * once the entry is done successfully in the database, session id is created and maintained
+     * @param request body json, request object, response object
+     * @return success json if the insertion is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/registerUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String registerUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -92,13 +100,21 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
+    /*
+     * @brief This method takes the new and old user information from request body json and
+     * creates two user information objects.
+     * This information is updated in the database
+     * once the entry is updated successfully in the database, session id is updated and maintained
+     * @param request body json, request object, response object
+     * @return success json if the update is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String updateUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
-        String responseDB = "failure";
+        String responseDB = "Unable to update User";
         try {
 
             ObjectMapper mapper = new ObjectMapper();
@@ -127,6 +143,10 @@ public class UserController {
 
             if(session != null && PLPUserDB.getInstance().userSessionPresent(session.getId())){
                 responseDB = userService.updateUserInformation(uInfoOld, uInfoNew);
+
+                if(responseDB.equalsIgnoreCase("success")){
+                    PLPUserDB.getInstance().registerUserSession(uInfoNew.getEmail(), session, session.getId());
+                }
             }
 
 
@@ -137,26 +157,32 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
+    /*
+     * @brief This is the get method that returns the user information of the user whose email id is
+     * passed in the query parameter
+     * @param query parameter user email, request object, response object
+     * @return user information json if the email is valid otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET, produces = "text/plain")
     public @ResponseBody String getUserInfo(@RequestParam("email") String email, HttpServletRequest request, HttpServletResponse response) {
-        String responseDB = "failure";
+        String responseDB = "User not logged in";
         ObjectMapper mapper = new ObjectMapper();
         try {
 
             UserInfo uInfo = new UserInfo();
             uInfo.setEmail(email);
 
-            responseDB = userService.getUserInfo(uInfo);
-
             HttpSession session = request.getSession(false);
-
             if(session != null && PLPUserDB.getInstance().userSessionPresent(session.getId())) {
-                responseDB = responseDB.equalsIgnoreCase("success") ? mapper.writeValueAsString(uInfo) : "{status : " + responseDB + "}";
+                responseDB = userService.getUserInfo(uInfo);
+
             }
+            responseDB = responseDB.equalsIgnoreCase("success") ? mapper.writeValueAsString(uInfo) : "{\"status\" : \"" + responseDB + "\"}";
+
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -168,9 +194,14 @@ public class UserController {
         }
     }
 
+    /*
+     * @brief This is method updates the users password by checking if he is a valid user through his old password first
+     * @param request body json, request object, response object
+     * @return success json if the update is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/changePassword", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String changePassword(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
-        String responseDB = "failure";
+        String responseDB = "Invalid Username or Password";
         try {
 
             ObjectMapper mapper = new ObjectMapper();
@@ -181,12 +212,12 @@ public class UserController {
             map = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
 
             UserCred uCredOld = new UserCred();
-            uCredOld.setUsername((String)map.getOrDefault("email", "guest"));
-            uCredOld.setPassword((String)map.getOrDefault("old_password", "guest"));
+            uCredOld.setUsername((String)map.getOrDefault("email", ""));
+            uCredOld.setPassword((String)map.getOrDefault("old_password", ""));
 
             UserCred uCredNew = new UserCred();
-            uCredNew.setUsername((String)map.getOrDefault("email", "guest"));
-            uCredNew.setPassword((String)map.getOrDefault("new_password", "guest"));
+            uCredNew.setUsername((String)map.getOrDefault("email", ""));
+            uCredNew.setPassword((String)map.getOrDefault("new_password", ""));
 
             HttpSession session = request.getSession(false);
 
@@ -200,10 +231,15 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
+    /*
+     * @brief This method authenticates the user by parsing the request body json and using the database to authenticate
+     * @param request body json, request object, response object
+     * @return success json if the authentication is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/authenticateUser", method = RequestMethod.POST, produces = "text/plain")
     public @ResponseBody String authenticateUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         boolean responseDB = false;
@@ -232,10 +268,15 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }finally{
-            return "{status : "+responseDB +"}";
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 
+    /*
+     * @brief This is logs out the user by invalidating their session and
+     * @param request body json, request object, response object
+     * @return success json if the update is done otherwise failure or error message if exception encountered
+     */
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = "text/plain")
     public @ResponseBody String logout(HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
@@ -250,7 +291,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
-            return responseDB ;
+            return "{\"status\" : \"" + responseDB + "\"}";
         }
     }
 }
