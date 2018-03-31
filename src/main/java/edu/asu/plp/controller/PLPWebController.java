@@ -106,7 +106,8 @@ public class PLPWebController {
 
 		String response = "";
 		System.out.println("in upload server side");
-
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 		//org.springframework.web.multipart.MultipartHttpServletRequest
 		MultipartHttpServletRequest mRequest;
 		mRequest = (MultipartHttpServletRequest) request;
@@ -122,9 +123,11 @@ public class PLPWebController {
 			File file = new File(fileStoragePath+fileName);
 			try {
 				FileCopyUtils.copy(mFile.getBytes(), file);
+				logger.info("File uploaded to server");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				System.out.println(" server exception in file upload :(");
+				logger.error(e.getMessage());
 				e.printStackTrace();
 				response += "\"status\":\"failed\"";
 				return "{"+response+"}";
@@ -177,7 +180,7 @@ public class PLPWebController {
 				System.out.println("ID: " + session.getId());
 				session.setAttribute("ASMImage", image);
 				responseMap.put("status", "ok");
-				logger.log(Level.getLevel("ASSEMBLE"),"Code assembled successfully!");
+				logger.log(Level.getLevel("ASSEMBLE"),"Code assembled successfully - " + Arrays.toString(code));
 			}
 		}
 		catch (Exception exception)
@@ -204,7 +207,8 @@ public class PLPWebController {
 		System.out.println("in Simulate eclipse");
 		Map<String, String> responseMap = new HashMap<String, String> ();
 		String response = "";
-
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 		System.out.println("Session id test: " + sessKey);
 		session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
 		System.out.println("ID in simulate: " + session.getId());
@@ -251,7 +255,7 @@ public class PLPWebController {
 			response = new ObjectMapper().writeValueAsString(responseMap);
 		} catch (JsonProcessingException e) {
 			System.out.println("JSON parsing Error.");
-            logger.log(Level.getLevel("SIMULATE_ERROR"),"JSON parsing error in Simulate function");
+            logger.log(Level.getLevel("SIMULATE_ERROR"),"JSON parsing error in simulation method");
 			e.printStackTrace();
 		}
 		return response;
@@ -266,6 +270,8 @@ public class PLPWebController {
 		System.out.println("in Run method");
 		Map<String, String> responseMap = new HashMap<String, String> ();
 		String response = "";
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 
 		if((boolean) session.getAttribute("simulationSuccess")){
 			EventRegistry.getGlobalRegistry().post(
@@ -286,15 +292,18 @@ public class PLPWebController {
 			});
 			simRunThread.start();
 			responseMap.put("status", "ok");
+			logger.info("Run method is executed");
 		}
 		else{
 			responseMap.put("status", "failed");
+			logger.info("Run method status failed");
 		}
 		
 		try {
 			response = new ObjectMapper().writeValueAsString(responseMap);
 		} catch (JsonProcessingException e) {
 			System.out.println("JSON parsing Error.");
+			logger.error("JSON parsing error in Run method");
 			e.printStackTrace();
 		}
 
@@ -308,7 +317,8 @@ public class PLPWebController {
 
 		System.out.println("in Stop method");
 		String response = "";
-
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("pause", "",null));
 		EventRegistry.getGlobalRegistry().post(new SimulatorControlEvent("reset", "",null));
 		session.setAttribute("isSimulationRunning", false);
@@ -320,6 +330,7 @@ public class PLPWebController {
 
 		activeSimulator.stopListening();
 
+		logger.info("Simulation is stopped");
 
 		response = "{\"status\":\"ok\"}";
 		return response;
@@ -330,17 +341,18 @@ public class PLPWebController {
 	public String StepSim(HttpServletRequest request, HttpSession session) throws IOException {
 
 		String response = "";
-
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 		try
 		{
 			EventRegistry.getGlobalRegistry().post(
 								new SimulatorControlEvent("step", "",null));
-			
+			logger.info("Stepped into simulation");
 		}
 		catch (Exception exception)
 		{
+			logger.error("Step in simulation has thrown an error");
 			throw new IllegalStateException("No simulator is active!", exception);
-			
 		}
 		
 		response = "{\"status\":\"ok\"}";
@@ -355,12 +367,15 @@ public class PLPWebController {
 		System.out.println("in WatchReg method");
 		String response = "";
 	//	websock.start();
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username",JdbcUserDAO.userEmailMap.get(o));
 
 		String registerName = "$t0";
 		EventRegistry.getGlobalRegistry().post(new RegWatchRequestEvent(registerName));
 		
 		System.out.println("VALUE:   " + session.getAttribute("idd"));
 		response = "{\"status\":\"ok\"}";
+		logger.info("Watch register method is executed");
 		return response;
 	}
 
