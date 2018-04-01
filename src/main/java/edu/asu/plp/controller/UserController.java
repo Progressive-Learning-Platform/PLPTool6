@@ -74,18 +74,18 @@ public class UserController {
             map = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
 
             UserInfo uInfo = new UserInfo();
-            uInfo.setName((String)map.getOrDefault("name", "guest"));
-            uInfo.setEmail((String)map.getOrDefault("email", "guest"));
-            uInfo.setOrg_school((String)map.getOrDefault("org_school", "guest"));
-            uInfo.setGender((String)map.getOrDefault("gender", "guest"));
-            uInfo.setDateOfBirth((String)map.getOrDefault("dateOfBirth", "guest"));
-            uInfo.setContact_no((String)map.getOrDefault("contact_no", "guest"));
-            uInfo.setAlt_no((String)map.getOrDefault("alt_no", "guest"));
-            uInfo.setProfile_photo((String)map.getOrDefault("profile_photo", "guest"));
+            uInfo.setName((String)map.getOrDefault("name", ""));
+            uInfo.setEmail((String)map.getOrDefault("email", ""));
+            uInfo.setOrg_school((String)map.getOrDefault("org_school", ""));
+            uInfo.setGender((String)map.getOrDefault("gender", ""));
+            uInfo.setDateOfBirth((String)map.getOrDefault("dateOfBirth", ""));
+            uInfo.setContact_no((String)map.getOrDefault("contact_no", ""));
+            uInfo.setAlt_no((String)map.getOrDefault("alt_no", ""));
+            uInfo.setProfile_photo((String)map.getOrDefault("profile_photo", ""));
 
             UserCred uCred = new UserCred();
-            uCred.setUsername((String)map.getOrDefault("email", "guest"));
-            uCred.setPassword((String)map.getOrDefault("password", "guest"));
+            uCred.setUsername((String)map.getOrDefault("email", ""));
+            uCred.setPassword((String)map.getOrDefault("password", ""));
 
             responseDB = userService.registerUser(uInfo, uCred);
 
@@ -125,14 +125,14 @@ public class UserController {
             map = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
 
             UserInfo uInfoNew = new UserInfo();
-            uInfoNew.setName((String)map.getOrDefault("name", "guest"));
-            uInfoNew.setEmail((String)map.getOrDefault("newEmail", "guest"));
-            uInfoNew.setOrg_school((String)map.getOrDefault("org_school", "guest"));
-            uInfoNew.setGender((String)map.getOrDefault("gender", "guest"));
-            uInfoNew.setDateOfBirth((String)map.getOrDefault("dateOfBirth", "guest"));
-            uInfoNew.setContact_no((String)map.getOrDefault("contact_no", "guest"));
-            uInfoNew.setAlt_no((String)map.getOrDefault("alt_no", "guest"));
-            uInfoNew.setProfile_photo((String)map.getOrDefault("profile_photo", "guest"));
+            uInfoNew.setName((String)map.getOrDefault("name", ""));
+            uInfoNew.setEmail((String)map.getOrDefault("newEmail", ""));
+            uInfoNew.setOrg_school((String)map.getOrDefault("org_school", ""));
+            uInfoNew.setGender((String)map.getOrDefault("gender", ""));
+            uInfoNew.setDateOfBirth((String)map.getOrDefault("dateOfBirth", ""));
+            uInfoNew.setContact_no((String)map.getOrDefault("contact_no", ""));
+            uInfoNew.setAlt_no((String)map.getOrDefault("alt_no", ""));
+            uInfoNew.setProfile_photo((String)map.getOrDefault("profile_photo", ""));
 
 
             UserInfo uInfoOld = new UserInfo();

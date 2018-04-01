@@ -59,7 +59,9 @@ public class UserService {
      * @return string as success or error message
      */
     public String getUserInfo(UserInfo uInfo){
-        return userDAO.getUserInfo(uInfo);
+        String status = userDAO.getUserInfo(uInfo);
+        uInfo.checkProfileComplete();
+        return status;
     }
 
     /***

@@ -10,6 +10,20 @@ public class UserInfo {
     private String alt_no;
     private String profile_photo;
 
+    public boolean isProfileComplete() {
+        return isProfileComplete;
+    }
+
+    public void checkProfileComplete() {
+        if(name.isEmpty() || email.isEmpty() || contact_no.isEmpty() || org_school.isEmpty()){
+            isProfileComplete = false;
+        }else{
+            isProfileComplete = true;
+        }
+    }
+
+    private boolean isProfileComplete;
+
     public String getDateOfBirth() {
         return dateOfBirth;
     }
