@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //localStorage.editProfileFlag = 0 sign up link
 //localStorage.editProfileFlag = 1 edit profile button
 //localStorage.editProfileFlag = 2 all other
@@ -65,11 +66,35 @@ function SignIn(){
 
 
 
+=======
+function SignIn(){
+
+    if(validateFields())
+    {
+      // user authentication and cookie information
+
+      //AJAX success
+      window.location.href = 'homepage.html';
+
+      //AJAX failure
+       $(".errorMsg").text("Incorrect Email address/ Password");
+                      $('#errorModel').modal({
+                                            show: true,
+                                            backdrop: 'static',
+                                            keyboard: true,
+                                            });
+    }
+
+>>>>>>> origin/fixing-issue-126
 }
 
 function validateFields(){
 
+<<<<<<< HEAD
     if($('.emailid').val() == "" )
+=======
+    if($('#emailid').val() == "" )
+>>>>>>> origin/fixing-issue-126
      {
         $(".errorMsg").text("Please enter a valid email address");
         $('#errorModel').modal({
@@ -80,7 +105,11 @@ function validateFields(){
         return false;
      }
 
+<<<<<<< HEAD
      else if($('.password').val() == "")
+=======
+     else if($('#pwd').val() == "")
+>>>>>>> origin/fixing-issue-126
      {
         $(".errorMsg").text("Please enter a valid password");
         $('#errorModel').modal({
@@ -104,6 +133,7 @@ app.config([ '$httpProvider', function($httpProvider) {
 app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $cookies, $http){
 
 }]);
+<<<<<<< HEAD
 
 // check if profile is complete/incomplete
 function getProfile(){
@@ -250,3 +280,5 @@ function signup(){
 //
 //
 //    }
+=======
+>>>>>>> origin/fixing-issue-126

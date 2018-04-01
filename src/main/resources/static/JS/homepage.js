@@ -44,8 +44,13 @@ window.onclick = function(event) {
     }
 
 function logout(){
+<<<<<<< HEAD
     alert("homepage logout");
     var auth2 = gapi.auth2.getAuthInstance();
+=======
+    var auth2 = gapi.auth2.getAuthInstance();
+    localStorage["auth"] = auth2;
+>>>>>>> origin/fixing-issue-126
     auth2.signOut().then(function () {
         console.log('User signed out.');
         localStorage.removeItem("Name");
@@ -58,7 +63,11 @@ function logout(){
 }
 
 function editProfile(){
+<<<<<<< HEAD
     localStorage.editProfileFlag = 1;
+=======
+    localStorage.editProfileFlag = 0;
+>>>>>>> origin/fixing-issue-126
     window.location.href = 'signup.html';
 }
 
