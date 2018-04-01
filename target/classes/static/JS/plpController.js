@@ -37,14 +37,14 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 	
     $(document).ready(function () {
         $("#tabswidget").jqxTabs({  height: '100%', width: '100%' });
-        $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
+//        $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/tomorrow");
         editor.getSession().setMode("ace/mode/plp");
 
-        var editor2 = ace.edit("editor2");
-        editor2.setTheme("ace/theme/tomorrow");
-        editor2.getSession().setMode("ace/mode/plp");
+//        var editor2 = ace.edit("editor2");
+//        editor2.setTheme("ace/theme/tomorrow");
+//        editor2.getSession().setMode("ace/mode/plp");
     });
 
     $scope.inFile = null;
@@ -78,7 +78,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
     };
 
     $scope.uploadFile = function() {
-        console.log("in uploadFile");
         fileIn = $('#upfile');
         fileIn.trigger('click');
         console.log("just before return");
@@ -86,7 +85,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
     };
 
     $scope.newFile = function() {
-        console.log("in newFile");
         $("#fileTree ul").append('<li>FileName.asm</li>');
     };
 
@@ -94,7 +92,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
         console.log("in openFile");
         if ((window.File!=null) && (window.FileReader!=null) && (window.FileList!=null) && (window.Blob!=null)) {
             // do your stuff!
-            console.log("in if");
             str = "Uploading ";
             fileIn = $('#upfile');
             var f = fileIn[0].files[0];

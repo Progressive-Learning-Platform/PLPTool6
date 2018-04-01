@@ -53,11 +53,7 @@
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="https://cdn.auth0.com/js/auth0/9.2.2/auth0.min.js"></script>
 
-
-
-<style>
-
-</style>
+    <meta name="csrf-token" content="{{csrf_token()}}">
 
 <title>PLP IDE</title>
 
@@ -75,11 +71,11 @@
                     <div class="col-md-12">
 
                         <div class="form-group">
-                            <input type="email" class="form-control" name="emailid" id="emailid" placeholder="Enter your Email ID" value="" >
+                            <input type="email" class="form-control emailid" name="emailid" id="emailid" placeholder="Enter your Email ID" value="" >
                         </div>
 
                         <div class="form-group">
-                            <input type="password" class="form-control" name="pwd" id="pwd" placeholder="Enter your Password" value="">
+                            <input type="password" class="form-control password" name="pwd" id="pwd" placeholder="Enter your Password" value="">
                         </div>
 
                         <div class="checkbox">
@@ -113,7 +109,7 @@
                         <!--</button>-->
 
                         <div class="form-group SignUpClass">
-                            <span class="text-muted"><a href="signup.html">Don't have an account? Sign Up here</a></span>
+                            <span class="text-muted"><a onclick="signup()">Don't have an account? Sign Up here</a></span>
                         </div>
 
                     </div>
@@ -128,78 +124,6 @@
 
     <script type="text/javascript">
 
-
-    (function () {
-      <!--localStorage.editProfileFlag = 1;-->
-      var webAuth = new auth0.WebAuth({
-        domain: 'web-plp.auth0.com',
-        clientID: '6HqpDmT0wKNYUGTiMiiNN8jH21oN0GYj',
-        redirectUri: 'http://localhost:63342/plp/static/index.html',
-        responseType: 'id_token',
-        scope: 'openid profile'
-      });
-
-      var loginBtn = document.getElementById('yahoo-btn-login');
-      loginBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        webAuth.authorize();
-      });
-
-      function handleAuthentication() {
-        webAuth.parseHash(function (err, authResult) {
-          if (authResult && authResult.idTokenPayload) {
-           console.log(authResult);
-            window.location.hash = '';
-            <!--alert('your user_id is: ' + authResult.idTokenPayload.name);-->
-            window.location.href = 'homepage.html';
-            localStorage.Name = authResult.idTokenPayload.name;
-            localStorage.ImageURL = authResult.idTokenPayload.picture;
-            localStorage.Email = authResult.idTokenPayload.name;
-            localStorage.editProfileFlag = 0;
-          }
-        });
-      }
-
-      handleAuthentication();
-    })();
-
-
-
-// gmail login
-
-  function onSignIn(googleUser)
-  {
-      var profile = googleUser.getBasicProfile();
-
-      if(profile!=null)
-      {
-          <!--console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.-->
-          <!--console.log('Name: ' + profile.getName());-->
-          <!--console.log('Image URL: ' + profile.getImageUrl());-->
-          <!--console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.-->
-          <!--console.log(profile);-->
-          window.location.href = 'homepage.html';
-          localStorage.Name = profile.getName();
-          localStorage.ImageURL = profile.getImageUrl();
-          localStorage.Email = profile.getEmail();
-          localStorage.editProfileFlag = 0;
-      }
-      else{
-        console.log("error");
-      }
-
-
-  }
-
-  function signOut() {
-            var auth2 = gapi.auth2.getAuthInstance();
-            auth2.signOut().then(function ()
-            {
-                localStorage.removeItem("Name");
-                localStorage.removeItem("ImageURL");
-                localStorage.removeItem("Email");
-            });
-    }
 
 
 </script>
