@@ -5,7 +5,6 @@ $(document).ready(function(){
     $("#profileImage").attr("src",localStorage.ImageURL);
 
     var item = localStorage.editProfileFlag;
-    alert("item "+ item);
     if(item == 0){
        $('.signUpLabel').text("PROGRESSIVE LEARNING PLATFORM - SIGN UP");
        $('.saveUser').val("Submit");
@@ -44,7 +43,6 @@ function registerUser(){
 
       if(validateUserForm())
       {
-        alert("Form validation done");
         $.ajax
          ({
            type: "POST",
@@ -59,6 +57,13 @@ function registerUser(){
                                localStorage.Email =  $('.email').val();
                                 localStorage.Name = $('.fullName').val();
                                 window.location.href = 'homepage.html';
+                    }else{
+                         $(".errorMsg").text(JSON.parse(response).status);
+                                $('#errorModel').modal({
+                                                show: true,
+                                                backdrop: 'static',
+                                                keyboard: true,
+                                                });
                     }
 
             }
@@ -215,9 +220,7 @@ function getUserProfile(){
          headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
          crossDomain: true,
          success: function(response){
-                   console.log(response);
                    var res = JSON.parse(response);
-                   console.log(res);
                    //if(res.status == true){
                        $('.email').val(localStorage.Email);
                        $('.fullName').val(res.name);
@@ -278,7 +281,6 @@ function daysInMonth(month, year) {
 
 function saveAndUpdateUser(){
       var item = localStorage.editProfileFlag;
-      alert("saveAndUpdateUser "+ item);
         if(item == 0){
             registerUser();
         }else{
@@ -287,7 +289,7 @@ function saveAndUpdateUser(){
 }
 
 function updateUser(){
-
+    alert("update User 1");
     var dob = $("#days").val() + $("#months").val() + $("#years").val();
 
     var myRadio = $('input[name=gender]:checked', '#signup').val();
@@ -317,13 +319,19 @@ function updateUser(){
              crossDomain: true,
              data: formData,
              success: function(response){
-                        alert("update user "+JSON.parse(response).status)
+                       alert("update User 1");
                        if(JSON.parse(response).status == "success"){
                            localStorage.Email =  $('.email').val();
-                            localStorage.Email =  $('.email').val();
                             localStorage.Name = $('.fullName').val();
                             window.location.href = 'homepage.html';
-                       }
+                       }else{
+                             $(".errorMsg").text(JSON.parse(response).status);
+                                    $('#errorModel').modal({
+                                                    show: true,
+                                                    backdrop: 'static',
+                                                    keyboard: true,
+                                                    });
+                        }
 
               }
            });
@@ -333,5 +341,4 @@ function updateUser(){
 
 function telephoneCheck(str) {
   var isphone = /^(1\s|1|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/.test(str);
-  alert(isphone);
 }

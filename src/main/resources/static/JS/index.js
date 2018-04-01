@@ -18,7 +18,6 @@ function getCookie(name) {
 // user authentication and cookie information
 
 function SignIn(){
-    //alert(1);
     var email = $('input[name=emailid]').val().trim();
     var password = $('input[name=pwd]').val().trim();
     if(validateFields())
@@ -116,22 +115,12 @@ function getProfile(){
          headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
          crossDomain: true,
          success: function(response){
-                   alert("alert "+ response);
-                   console.log(response.name);
                    if (typeof response.status !== "undefined") {// no user info found
-                       alert("22222");
                        window.location.href = 'signup.html';
                    }
                    else{
-                        alert("33333");
                        window.location.href = 'signup.html';
                    }
-//                   if(response.status){
-//                        alert(11);
-//                   }else{
-//                        alert(22);
-//                   }
-
           }
        });
 }
@@ -218,35 +207,3 @@ function signup(){
                 localStorage.removeItem("Email");
             });
     }
-
-
-//function saveUser(){
-//    alert("index.js saveUser");
-//    alert(localStorage.Name);
-//    alert(localStorage.Email);
-//    var formData = JSON.stringify({
-//                        "name": localStorage.Name,
-//                        "email": localStorage.Email,
-//                 });
-//
-//
-//        $.ajax
-//         ({
-//           type: "POST",
-//           url: "http://localhost:8080/registerUser",
-//           contentType: 'application/json; charset=utf-8',
-//           headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
-//           crossDomain: true,
-//           data: formData,
-//           success: function(response){
-//                     alert("alert "+ response);
-//                    if(JSON.parse(response).status == "success"){
-//                            localStorage.Email =  $('.email').val();
-//
-//                    }
-//
-//            }
-//         });
-//
-//
-//    }
