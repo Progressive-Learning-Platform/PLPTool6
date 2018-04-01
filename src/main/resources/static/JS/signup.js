@@ -56,9 +56,10 @@ function registerUser(){
            success: function(response){
                      alert("alert "+ response);
                     if(JSON.parse(response).status == "success"){
-                                               localStorage.Email =  $('.email').val();
-                                                window.location.href = 'signup.html';
-                                           }
+                               localStorage.Email =  $('.email').val();
+                                localStorage.Name = $('.fullName').val();
+                                window.location.href = 'homepage.html';
+                    }
 
             }
          });
@@ -139,6 +140,17 @@ function validateUserForm()
                           });
     return false;
  }
+
+ if(!document.signup.cpassword.disabled && $(".password").val() !== $(".cpassword").val())
+ {
+  $(".errorMsg").text("Password and Confirm Password do not match");
+      $('#errorModel').modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: true,
+                            });
+    return false;
+}
 
   if(document.signup.name.value == "" )
  {
@@ -308,7 +320,9 @@ function updateUser(){
                         alert("update user "+JSON.parse(response).status)
                        if(JSON.parse(response).status == "success"){
                            localStorage.Email =  $('.email').val();
-                            window.location.href = 'signup.html';
+                            localStorage.Email =  $('.email').val();
+                            localStorage.Name = $('.fullName').val();
+                            window.location.href = 'homepage.html';
                        }
 
               }
