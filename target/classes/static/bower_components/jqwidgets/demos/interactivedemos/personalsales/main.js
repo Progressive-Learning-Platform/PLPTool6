@@ -223,7 +223,7 @@
             datafields: [
                    { name: 'ShippedDate', type: 'date' },
                    { name: 'ShipAddress' },
-                   { name: 'customer', type: 'string' },
+                   { name: 'Customer', type: 'string' },
                    { name: 'Amount', type: 'number' }
             ],
             url: CONST_URL_PREFIX
@@ -314,7 +314,7 @@
         datafields: [
                { name: 'ShippedDate', type: 'date' },
                { name: 'ShipAddress' },
-               { name: 'customer', type: 'string' },
+               { name: 'Customer', type: 'string' },
                { name: 'Amount', type: 'number' }
         ],
         beforeprocessing: function (data)
@@ -379,8 +379,8 @@
             },
             {
                 width: '15%',
-                text: 'customer',
-                datafield: 'customer',
+                text: 'Customer',
+                datafield: 'Customer',
                 cellsalign: 'center'
             },
             {

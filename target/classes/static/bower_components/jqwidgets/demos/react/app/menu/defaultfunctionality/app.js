@@ -103,7 +103,7 @@ class App extends React.Component {
               '<li>Support' +
                   '<ul style="width: 200px;">' +
                       '<li><a href="#SupportHome">Support home</a></li>' +
-                      '<li><a href="#CustomerService">customer Service</a></li>' +
+                      '<li><a href="#CustomerService">Customer Service</a></li>' +
                       '<li><a href="#KB">Knowledge base</a></li>' +
                       '<li><a href="#Books">Books</a></li>' +
                       '<li><a href="#Training">Training and certification</a></li>' +

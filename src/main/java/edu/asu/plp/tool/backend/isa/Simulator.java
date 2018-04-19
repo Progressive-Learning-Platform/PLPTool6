@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
+import org.springframework.jms.annotation.JmsListener;
 
 public interface Simulator
 {
@@ -36,6 +37,5 @@ public interface Simulator
 	
 	void startListening();
 	void stopListening();
-	@Subscribe
 	void receiveCommand(SimulatorControlEvent e);
 }

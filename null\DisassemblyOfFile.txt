@@ -1,0 +1,33 @@
+
+
+
+
+Symbol Table
+
+key                                      | value                                   
+
+halt                                     | 0x1000000c
+libplp_leds_write                        | 0x10000014
+start                                    | 0x10000000
+libplp_leds_read                         | 0x10000020
+
+
+Program encoding
+
+Address[Hex] | Address[Dec] | InstructionEncoding[Hex] | InstructionEncoding[Dec] | Actual Instruction                       | Sub Instruction                          | Line Number | Source File                             
+
+0x10000000   |    268435456 | 0x340400df               |                872677599 | ori $a0, $zero, 0xdf                     | ori $a0, $zero, 0xdf                     |           9 | leds_test.asm                           
+0x10000004   |    268435460 | 0xc000005                |                201326597 | jal libplp_leds_write                    | jal libplp_leds_write                    |          10 | leds_test.asm                           
+0x10000008   |    268435464 | 0x0                      |                        0 | nop                                      | sll $0, $0, 0                            |          11 | leds_test.asm                           
+0x1000000c   |    268435468 | 0x8000003                |                134217731 | j halt                                   | j halt                                   |          14 | leds_test.asm                           
+0x10000010   |    268435472 | 0x0                      |                        0 | nop                                      | sll $0, $0, 0                            |          15 | leds_test.asm                           
+0x10000014   |    268435476 | 0x3c08f020               |               1007218720 | lui $t0, 0xf020                          | lui $t0, 0xf020                          |           6 | ../libplp/libplp_leds.asm               
+0x10000018   |    268435480 | 0x3e00008                |                 65011720 | jr  $31                                  | jr  $31                                  |           7 | ../libplp/libplp_leds.asm               
+0x1000001c   |    268435484 | 0xad040000               |               2902720512 | sw  $a0, 0($t0)                          | sw  $a0, 0($t0)                          |           8 | ../libplp/libplp_leds.asm               
+0x10000020   |    268435488 | 0x3c08f020               |               1007218720 | lui $t0, 0xf020                          | lui $t0, 0xf020                          |          11 | ../libplp/libplp_leds.asm               
+0x10000024   |    268435492 | 0x3e00008                |                 65011720 | jr  $31                                  | jr  $31                                  |          12 | ../libplp/libplp_leds.asm               
+0x10000028   |    268435496 | 0x8d020000               |               2365718528 | lw  $v0, 0($t0)                          | lw  $v0, 0($t0)                          |          13 | ../libplp/libplp_leds.asm               
+
+
+
+

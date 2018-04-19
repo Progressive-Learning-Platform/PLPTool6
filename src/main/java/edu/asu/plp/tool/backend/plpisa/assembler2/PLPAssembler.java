@@ -204,7 +204,7 @@ public class PLPAssembler implements Assembler
 		//2nd Step Preprocess - Take care of syntax errors, symbol table, assembler directives, pseudoOperations, comments and empty lines
 		for (ASMFile asmFile : asmFiles)
 		{
-			projectPath = asmFile.getProject().getPath();
+			//projectPath = asmFile.getProject().getPath();
 			currentFile = asmFile;
 			preprocessFile(asmFile.getContent(), asmFile);
 		}

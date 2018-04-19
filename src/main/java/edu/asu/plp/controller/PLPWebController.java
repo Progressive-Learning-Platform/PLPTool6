@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
+import javax.jms.ObjectMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import edu.asu.plp.jms.JmsPublisher;
 import edu.asu.plp.model.AssemblyInfo;
 import edu.asu.plp.model.WebASMFile;
 import edu.asu.plp.service.PLPUserDB;
@@ -23,7 +25,7 @@ import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler2.*;
 
-import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,27 +41,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
 
-import edu.asu.SimulatorFiles.*;
-import edu.asu.plp.tool.backend.plpisa.sim.*;
 import edu.asu.plp.tool.core.ISAModule;
 import edu.asu.plp.tool.core.ISARegistry;
 import edu.asu.plp.tool.prototype.ApplicationSettings;
-import edu.asu.plp.tool.prototype.EmulationWindow;
-import edu.asu.plp.tool.prototype.ProjectAssemblyDetails;
-import edu.asu.plp.tool.prototype.Main.ApplicationEventBusEventHandler;
-import edu.asu.plp.tool.prototype.model.Project;
 import edu.asu.plp.tool.prototype.model.Theme;
 import edu.asu.plp.tool.prototype.model.ThemeRequestCallback;
-import edu.asu.plp.tool.prototype.util.Dialogues;
 import edu.asu.plp.tool.prototype.view.ConsolePane;
-import edu.asu.plp.tool.prototype.view.WatcherWindow.RegisterRow;
 import javafx.beans.property.LongProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-import moore.util.Subroutine;
 
 
 /**
@@ -80,7 +71,9 @@ public class PLPWebController {
 	private ConsolePane console;
 	//private PLPSimulator activeSimulator = new PLPSimulator();
 
-	private Simulator activeSimulator;
+	//private Simulator activeSimulator;
+	@Autowired
+	JmsPublisher jmsPublisher = new JmsPublisher();
 	
 	//WebsocketServer websock = new WebsocketServer();
 
@@ -97,7 +90,8 @@ public class PLPWebController {
 
 		session = request.getSession();
 		sessionKey = session.getId();
-		PLPUserDB.getInstance().registerNewUser(un, session, sessionKey	);
+		//gxy: removed
+		//PLPUserDB.getInstance().registerNewUser(un, session, sessionKey	);
 		responseMap.put("status", "success");
 		responseMap.put("session_key", sessionKey);
 
@@ -162,7 +156,7 @@ public class PLPWebController {
 
 			String sessKey = assembly.getSessionKey();
 			System.out.println("Sess: " + assembly.getSessionKey());
-			session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
+			//session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
 
 			String[] code = assembly.getCode();
 			List<ASMFile> listASM = new ArrayList<ASMFile>();
@@ -217,7 +211,7 @@ public class PLPWebController {
 		String response = "";
 
 		System.out.println("Session id test: " + sessKey);
-		session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
+		//session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
 		System.out.println("ID in simulate: " + session.getId());
 
 		//System.out.println("ASM OBJ is Sim :"  +  session.getAttribute("ASMImage"));
@@ -233,29 +227,30 @@ public class PLPWebController {
 
 		}
 		else{
-			Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(PROJECT_TYPE);
+			//Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(PROJECT_TYPE);
 
-			if (module.isPresent())
+			//if (module.isPresent())
 			{
 				responseMap.put("status", "ok");
-				ISAModule isa = module.get();
-				activeSimulator = isa.getSimulator();
-				activeSimulator.startListening();
+				jmsPublisher.send(new SimulatorControlEvent("load", "", image));
+				//ISAModule isa = module.get();
+				//activeSimulator = isa.getSimulator();
+				//activeSimulator.startListening();
 
-				EventRegistry.getGlobalRegistry().post(
-						new SimulatorControlEvent("load","", image));
+				//EventRegistry.getGlobalRegistry().post(
+						//new SimulatorControlEvent("load","", image));
 				session.setAttribute("simulationSuccess", true);
 
 			}
-			else
-			{	responseMap.put("status", "failed");
-			responseMap.put("simError", "no-sim");
-			String message = "No simulator is available for the project type: ";
-			System.out.println(message);
-			//Dialogues.showAlertDialogue(new IllegalStateException(message));
-			session.setAttribute("simulationSuccess", false);
-			session.setAttribute("simulationError", "no-sim");
-			}
+			//else
+//			{	responseMap.put("status", "failed");
+//			responseMap.put("simError", "no-sim");
+//			String message = "No simulator is available for the project type: ";
+//			System.out.println(message);
+//			//Dialogues.showAlertDialogue(new IllegalStateException(message));
+//			session.setAttribute("simulationSuccess", false);
+//			session.setAttribute("simulationError", "no-sim");
+//			}
 		}
 
 		try {
@@ -328,7 +323,7 @@ public class PLPWebController {
 			simRunThread = null;
 		}
 
-		activeSimulator.stopListening();
+		//activeSimulator.stopListening();
 
 
 		response = "{\"status\":\"ok\"}";
