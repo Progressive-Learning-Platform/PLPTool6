@@ -62,9 +62,9 @@ app.controller('idectrl', ['$scope', '$cookies', '$http', function ($scope, $coo
         editor.setTheme("ace/theme/tomorrow");
         editor.getSession().setMode("ace/mode/plp");
 
-        var editor2 = ace.edit("editor2");
+        /*var editor2 = ace.edit("editor2");
         editor2.setTheme("ace/theme/tomorrow");
-        editor2.getSession().setMode("ace/mode/plp");
+        editor2.getSession().setMode("ace/mode/plp");*/
     });
 
     $scope.inFile = null;
@@ -170,10 +170,10 @@ app.controller('idectrl', ['$scope', '$cookies', '$http', function ($scope, $coo
         var editor = ace.edit("editor");
         var codeText = editor.getValue();
         code.push(codeText);
-        var editor2 = ace.edit("editor2");
+        /*var editor2 = ace.edit("editor2");
         var codeText2 = editor2.getValue();
         if (codeText2 || 0 !== codeText2.length)
-            code.push(codeText2);
+            code.push(codeText2);*/
 
         if (!(/\S/.test(codeText))) {
             alert("Please write some code before trying to assemble.");

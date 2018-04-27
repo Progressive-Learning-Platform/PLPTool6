@@ -1,11 +1,6 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.common.eventbus.EventBus;
-
 import edu.asu.plp.jms.JmsSubscriber;
 import edu.asu.plp.tool.backend.EventRegistry;
 import edu.asu.plp.tool.backend.isa.ASMImage;
@@ -14,17 +9,12 @@ import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.SimulatorException;
 import edu.asu.plp.tool.backend.plpisa.InstructionExtractor;
 import edu.asu.plp.tool.backend.plpisa.PLPASMImage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.ExecuteStage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.InstructionDecodeStage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.MemoryStage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.Stage;
-import edu.asu.plp.tool.backend.plpisa.sim.stages.WriteBackStage;
-import edu.asu.plp.tool.prototype.ApplicationSettings;
+import edu.asu.plp.tool.backend.plpisa.sim.stages.*;
 import edu.asu.plp.tool.prototype.devices.SetupDevicesandMemory;
-import javafx.beans.property.LongProperty;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.annotation.JmsListener;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Port of old PLP-Tool simulator with minor improvements
@@ -824,9 +814,11 @@ public class PLPSimulator implements Simulator
 	public void receiveCommand(SimulatorControlEvent e) {
 		switch (e.getCommand()) {
 		case "load":
-			this.loadProgram((ASMImage)e.getSimulatorData());
-			System.out.println(e.getCommand());
-			break;
+			if(e.getSimulatorData() instanceof ASMImage) {
+				this.loadProgram((ASMImage) e.getSimulatorData());
+				System.out.println(e.getCommand());
+				break;
+			}
 		case "step":
 			try {
 				this.step();

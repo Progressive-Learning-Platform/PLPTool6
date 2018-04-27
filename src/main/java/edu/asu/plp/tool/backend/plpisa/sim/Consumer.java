@@ -1,13 +1,13 @@
 package edu.asu.plp.tool.backend.plpisa.sim;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jms.*;
-
+import com.google.gson.Gson;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
+
+import javax.jms.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This thread will keep listening on the message transfer from back end.
@@ -50,7 +50,7 @@ public class Consumer implements Runnable, ExceptionListener {
 
             // Create a MessageConsumer from the Session to the Topic or Queue
             MessageConsumer consumer = session.createConsumer(destination);
-
+            Gson gson = new Gson();
             JmsTemplate template = new JmsTemplate();
             while (true) {
                 // Wait for a message
@@ -58,10 +58,12 @@ public class Consumer implements Runnable, ExceptionListener {
 
                 if (message instanceof TextMessage) {
                     TextMessage textMessage = (TextMessage) message;
-                    String text = textMessage.getText();
-                    System.out.println(text);
-                    //for (SnapshotListener hl : listeners)
-                        //hl.receiveSnapshot(e);
+                    SimulatorControlEvent s = gson.fromJson(((TextMessage) message).getText(), SimulatorControlEvent.class);
+                    //String text = textMessage.getText();
+                    System.out.println("The value at simulator is:"+s.getCommand() +" "+ s.getSimulatorData());
+                    //System.out.println(text);
+                    for (SnapshotListener hl : listeners)
+                        hl.receiveSnapshot(s);
                 }
             }
         } catch (Exception e) {

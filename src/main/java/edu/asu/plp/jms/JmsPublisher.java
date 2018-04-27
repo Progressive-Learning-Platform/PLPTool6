@@ -1,5 +1,6 @@
 package edu.asu.plp.jms;
 
+import com.google.gson.Gson;
 import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,6 @@ import javax.jms.*;
 public class JmsPublisher {
     @Autowired
     JmsTemplate jmsTemplate;
-
     @Value("${jsa.activemq.queue}")
     String destinationQueue;
 
@@ -38,12 +38,13 @@ public class JmsPublisher {
             MessageProducer producer = session.createProducer(destination);
             //producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
             //producer.setTimeToLive(10);
-
+            Gson gson = new Gson();
+            String message = gson.toJson(msg);
             // Create a messages
-            TextMessage message = session.createTextMessage("Hello");
+            TextMessage producerMessage = session.createTextMessage(message);
 
             // Tell the producer to send the message
-            producer.send(message);
+            producer.send(producerMessage);
 
             // Clean up
             session.close();
