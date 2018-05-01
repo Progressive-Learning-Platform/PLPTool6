@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Connections>
+    <Connection>
+        <url>jdbc:mysql://10.202.15.175:3306/plp_database</url>
+        <driver>com.mysql.jdbc.Driver</driver>
+        <username>plp_admin</username>
+        <password>plp_admin</password>
+    </Connection>
+</Connections>

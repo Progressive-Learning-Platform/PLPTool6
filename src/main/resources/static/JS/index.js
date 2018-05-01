@@ -1,7 +1,7 @@
 //localStorage.editProfileFlag = 0 sign up link
 //localStorage.editProfileFlag = 1 edit profile button
 //localStorage.editProfileFlag = 2 all other
-localStorage.token = getCookie("XSRF-TOKEN").trim();
+localStorage.token = getCookie("XSRF-TOKEN");
 localStorage.editProfileFlag = 2;
 
  window.onbeforeunload = function(e){
@@ -11,7 +11,7 @@ localStorage.editProfileFlag = 2;
 function getCookie(name) {
     var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
     var result = regexp.exec(document.cookie);
-    return (result === null) ? null : result[1];
+    return (result === null) ? null : result[1].trim();
 }
 
 
@@ -106,7 +106,6 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 
 // check if profile is complete/incomplete
 function getProfile(){
-    alert("getProfile");
     $.ajax
        ({
          type: "GET",
@@ -134,38 +133,38 @@ function signup(){
 
 
 (function () {
-//      var webAuth = new auth0.WebAuth({
-//        domain: 'web-plp.auth0.com',
-//        clientID: '6HqpDmT0wKNYUGTiMiiNN8jH21oN0GYj',
-//        redirectUri: 'http://localhost:8080/plp/static/index.html',
-//        responseType: 'id_token',
-//        scope: 'openid profile'
-//      });
-//
-//      var loginBtn = document.getElementById('yahoo-btn-login');
-//      loginBtn.addEventListener('click', function (e) {
-//        e.preventDefault();
-//        webAuth.authorize();
-//      });
-//
-//      function handleAuthentication() {
-//        webAuth.parseHash(function (err, authResult) {
-//          if (authResult && authResult.idTokenPayload) {
-//            window.location.hash = '';
-//            <!--alert('your user_id is: ' + authResult.idTokenPayload.name);-->
-//            localStorage.Name = authResult.idTokenPayload.name;
-//            localStorage.ImageURL = authResult.idTokenPayload.picture;
-//            localStorage.Email = authResult.idTokenPayload.name;
-//            localStorage.editProfileFlag = 2;
-//            saveUser();
-//            window.location.href = 'signup.html';
-//
-//          }
-//        });
-//      }
-//
-//      //handleAuthentication();
-//
+      var webAuth = new auth0.WebAuth({
+        domain: 'web-plp.auth0.com',
+        clientID: '6HqpDmT0wKNYUGTiMiiNN8jH21oN0GYj',
+        redirectUri: 'http://localhost:8080/plp/static/index.html',
+        responseType: 'id_token',
+        scope: 'openid profile'
+      });
+
+      var loginBtn = document.getElementById('yahoo-btn-login');
+      loginBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        webAuth.authorize();
+      });
+
+      function handleAuthentication() {
+        webAuth.parseHash(function (err, authResult) {
+          if (authResult && authResult.idTokenPayload) {
+            window.location.hash = '';
+            <!--alert('your user_id is: ' + authResult.idTokenPayload.name);-->
+            localStorage.Name = authResult.idTokenPayload.name;
+            localStorage.ImageURL = authResult.idTokenPayload.picture;
+            localStorage.Email = authResult.idTokenPayload.name;
+            localStorage.editProfileFlag = 2;
+            saveUser();
+            window.location.href = 'signup.html';
+
+          }
+        });
+      }
+
+      //handleAuthentication();
+
    })();
 
 

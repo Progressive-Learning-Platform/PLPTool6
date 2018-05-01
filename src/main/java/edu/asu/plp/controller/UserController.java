@@ -9,7 +9,9 @@ import edu.asu.plp.service.UserService;
 import edu.asu.plp.user.model.User;
 import edu.asu.plp.user.model.UserCred;
 import edu.asu.plp.user.model.UserInfo;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +21,15 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
 
 @RestController
 public class UserController {
 
     @Autowired
     UserService userService;
-
+    private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(UserController.class);
+    public static final Map<Object, String> userEmailMap = new HashMap<>();
     @RequestMapping("/user")
     public Principal userLogin(Principal principal) {
         return principal;
@@ -65,13 +69,14 @@ public class UserController {
     public @ResponseBody String registerUser(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
         try {
-
             ObjectMapper mapper = new ObjectMapper();
-
             Map<String, Object> map = new HashMap<String, Object>();
-
             // convert JSON string to Map
             map = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
+
+            Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            userEmailMap.put(o,(String)map.getOrDefault("email", "guest"));
+            ThreadContext.put("username",userEmailMap.get(o));
 
             UserInfo uInfo = new UserInfo();
             uInfo.setName((String)map.getOrDefault("name", "guest"));
@@ -93,12 +98,16 @@ public class UserController {
                 HttpSession session = request.getSession();
                 PLPUserDB.getInstance().registerUserSession(uInfo.getEmail(), session, session.getId());
             }
+            logger.info(map.getOrDefault("name", "guest") + "User registered successfully");
         } catch (JsonGenerationException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (JsonMappingException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         }finally{
             return "{\"status\" : \"" + responseDB + "\"}";
         }
@@ -173,22 +182,28 @@ public class UserController {
         ObjectMapper mapper = new ObjectMapper();
         try {
 
+            Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            userEmailMap.put(o,email);
+            ThreadContext.put("username",userEmailMap.get(o));
+
             UserInfo uInfo = new UserInfo();
             uInfo.setEmail(email);
 
             HttpSession session = request.getSession(false);
             if(session != null && PLPUserDB.getInstance().userSessionPresent(session.getId())) {
                 responseDB = userService.getUserInfo(uInfo);
-
             }
             responseDB = responseDB.equalsIgnoreCase("success") ? mapper.writeValueAsString(uInfo) : "{\"status\" : \"" + responseDB + "\"}";
-
+            logger.info("User logged in successfully");
         } catch (JsonGenerationException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (JsonMappingException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         }finally{
             return responseDB ;
         }
@@ -280,6 +295,9 @@ public class UserController {
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = "text/plain")
     public @ResponseBody String logout(HttpServletRequest request, HttpServletResponse response) {
         String responseDB = "failure";
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ThreadContext.put("username",userEmailMap.get(o));
+
         try {
             HttpSession session = request.getSession(false);
 
@@ -287,9 +305,11 @@ public class UserController {
                 session.invalidate();
                 PLPUserDB.getInstance().removeUserSession(session.getId());
                 responseDB = "success";
+                logger.info("User logged out successfully");
             }
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         }finally{
             return "{\"status\" : \"" + responseDB + "\"}";
         }

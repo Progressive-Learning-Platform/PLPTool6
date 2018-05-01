@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <CustomLevels>
+        <CustomLevel name="ASSEMBLE" intLevel="410" />
+        <CustomLevel name="ASSEMBLE_ERROR" intLevel="210" />
+        <CustomLevel name="SIMULATE" intLevel="420" />
+        <CustomLevel name="SIMULATE_ERROR" intLevel="220" />
+    </CustomLevels>
+    <Appenders>
+        <JDBC name="MySQLDatabase" tableName="logs">
+            <ConnectionFactory class="edu.asu.plp.logger.dao.impl.ConnectionFactory" method="getConnection" />
+            <Column name="user_id" pattern="%X{username}" />
+            <Column name="dated" isEventTimestamp="true" />
+            <Column name="logger" pattern="%logger" />
+            <Column name="level" pattern="%level" />
+            <Column name="message" pattern="%m" />
+        </JDBC>
+    </Appenders>
+    <Loggers>
+        <Logger name="edu.asu.plp" level="debug" additivity="false">
+            <AppenderRef ref="MySQLDatabase" />
+        </Logger>
+        <Root level="trace">
+            <AppenderRef ref="MySQLDatabase" />
+        </Root>
+    </Loggers>
+</Configuration>

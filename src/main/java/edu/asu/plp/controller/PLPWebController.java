@@ -23,7 +23,12 @@ import edu.asu.plp.tool.backend.isa.events.SimulatorControlEvent;
 import edu.asu.plp.tool.backend.isa.exceptions.AssemblerException;
 import edu.asu.plp.tool.backend.plpisa.assembler2.*;
 
+import edu.asu.plp.user.dao.impl.JdbcUserDAO;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.ThreadContext;
 import org.json.JSONObject;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -79,7 +84,7 @@ public class PLPWebController {
 	private Stage stage;
 	private ConsolePane console;
 	//private PLPSimulator activeSimulator = new PLPSimulator();
-
+	private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(PLPWebController.class);
 	private Simulator activeSimulator;
 	
 	//WebsocketServer websock = new WebsocketServer();
@@ -91,10 +96,6 @@ public class PLPWebController {
 		String response = "";
 		String sessionKey;
 		Map<String, String> responseMap = new HashMap<String, String> ();
-		
-		
-		
-
 		session = request.getSession();
 		sessionKey = session.getId();
 		PLPUserDB.getInstance().registerUserSession(un, session, sessionKey	);
@@ -155,51 +156,43 @@ public class PLPWebController {
 		System.out.println("in assemble");
 		String response = "";
 		Map<String, String> responseMap = new HashMap<String, String> ();
+		Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ThreadContext.put("username", UserController.userEmailMap.get(o));
 		try {
 			ApplicationSettings.initialize();
 			ApplicationSettings.loadFromFile("settings/plp-tool.settings");
 			EventRegistry.getGlobalRegistry().register(new ApplicationEventBusEventHandler());
-
 			String sessKey = assembly.getSessionKey();
 			System.out.println("Sess: " + assembly.getSessionKey());
 			session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
-
 			String[] code = assembly.getCode();
 			List<ASMFile> listASM = new ArrayList<ASMFile>();
-			
 			for(String c : code){
 				WebASMFile asmFile = new WebASMFile(c, "main.asm");
 				System.out.println("code: " + code);
 				asmFile.setContent(c);
 				listASM.add(asmFile);
 			}
-
-			
-
-			//Multiple asm
-			//	    	WebASMFile asmFile2 = new WebASMFile(code, "samm.asm");
-			//	    	asmFile2.setContent(code);
-			//	    	listASM.add(asmFile2);
-			//	    	
-
-			Assembler assembler = new PLPAssembler();
-			image = assembler.assemble(listASM);	    	
-			System.out.println("ID: " + session.getId());
-			session.setAttribute("ASMImage", image);
-			responseMap.put("status", "ok");
-
+            Assembler assembler = new PLPAssembler();
+            image = assembler.assemble(listASM);
+            if(image != null){
+                System.out.println("ID: " + session.getId());
+                session.setAttribute("ASMImage", image);
+                responseMap.put("status", "ok");
+                logger.log(Level.getLevel("ASSEMBLE"),"Code assembled successfully - " + Arrays.toString(code));
+            }
 		}
 		catch (AssemblerException exception)
 		{
+            logger.log(Level.getLevel("ASSEMBLE_ERROR"),"Error in assembling! : "+exception.getMessage());
 			responseMap.put("status", "failed");
 			responseMap.put("message", exception.getLocalizedMessage());
 			session.setAttribute("ASMImage", null);
-
 		}
-
 		try {
 			response = new ObjectMapper().writeValueAsString(responseMap);
 		} catch (JsonProcessingException e) {
+            logger.log(Level.getLevel("ASSEMBLE_ERROR"),"Error in assembling - JSON parsing! : " +e.getMessage());
 			System.out.println("JSON parsing Error.");
 			e.printStackTrace();
 		}
@@ -215,46 +208,44 @@ public class PLPWebController {
 		System.out.println("in Simulate eclipse");
 		Map<String, String> responseMap = new HashMap<String, String> ();
 		String response = "";
-
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ThreadContext.put("username", UserController.userEmailMap.get(o));
 		System.out.println("Session id test: " + sessKey);
 		session = PLPUserDB.getInstance().getUser(sessKey).getUserSession();
 		System.out.println("ID in simulate: " + session.getId());
-
 		//System.out.println("ASM OBJ is Sim :"  +  session.getAttribute("ASMImage"));
 		image = (ASMImage) session.getAttribute("ASMImage");
 		System.out.println("ASM OBJ in Sim :" + image);
-
 		if(image == null){
 			System.out.println("NO ASM IMAGE FOUND!");
 			responseMap.put("status", "failed");
 			responseMap.put("simError", "no-asm");
 			session.setAttribute("simulationSuccess", false);
 			session.setAttribute("simulationError", "no-asm");
-
 		}
 		else{
 			Optional<ISAModule> module = ISARegistry.get().lookupByProjectType(PROJECT_TYPE);
-
 			if (module.isPresent())
 			{
 				responseMap.put("status", "ok");
 				ISAModule isa = module.get();
 				activeSimulator = isa.getSimulator();
 				activeSimulator.startListening();
-
 				EventRegistry.getGlobalRegistry().post(
 						new SimulatorControlEvent("load","", image));
 				session.setAttribute("simulationSuccess", true);
-
+                logger.log(Level.getLevel("SIMULATE"),"Code simulated successfully!");
 			}
 			else
-			{	responseMap.put("status", "failed");
-			responseMap.put("simError", "no-sim");
-			String message = "No simulator is available for the project type: ";
-			System.out.println(message);
-			//Dialogues.showAlertDialogue(new IllegalStateException(message));
-			session.setAttribute("simulationSuccess", false);
-			session.setAttribute("simulationError", "no-sim");
+			{
+			    responseMap.put("status", "failed");
+			    responseMap.put("simError", "no-sim");
+                String message = "No simulator is available for the project type: ";
+                System.out.println(message);
+                //Dialogues.showAlertDialogue(new IllegalStateException(message));
+                session.setAttribute("simulationSuccess", false);
+                session.setAttribute("simulationError", "no-sim");
+                logger.log(Level.getLevel("SIMULATE_ERROR"),message);
 			}
 		}
 
@@ -263,6 +254,7 @@ public class PLPWebController {
 		} catch (JsonProcessingException e) {
 			System.out.println("JSON parsing Error.");
 			e.printStackTrace();
+            logger.log(Level.getLevel("SIMULATE_ERROR"),"JSON parsing error in simulation method");
 		}
 		return response;
 	}
@@ -276,7 +268,8 @@ public class PLPWebController {
 		System.out.println("in Run method");
 		Map<String, String> responseMap = new HashMap<String, String> ();
 		String response = "";
-
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ThreadContext.put("username", UserController.userEmailMap.get(o));
 		if((boolean) session.getAttribute("simulationSuccess")){
 			EventRegistry.getGlobalRegistry().post(
 					new SimulatorControlEvent("load", "", image));
@@ -296,9 +289,11 @@ public class PLPWebController {
 			});
 			simRunThread.start();
 			responseMap.put("status", "ok");
+            logger.info("Run method is executed");
 		}
 		else{
 			responseMap.put("status", "failed");
+            logger.error("Run method status failed");
 		}
 		
 		try {

@@ -52,7 +52,6 @@ function registerUser(){
            crossDomain: true,
            data: formData,
            success: function(response){
-                     alert("alert "+ response);
                     if(JSON.parse(response).status == "success"){
                                localStorage.Email =  $('.email').val();
                                 localStorage.Name = $('.fullName').val();
@@ -112,7 +111,7 @@ function signOut(){
 
 function validateUserForm()
 {
- if(document.signup.emailid.value == "" )
+ if(document.signup.emailid.value == "" || !validateEmail(document.signup.emailid.value))
  {
     $(".errorMsg").text("Please enter a valid email address");
     $('#errorModel').modal({
@@ -178,7 +177,7 @@ function validateUserForm()
                           });
     return false;
  }
- else if(telephoneCheck(document.signup.contactnum.value)){
+ else if(!telephoneCheck(document.signup.contactnum.value)){
      $(".errorMsg").text("Please enter a valid contact number");
         $('#errorModel').modal({
                               show: true,
@@ -188,6 +187,17 @@ function validateUserForm()
         return false;
 
  }
+
+ if(document.signup.contactnum2.value != "" && !telephoneCheck(document.signup.contactnum2.value))
+  {
+      $(".errorMsg").text("Please enter your contact number");
+     $('#errorModel').modal({
+                           show: true,
+                           backdrop: 'static',
+                           keyboard: true,
+                           });
+     return false;
+  }
 
  if( document.signup.college.value == "" )
  {
@@ -289,7 +299,6 @@ function saveAndUpdateUser(){
 }
 
 function updateUser(){
-    alert("update User 1");
     var dob = $("#days").val() + $("#months").val() + $("#years").val();
 
     var myRadio = $('input[name=gender]:checked', '#signup').val();
@@ -319,7 +328,6 @@ function updateUser(){
              crossDomain: true,
              data: formData,
              success: function(response){
-                       alert("update User 1");
                        if(JSON.parse(response).status == "success"){
                            localStorage.Email =  $('.email').val();
                             localStorage.Name = $('.fullName').val();
@@ -341,4 +349,10 @@ function updateUser(){
 
 function telephoneCheck(str) {
   var isphone = /^(1\s|1|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/.test(str);
+  return isphone;
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
 }

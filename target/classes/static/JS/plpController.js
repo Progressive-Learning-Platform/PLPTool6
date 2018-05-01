@@ -1,6 +1,29 @@
 var app = angular.module('PLP', ['ngCookies']);
 //jQuery.noConflict();
 
+  $(document).ready(function ()
+        {
+         $("#profileImage").attr("src",localStorage.ImageURL);
+            var rss = (function ($) {
+                var ht = $(window).height()*0.82;
+                console.log(localStorage);
+                var createWidgets = function () {
+                    $('#mainSplitter').jqxSplitter({ width: '100%', height: ht, orientation: 'horizontal', panels: [{ size: '80%', collapsible: false }] });
+                    $('#firstNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'vertical', panels: [{ size: '12.5%', collapsible: false}] });
+                    $('#secondNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: '60%'}] });
+                    $('#thirdNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'vertical', panels: [{ size: '50%'}] });
+                    $('#fourthNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: 150, collapsible: false}] });
+                };
+                return {
+                    init: function () {
+                        createWidgets();
+                    }
+                }
+
+            } (jQuery));
+            rss.init();
+        });
+
 app.config([ '$httpProvider', function($httpProvider) {
 	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 } ]);
@@ -24,7 +47,7 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 			$scope.resource = error;
 		});
 	};
-	getUser();
+	//getUser();
 
 	// method for logout
 	$scope.logout = function() {
@@ -37,14 +60,14 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
 	
     $(document).ready(function () {
         $("#tabswidget").jqxTabs({  height: '100%', width: '100%' });
-//        $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
+        $("#tabswidget1").jqxTabs({  height: '100%', width: '100%' });
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/tomorrow");
         editor.getSession().setMode("ace/mode/plp");
 
-//        var editor2 = ace.edit("editor2");
-//        editor2.setTheme("ace/theme/tomorrow");
-//        editor2.getSession().setMode("ace/mode/plp");
+        var editor2 = ace.edit("editor2");
+        editor2.setTheme("ace/theme/tomorrow");
+        editor2.getSession().setMode("ace/mode/plp");
     });
 
     $scope.inFile = null;
@@ -149,10 +172,10 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
         var editor = ace.edit("editor");
         var codeText = editor.getValue();
         code.push(codeText);
-        var editor2 = ace.edit("editor2");
-        var codeText2 = editor2.getValue();
-        if(codeText2 || 0 !== codeText2.length)
-        	code.push(codeText2);
+         var editor2 = ace.edit("editor2");
+         var codeText2 = editor2.getValue();
+         if(codeText2 || 0 !== codeText2.length)
+         	code.push(codeText2);
        
         if (!(/\S/.test(codeText))){
 
@@ -184,11 +207,14 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                 if(response.data.status == "ok"){
                     console.log("Success:" + JSON.stringify(response))
                     $('#consoleBox').children('span').text("Assemble Successful.");
+                    $("#consoleMsg").text("Assemble Successful.");
                 }
                 else{
                     console.log("Error:" + response.data.message)
                     var errorMessage =  response.data.message;
                     $('#consoleBox').children('span').text(errorMessage);
+                    $("#consoleMsg").text(errorMessage);
+
                 }
 
             });
@@ -216,6 +242,7 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                     if(response.data.simError == "no-asm"){
                         var errorMessage =  "NO ASM IMAGE FOUND!!"
                         $('#consoleBox').children('span').text(errorMessage);
+                        $("#consoleMsg").text(errorMessage);
 //                        alert("Please successfully assemble the ASM file first.");
                          $('#simulateError').modal({
                                                                 backdrop: 'static',
@@ -227,7 +254,8 @@ app.controller('idectrl', [ '$scope', '$cookies', '$http', function( $scope, $co
                     else if(response.data.simError == "no-sim"){
                         var errorMessage =  "NO SIMULATOR FOUND!!"
                         $('#consoleBox').children('span').text(errorMessage);
-                        alert("No simulator found for this project type");
+                        $("#consoleMsg").text(errorMessage);
+                        //alert("No simulator found for this project type");
                     }
                 }
 

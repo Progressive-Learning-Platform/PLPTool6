@@ -1,0 +1,20 @@
+
+
+
+
+Symbol Table
+
+key                                      | value                                   
+
+
+
+Program encoding
+
+Address[Hex] | Address[Dec] | InstructionEncoding[Hex] | InstructionEncoding[Dec] | Actual Instruction                       | Sub Instruction                          | Line Number | Source File                             
+
+0x0          |            0 | 0x3c080000               |               1007157248 | li $t0, 0                                | lui $t0, $_hi:0                          |           1 | main.asm                                
+0x4          |            4 | 0x35080000               |                889716736 | li $t0, 0                                | ori $t0, $t0, $_lo:0                     |           1 | main.asm                                
+
+
+
+
