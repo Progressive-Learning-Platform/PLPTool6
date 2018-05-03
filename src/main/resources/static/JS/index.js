@@ -1,18 +1,33 @@
 //localStorage.editProfileFlag = 0 sign up link
 //localStorage.editProfileFlag = 1 edit profile button
 //localStorage.editProfileFlag = 2 all other
-localStorage.token = getCookie("XSRF-TOKEN");
-localStorage.editProfileFlag = 2;
+//function getCookie(name) {
+//    var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
+//    var result = regexp.exec(document.cookie);
+//    return (result === null) ? null : result[1].trim();
+//}
+
+function getCookie(name) {
+  if (!document.cookie) {
+    return null;
+  }
+
+  const xsrfCookies = document.cookie.split(';')
+    .map(c => c.trim())
+    .filter(c => c.startsWith(name + '='));
+
+  if (xsrfCookies.length === 0) {
+    return null;
+  }
+
+  return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+}
 
  window.onbeforeunload = function(e){
       gapi.auth2.getAuthInstance().signOut();
     };
 
-function getCookie(name) {
-    var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
-    var result = regexp.exec(document.cookie);
-    return (result === null) ? null : result[1].trim();
-}
+
 
 
 // user authentication and cookie information
@@ -20,6 +35,7 @@ function getCookie(name) {
 function SignIn(){
     var email = $('input[name=emailid]').val().trim();
     var password = $('input[name=pwd]').val().trim();
+
     if(validateFields())
     {
       // user authentication and cookie information
@@ -28,7 +44,7 @@ function SignIn(){
           type: "POST",
           url: "http://localhost:8080/authenticateUser",
           contentType: 'application/json; charset=utf-8',
-          headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
+          headers: {'X-XSRF-TOKEN':localStorage.token},
           crossDomain: true,
           data: JSON.stringify({
                 	"email": email,
@@ -111,7 +127,7 @@ function getProfile(){
          type: "GET",
          url: "http://localhost:8080/getUserInfo?email="+localStorage.Email,
          contentType: 'application/json; charset=utf-8',
-         headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
+         headers: {'X-XSRF-TOKEN':localStorage.token},
          crossDomain: true,
          success: function(response){
                    if (typeof response.status !== "undefined") {// no user info found
@@ -133,6 +149,9 @@ function signup(){
 
 
 (function () {
+      localStorage.token = getCookie("XSRF-TOKEN");
+      localStorage.editProfileFlag = 2;
+
       var webAuth = new auth0.WebAuth({
         domain: 'web-plp.auth0.com',
         clientID: '6HqpDmT0wKNYUGTiMiiNN8jH21oN0GYj',
@@ -174,7 +193,6 @@ function signup(){
   function onSignIn(googleUser)
   {
       var profile = googleUser.getBasicProfile();
-       console.log(profile);
       if(profile!=null)
       {
 //          window.location.href = 'signup.html';

@@ -48,7 +48,7 @@ function registerUser(){
            type: "POST",
            url: "http://localhost:8080/registerUser",
            contentType: 'application/json; charset=utf-8',
-           headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
+           headers: {'X-XSRF-TOKEN':localStorage.token},
            crossDomain: true,
            data: formData,
            success: function(response){
@@ -227,7 +227,7 @@ function getUserProfile(){
          type: "GET",
          url: "http://localhost:8080/getUserInfo?email="+localStorage.Email,
          contentType: 'application/json; charset=utf-8',
-         headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
+         headers: {'X-XSRF-TOKEN':localStorage.token},
          crossDomain: true,
          success: function(response){
                    var res = JSON.parse(response);
@@ -324,7 +324,7 @@ function updateUser(){
              type: "POST",
              url: "http://localhost:8080/updateUser",
              contentType: 'application/json; charset=utf-8',
-             headers: {'X-XSRF-TOKEN':getCookie("XSRF-TOKEN")},
+             headers: {'X-XSRF-TOKEN':localStorage.token},
              crossDomain: true,
              data: formData,
              success: function(response){
