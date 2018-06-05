@@ -167,17 +167,18 @@ function validateUserForm()
     return false;
  }
 
- if(document.signup.contactnum.value == "")
- {
-     $(".errorMsg").text("Please enter your contact number");
-    $('#errorModel').modal({
-                          show: true,
-                          backdrop: 'static',
-                          keyboard: true,
-                          });
-    return false;
- }
- else if(!telephoneCheck(document.signup.contactnum.value)){
+// if(document.signup.contactnum.value == "")
+// {
+//     $(".errorMsg").text("Please enter your contact number");
+//    $('#errorModel').modal({
+//                          show: true,
+//                          backdrop: 'static',
+//                          keyboard: true,
+//                          });
+//    return false;
+// }
+// else
+ if(document.signup.contactnum.value!="" && !telephoneCheck(document.signup.contactnum.value)){
      $(".errorMsg").text("Please enter a valid contact number");
         $('#errorModel').modal({
                               show: true,
@@ -188,27 +189,27 @@ function validateUserForm()
 
  }
 
- if(document.signup.contactnum2.value != "" && !telephoneCheck(document.signup.contactnum2.value))
-  {
-      $(".errorMsg").text("Please enter your contact number");
-     $('#errorModel').modal({
-                           show: true,
-                           backdrop: 'static',
-                           keyboard: true,
-                           });
-     return false;
-  }
+// if(document.signup.contactnum2.value != "" && !telephoneCheck(document.signup.contactnum2.value))
+//  {
+//      $(".errorMsg").text("Please enter your contact number");
+//     $('#errorModel').modal({
+//                           show: true,
+//                           backdrop: 'static',
+//                           keyboard: true,
+//                           });
+//     return false;
+//  }
 
- if( document.signup.college.value == "" )
- {
-     $(".errorMsg").text("Please enter your college/ organization");
-    $('#errorModel').modal({
-                          show: true,
-                          backdrop: 'static',
-                          keyboard: true,
-                          });
-    return false;
- }
+// if( document.signup.college.value == "" )
+// {
+//     $(".errorMsg").text("Please enter your college/ organization");
+//    $('#errorModel').modal({
+//                          show: true,
+//                          backdrop: 'static',
+//                          keyboard: true,
+//                          });
+//    return false;
+// }
 
  return true ;
 }
@@ -240,9 +241,11 @@ function getUserProfile(){
                         $('.alt_no').val(res.alt_no);
                         $(".password").attr("disabled", "disabled");
                         $(".cpassword").attr("disabled", "disabled");
-                        if(res.gender == "1"){
+                        if(res.gender == "MALE"){
+//                            alert(res.gender);
                            $('.male').attr('checked', true);
                         }else{
+//                            alert(res.gender);
                             $('.female').attr('checked', true);
                         }
                    //}
@@ -302,6 +305,7 @@ function updateUser(){
     var dob = $("#days").val() + $("#months").val() + $("#years").val();
 
     var myRadio = $('input[name=gender]:checked', '#signup').val();
+//    alert(myRadio);
 
     var formData = JSON.stringify({
                     "name": $('input[name=name]').val(),
